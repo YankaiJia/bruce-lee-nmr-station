@@ -134,6 +134,7 @@ def wasd_control(pos):
         move_z(pos[2])
         move_to_coords(pos[0], pos[1])
     print('Finished wasd')
+    return pos
 
 bottle6 = {'volume': 20000,
            'xy'   : (-51, -6),
@@ -168,7 +169,59 @@ def transfer_liquid(source, destination, volume):
     '''NOT INVENTED HERE'''
     print(1)
 
-draw_liquid(bottle6, volume=50)
+# # draw from bottle then span 5 wells
+# draw_liquid(bottle6, volume=20)
+# move_to_coords(-37, -52)
+# first_vial_pos = (-37, -52)
+# last_vial_pos = (9, -76)
+# Nwells = 5
+# z_above_well = 65
+# z_in_well = 50
+# xs = np.linspace(first_vial_pos[0], last_vial_pos[0], Nwells)
+# ys = np.linspace(first_vial_pos[1], last_vial_pos[1], Nwells)
+# move_z(z_above_well)
+# for i in range(Nwells):
+#     move_to_coords(xs[i], ys[i])
+#     move_z(z_in_well)
+#     move_z(z_above_well)
+
+def generate_well_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
+    '''generate coordinates for all wells of a well plate from coordinates of corner wells.'''
+    # left_side_wells
+    xs = np.linspace(topleft[0], bottomleft[0], Nwells[0])
+    ys = np.linspace(topleft[1], bottomleft[1], Nwells[0])
+    left_side_wells = np.stack((xs, ys)).T
+
+    # right side wells
+    xs = np.linspace(topright[0], bottomright[0], Nwells[0])
+    ys = np.linspace(topright[1], bottomright[1], Nwells[0])
+    right_side_wells = np.stack((xs, ys)).T
+
+    wells = []
+    for i in range(Nwells[0]):
+        xs = np.linspace(left_side_wells[i, 0], right_side_wells[i, 0], Nwells[1])
+        ys = np.linspace(left_side_wells[i, 1], right_side_wells[i, 1], Nwells[1])
+        wells.append(np.stack((xs, ys)).T)
+    return np.vstack(wells)
+
+
+# generate coordinates for all wells of a well plate from coordinates of corner wells.
+wells = generate_well_coordinates(Nwells = (6, 9),
+                                topleft = (-37, -52),
+                                topright = (8, 43),
+                                # bottomleft = (9, -76)
+                                bottomleft = (20.5, -82),
+                                bottomright = (65.5, 15))
+
+# move through all wells
+z_above_well = 80
+z_in_well = 50
+move_z(z_above_well)
+for well in wells:
+    move_to_coords(well[0], well[1])
+    move_z(z_in_well)
+    move_z(z_above_well)
+
 
 # move_to_coords(-34, 0)
 # move_z(40)
