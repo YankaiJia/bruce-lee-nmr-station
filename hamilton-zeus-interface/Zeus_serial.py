@@ -64,6 +64,13 @@ def plld_adj():
     print("Respond for auto adjust pLLD: ", value)  # printing the value
     time.sleep(1)
 
+def plld_start():
+    zeus.write("00PLid0815pr0ps4\r\n".encode())
+    value = zeus.readline()
+    print("Respond for auto adjust pLLD: ", value)  # printing the value
+    time.sleep(1)
+
+
 zeus = serial.Serial(port='COM5',
                      baudrate=38400,
                      timeout=0.1,
