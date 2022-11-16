@@ -58,6 +58,12 @@ def tip_discard():
     print("Respond: ", value)  # printing the value
     time.sleep(1)
 
+def plld_adj():
+    zeus.write("00PAid0815\r\n".encode())
+    value = zeus.readline()
+    print("Respond for auto adjust pLLD: ", value)  # printing the value
+    time.sleep(1)
+
 zeus = serial.Serial(port='COM5',
                      baudrate=38400,
                      timeout=0.1,
@@ -68,8 +74,6 @@ firmware_version()
 # led_blink()
 print(1)
 
-# aa = "GAai10000ge01go01lq01gq0lb0cf1000"
-# send_one_cmd(aa)
 
-# aa = "RTid0815"
+# aa = "00RTid0815"
 # send_one_cmd(aa)
