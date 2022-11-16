@@ -8,7 +8,7 @@ def led_blink():
 
     sm = "00SMid1234sm1\r\n".encode()
     sg = "00SLid1234sg1\r\n".encode()
-    for i in range(5):
+    for i in range(3):
         print("LED blinking\r")
         zeus.write(sg)
         time.sleep(0.5)
@@ -33,6 +33,13 @@ def send_one_cmd(msg):
     time.sleep(1)
 
 
+def init():
+    aa = "00DIid0815\r\n"
+    zeus.write(aa.encode("utf-8"))
+    value = zeus.readline()
+    print("Respond: ", value)  # printing the value
+    time.sleep(1)
+
 zeus = serial.Serial(port='COM5',
                      baudrate=19200,
                      timeout=0.1,
@@ -40,12 +47,11 @@ zeus = serial.Serial(port='COM5',
                      stopbits= serial.STOPBITS_ONE,
                      bytesize= serial.EIGHTBITS)
 firmware_version()
-led_blink()
+# led_blink()
 print(1)
 
-aa = "GAai10000ge01go01lq01gq0lb0cf1000"
+# aa = "GAai10000ge01go01lq01gq0lb0cf1000"
+# send_one_cmd(aa)
 
-send_one_cmd(aa)
-
-aa = "TPid0815tt03"
-send_one_cmd(aa)
+# aa = "RTid0815"
+# send_one_cmd(aa)
