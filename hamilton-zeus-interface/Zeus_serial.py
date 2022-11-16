@@ -54,11 +54,11 @@ def plld_re():
 
     """request plld status"""
 
-    send_one_cmd("0RPLid0815\r\n".encode())
+    send_one_cmd("0RPLid0815\r\n")
 
 
 def plld_blow_out():
-    send_one_cmd("00PBid0815fr10000\r\n".encode())
+    send_one_cmd("00PBid0815fr10000\r\n")
 
 
 zeus = serial.Serial(port='COM5',
