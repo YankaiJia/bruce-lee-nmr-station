@@ -10,18 +10,18 @@ def led_blink():
     sg = "00SLid1234sg1\r\n".encode()
     for i in range(3):
         print("LED blinking\r")
-        zeus.write(sg)
-        time.sleep(0.5)
         zeus.write(sm)
         time.sleep(0.5)
+        zeus.write(sg)
+        time.sleep(0.5)
 
-
-def firmware_version():
+def fm():
 
     """Check firmware version"""
 
     msg = '00RFid0815\r\n'
     zeus.write(msg.encode("utf-8"))
+    time.sleep(0.1)
     value = zeus.readline()
     print("Firmware version: \r\n", value)  # printing the value
     time.sleep(1)
@@ -31,7 +31,6 @@ def send_one_cmd(msg):
     value = zeus.readline()
     print("Respond: ", value)  # printing the value
     time.sleep(1)
-
 
 def init():
     aa = "00DIid0815\r\n"
@@ -46,7 +45,7 @@ def tip_pick_up():
     print("Respond: ", value)  # printing the value
     time.sleep(1)
 
-def tip_request():
+def tip_re():
     zeus.write("00RTid0815\r\n".encode())
     value = zeus.readline()
     print("Respond: ", value)  # printing the value
@@ -55,7 +54,7 @@ def tip_request():
 def tip_discard():
     zeus.write("00TDid0815\r\n".encode())
     value = zeus.readline()
-    print("Respond: ", value)  # printing the value
+    print("Respond from tip_discard: ", value)  # printing the value
     time.sleep(1)
 
 def plld_adj():
@@ -65,11 +64,31 @@ def plld_adj():
     time.sleep(1)
 
 def plld_start():
-    zeus.write("00PLid0815pr0ps4\r\n".encode())
+    zeus.write("00PLid0815pr1ps4\r\n".encode())
     value = zeus.readline()
     print("Respond for auto adjust pLLD: ", value)  # printing the value
     time.sleep(1)
 
+def plld_stop():
+    zeus.write("00PPid0815\r\n".encode())
+    value = zeus.readline()
+    print("Respond for auto adjust pLLD: ", value)  # printing the value
+    time.sleep(1)
+
+def plld_re():
+
+    """request plld status"""
+
+    zeus.write("0RPLid0815\r\n".encode())
+    value = zeus.readline()
+    print("Respond for auto adjust pLLD: ", value)  # printing the value
+    time.sleep(1)
+
+def plld_blow_out():
+    zeus.write("00PBid0815fr10000\r\n".encode())
+    value = zeus.readline()
+    print("Respond for auto adjust pLLD: ", value)  # printing the value
+    time.sleep(1)
 
 zeus = serial.Serial(port='COM5',
                      baudrate=38400,
@@ -77,7 +96,7 @@ zeus = serial.Serial(port='COM5',
                      parity= serial.PARITY_EVEN,
                      stopbits= serial.STOPBITS_ONE,
                      bytesize= serial.EIGHTBITS)
-firmware_version()
+fm()
 # led_blink()
 print(1)
 
