@@ -40,8 +40,26 @@ def init():
     print("Respond: ", value)  # printing the value
     time.sleep(1)
 
+def tip_pick_up():
+    zeus.write("00TPid0815tt02\r\n".encode())
+    value = zeus.readline()
+    print("Respond: ", value)  # printing the value
+    time.sleep(1)
+
+def tip_request():
+    zeus.write("00RTid0815\r\n".encode())
+    value = zeus.readline()
+    print("Respond: ", value)  # printing the value
+    time.sleep(1)
+
+def tip_discard():
+    zeus.write("00TDid0815\r\n".encode())
+    value = zeus.readline()
+    print("Respond: ", value)  # printing the value
+    time.sleep(1)
+
 zeus = serial.Serial(port='COM5',
-                     baudrate=19200,
+                     baudrate=38400,
                      timeout=0.1,
                      parity= serial.PARITY_EVEN,
                      stopbits= serial.STOPBITS_ONE,
