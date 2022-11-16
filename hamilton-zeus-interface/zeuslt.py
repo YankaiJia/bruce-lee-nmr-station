@@ -50,10 +50,10 @@ class ZeusLTModule(object):
             "85": "No communication to the digital potentiometer.",
     }
 
-    def __init__(self, id=1234, COMport='COM5', COM_timeout=0.1):
-        self.zeus_serial = serial.Serial(port='COM5',
-                                    baudrate=19200,
-                                    timeout=0.1,
+    def __init__(self, id=1234, COMport='COM5', COM_timeout=0.1, baudrate=38400):
+        self.zeus_serial = serial.Serial(port=COMport,
+                                    baudrate=baudrate,
+                                    timeout=COM_timeout,
                                     parity=serial.PARITY_EVEN,
                                     stopbits=serial.STOPBITS_ONE,
                                     bytesize=serial.EIGHTBITS)
@@ -72,8 +72,8 @@ class ZeusLTModule(object):
 
     def led_blink(self, time_interval=0.5):
         """Check the serial communication by blinking the LED on Zeus LT five times on and off."""
-        sm = "00SMid{0:04d}sm1".format(self.id)
-        sg = "00SLid{0:04d}sg1".format(self.id)
+        sm = f"00SMid{self.id:04d}sm1"
+        sg = f"00SLid{self.id:04d}sg1"
         for i in range(5):
             print("LED blinking\r")
             self.send_command(sg)
@@ -84,10 +84,39 @@ class ZeusLTModule(object):
 
     def firmware_version(self):
         """Request Firmware version"""
-        self.send_command('00RFid{0:04d}'.format(self.id))
+        self.send_command(f'00RFid{self.id:04d}')
+
+    def init(self):
+        self.send_command(f'00DIid{self.id:04d}')
+
+    def tip_pick_up(self, tt=2):
+        self.send_command(f"00TPid{self.id:04d}tt{tt:02d}")
+
+    def tip_re(self):
+        self.send_command(f"00RTid{self.id:04d}")
+
+    def tip_discard(self):
+        self.send_command(f"00TDid{self.id:04d}")
+
+    def plld_adj(self):
+        self.send_command(f"00PAid{self.id:04d}")
+
+    def plld_start(self):
+        self.send_command(f"00PLid{self.id:04d}pr1ps4")
+
+    def plld_stop(self):
+        self.send_command(f"00PPid{self.id:04d}")
+
+    def plld_re(self):
+        """request plld status"""
+        self.send_command(f"00RPid{self.id:04d}")
+
+    def plld_blow_out(self, flow_rate=10000):
+        self.send_command(f"00PBid{self.id:04d}fr{flow_rate:05d}")
 
 if __name__ == "__main__":
-    zeus_pipette_one = ZeusLTModule(id=1234, COMport='COM5', COM_timeout=0.1)
+    # Any variable (instance) name can be used instead of zeus_pipette_one
+    zeus_pipette_one = ZeusLTModule(id=815, COMport='COM5', COM_timeout=0.1, baudrate=38400)
     zeus_pipette_one.firmware_version()
     zeus_pipette_one.led_blink()
 
