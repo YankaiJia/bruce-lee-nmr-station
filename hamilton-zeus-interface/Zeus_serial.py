@@ -2,93 +2,64 @@
 import serial
 import time
 
+def send_one_cmd(msg):
+    zeus.write(msg.encode("utf-8"))
+    value = zeus.readline()
+    print("Respond: ", value)  # printing the value
+    for i in range(5):
+        zeus.readline()
+        time.sleep(0.1)
 def led_blink():
 
     """Check the serial communication by blinking the LED on Zeus LT"""
 
-    sm = "00SMid1234sm1\r\n".encode()
-    sg = "00SLid1234sg1\r\n".encode()
+    sm = "00SMid1234sm1\r\n"
+    sg = "00SLid1234sg1\r\n"
     for i in range(3):
         print("LED blinking\r")
-        zeus.write(sm)
+        send_one_cmd(sm)
         time.sleep(0.5)
-        zeus.write(sg)
+        send_one_cmd(sg)
         time.sleep(0.5)
 
 def fm():
 
     """Check firmware version"""
 
-    msg = '00RFid0815\r\n'
-    zeus.write(msg.encode("utf-8"))
-    time.sleep(0.1)
-    value = zeus.readline()
-    print("Firmware version: \r\n", value)  # printing the value
-    time.sleep(1)
-
-def send_one_cmd(msg):
-    zeus.write(msg.encode("utf-8"))
-    value = zeus.readline()
-    print("Respond: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd('00RFid0815\r\n')
 
 def init():
-    aa = "00DIid0815\r\n"
-    zeus.write(aa.encode("utf-8"))
-    value = zeus.readline()
-    print("Respond: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00DIid0815\r\n")
 
 def tip_pick_up():
-    zeus.write("00TPid0815tt02\r\n".encode())
-    value = zeus.readline()
-    print("Respond: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00TPid0815tt02\r\n")
+
 
 def tip_re():
-    zeus.write("00RTid0815\r\n".encode())
-    value = zeus.readline()
-    print("Respond: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00RTid0815\r\n")
 
 def tip_discard():
-    zeus.write("00TDid0815\r\n".encode())
-    value = zeus.readline()
-    print("Respond from tip_discard: ", value)  # printing the value
-    time.sleep(1)
+   send_one_cmd("00TDid0815\r\n")
 
 def plld_adj():
-    zeus.write("00PAid0815\r\n".encode())
-    value = zeus.readline()
-    print("Respond for auto adjust pLLD: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00PAid0815\r\n")
 
 def plld_start():
-    zeus.write("00PLid0815pr1ps4\r\n".encode())
-    value = zeus.readline()
-    print("Respond for auto adjust pLLD: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00PLid0815pr1ps4\r\n")
 
 def plld_stop():
-    zeus.write("00PPid0815\r\n".encode())
-    value = zeus.readline()
-    print("Respond for auto adjust pLLD: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00PPid0815\r\n")
 
 def plld_re():
 
     """request plld status"""
 
-    zeus.write("0RPLid0815\r\n".encode())
-    value = zeus.readline()
-    print("Respond for auto adjust pLLD: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("0RPLid0815\r\n".encode())
+
 
 def plld_blow_out():
-    zeus.write("00PBid0815fr10000\r\n".encode())
-    value = zeus.readline()
-    print("Respond for auto adjust pLLD: ", value)  # printing the value
-    time.sleep(1)
+    send_one_cmd("00PBid0815fr10000\r\n".encode())
+
 
 zeus = serial.Serial(port='COM5',
                      baudrate=38400,
