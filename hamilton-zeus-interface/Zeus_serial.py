@@ -26,6 +26,12 @@ def firmware_version():
     print("Firmware version: \r\n", value)  # printing the value
     time.sleep(1)
 
+def send_one_cmd(msg):
+    zeus.write(msg.encode("utf-8"))
+    value = zeus.readline()
+    print("Respond: ", value)  # printing the value
+    time.sleep(1)
+
 
 zeus = serial.Serial(port='COM5',
                      baudrate=19200,
@@ -36,3 +42,10 @@ zeus = serial.Serial(port='COM5',
 firmware_version()
 led_blink()
 print(1)
+
+aa = "GAai10000ge01go01lq01gq0lb0cf1000"
+
+send_one_cmd(aa)
+
+aa = "TPid0815tt03"
+send_one_cmd(aa)
