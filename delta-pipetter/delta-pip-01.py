@@ -22,7 +22,6 @@ import serial
 
 # plt.ion()
 
-
 # horiz_speed = 50000*60
 horiz_speed = 200 * 60
 vert_speed = 200 * 60
