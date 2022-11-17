@@ -7,7 +7,7 @@ class ZeusLTModule(object):
     # remote_timeout = 1
     # serial_timeout = 0.1
     errorTable = {
-        "20": "No communication to EEPROM.",
+            "20": "No communication to EEPROM.",
             "30": "Undefined command.",
             "31": "Undefined parameter.",
             "32": "Parameter out of range.",
@@ -57,15 +57,19 @@ class ZeusLTModule(object):
                                     parity=serial.PARITY_EVEN,
                                     stopbits=serial.STOPBITS_ONE,
                                     bytesize=serial.EIGHTBITS)
+        self.id = id
 
     def send_command(self, msg, timeout_after_completion=0.2):
         self.zeus_serial.write((msg + '\r\n').encode("utf-8"))
         response = self.zeus_serial.readline()
         print("Serial response: \r\n", response)  # printing the response
         # if there is error code in reply, then display the error description
-        if 'er' in response:
-            error_code = response.split('er')[-1][:2]
-            print('Error {0}: {1}'.format(error_code, self.errorTable[error_code]))
+        if 'er' in response.decode():
+            error_code = response.decode().split('er')[-1][:2]
+            if error_code == '00':
+                print("No error during the command")
+            if error_code != '00':
+                print('Error {0}: {1}'.format(error_code, self.errorTable[error_code]))
         time.sleep(timeout_after_completion)
         return response
 
@@ -74,7 +78,7 @@ class ZeusLTModule(object):
         """Check the serial communication by blinking the LED on Zeus LT five times on and off."""
         sm = f"00SMid{self.id:04d}sm1"
         sg = f"00SLid{self.id:04d}sg1"
-        for i in range(5):
+        for i in range(3):
             print("LED blinking\r")
             self.send_command(sg)
             time.sleep(time_interval)
