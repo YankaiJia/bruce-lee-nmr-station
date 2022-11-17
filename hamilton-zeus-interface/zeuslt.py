@@ -64,7 +64,7 @@ class ZeusLTModule(object):
         response = self.zeus_serial.readline()
         print("Serial response: \r\n", response)  # printing the response
         # if there is error code in reply, then display the error description
-        if 'er' in response:
+        if 'er' in response.decode():
             error_code = response.split('er')[-1][:2]
             print('Error {0}: {1}'.format(error_code, self.errorTable[error_code]))
         time.sleep(timeout_after_completion)
