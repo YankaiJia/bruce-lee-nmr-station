@@ -60,9 +60,13 @@ class ZeusLTModule(object):
         self.id = id
 
     def send_command(self, msg, timeout_after_completion=0.2):
+        self.zeus_serial.flushInput()
+        self.zeus_serial.flushOutput()
         self.zeus_serial.write((msg + '\r\n').encode("utf-8"))
+        print("Command sent: ", (msg + '\r\n').encode("utf-8"))
+        time.sleep(.1)
         response = self.zeus_serial.readline()
-        print("Serial response: \r\n", response)  # printing the response
+        print("Serial response: ", response)  # printing the response
         # if there is error code in reply, then display the error description
         if 'er' in response.decode():
             error_code = response.decode().split('er')[-1][:2]
@@ -102,6 +106,15 @@ class ZeusLTModule(object):
     def tip_discard(self):
         self.send_command(f"00TDid{self.id:04d}")
 
+    def clld_start(self, cr = 0, cs = 1):
+        self.send_command(f"00CLid{self.id:04d}cr{cr:01d}cs{cs:01d}")
+
+    def clld_stop(self):
+        self.send_command(f"00CPid{self.id:04d}")
+
+    def clld_re(self):
+        self.send_command(f"00RNid{self.id:04d}")
+
     def plld_adj(self):
         self.send_command(f"00PAid{self.id:04d}")
 
@@ -115,8 +128,65 @@ class ZeusLTModule(object):
         """request plld status"""
         self.send_command(f"00RPid{self.id:04d}")
 
-    def plld_blow_out(self, flow_rate=10000):
+    def plld_blow_out(self, flow_rate=10):
         self.send_command(f"00PBid{self.id:04d}fr{flow_rate:05d}")
+
+    def mixting_asp(self, mixing_volume = 10, flow_rate = 10):
+        self.send_command(f"00MAid{self.id:04d}ma{mixing_volume:05d}fr{flow_rate:05d}")
+
+    def mixing_disp(self, flow_rate = 10):
+        self.send_command(f"00MDid{self.id: 04d}fr{flow_rate: 05d}")
+
+    def asp_liquid(self,asp_volume = 10,
+                   overasp = 10,
+                   flow_rate = 10,
+                   stop_speed = 10,
+                   qpm = 0,
+                   pressure_sensor = 1,
+                   qpm_clot = 500,
+                   qpm_foam = 500,
+                   qpm_empty = 500,
+                   time_after_asp = 10):
+        self.send_command(f"00ALid{self.id:04d}av{asp_volume:05d}oa{overasp:05d}"
+                          f"fr{flow_rate:05d}ss{stop_speed:05d}qm{qpm:01d}"
+                          f"bi{pressure_sensor:01d}qc{qpm_clot:04d}qf{qpm_foam:04d}"
+                          f"qe{qpm_empty:04d}to{time_after_asp:03d}")
+
+    def asp_transport_air_volume(self, asp_transport_air_volume = 10, flow_rate = 10):
+        self.send_command(f"00ATid{self.id:04d}tv{asp_transport_air_volume:05d}fr{flow_rate:05d}")
+
+    def start_adc(self):
+        self.send_command(f"00AXid{self.id:04d}")
+
+    def dis_transport_air_volume(self, flow_rate = 10):
+        self.send_command(f"00DTid{self.id:04d}fr{flow_rate:05d}")
+
+    def disp_liquid(self, disp_volume = 10,
+                    stop_back_volume = 10,
+                    flow_rate=10,
+                    stop_speed=10,
+                    pressure_sensor=1,
+                    qpm=0,
+                    qpm_clot=500,
+                    qpm_foam=500,
+                    time_after_disp=10):
+        self.send_command(f"00DLid{self.id:04d}dv{disp_volume:05d}sv{stop_back_volume:03d}"
+                          f"fr{flow_rate:05d}ss{stop_speed:05d}bi{pressure_sensor:01d}"
+                          f"qm{qpm:01d}qc{qpm_clot:04d}qf{qpm_foam:04d}to{time_after_disp:03d}")
+
+    def empty_tip(self,
+                    flow_rate=10,
+                    stop_speed=10,
+                    pressure_sensor=1,
+                    qpm=0,
+                    qpm_clot=500,
+                    qpm_foam=500,
+                    time_after_disp=10):
+        self.send_command(f"00DEid{self.id:04d}fr{flow_rate:05d}ss{stop_speed:05d}bi{pressure_sensor:01d}"
+                          f"qm{qpm:01d}qc{qpm_clot:04d}qf{qpm_foam:04d}to{time_after_disp:03d}")
+
+    """Additional commands and parameters"""
+
 
 if __name__ == "__main__":
     # Any variable (instance) name can be used instead of zeus_pipette_one
