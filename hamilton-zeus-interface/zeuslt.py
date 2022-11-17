@@ -58,6 +58,7 @@ class ZeusLTModule(object):
                                     stopbits=serial.STOPBITS_ONE,
                                     bytesize=serial.EIGHTBITS)
         self.id = id
+        er
 
     def send_command(self, msg, timeout_after_completion=0.2):
         self.zeus_serial.write((msg + '\r\n').encode("utf-8"))
