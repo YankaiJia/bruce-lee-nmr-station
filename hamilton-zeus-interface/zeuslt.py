@@ -7,7 +7,6 @@ class ZeusLTModule(object):
     # remote_timeout = 1
     # serial_timeout = 0.1
     errorTable = {
-            "00": "no error",
             "20": "No communication to EEPROM.",
             "30": "Undefined command.",
             "31": "Undefined parameter.",
