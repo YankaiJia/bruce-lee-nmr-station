@@ -185,6 +185,10 @@ class ZeusLTModule(object):
         self.send_command(f"00DEid{self.id:04d}fr{flow_rate:05d}ss{stop_speed:05d}bi{pressure_sensor:01d}"
                           f"qm{qpm:01d}qc{qpm_clot:04d}qf{qpm_foam:04d}to{time_after_disp:03d}")
 
+#   def request_number_of_pressure_data_recorded(self):
+
+#  def request_pressue_data(self):
+
     """Additional commands and parameters"""
 
 
