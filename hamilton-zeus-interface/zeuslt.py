@@ -234,7 +234,36 @@ class ZeusLTModule(object):
     def re_technical_status(self):
         self.send_command(f"00QTid{self.id:04d}")
 
+    """tip status"""
 
+    def re_tips_pressure_status(self):
+        self.send_command(f"00RTid{self.id:04d}")
+
+    def re_monitoring_of_volume_in_tip(self):
+        self.send_command(f"00VTid{self.id:04d}")
+
+    """special commends"""
+
+    def emergency_stop_on(self):
+        self.send_command(f"00ESid{self.id:04d}")
+
+    def emergency_stop_off(self):
+        self.send_command(f"00SRid{self.id:04d}")
+
+    def test_mode_status(self, on_off = 0):
+        self.send_command(f"00TMid{self.id:04d}at{on_off}")
+
+    def reset_tip_counter_after_change_of_adapter(self):
+        self.send_command(f"00SCid{self.id:04d}")
+
+    def save_counters_before_power_off(self):
+        self.send_command(f"00AVid{self.id:04d}")
+
+    def switch_leds_manually(self, blue= 0, red = 0, green = 0):
+        self.send_command(f"00AVid{self.id:04d}sb{blue}sr{red}sg{green}")
+
+    def master_switch_led(self, master_switch = 0):
+        self.send_command(f"00AVid{self.id:04d}sm{master_switch}")
 
 if __name__ == "__main__":
     # Any variable (instance) name can be used instead of zeus_pipette_one
