@@ -265,6 +265,7 @@ class ZeusLTModule(object):
     def master_switch_led(self, master_switch = 0):
         self.send_command(f"00AVid{self.id:04d}sm{master_switch}")
 
+
 if __name__ == "__main__":
     # Any variable (instance) name can be used instead of zeus_pipette_one
     zeus_pipette_one = ZeusLTModule(id=815, COMport='COM5', COM_timeout=0.1, baudrate=38400)
