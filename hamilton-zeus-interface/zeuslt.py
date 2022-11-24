@@ -157,6 +157,8 @@ class ZeusLTModule(object):
 
     def start_adc(self):
         self.send_command(f"00AXid{self.id:04d}")
+    def stop_adc(self):
+        self.send_command(f"00AYid{self.id:04d}")
 
     def dis_transport_air_volume(self, flow_rate = 10):
         self.send_command(f"00DTid{self.id:04d}fr{flow_rate:05d}")
@@ -185,11 +187,83 @@ class ZeusLTModule(object):
         self.send_command(f"00DEid{self.id:04d}fr{flow_rate:05d}ss{stop_speed:05d}bi{pressure_sensor:01d}"
                           f"qm{qpm:01d}qc{qpm_clot:04d}qf{qpm_foam:04d}to{time_after_disp:03d}")
 
-#   def request_number_of_pressure_data_recorded(self):
+    def re_number_of_pressure_data_recorded(self):
+        self.send_command(f"00QHid{self.id:04d}")
 
-#  def request_pressue_data(self):
+    def re_pressue_data(self, start_index = 0, number_of_values_requested = 1):
+        self.send_command(f"00QIid{self.id:04d}li{start_index:04d}ln{number_of_values_requested:04d}")
 
-    """Additional commands and parameters"""
+    """
+    Additional commands and parameters
+    """
+
+    def switch_dispensing_drive_power_off(self):
+        self.send_command(f"00DOid{self.id:04d}")
+
+    def re_number_of_lld_data_recorded(self, lld_channel = 0):
+        self.send_command(f"00RBid{self.id:04d}lc{lld_channel}")
+
+    def re_lld_data(self, start_index = 0, number_of_values = 0, lld_channel = 0):
+        self.send_command(f"00RLid{self.id:04d}li{start_index:04d}ln{number_of_values:02d}lc{lld_channel}")
+
+    """
+       Status request
+    """
+
+    def re_instrument_status(self):
+        self.send_command(f"00RQid{self.id:04d}")
+
+    def re_error_code(self):
+        self.send_command(f"00REid{self.id:04d}")
+
+    def re_parameter_value(self, parameter_name = "ai"):
+        self.send_command(f"00RAid{self.id:04d}ra"+parameter_name)
+
+    def re_instrument_init_status(self):
+        self.send_command(f"00QWid{self.id:04d}")
+
+    def re_name_of_last_faulty_parameter(self):
+        self.send_command(f"00VPid{self.id:04d}")
+
+    def re_cycle_counter(self):
+        self.send_command(f"00RVid{self.id:04d}")
+
+    def re_lifetime_counter(self):
+        self.send_command(f"00RYid{self.id:04d}")
+
+    def re_technical_status(self):
+        self.send_command(f"00QTid{self.id:04d}")
+
+    """tip status"""
+
+    def re_tips_pressure_status(self):
+        self.send_command(f"00RTid{self.id:04d}")
+
+    def re_monitoring_of_volume_in_tip(self):
+        self.send_command(f"00VTid{self.id:04d}")
+
+    """special commends"""
+
+    def emergency_stop_on(self):
+        self.send_command(f"00ESid{self.id:04d}")
+
+    def emergency_stop_off(self):
+        self.send_command(f"00SRid{self.id:04d}")
+
+    def test_mode_status(self, on_off = 0):
+        self.send_command(f"00TMid{self.id:04d}at{on_off}")
+
+    def reset_tip_counter_after_change_of_adapter(self):
+        self.send_command(f"00SCid{self.id:04d}")
+
+    def save_counters_before_power_off(self):
+        self.send_command(f"00AVid{self.id:04d}")
+
+    def switch_leds_manually(self, blue= 0, red = 0, green = 0):
+        self.send_command(f"00AVid{self.id:04d}sb{blue}sr{red}sg{green}")
+
+    def master_switch_led(self, master_switch = 0):
+        self.send_command(f"00AVid{self.id:04d}sm{master_switch}")
 
 
 if __name__ == "__main__":
