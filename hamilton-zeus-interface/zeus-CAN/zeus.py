@@ -5,9 +5,10 @@ import time
 from time import sleep
 from colorama import init, Fore, Back, Style
 from threading import Thread, Lock
+import codecs
 import sys
 
-DEBUG = 0
+DEBUG = 1
 INFO = 1
 WARNING = 1
 ERROR = 1
@@ -183,7 +184,8 @@ class remoteFrameListener(can.Listener):
                 self.msg_complete_flag = 0
 
             # self.received_msg += msg.data.replace(" ", "")[:-1]
-            self.received_msg += msg.data.replace(" ", "")
+            # self.received_msg += msg.data.replace(" ", "")
+            self.received_msg += (msg.data).decode('iso-8859-1').replace(" ", "")
 
             if (self.msg_is_last(msg) == 0):
                 if self.parent.auto_response:
@@ -247,9 +249,9 @@ class remoteFrameListener(can.Listener):
         return 0
 
     def parseMsgID(self, id, field):
-        if field is "r":
+        if field == "r":
             return id & RECEIVER_ID_MASK
-        elif field is "s":
+        elif field == "s":
             return (id & SENDER_ID_MASK) >> 5
         else:
             return 0
@@ -355,6 +357,8 @@ class ZeusModule(object):
 
         if init_module:
             self.initZDrive()
+            print('sleeping')
+            sleep(5)
             self.initDosingDrive()
 
     def setAutoResponse(self, auto):
@@ -362,21 +366,22 @@ class ZeusModule(object):
 
     def cmdHeader(self, command):
         # return command + "id" + str(self.id).zfill(4)
-        return command + "id119"
+        return command + "id0000"
 
     def assembleIdentifier(self, msg_type, master_id=0):
         identifier = 0
         identifier |= self.id
         if (master_id > 0):
             identifier |= (master_id << 5)
-        if msg_type is 'kick':
+        if msg_type == 'kick':
             identifier |= 1 << 10
+        # print(identifier)
         return identifier
 
     def sendRemoteFrame(self, dlc):
         # SEND REMOTE FRAME
         msg = can.Message(
-            extended_id=False,
+            is_extended_id=False,
             is_remote_frame=True,
             arbitration_id=0x0020)
         msg.dlc = dlc
@@ -398,14 +403,16 @@ class ZeusModule(object):
         while ((c - s) < self.remote_timeout):
             c = time.time()
             if (self.r.remote_received() == 1):
-                #  printMSG("debug", "ACK Received.")
+                print(f'Received remote frame after {time.time()-s} s')
+                printMSG("debug", "ACK Received.")
                 return 1
         return 0
 
     def sendKickFrame(self):
+        print('sending kick')
         n = 0
         msg = can.Message(
-            # extended_id=False,
+            is_extended_id=False,
             arbitration_id=self.assembleIdentifier('kick'), data=0)
         printMSG("info",
                  "ZeusModule, {}: sending kick frame...".format(self.id))
@@ -432,13 +439,14 @@ class ZeusModule(object):
     def waitForKickFrame(self):
         # WAIT FOR REMOTE RESPONSE
         # sleep(self.remote_timeout)
+        sleep(1)
         s = time.time()
         c = time.time()
         # LOOP HERE UNTIL TIMEOUT EXPIRES
         while ((c - s) < self.remote_timeout):
             c = time.time()
             if (self.r.kick_received() == 1):
-                #  printMSG("debug", "ACK Received.")
+                printMSG("debug", "waitforkickframwe - ACK Received.")
                 return 1
 
         return 0
@@ -448,7 +456,8 @@ class ZeusModule(object):
         printMSG(
             "info", "ZeusModule {}: sending data frame {} of {}...".format(self.id, i + 1, cmd_len))
         printMSG(
-            "debug", "data pre append = {}".format(data.encode('hex')))
+            # "debug", "data pre append = {}".format(data.encode('hex')))
+            "debug", "data pre append = {}".format(codecs.encode(data.encode(), 'hex')))
 
         printMSG('debug', "Outstring = {}".format(data))
         # Assemble the 8th (status) byte
@@ -465,12 +474,21 @@ class ZeusModule(object):
         # PAD FRAME WITH ZEROES
         while (len(data) < 7):
             data += " "
-        # APPEND CONTROL BYTE
-        data += chr(byte)
+
+        # # APPEND CONTROL BYTE
+        # data += chr(byte)
+
+        # APPEND CONTROL BYTE (encodings are devil's work)
+        data = bytearray(data.encode('iso-8859-1'))
+        print(data)
+        data.append(byte)
+        print(data)
+
         printMSG(
-            "debug", "data post append = {}".format(data.encode('hex')))
+            # "debug", "data post append = {}".format(codecs.encode(data.encode(), 'hex')))
+            "debug", "data post append = {}".format(data))
         msg = can.Message(
-            extended_id=False,
+            is_extended_id=False,
             arbitration_id=self.assembleIdentifier('data'),
             data=data)
         # self.r.setLastTransmitted(msg.data)
@@ -478,8 +496,9 @@ class ZeusModule(object):
             self.CANBus.send(msg)
             # print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
 
-        except can.CanError:
+        except can.CanError as err:
             printMSG("error", "Message not sent!")
+            # raise can.CanError(err)
 
     def sendCommand(self, cmd):
         data = list(split_by_n(cmd, 7))
@@ -497,14 +516,22 @@ class ZeusModule(object):
                 # SEND DATA FRAME
                 self.sendDataObject(i, cmd_len, outstring)
                 # WAIT FOR REMOTE RESPONSE UNLESS FRAME IS LAST IN COMMAND
-                if (int(outstring[-1]) & EOM_MASK):
+                # if (int(outstring[-1]) & EOM_MASK):
+                #     return
+
+                # Yaroslav's version
+                print(f'outstring is {outstring}')
+                if i == cmd_len - 1:
+                    print('FRAME IS LAST IN COMMAND')
                     return
                 if (self.waitForRemoteFrame() == 1):
+                    print('GOT REMOTE FRAME')
                     break
                 else:
                     printMSG("warning", "Timeout waiting for remote response. Issuing retry {} of {}".format(
                         n + 1, self.transmission_retries))
         self.waitForKickFrame()
+
 
     def initCANBus(self):
         printMSG(
@@ -631,7 +658,7 @@ class ZeusModule(object):
 
     def getFirmwareVersion(self):
         # cmd = self.cmdHeader('RF')
-        self.sendCommand("RFid001")
+        self.sendCommand("RF")
         # self.sendCommand(cmd)
 
     def getParameterValue(self, parameterName):

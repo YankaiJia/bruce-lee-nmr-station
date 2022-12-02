@@ -3,6 +3,7 @@ import zeus
 from time import sleep
 
 zm = zeus.ZeusModule(id = 1)
+# zm.getFirmwareVersion()
 # ez = ezstepper.EZStepper(1)
 
 # zm.initCANBus()
