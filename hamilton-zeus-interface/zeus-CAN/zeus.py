@@ -524,9 +524,9 @@ class ZeusModule(object):
 
         # APPEND CONTROL BYTE (encodings are devil's work)
         data = bytearray(data.encode('iso-8859-1'))
-        print(data)
+        # print(data)
         data.append(byte)
-        print(data)
+        # print(data)
 
         printMSG(
             # "debug", "data post append = {}".format(codecs.encode(data.encode(), 'hex')))
@@ -568,7 +568,7 @@ class ZeusModule(object):
                 #     return
 
                 # Yaroslav's version
-                print(f'outstring is {outstring}')
+                printMSG("debug", f'outstring is {outstring}')
                 if i == cmd_len - 1:
                     printMSG("debug", 'This frame is last in command.')
                     return
