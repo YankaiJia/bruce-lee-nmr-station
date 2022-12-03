@@ -400,9 +400,11 @@ class ZeusModule(object):
         if init_module:
             self.initZDrive()
             printMSG("debug", 'sleeping before initDosingDrive')
-            sleep(1)
+            sleep(5)
             printMSG("debug", f'Kick flag = {self.r.getKickFlag()}')
             self.initDosingDrive()
+            printMSG("debug", 'sleeping after initDosingDrive')
+            sleep(3)
 
     def setAutoResponse(self, auto):
         self.auto_response = auto
@@ -666,7 +668,7 @@ class ZeusModule(object):
                    lld=0, lldSearchPosition=0, liquidSurface=0,
                    searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0):
         cmd = self.cmdHeader('GD')
-        cmd = cmd + 'di' + str(dispensingVolume).zfill(4) + \
+        cmd = cmd + 'di' + str(dispensingVolume).zfill(5) + \
               'ge' + str(containerGeometryTableIndex).zfill(2) + \
               'go' + str(deckGeometryTableIndex).zfill(2) + \
               'gq' + str(qpm) + \
@@ -809,15 +811,15 @@ class ZeusModule(object):
         cmd = cmd + 'ge' + str(containerGeometryParameters.index).zfill(2) + \
               'cb' + str(containerGeometryParameters.diameter).zfill(3) + \
               'bg' + str(containerGeometryParameters.bottomHeight).zfill(4) + \
-              'gx' + str(ContainerGeometryParameters.bottomSection).zfill(5) + \
-              'ce' + str(ContainerGeometryParameters.bottomPosition).zfill(4) + \
-              'ie' + str(ContainerGeometryParameters.immersionDepth).zfill(4) + \
-              'yq' + str(ContainerGeometryParameters.leavingHeight).zfill(4) + \
-              'yr' + str(ContainerGeometryParameters.jetHeight).zfill(4) + \
+              'gx' + str(containerGeometryParameters.bottomSection).zfill(5) + \
+              'ce' + str(containerGeometryParameters.bottomPosition).zfill(4) + \
+              'ie' + str(containerGeometryParameters.immersionDepth).zfill(4) + \
+              'yq' + str(containerGeometryParameters.leavingHeight).zfill(4) + \
+              'yr' + str(containerGeometryParameters.jetHeight).zfill(4) + \
               'ch' + \
-              str(ContainerGeometryParameters.startOfHeightBottomSearch).zfill(4) + \
+              str(containerGeometryParameters.startOfHeightBottomSearch).zfill(4) + \
               'ci' + \
-              str(ContainerGeometryParameters.dispenseHeightAfterBottomSearch).zfill(
+              str(containerGeometryParameters.dispenseHeightAfterBottomSearch).zfill(
                   4)
         self.sendCommand(cmd)
 
