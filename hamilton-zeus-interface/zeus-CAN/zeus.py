@@ -8,7 +8,7 @@ from threading import Thread, Lock
 import codecs
 import sys
 
-DEBUG = 1
+DEBUG = 0
 INFO = 1
 WARNING = 1
 ERROR = 1
