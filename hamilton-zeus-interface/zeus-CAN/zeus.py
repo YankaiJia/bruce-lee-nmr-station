@@ -391,7 +391,7 @@ class ZeusModule(object):
         self.initCANBus()
         self.pos = 0
         self.minZPosition = 0
-        self.maxZPosition = 1800
+        self.maxZPosition = 2340
         self.r = remoteFrameListener(self)
         self.remoteFrameNotifier = can.Notifier(self.CANBus, [self.r])
         # print("ZeusModule {}: initializing...".format(self.id))
