@@ -9,7 +9,7 @@ import codecs
 import sys
 
 DEBUG = 0
-INFO = 1
+INFO = 0
 WARNING = 1
 ERROR = 1
 # KICK_MASK = 0x0400
@@ -454,7 +454,7 @@ class ZeusModule(object):
         return 0
 
     def sendKickFrame(self):
-        print('sending kick')
+        # print('sending kick')
         n = 0
         msg = can.Message(
             is_extended_id=False,

@@ -9,16 +9,13 @@ ZEUS is mounted on the XY stage.
 Author: Yaroslav I. Sobolev, Yankai Jia
 Date: 6 Dec 2022
 """
-# import configparser
 import zeus
 import time
-# from datetime import datetime
 import numpy as np
-# import os
 import matplotlib
+import pandas as pd
 
 matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
 import serial
 
 # plt.ion()
@@ -48,8 +45,8 @@ zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial
 print('2ml vial container loaded')
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2291, immersionDepth=50, leavingHeight=130, jetHeight=130,
-                 startOfHeightBottomSearch=50, dispenseHeightAfterBottomSearch=50,
+                 bottomPosition=2285, immersionDepth=20, leavingHeight=50, jetHeight=130,
+                 startOfHeightBottomSearch=20, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
 print('20 ml bottle container loaded')
@@ -61,18 +58,39 @@ container_bottle_large = zeus.ContainerGeometry(index=2, diameter=520, bottomHei
 zm.setContainerGeometryParameters(containerGeometryParameters=container_bottle_large)
 print('Large bottle container loaded')
 
-#
+
+def wait_until_zeus_reaches_traverse_height(n_retries=70):
+    time.sleep(0.5)
+    for i in range(n_retries):
+        print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
+        zm.getAbsoluteZPosition()
+        time.sleep(0.6)
+        idx = zm.r.received_msg.find("gy")
+        if idx == -1:
+            # this means that there is an error. Retry
+            zm.parseErrors(zm.r.received_msg)
+            time.sleep(0.5)
+            continue
+        else:
+            position = int(zm.r.received_msg[idx+2:])
+            print(f'Current position (true): {position}')
+        if position <= ZeusTraversePosition:
+            print('Traverse height is reached.')
+            return True
+    print(f'Traverse height was not reached after {n_retries} retries. This is dangerous, so we do emergency stop')
+    raise Exception
+    return False
+
+
 def move_z(z):
     zm.moveZDrive(z, 'fast')
 
 
-# horiz_speed = 50000*60
-horiz_speed = 200 * 60
-# vert_speed = 200 * 60
-# floor_z = 26
-# offsets in x and y
-xy_offset = (0, 0)
-trash_xy = (157, -205)
+move_z(650)
+
+horiz_speed = 200 * 60 # horizontal speed in mm / min
+xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
+trash_xy = (157, -207) # can for discarding the pipette tips into
 
 ser = serial.Serial('COM6', 115200, timeout=0.2)
 time.sleep(1)
@@ -116,9 +134,6 @@ with open('grbl_settings.txt', 'r') as grbl_config_file:
 print('XY stage initiated.')
 
 
-# def move_z(z):
-#     send_to_xy_stage(ser, 'G1 F{0:.0f} Z{1:.1f}'.format(vert_speed, z + floor_z))
-
 def xy_pos():
     send_to_xy_stage(ser, '?', read_all=True, verbose=True)
 
@@ -149,14 +164,10 @@ def move_xy(xy, verbose=False, ensure_traverse_height=True):
             if line == b'':
                 break
     if verbose:
-        print('Finished moving')
-    # else:
-    #     print('MOTION ABORTED: target XY point outside of the allowed circle with R = {0}'.format(R))
-    #     raise Exception
-    # # send_to_xy_stage(ser, f'G0 X{x:.3f} Y{y:.3f}')
+        print('Finished moving xy stage')
 
 
-def home_the_xy_stage():
+def home_xy():
     send_to_xy_stage(ser, '$H', read_all=True, verbose=True)
     xy_pos()
 
@@ -164,74 +175,16 @@ def home_the_xy_stage():
 def close_the_xy_stage():
     time.sleep(2)
     ser.close()
-#
-# #
-# # config = configparser.RawConfigParser()
-# # config.read('scanner_params.cfg')
-#
-# # start_pos_z = config.getfloat('Starting_position', 'start_pos_z')
-#
-#
-# # Pipetter parameters:
-# pipette_z_offset = 0
-# pipette_top_z = 37.8309
-# pipette_bottom_z = 8.67
-# pipette_top_v = 100
-#
-# # world parameters
-# ceiling_z = 70
-#
-# home_the_xy_stage()
-# # This command tells printer will disengage the motors after 10 hours (36000 seconds) of inactivity.
-# # Without this command it will disengage after a minute or so
-# send_to_xy_stage(ser, 'M84 S0')
-# move_z(ceiling_z)
-# time.sleep(2)
-# pos = np.array((0, 0, ceiling_z))
-#
-#
-# def pipette_move_z(z):
-#     z_stage.move_to(z)
-#
-#
-# def pipette_move(volume):
-#     target_z = pipette_bottom_z + volume / pipette_top_v * (pipette_top_z - pipette_bottom_z) + pipette_z_offset
-#     z_stage.move_to(target_z, blocking=True)
-#
-#
-# # pipette_move_z(pipette_top_z)
-#
-# def wasd_control(pos):
-#     move_z(pos[2])
-#     move_xy(pos[0], pos[1])
-#     k = 'n'
-#     amplitude = 1
-#     while k != 'q':
-#         k = input('wasd control:')
-#         if k == 'd':
-#             pos += np.array((amplitude, 0, 0))
-#         if k == 'a':
-#             pos += np.array((-amplitude, 0, 0))
-#         if k == 'w':
-#             pos += np.array((0, amplitude, 0))
-#         if k == 's':
-#             pos += np.array((0, -amplitude, 0))
-#         if k == 'r':
-#             pos += np.array((0, 0, amplitude))
-#         if k == 'f':
-#             pos += np.array((0, 0, -amplitude))
-#         if k == 'u':
-#             amplitude += 1
-#             print('Amplitude = {0}'.format(amplitude))
-#         if k == 'j':
-#             amplitude -= 1
-#             print('Amplitude = {0}'.format(amplitude))
-#         print('pos = {0}'.format(pos))
-#         move_z(pos[2])
-#         move_xy(pos[0], pos[1])
-#     print('Finished wasd')
-#     return pos
-#
+
+
+def view_grbl_settings():
+    send_to_xy_stage(ser, '$$', read_all = True, verbose = True)
+    xy_pos()
+
+
+def kill_alarm():
+    send_to_xy_stage(ser, "$X", read_all= True, verbose= True)
+
 
 def generate_well_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a well plate from coordinates of corner wells.'''
@@ -268,7 +221,8 @@ well1 = {'volume': 0,
          'area': 75.56,  # container's horizontal cross-section area is in square mm
          'min_z': 1.2,  # location of container's # bottom above the floor
          'top_z': 32,  # height of container
-         'containerGeometryTableIndex': 0
+         'containerGeometryTableIndex': 0,
+         'lldSearchPosition': 2020
          }
 
 tip_300ul = {'tip_vol': 300,
@@ -276,13 +230,15 @@ tip_300ul = {'tip_vol': 300,
              'tipTypeTableIndex': 4,
              'exists': True
              }
+
 bottle_20ml = {'volume': 20000,
                'xy': (-51.0, -6.0),
                'volume_max': 20000,
                'area': 510.7,  # container's horizontal cross-section area is in square mm
                'min_z': 5,  # location of container's # bottom above the floor
                'top_z': 62,  # height of container
-               'containerGeometryTableIndex': 1
+               'containerGeometryTableIndex': 1,
+               'lldSearchPosition': 1890
                }
 
 bottle1 = bottle_20ml.copy()
@@ -297,7 +253,7 @@ bottle2['xy'] = (496.0, -190)
 bottle3['xy'] = (464.5, -190)
 bottle4['xy'] = (526.5, -221)
 bottle5['xy'] = (496.0, -221)
-bottle6['xy'] = (464.5, -221)
+bottle6['xy'] = (465.0, -221)
 
 bottle_large = {'volume': 80000,
                 'xy': (338, -282),
@@ -306,7 +262,8 @@ bottle_large = {'volume': 80000,
                 'min_z': 5,  # location of container's # bottom above the floor in mm
                 'top_z': 70,  # height of container in mm
                 'neck_r': 3,  # inner radius of the neck in mm
-                'containerGeometryTableIndex': 2
+                'containerGeometryTableIndex': 2,
+                'lldSearchPosition': 1700
                }
 
 
@@ -321,6 +278,7 @@ tips_rack = create_well_plate(template_well=tip_300ul,
 
 def pick_tip(tips_rack):
     move_z(ZeusTraversePosition)
+    wait_until_zeus_reaches_traverse_height()
     # In the rack, find the first tip that exists
     for tip in tips_rack['wells']:
         if tip['exists']:
@@ -328,14 +286,17 @@ def pick_tip(tips_rack):
             move_xy(tip['xy'])
             zm.pickUpTip(tipTypeTableIndex=tip['tipTypeTableIndex'], deckGeometryTableIndex=0)
             tip['exists'] = False
+            wait_until_zeus_reaches_traverse_height()
             return True
     print('ERROR: No tips in rack.')
     raise Exception
 
 def discard_tip():
     move_z(ZeusTraversePosition)
+    wait_until_zeus_reaches_traverse_height()
     move_xy(trash_xy)
     zm.discardTip(deckGeometryTableIndex=0)
+    wait_until_zeus_reaches_traverse_height()
 
 def change_tip(tips_rack):
     discard_tip()
@@ -345,19 +306,11 @@ def change_tip(tips_rack):
 # generate coordinates for all wells of a well plate from coordinates of corner wells.
 plate = create_well_plate(template_well=well1,
                           Nwells=(6, 9),
-                          topleft=(555.5, -277.5),
-                          topright=(443.5, -277.5),
-                          # bottomleft = (9, -76)
-                          bottomleft=(555.5, -347),
-                          bottomright=(443.5, -347))
-#
-# wells = generate_well_coordinates(Nwells=(6, 9),
-#                                   topleft=(-37, -52),
-#                                   topright=(8, 43),
-#                                   # bottomleft = (9, -76)
-#                                   bottomleft=(20.5, -82),
-#                                   bottomright=(65.5, 15))
-#
+                          topleft=(556, -275.5),
+                          topright=(444, -275.5),
+                          bottomleft=(556, -345),
+                          bottomright=(444, -345))
+
 
 def move_through_wells(plate, dwell_time=1):
     for well in plate['wells']:
@@ -367,79 +320,70 @@ def move_through_wells(plate, dwell_time=1):
 
 
 #
-def draw_liquid(container, volume, dip_to_depth=5):
-
+def draw_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface):
     container['volume'] -= volume
-    move_z(ceiling_z)
-#
-#
-# def dispense_liquid(container, volume='all', height_from_top=0, brush_walls=True, brush_mag=0.3,
-#                     brush_delay=0.5):
-#     move_z(ceiling_z)
-#     move_xy(container['xy'][0], container['xy'][1])
-#     move_z(container['top_z'] + height_from_top)
-#     time.sleep(1)
-#
-#     assert volume == 'all'
-#     pipette_move(0)
-#     # partial dispensing not implemented yet
-#
-#     if brush_walls:
-#         brushing_distance = container['neck_r'] - pipette_tip_radius + brush_mag
-#         move_xy(container['xy'][0] - brushing_distance, container['xy'][1])
-#         time.sleep(brush_delay)
-#         move_xy(container['xy'][0] + brushing_distance, container['xy'][1])
-#         time.sleep(brush_delay)
-#         move_xy(container['xy'][0], container['xy'][1])
-#         move_xy(container['xy'][0], container['xy'][1] - brushing_distance)
-#         time.sleep(brush_delay)
-#         move_xy(container['xy'][0], container['xy'][1] + brushing_distance)
-#         time.sleep(brush_delay)
-#         # move_xy(container['xy'][0], container['xy'][1])
-#
-#     # maybe also make a fast down-up move to throw the hanging droplet down
-#     move_z(ceiling_z)
-#
-#
-# def transfer_liquid(source, destination, volume, dip_into_source_to_depth=10,
-#                     dispense_from_height=-1, max_volume=1000):
-#     # if it exceeds max_volume, then do several pipettings
-#     N_max_vol_pipettings = int(volume // max_volume)
-#     for i in range(N_max_vol_pipettings):
-#         draw_liquid(source, max_volume, dip_to_depth=dip_into_source_to_depth)
-#         dispense_liquid(destination, volume='all', height_from_top=dispense_from_height)
-#     volume_of_last_pipetting = volume % max_volume
-#     draw_liquid(source, volume_of_last_pipetting, dip_to_depth=dip_into_source_to_depth)
-#     dispense_liquid(destination, volume='all', height_from_top=dispense_from_height)
-#
-# # N = 50
-# # volumes = np.linspace(10, 100, N)
-# # for i in range(N):
-# #     transfer_liquid(source=bottle6, destination=plate['wells'][i], volume=volumes[i])
-#
-# container_having_substance = {'Isocyano':bottle6,
-#                               'amine':bottle6,
-#                               'aldehyde':bottle6,
-#                               'pTSA':bottle6,
-#                               'DMF': bottle_large}
-#
-# df = pd.read_excel('delta-pipetter/runs/2022-11-26-run01/input_compositions/compositions.xlsx',
-#                    sheetname='Sheet1', parse_cols='I,J,K,L,M')
-#
-# # df_one_plate = df.head(53)  # plate #1
-# df_one_plate = df.iloc[53:] # plate #2
-#
-# substance = 'DMF'
-# # substance = 'aldehyde'
-# # substance = 'pTSA'
-# # substance = 'amine'
-# # substance = 'Isocyano'
-# #
-# t0 = time.time()
-# for well_id, volume in enumerate(df_one_plate[substance]):
-#     print('Substance {0}, well {1}, volume {2}'.format(substance, well_id, volume))
-#     transfer_liquid(container_having_substance[substance],
-#                     plate['wells'][well_id],
-#                     volume)
-# print('Time_elapsed: {0:.1f} min'.format((time.time() - t0)/60))
+    if zm.pos > ZeusTraversePosition:
+        move_z(ZeusTraversePosition)
+        wait_until_zeus_reaches_traverse_height()
+    move_xy(container['xy'])
+    zm.aspiration(aspirationVolume=int(round(volume*10)),
+                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
+                  deckGeometryTableIndex=0, liquidClassTableIndex=liquidClassTableIndex,
+                  qpm=1, lld=1, lldSearchPosition=container['lldSearchPosition'],
+                  liquidSurface=liquidSurface,
+                  mixVolume=0, mixFlowRate=0, mixCycles=0)
+    time.sleep(1.5)
+    wait_until_zeus_reaches_traverse_height()
 
+#
+#
+def dispense_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface):
+    if zm.pos > ZeusTraversePosition:
+        move_z(ZeusTraversePosition)
+        wait_until_zeus_reaches_traverse_height()
+    move_xy(container['xy'])
+    zm.dispensing(dispensingVolume=int(round(volume*10)),
+                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
+                  deckGeometryTableIndex=0, liquidClassTableIndex=liquidClassTableIndex,
+                  lld=0, lldSearchPosition=container['lldSearchPosition'],
+                  liquidSurface=liquidSurface,
+                  searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
+    time.sleep(1.5)
+    wait_until_zeus_reaches_traverse_height()
+    container['volume'] += volume
+
+
+def transfer_liquid(source, destination, volume, max_volume=250):
+    # if it exceeds max_volume, then do several pipettings
+    N_max_vol_pipettings = int(volume // max_volume)
+    for i in range(N_max_vol_pipettings):
+        draw_liquid(source, volume=max_volume)
+        dispense_liquid(destination, volume=max_volume)
+    volume_of_last_pipetting = volume % max_volume
+    draw_liquid(source, volume=volume_of_last_pipetting)
+    dispense_liquid(destination, volume=volume_of_last_pipetting)
+
+container_having_substance = {'Isocyano':bottle6,
+                              'amine':bottle5,
+                              'aldehyde':bottle2,
+                              'pTSA':bottle3,
+                              'DMF': bottle_large}
+
+excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\2022-12-07-run01\\input_compositions\\compositions.xlsx'
+df = pd.read_excel(excel_filename,
+                   sheet_name='Sheet1', usecols='I,J,K,L,M')
+
+# df_one_plate = df.head(54)  # plate #1
+df_one_plate = df.iloc[54:] # plate #2
+
+addition_sequence = ['DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano']
+for substance in addition_sequence:
+    change_tip(tips_rack)
+    time.sleep(6)
+    t0 = time.time()
+    for well_id, volume in enumerate(df_one_plate[substance + '.1']):
+        print('Substance {0}, well {1}, volume {2}'.format(substance, well_id, volume))
+        transfer_liquid(container_having_substance[substance],
+                        plate['wells'][well_id],
+                        volume)
+    print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
