@@ -91,6 +91,7 @@ move_z(650)
 horiz_speed = 200 * 60 # horizontal speed in mm / min
 xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
 trash_xy = (157, -207) # can for discarding the pipette tips into
+xy_position = (500, -100)
 
 ser = serial.Serial('COM6', 115200, timeout=0.2)
 time.sleep(1)
@@ -139,7 +140,32 @@ def xy_pos():
 
 
 # def move_xy(x, y):
-def move_xy(xy, verbose=False, ensure_traverse_height=True):
+def time_that_xy_motion_takes(dx, dy, acceleration=2000, max_speed=333.33333):
+    travel_times = []
+    for distance in [abs(dx), abs(dy)]:
+        halfdistance = distance/2
+        # constant acceleration scenario
+        constant_acceleration_halftime = np.sqrt(halfdistance * 2 / acceleration)
+        speed_at_midpoint = constant_acceleration_halftime * acceleration
+        if speed_at_midpoint <= max_speed:
+            time_here = constant_acceleration_halftime * 2
+        else:
+            # this means that the stage reaches max speed before midpoint and then
+            #   continues at his max speed
+            constant_acceleration_halftime = max_speed / acceleration
+            dist_traveled_at_constant_acceleration = acceleration * (constant_acceleration_halftime**2) / 2
+            distance_traveled_at_constant_speed = halfdistance - dist_traveled_at_constant_acceleration
+            const_speed_halftime = distance_traveled_at_constant_speed / max_speed
+            time_here = 2 * (constant_acceleration_halftime + const_speed_halftime)
+        travel_times.append(time_here)
+    print(max(travel_times))
+    return max(travel_times)
+
+
+
+def move_xy(xy, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
+            use_time_estimates=True):
+    global xy_position
     if ensure_traverse_height:
         if zm.pos > ZeusTraversePosition:
             print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {zm.pos}')
@@ -147,24 +173,32 @@ def move_xy(xy, verbose=False, ensure_traverse_height=True):
     # if np.linalg.norm(np.array((x, y))) <= R:
     send_to_xy_stage(ser, 'G0 X{0:.3f} Y{1:.3f}'.format(xy[0] + xy_offset[0], xy[1] + xy_offset[1]),
                      read_all=False)
-    time.sleep(0.1)
-    finished_moving = False
-    for i in range(100):
-        if finished_moving:
-            break
-        if verbose:
-            print(f'Status read {i}')
-        ser.write(str.encode('?' + '\r\n'))
-        while True:
-            line = ser.readline()
+    if block_until_motion_is_completed:
+        if use_time_estimates:
+            time.sleep(time_that_xy_motion_takes(dx=xy[0]-xy_position[0],
+                                                 dy=xy[1]-xy_position[1]))
+        else:
+            t0 = time.time()
+            time.sleep(0.1)
+            finished_moving = False
+            for i in range(100):
+                if finished_moving:
+                    break
+                if verbose:
+                    print(f'Status read {i}')
+                ser.write(str.encode('?' + '\r\n'))
+                while True:
+                    line = ser.readline()
+                    if verbose:
+                        print(line)
+                    if b'Idle' in line:
+                        finished_moving = True
+                    if line == b'':
+                        break
+            print(f'{time.time()-t0}')
             if verbose:
-                print(line)
-            if b'Idle' in line:
-                finished_moving = True
-            if line == b'':
-                break
-    if verbose:
-        print('Finished moving xy stage')
+                print('Finished moving xy stage')
+    xy_position = xy
 
 
 def home_xy():
@@ -387,3 +421,9 @@ for substance in addition_sequence:
                         plate['wells'][well_id],
                         volume)
     print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
+
+
+# # motion tests
+# for i in range(10):
+#     move_xy((400, -100), block_until_motion_is_completed=True, use_time_estimates=True)
+#     move_xy((300, -200), block_until_motion_is_completed=True, use_time_estimates=True)
