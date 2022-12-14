@@ -17,8 +17,15 @@ import pandas as pd
 
 matplotlib.use('TkAgg')
 import serial
+import os
+import pickle
+from scipy import interpolate
+import matplotlib.pyplot as plt
 
 # plt.ion()
+
+class ZeusError(Exception):
+    pass
 
 ZeusTraversePosition = 1500
 balance_traverse_height = 1000
@@ -54,14 +61,14 @@ zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial
 print('2ml vial container loaded')
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2285, immersionDepth=20, leavingHeight=20, jetHeight=130,
+                 bottomPosition=2290, immersionDepth=20, leavingHeight=30, jetHeight=130,
                  startOfHeightBottomSearch=20, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
 print('20 ml bottle container loaded')
 
 container_bottle_large = zeus.ContainerGeometry(index=2, diameter=520, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2217, immersionDepth=50, leavingHeight=130, jetHeight=130,
+                 bottomPosition=2217, immersionDepth=40, leavingHeight=40, jetHeight=130,
                  startOfHeightBottomSearch=50, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_bottle_large)
@@ -97,19 +104,44 @@ def wait_until_zeus_reaches_traverse_height(n_retries=70, traverse_height=ZeusTr
     raise Exception
     return False
 
+def zeus_had_error(errorString):
+    cmd = str(errorString[:2])
+    eidx = errorString.find("er")
+    if (eidx == -1):
+        return False
+    ec = str(errorString[(eidx + 2): (eidx + 4)])
+    if ec == '00':
+        return False
+
+    return True
+
+def zeus_error_code(errorString):
+    cmd = str(errorString[:2])
+    eidx = errorString.find("er")
+    if (eidx == -1):
+        return False
+    return str(errorString[(eidx + 2): (eidx + 4)])
+
+
 def wait_until_zeus_responds_with_string(search_pattern, n_retries=200):
     time.sleep(0.5)
+    print(f'Waiting for Zeus to respond')
     for i in range(n_retries):
-        print(f'Waiting for Zeus to respond: attempt {i}')
+        # print(f'Waiting for Zeus to respond: attempt {i}')
         # zm.getAbsoluteZPosition()
         # time.sleep(0.6)
+        if zeus_had_error(zm.r.received_msg):
+            print('Zeus responded with error message. Aborting all operations.')
+            raise ZeusError
+
         idx = zm.r.received_msg.find(search_pattern)
         if idx == -1:
-            # this means that there is an error. Retry
+            # this means that there is no pattern. Retry
             # zm.parseErrors(zm.r.received_msg)
             time.sleep(0.1)
             continue
         else:
+            print(f'Competion response received after {i} attempts.')
             return True
     print(f'Response not received after {n_retries} retries. This is dangerous, so we do emergency stop')
     raise Exception
@@ -209,12 +241,66 @@ def dispense_to_balance_and_weight_n_times(source_container, volume, ntimes, tim
     return result
 
 def calibrate_volume_by_balance(source_container, volume, ntimes=5, timedelay=5, density=1):
+    # TODO: Volumes here must be nominal, not already corrected by calibration
+    # One way to do it is to load a 1:1 calibration dictionary
     measured_masses = np.array(dispense_to_balance_and_weight_n_times(source_container=source_container,
                                                              volume=volume,
                                                              ntimes=ntimes,
                                                              timedelay=timedelay))
     measured_volumes = measured_masses / density
     return np.mean(measured_volumes), np.std(measured_volumes)
+
+
+def update_volume_calibration(calibration_file, source_container, volume_list, ntimes=5, timedelay=5, density=1):
+    if os.path.exists(calibration_file):
+        with open(calibration_file, 'rb') as handle:
+            calibration_dictionary = pickle.load(handle)
+            print('Calibration file loaded.')
+    else:
+        calibration_dictionary = dict()
+    for volume in volume_list:
+        calibration_dictionary[volume] = calibrate_volume_by_balance(source_container, volume,
+                                                                     ntimes, timedelay, density)
+    with open(calibration_file, 'wb') as handle:
+        pickle.dump(calibration_dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f'Calibration saved to: {calibration_file}')
+        print(f'Dictionary data now: {calibration_dictionary}')
+    return calibration_dictionary
+
+# calibration_dict = update_volume_calibration(
+#     calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle',
+#     source_container=bottle6, volume_list=[10, 20, 30, 50, 70, 110], density=0.9445)
+
+def load_calibration_dict_from_file(calibration_file):
+    if os.path.exists(calibration_file):
+        with open(calibration_file, 'rb') as handle:
+            calibration_dictionary = pickle.load(handle)
+            print('Calibration file loaded.')
+    return calibration_dictionary
+
+calibration_dict = load_calibration_dict_from_file(
+    calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle')
+
+def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
+    zeus_volumes = [0]
+    real_volumes = [0]
+    sigmas = []
+    for zeus_volume in sorted(calibration_dict.keys()):
+        zeus_volumes.append(zeus_volume)
+        real_volumes.append(calibration_dict[zeus_volume][0])
+        sigmas.append(calibration_dict[zeus_volume][1])
+    zeus_volumes = np.array(zeus_volumes)
+    real_volumes = np.array(real_volumes)
+    sigmas = np.array(sigmas)
+    calibration_interpolator = interpolate.interp1d(x=real_volumes, y=zeus_volumes, fill_value='extrapolate')
+    result = calibration_interpolator(real_volume)
+    if not result.shape:
+        result = result.tolist()
+    return result
+
+
+
+
 
 
 
@@ -427,7 +513,8 @@ well1 = {'volume': 0,
          'min_z': 1.2,  # location of container's # bottom above the floor
          'top_z': 32,  # height of container
          'containerGeometryTableIndex': 0,
-         'lldSearchPosition': 'auto'
+         'lldSearchPosition': 'auto',
+         'safety_margin_for_lldsearch_position': 40
          }
 
 balance_vial = {'volume': 0,
@@ -460,7 +547,7 @@ bottle_20ml = {'volume': 20000,
                }
 
 
-def liquid_surface_in_cointainer(container, verbose=True):
+def liquid_surface_in_container(container, verbose=True):
     height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
     if verbose:
         print(f'Height of liquid from the floor = {height_of_liquid_from_floor:.2f}')
@@ -469,7 +556,7 @@ def liquid_surface_in_cointainer(container, verbose=True):
 
 def lld_search_position(container):
     if container['lldSearchPosition'] == 'auto':
-        return int(round(liquid_surface_in_cointainer(container) - container['safety_margin_for_lldsearch_position']))
+        return int(round(liquid_surface_in_container(container) - container['safety_margin_for_lldsearch_position']))
     else:
         return container['lldSearchPosition']
 
@@ -488,8 +575,13 @@ bottle4['xy'] = (526.5, -221)
 bottle5['xy'] = (496.0, -221)
 bottle6['xy'] = (465.0, -221)
 
-bottle_large = {'volume': 80000,
-                'xy': (338, -282),
+bottle6['volume'] = 6000
+bottle5['volume'] = 6000
+bottle2['volume'] = 6000
+bottle3['volume'] = 6000
+
+bottle_large = {'volume': 91500,
+                'xy': (409.5, -303),
                 'volume_max': 100000,
                 'area': 2123.7,  # container's horizontal cross-section area is in square mm
                 'min_z': 5,  # location of container's # bottom above the floor in mm
@@ -553,35 +645,52 @@ def move_through_wells(plate, dwell_time=1):
 
 
 #
-def draw_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface):
+def draw_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface,
+                n_retries=3):
     container['volume'] -= volume
     if zm.pos > ZeusTraversePosition:
         move_z(ZeusTraversePosition)
     #     wait_until_zeus_reaches_traverse_height()
     move_xy(container['xy'])
-    zm.aspiration(aspirationVolume=int(round(volume*10)),
-                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                  deckGeometryTableIndex=0, liquidClassTableIndex=liquidClassTableIndex,
-                  qpm=1, lld=1, lldSearchPosition=lld_search_position(container),
-                  liquidSurface=liquid_surface_in_cointainer(container),
-                  mixVolume=0, mixFlowRate=0, mixCycles=0)
-    time.sleep(1.5)
-    wait_until_zeus_responds_with_string('GAid')
-    # wait_until_zeus_reaches_traverse_height()
+    for retry in range(n_retries):
+        try:
+            print(f'Volume for zeus {int(round(volume_for_zeus(volume) * 10))}')
+            zm.aspiration(aspirationVolume=int(round(volume_for_zeus(volume)*10)),
+                          containerGeometryTableIndex=container['containerGeometryTableIndex'],
+                          deckGeometryTableIndex=0, liquidClassTableIndex=liquidClassTableIndex,
+                          qpm=1, lld=1, lldSearchPosition=lld_search_position(container),
+                          liquidSurface=liquid_surface_in_container(container),
+                          mixVolume=0, mixFlowRate=0, mixCycles=0)
+            time.sleep(1.5)
+            wait_until_zeus_responds_with_string('GAid')
+            return True
+        except ZeusError:
+            if zeus_error_code(zm.r.received_msg) == '81':
+                # Empty tube detected during aspiration
+                print('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
+                time.sleep(2)
+                move_z(ZeusTraversePosition)
+                time.sleep(2)
+                dispense_liquid(container, volume)
+                time.sleep(2)
+                continue
 
-#
-#
+    print(f'Tried {n_retries} but zeus error is still there')
+    raise Exception
+
+
 def dispense_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=0):
     if zm.pos > ZeusTraversePosition:
         move_z(ZeusTraversePosition)
         # wait_until_zeus_reaches_traverse_height()
     move_xy(container['xy'])
-    zm.dispensing(dispensingVolume=int(round(volume*10)),
+    print(f'Volume for zeus {int(round(volume_for_zeus(volume)*10))}')
+    zm.dispensing(dispensingVolume=int(round(volume_for_zeus(volume)*10)),
                   containerGeometryTableIndex=container['containerGeometryTableIndex'],
                   deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
                   lld=0, lldSearchPosition=lld_search_position(container),
-                  liquidSurface=liquid_surface_in_cointainer(container) - liquid_surface_margin,
+                  liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
                   searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
     time.sleep(1.5)
     # wait_until_zeus_reaches_traverse_height()
@@ -598,7 +707,7 @@ def dispense_to_balance(volume, container=balance_vial, liquidClassTableIndex=1,
                   containerGeometryTableIndex=container['containerGeometryTableIndex'],
                   deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
                   lld=0, lldSearchPosition=lld_search_position(container),
-                  liquidSurface=liquid_surface_in_cointainer(container) - liquid_surface_margin,
+                  liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
                   searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
     time.sleep(1.5)
     # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
@@ -623,24 +732,34 @@ container_having_substance = {'Isocyano':bottle6,
                               'pTSA':bottle3,
                               'DMF': bottle_large}
 
-excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\2022-12-07-run01\\input_compositions\\compositions.xlsx'
+excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\' \
+                 '2022-12-14-run01\\input_compositions\\compositions.xlsx'
 df = pd.read_excel(excel_filename,
                    sheet_name='Sheet1', usecols='I,J,K,L,M')
 
+
 # df_one_plate = df.head(54)  # plate #1
-# df_one_plate = df.iloc[54:] # plate #2
-#
-# addition_sequence = ['DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano']
-# for substance in addition_sequence:
-#     change_tip(tips_rack)
-#     time.sleep(6)
-#     t0 = time.time()
-#     for well_id, volume in enumerate(df_one_plate[substance + '.1']):
-#         print('Substance {0}, well {1}, volume {2}'.format(substance, well_id, volume))
-#         transfer_liquid(container_having_substance[substance],
-#                         plate['wells'][well_id],
-#                         volume)
-#     print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
+df_one_plate = df.iloc[54:] # plate #2
+
+addition_sequence = ['DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano']
+# addition_sequence = ['pTSA', 'amine', 'Isocyano']
+for substance in addition_sequence:
+    if not (substance == addition_sequence[0]):
+        change_tip(tips_rack)
+        time.sleep(6)
+    t0 = time.time()
+    for well_id, volume in enumerate(df_one_plate[substance + '.1']):
+        if substance == 'DMF' and well_id < 26:
+            print(f'Skipping substance {substance}, well {well_id}')
+            continue
+        print('Substance {0}, well {1}, volume {2}'.format(substance, well_id, volume))
+        if volume == 0:
+            print('Target volume is zero. Skipping operation.')
+            continue
+        transfer_liquid(container_having_substance[substance],
+                        plate['wells'][well_id],
+                        volume)
+    print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
 
 
 # # motion tests
