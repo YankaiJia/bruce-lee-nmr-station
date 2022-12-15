@@ -95,8 +95,8 @@ def sample_image_at_wells(image, wells, sr=20, show_roi=False):
 
 data_folder = 'D:\\Docs\\Science\\UNIST\\Projects\\robochem\\data\\'
 
-experiment_folder = data_folder + 'multicomp-reactions\\2022-11-07-run01\\vis-photos\\plate_1\\FITS\\'
-misc_folder = data_folder + 'multicomp-reactions\\2022-11-07-run01\\vis-photos\\plate_1\\misc\\'
+experiment_folder = data_folder + 'multicomp-reactions\\2022-11-07-run01\\vis-photos\\calibration_product\\FITS\\'
+misc_folder = data_folder + 'multicomp-reactions\\2022-11-07-run01\\vis-photos\\calibration_product\\misc\\'
 
 def list_fit_files(experiment_folder):
     os.chdir(experiment_folder)
@@ -122,36 +122,17 @@ def show_well_locations(image, wells):
     plt.scatter(wells[:, 0], wells[:, 1])
     plt.show()
 
-def load_calibration(calibration_folder):
-    calibration_absorbances = np.load(calibration_folder + '/calibration_absorbances.npy')
-    calibration_concentrations = np.load(calibration_folder + '/calibration_concentrations.npy')
-    return calibration_concentrations, calibration_absorbances
-
-def absorbances_to_molar(rgb_absorbance_input, calibration_concentrations, calibration_absorbances):
-    # rgb_absorbance_input = np.array([absorbances[5, 0], absorbances[5, 1], absorbances[5, 2]])
-    rgb_conc_from_interps = [interpolate.interp1d(calibration_absorbances[:, i], calibration_concentrations)(rgb_absorbance_input[i])
-                             for i in range(3)]
-    median_concentration = np.median(np.array(rgb_conc_from_interps))
-    return median_concentration
-
-def absorbances_to_molar_error(rgb_absorbance_input, calibration_concentrations, calibration_absorbances):
-    # rgb_absorbance_input = np.array([absorbances[5, 0], absorbances[5, 1], absorbances[5, 2]])
-    rgb_conc_from_interps = [interpolate.interp1d(calibration_absorbances[:, i], calibration_concentrations)(rgb_absorbance_input[i])
-                             for i in range(3)]
-    median_concentration = np.median(np.array(rgb_conc_from_interps))
-    error = np.std(np.array(rgb_conc_from_interps)) / median_concentration
-    return error
-
-calibration_concentrations, calibration_absorbances = load_calibration(
-    data_folder + 'multicomp-reactions\\2022-11-07-run01\\vis-photos\\calibration_product\\misc')
 # here it should be clicled clockwise
+# file_list = list_fit_files(experiment_folder)
+# image = load_fits_image(file_list[-2])
 # corners = create_shape_on_image(image_for_show(image), rangey=(1895, 3948), rangex=(2619, 5447))[0][:-1, :]
-corners = np.array([[3111, 2285],
- [5109, 2299],
- [5097, 3550],
- [3105, 3530]])
+# print(corners)
+corners = np.array([[2996, 2757],
+ [4547, 2763],
+ [4549, 2993],
+ [2973, 2979]])
 
-wells = well_coordinates_from_four_corner_wells(corners, N_wells=(9, 6))
+wells = well_coordinates_from_four_corner_wells(corners, N_wells=(8, 2))
 
 # get median signal in three channes from all frames
 file_list = list_fit_files(experiment_folder)
@@ -174,20 +155,52 @@ only_good_frames_persec = np.copy(wells_in_all_frames_persec)
 only_good_frames_persec[bad_signals_mask] = np.nan
 wells_final = np.nanmedian(only_good_frames_persec, axis=0)
 
-reference_well_id = 45
+wells_final = np.delete(wells_final, 7, axis=0)
+
+reference_well_id = 6
 absorbances = -np.log(wells_final / wells_final[reference_well_id])
 
-# plt.plot(absorbances[:, 1], absorbances[:, 2], 'o-')
-# plt.plot(absorbances[:, 1], absorbances[:, 0], 'o-')
-#
-# plt.show()
+concentrations = np.array(\
+    [0.000912785,
+     0.000547671,
+     0.000182557,
+     9.12785e-05,
+     3.65114e-05,
+     9.12785e-06,
+     0,
+     0.730227634,
+     0.584182107,
+     0.43813658,
+     0.273835363,
+     0.146045527,
+     0.036511382,
+     0.018255691,
+     0.003651138])
 
-concentrations = np.array([absorbances_to_molar(absorbance, calibration_concentrations, calibration_absorbances)
-                  for absorbance in absorbances])
-conc_errors = np.array([absorbances_to_molar_error(absorbance, calibration_concentrations, calibration_absorbances)
-                  for absorbance in absorbances])
-concentrations = np.delete(concentrations, reference_well_id, axis=0)
-np.save(misc_folder + 'product_concentrations.npy', concentrations)
+concentrations = np.flip(np.roll(concentrations, shift=-7))
+absorbances = np.flip(np.roll(absorbances, shift=-7, axis=0), axis=0)
+absorbances[7, 0] = 0.32
+plt.loglog(concentrations, absorbances[:, 0], 'o-')
+plt.loglog(concentrations, absorbances[:, 1], 'o-')
+plt.loglog(concentrations, absorbances[:, 2], 'o-')
+np.save(misc_folder + 'calibration_concentrations.npy', concentrations)
+np.save(misc_folder + 'calibration_absorbances.npy', absorbances)
+
+plt.show()
+
+# absorbance_to_molar
+rgb_absorbance_input = np.array([absorbances[5, 0], absorbances[5, 1], absorbances[5, 2]])
+rgb_conc_from_interps = [interpolate.interp1d(absorbances[:, i], concentrations)(rgb_absorbance_input[i])
+                         for i in range(3)]
+median_concentration = np.median(np.array(rgb_conc_from_interps))
+print(median_concentration)
+# ynew = f(xnew)
+
+
+
+# concentrations = np.delete(np.copy(absorbances[:, 1]), reference_well_id, axis=0)
+# np.save(misc_folder + 'product_concentrations.npy', concentrations)
+
 
 # # AUTOREAD EXPOSURE FROM EXIF FILE PROPERTIES
 # import glob, os
