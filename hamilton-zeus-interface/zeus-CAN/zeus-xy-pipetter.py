@@ -27,7 +27,7 @@ import matplotlib.pyplot as plt
 class ZeusError(Exception):
     pass
 
-ZeusTraversePosition = 1500
+ZeusTraversePosition = 650
 balance_traverse_height = 1000
 floor_z = 2317
 manual_vial_surface = 2152
@@ -36,6 +36,7 @@ manual_vial_surface = 2152
 zm = zeus.ZeusModule(id=1)
 time.sleep(3)
 
+# Deck loading
 deckgeom = zeus.DeckGeometry(index=0, endTraversePosition=ZeusTraversePosition,
                              beginningofTipPickingPosition=1530,
                              positionofTipDepositProcess=2217)
@@ -54,11 +55,12 @@ print('Zeus deck geometry loaded')
 # TODO: In the object-oriented version this will be depend on target container dictionaries passed by
 #  the module's user
 container_2mL_vial = zeus.ContainerGeometry(index=0, diameter=98, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2292, immersionDepth=20, leavingHeight=20, jetHeight=130,
+                 bottomPosition=2137, immersionDepth=20, leavingHeight=20, jetHeight=130,
                  startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial)
 print('2ml vial container loaded')
+
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
                  bottomPosition=2290, immersionDepth=20, leavingHeight=30, jetHeight=130,
@@ -67,12 +69,14 @@ container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeig
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
 print('20 ml bottle container loaded')
 
-container_bottle_large = zeus.ContainerGeometry(index=2, diameter=520, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2217, immersionDepth=40, leavingHeight=40, jetHeight=130,
-                 startOfHeightBottomSearch=50, dispenseHeightAfterBottomSearch=50,
-                 )
-zm.setContainerGeometryParameters(containerGeometryParameters=container_bottle_large)
+
+container_jar = zeus.ContainerGeometry(index=2, diameter=520, bottomHeight=0, bottomSection=10000,
+                                       bottomPosition=2217, immersionDepth=40, leavingHeight=40, jetHeight=130,
+                                       startOfHeightBottomSearch=50, dispenseHeightAfterBottomSearch=50,
+                                       )
+zm.setContainerGeometryParameters(containerGeometryParameters=container_jar)
 print('Large bottle container loaded')
+
 
 container_balance_vial = zeus.ContainerGeometry(index=3, diameter=98, bottomHeight=0, bottomSection=10000,
                  bottomPosition=1680, immersionDepth=20, leavingHeight=20, jetHeight=130,
@@ -80,6 +84,7 @@ container_balance_vial = zeus.ContainerGeometry(index=3, diameter=98, bottomHeig
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_balance_vial)
 print('Large bottle container loaded')
+
 
 
 def wait_until_zeus_reaches_traverse_height(n_retries=70, traverse_height=ZeusTraversePosition):
@@ -299,21 +304,17 @@ def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
     return result
 
 
-
-
-
-
-
-
 # XY stage
 
 move_z(650)
 
 horiz_speed = 200 * 60 # horizontal speed in mm / min
-xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
-trash_xy = (157, -207) # can for discarding the pipette tips into
+# xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
+xy_offset = (0, 0)
+trash_xy = (-345, -187) # can for discarding the pipette tips into
 xy_position = (593.760, -1.000)
-min_x = -252
+min_x = -720
+min_y = -357
 
 ser = serial.Serial('COM6', 115200, timeout=0.2)
 time.sleep(1)
@@ -415,9 +416,13 @@ def time_that_xy_motion_takes(dx, dy, acceleration=2000, max_speed=333.33333):
 
 def move_xy(xy, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
             use_time_estimate=True):
-    if xy[0] < min_x:
-        print(f'XY STAGE ERROR: target X is beyond the limit {min_x}. Motion aborted.')
+    if xy[0] < min_x or xy[0] > 0:
+        print(f'XY STAGE ERROR: target X is beyond the limit ({min_x}, 0). Motion aborted.')
         return
+    if xy[1] < min_y or xy[1] > 0:
+        print(f'XY STAGE ERROR: target Y is beyond the limit ({min_y}, 0). Motion aborted.')
+        return
+
     if ensure_traverse_height and not zeus_is_at_traverese_height():
         return
     global xy_position
@@ -560,27 +565,30 @@ def lld_search_position(container):
     else:
         return container['lldSearchPosition']
 
-
 bottle1 = bottle_20ml.copy()
 bottle2 = bottle_20ml.copy()
 bottle3 = bottle_20ml.copy()
 bottle4 = bottle_20ml.copy()
 bottle5 = bottle_20ml.copy()
 bottle6 = bottle_20ml.copy()
+bottle7 = bottle_20ml.copy()
+bottle8 = bottle_20ml.copy()
 
-bottle1['xy'] = (527.5, -190)
-bottle2['xy'] = (496.0, -190)
-bottle3['xy'] = (464.5, -190)
-bottle4['xy'] = (526.5, -221)
-bottle5['xy'] = (496.0, -221)
-bottle6['xy'] = (465.0, -221)
+bottle1['xy'] = (-13,-172) # upper left
+bottle2['xy'] = (-42, -172)
+bottle3['xy'] = (-71, -172)
+bottle4['xy'] = (-100, -172) # upper right
+bottle5['xy'] = (-13, -202) # bottom left
+bottle6['xy'] = (-42, -202)
+bottle7['xy'] = (-71, -202)
+bottle8['xy'] = (-100, -202)
 
 bottle6['volume'] = 6000
 bottle5['volume'] = 6000
 bottle2['volume'] = 6000
 bottle3['volume'] = 6000
 
-bottle_large = {'volume': 91500,
+jar1 = {'volume': 91500,
                 'xy': (409.5, -303),
                 'volume_max': 100000,
                 'area': 2123.7,  # container's horizontal cross-section area is in square mm
@@ -589,17 +597,36 @@ bottle_large = {'volume': 91500,
                 'neck_r': 3,  # inner radius of the neck in mm
                 'containerGeometryTableIndex': 2,
                 'lldSearchPosition': 1700
-               }
+        }
+
+jar2 = {'volume': 91500,
+                'xy': (409.5, -303),
+                'volume_max': 100000,
+                'area': 2123.7,  # container's horizontal cross-section area is in square mm
+                'min_z': 5,  # location of container's # bottom above the floor in mm
+                'top_z': 70,  # height of container in mm
+                'neck_r': 3,  # inner radius of the neck in mm
+                'containerGeometryTableIndex': 2,
+                'lldSearchPosition': 1700
+        }
+
 
 
 # generate plate with tips
 # generate coordinates for all wells of a well plate from coordinates of corner wells.
+# tips_rack = create_well_plate(template_well=tip_300ul,
+#                               Nwells=(8, 12),
+#                               topleft=(398.5, -107),
+#                               topright=(292, -107),
+#                               bottomleft=(399, -174),
+#                               bottomright=(293, -174))
+# updated Dec27_2022
 tips_rack = create_well_plate(template_well=tip_300ul,
                               Nwells=(8, 12),
-                              topleft=(398.5, -107),
-                              topright=(292, -107),
-                              bottomleft=(399, -174),
-                              bottomright=(293, -174))
+                              topleft=(-158.5, -44.5),
+                              topright=(-257.5, -44.5),
+                              bottomleft=(-158.5, -107),
+                              bottomright=(-257.5, -107))
 
 def pick_tip(tips_rack):
     move_z(ZeusTraversePosition)
@@ -630,12 +657,19 @@ def change_tip(tips_rack):
 
 
 # generate coordinates for all wells of a well plate from coordinates of corner wells.
-plate = create_well_plate(template_well=well1,
+plate1 = create_well_plate(template_well=well1,
                           Nwells=(6, 9),
-                          topleft=(556, -275.5),
-                          topright=(444, -275.5),
-                          bottomleft=(556, -345),
-                          bottomright=(444, -345))
+                          topleft=(-7, -255.5),
+                          topright=(-111.5, -255.5),
+                          bottomleft=(-7, -321),
+                          bottomright=(-111.5, -321))
+
+plate2 = create_well_plate(template_well=well1,
+                          Nwells=(6, 9),
+                          topleft=(-156.5, -255.5),
+                          topright=(-261, -255.5),
+                          bottomleft=(-156.5, -321),
+                          bottomright=(-261, -321))
 
 
 def move_through_wells(plate, dwell_time=1):
@@ -730,36 +764,37 @@ container_having_substance = {'Isocyano':bottle6,
                               'amine':bottle5,
                               'aldehyde':bottle2,
                               'pTSA':bottle3,
-                              'DMF': bottle_large}
+                              'DMF': jar1}
 
 excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\' \
                  '2022-12-14-run01\\input_compositions\\compositions.xlsx'
 df = pd.read_excel(excel_filename,
                    sheet_name='Sheet1', usecols='I,J,K,L,M')
 
+# home_xy()
 
-# df_one_plate = df.head(54)  # plate #1
-df_one_plate = df.iloc[54:] # plate #2
-
-addition_sequence = ['DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano']
-# addition_sequence = ['pTSA', 'amine', 'Isocyano']
-for substance in addition_sequence:
-    if not (substance == addition_sequence[0]):
-        change_tip(tips_rack)
-        time.sleep(6)
-    t0 = time.time()
-    for well_id, volume in enumerate(df_one_plate[substance + '.1']):
-        if substance == 'DMF' and well_id < 26:
-            print(f'Skipping substance {substance}, well {well_id}')
-            continue
-        print('Substance {0}, well {1}, volume {2}'.format(substance, well_id, volume))
-        if volume == 0:
-            print('Target volume is zero. Skipping operation.')
-            continue
-        transfer_liquid(container_having_substance[substance],
-                        plate['wells'][well_id],
-                        volume)
-    print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
+# # df_one_plate = df.head(54)  # plate #1
+# df_one_plate = df.iloc[54:] # plate #2
+#
+# addition_sequence = ['DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano']
+# # addition_sequence = ['pTSA', 'amine', 'Isocyano']
+# for substance in addition_sequence:
+#     if not (substance == addition_sequence[0]):
+#         change_tip(tips_rack)
+#         time.sleep(6)
+#     t0 = time.time()
+#     for well_id, volume in enumerate(df_one_plate[substance + '.1']):
+#         if substance == 'DMF' and well_id < 26:
+#             print(f'Skipping substance {substance}, well {well_id}')
+#             continue
+#         print('Substance {0}, well {1}, volume {2}'.format(substance, well_id, volume))
+#         if volume == 0:
+#             print('Target volume is zero. Skipping operation.')
+#             continue
+#         transfer_liquid(container_having_substance[substance],
+#                         plate['wells'][well_id],
+#                         volume)
+#     print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
 
 
 # # motion tests
