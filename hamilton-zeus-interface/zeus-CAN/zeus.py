@@ -661,6 +661,7 @@ class ZeusModule(object):
               'ma' + str(mixVolume).zfill(5) + \
               'mb' + str(mixFlowRate).zfill(5) + \
               'dn' + str(mixCycles).zfill(2)
+        print(f"The command sent to Zeus is : {cmd}")
         self.sendCommand(cmd)
 
     def dispensing(self, dispensingVolume=0, containerGeometryTableIndex=0,
@@ -880,12 +881,14 @@ class ZeusModule(object):
               str(liquidClassParameters.dispensingSwapSpeed).zfill(4) + \
               str(liquidClassParameters.dispensingSettlingTime).zfill(3) + \
               str(liquidClassParameters.flowRateTransportVolume).zfill(5)
+        print(f'cmd send by GL: {cmd}')
         self.sendCommand(cmd)
 
     def getLiquidClassParameters(self, id, index):
         cmd = self.cmdHeader('GM')
         cmd = cmd + 'id' + str(id).zfill(4) + \
-              'iq' + str(index).zfill(2)
+              'lq' + str(index).zfill(2) # 'lq' was revised from 'iq'. iq is a typo. Yankai_20230106
+        print(f'cmd send is : {cmd}')
         self.sendCommand(cmd)
 
     def firmwareUpdate(self, filename):

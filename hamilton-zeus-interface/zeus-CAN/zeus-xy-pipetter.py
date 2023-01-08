@@ -15,35 +15,55 @@ import numpy as np
 import matplotlib
 import pandas as pd
 
+# import liquid_class
+
 matplotlib.use('TkAgg')
 import serial
 import os
 import pickle
 from scipy import interpolate
 import matplotlib.pyplot as plt
+import json
 
 # plt.ion()
 
 class ZeusError(Exception):
     pass
 
-ZeusTraversePosition = 650
-balance_traverse_height = 1000
+# ZeusTraversePosition_300ul = 650
+ZeusTraversePosition_1000ul = 880
+xy_idle = (-300, -180)
+
+balance_traverse_height = 880
 floor_z = 2317
 manual_vial_surface = 2152
+
+weighted_values = {'100ul':[], '200ul':[], '300ul':[], '400ul':[],'500ul':[], '600ul':[],'700ul':[], '800ul':[],'900ul':[]}
+
+
+
 
 # # ZEUS
 zm = zeus.ZeusModule(id=1)
 time.sleep(3)
 
+
 # Deck loading
-deckgeom = zeus.DeckGeometry(index=0, endTraversePosition=ZeusTraversePosition,
+deckgeom = zeus.DeckGeometry(index=0, endTraversePosition=ZeusTraversePosition_1000ul,
                              beginningofTipPickingPosition=1530,
-                             positionofTipDepositProcess=2217)
+                             positionofTipDepositProcess=1817)
 zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom)
 print('Zeus deck geometry loaded')
 
-deckgeom_balance = zeus.DeckGeometry(index=1, endTraversePosition=balance_traverse_height,
+
+deckgeom_1000ul= zeus.DeckGeometry(index=1, endTraversePosition=ZeusTraversePosition_1000ul,
+                                   beginningofTipPickingPosition=1210,
+                                   positionofTipDepositProcess=1600)
+zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom_1000ul)
+print('Zeus deck geometry loaded')
+
+
+deckgeom_balance = zeus.DeckGeometry(index=2, endTraversePosition=balance_traverse_height,
                              beginningofTipPickingPosition=1530,
                              positionofTipDepositProcess=2217)
 zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom_balance)
@@ -55,7 +75,7 @@ print('Zeus deck geometry loaded')
 # TODO: In the object-oriented version this will be depend on target container dictionaries passed by
 #  the module's user
 container_2mL_vial = zeus.ContainerGeometry(index=0, diameter=98, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2137, immersionDepth=20, leavingHeight=20, jetHeight=130,
+                 bottomPosition=2177, immersionDepth=20, leavingHeight=20, jetHeight=130,
                  startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial)
@@ -63,7 +83,7 @@ print('2ml vial container loaded')
 
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2290, immersionDepth=20, leavingHeight=30, jetHeight=130,
+                 bottomPosition=2137, immersionDepth=20, leavingHeight=30, jetHeight=130,
                  startOfHeightBottomSearch=20, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
@@ -78,16 +98,31 @@ zm.setContainerGeometryParameters(containerGeometryParameters=container_jar)
 print('Large bottle container loaded')
 
 
-container_balance_vial = zeus.ContainerGeometry(index=3, diameter=98, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=1680, immersionDepth=20, leavingHeight=20, jetHeight=130,
-                 startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=50,
+container_balance_vial = zeus.ContainerGeometry(index=3, diameter=1000, bottomHeight=0, bottomSection=10000,
+                 bottomPosition=1680, immersionDepth=20, leavingHeight=20, jetHeight=200,
+                 startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=100,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_balance_vial)
 print('Large bottle container loaded')
 
 
+# LOAD LIQUID CLASS PARAMETERS FROM THE JSON FILE
+with open('liquid_class_table_para_ALL.json') as json_file:
+    liquid_class_table_para = json.load(json_file)
+# water0 = zeus.LiquidClass(**liquid_class_table_para['00'])
 
-def wait_until_zeus_reaches_traverse_height(n_retries=70, traverse_height=ZeusTraversePosition):
+# new liquid class base on ethanol14: plld sensitivity is turned down from 3 to 1.
+liquid_Nonpolar1 = zeus.LiquidClass(**liquid_class_table_para['18'])
+liquidClassParameters = zeus.LiquidClass(**liquid_class_table_para['18'])
+
+zm.setLiquidClassParameters(liquid_Nonpolar1)
+
+# new liquid class base on water02
+liquid_Nonpolar2 = zeus.LiquidClass(**liquid_class_table_para['19'])
+zm.setLiquidClassParameters(liquid_Nonpolar2)
+
+
+def wait_until_zeus_reaches_traverse_height(n_retries=70, traverse_height=ZeusTraversePosition_1000ul):
     time.sleep(0.5)
     for i in range(n_retries):
         print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
@@ -217,12 +252,15 @@ def move_to_balance(balance_vial):
 
 def dispense_to_balance_and_weight(source_container, volume, timedelay=5):
     global xy_position
-    if xy_position[0] < -80:
-        move_xy((-80, -195))
+    global weighted_values
+    # if xy_position[0] < -80:
+    #     move_xy((-80, -195))
     close_balance_door()
     time.sleep(timedelay)
+    balance_tare()
     weight_before = balance_value()
     print(f'weight_before: {weight_before} g')
+
     draw_liquid(container=source_container, volume=volume)
     dispense_to_balance(volume=volume)
     close_balance_door()
@@ -231,16 +269,18 @@ def dispense_to_balance_and_weight(source_container, volume, timedelay=5):
     print(f'weight_after: {weight_after} g')
     print(f'Weight of aliquot: {(weight_after - weight_before)*1000} mg')
     print(f'Volume of aliquot: {volume}')
-    return (weight_after - weight_before)*1000
+    return round((weight_after - weight_before)*1000, 1)
 
 def dispense_to_balance_and_weight_n_times(source_container, volume, ntimes, timedelay=5):
     result = []
+    global weighted_values
     t0 = time.time()
     for i in range(ntimes):
         print(f'Dispensing to balance and weighting: iteration {i} out of {ntimes}')
         weight_here = dispense_to_balance_and_weight(source_container=source_container,
                                                      volume=volume, timedelay=timedelay)
         result.append(weight_here)
+        weighted_values[str(volume)+'ul'].append(weight_here)
         time.sleep(timedelay)
         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
     return result
@@ -306,7 +346,11 @@ def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
 
 # XY stage
 
-move_z(650)
+move_z(880)
+
+def pos_z():
+    print(zm.getAbsoluteZPosition())
+
 
 horiz_speed = 200 * 60 # horizontal speed in mm / min
 # xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
@@ -324,7 +368,7 @@ while time.time() - t0 < 8:
     print(line)
 
 def zeus_is_at_traverese_height():
-    if zm.pos <= ZeusTraversePosition:
+    if zm.pos <= ZeusTraversePosition_1000ul:
         return True
     else:
         print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {zm.pos}')
@@ -376,6 +420,8 @@ print('XY stage initiated.')
 
 def xy_pos():
     send_to_xy_stage(ser, '?', read_all=True, verbose=True)
+def pos_xy():
+    xy_pos()
 
 
 # def move_xy(x, y):
@@ -521,13 +567,25 @@ well1 = {'volume': 0,
          'lldSearchPosition': 'auto',
          'safety_margin_for_lldsearch_position': 40
          }
+# This is for the 2-ml vial
+# balance_vial = {'volume': 0,
+#          'xy': (-715, -187),
+#          'volume_max': 15000,
+#          'area': 75.56*10,  # container's horizontal cross-section area is in square mm
+#          'min_z': 59 + 1.2,  # location of container's # bottom above the floor
+#          'top_z': 59 + 32,  # height of container
+#          'containerGeometryTableIndex': 3,
+#          'lldSearchPosition': 1410,
+#          'safety_margin_for_lldsearch_position': 40
+#          }
 
+# This is the 40*40*40 square glass container
 balance_vial = {'volume': 0,
-         'xy': (-250, -195),
-         'volume_max': 1500,
-         'area': 75.56,  # container's horizontal cross-section area is in square mm
-         'min_z': 59 + 1.2,  # location of container's # bottom above the floor
-         'top_z': 59 + 32,  # height of container
+         'xy': (-715, -187),
+         'volume_max': 15000,
+         'area': 40*40,  # container's horizontal cross-section area is in square mm
+         'min_z': 73,  # location of container's # bottom above the floor
+         'top_z': 73 + 40,  # height of container
          'containerGeometryTableIndex': 3,
          'lldSearchPosition': 1410,
          'safety_margin_for_lldsearch_position': 40
@@ -536,7 +594,18 @@ balance_vial = {'volume': 0,
 tip_300ul = {'tip_vol': 300,
              'xy': (300, -100),
              'tipTypeTableIndex': 4,
+            'deckGeometryTableIndex': 0,
+            'ZeusTraversePosition': 650,
              'exists': True,
+             'substance': 'None'
+             }
+
+tip_1000ul = {'tip_vol': 1000,
+             'xy': (-296.5,-32.5),
+             'tipTypeTableIndex': 6,
+            'deckGeometryTableIndex': 1,
+            'ZeusTraversePosition': 880,
+              'exists': True,
              'substance': 'None'
              }
 
@@ -550,20 +619,6 @@ bottle_20ml = {'volume': 20000,
                'lldSearchPosition': 'auto',
                'safety_margin_for_lldsearch_position': 40
                }
-
-
-def liquid_surface_in_container(container, verbose=True):
-    height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
-    if verbose:
-        print(f'Height of liquid from the floor = {height_of_liquid_from_floor:.2f}')
-    return int(round(floor_z - height_of_liquid_from_floor * 10))
-
-
-def lld_search_position(container):
-    if container['lldSearchPosition'] == 'auto':
-        return int(round(liquid_surface_in_container(container) - container['safety_margin_for_lldsearch_position']))
-    else:
-        return container['lldSearchPosition']
 
 bottle1 = bottle_20ml.copy()
 bottle2 = bottle_20ml.copy()
@@ -585,11 +640,12 @@ bottle8['xy'] = (-100, -202)
 
 bottle6['volume'] = 6000
 bottle5['volume'] = 6000
-bottle2['volume'] = 6000
+bottle2['volume'] = 15000
 bottle3['volume'] = 6000
+bottle7['volume'] = 25000
 
 jar1 = {'volume': 91500,
-                'xy': (409.5, -303),
+                'xy': ((-177, -187)),
                 'volume_max': 100000,
                 'area': 2123.7,  # container's horizontal cross-section area is in square mm
                 'min_z': 5,  # location of container's # bottom above the floor in mm
@@ -597,10 +653,11 @@ jar1 = {'volume': 91500,
                 'neck_r': 3,  # inner radius of the neck in mm
                 'containerGeometryTableIndex': 2,
                 'lldSearchPosition': 1700
+
         }
 
 jar2 = {'volume': 91500,
-                'xy': (409.5, -303),
+                'xy': (-238.5, -187),
                 'volume_max': 100000,
                 'area': 2123.7,  # container's horizontal cross-section area is in square mm
                 'min_z': 5,  # location of container's # bottom above the floor in mm
@@ -609,6 +666,21 @@ jar2 = {'volume': 91500,
                 'containerGeometryTableIndex': 2,
                 'lldSearchPosition': 1700
         }
+
+
+def liquid_surface_in_container(container, verbose=True):
+    height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
+    if verbose:
+        print(f'Height of liquid from the floor = {height_of_liquid_from_floor:.2f}')
+    return int(round(floor_z - height_of_liquid_from_floor * 10))
+
+
+def lld_search_position(container):
+    if container['lldSearchPosition'] == 'auto':
+        return int(round(liquid_surface_in_container(container) - container['safety_margin_for_lldsearch_position']))
+    else:
+        return container['lldSearchPosition']
+
 
 
 
@@ -621,22 +693,29 @@ jar2 = {'volume': 91500,
 #                               bottomleft=(399, -174),
 #                               bottomright=(293, -174))
 # updated Dec27_2022
-tips_rack = create_well_plate(template_well=tip_300ul,
-                              Nwells=(8, 12),
-                              topleft=(-158.5, -44.5),
-                              topright=(-257.5, -44.5),
-                              bottomleft=(-158.5, -107),
-                              bottomright=(-257.5, -107))
+tips_rack_300ul = create_well_plate(template_well=tip_300ul,
+                                    Nwells=(8, 12),
+                                    topleft=(-158.5, -44.5),
+                                    topright=(-257.5, -44.5),
+                                    bottomleft=(-158.5, -107),
+                                    bottomright=(-257.5, -107))
+
+tips_rack_1000ul = create_well_plate(template_well=tip_1000ul,
+                                    Nwells=(8, 12),
+                                    topleft=(-296.5, -32.5),
+                                    topright=(-396, -32.5),
+                                    bottomleft=(-296.5, -95),
+                                    bottomright=(-396, -95))
 
 def pick_tip(tips_rack):
-    move_z(ZeusTraversePosition)
+    move_z(tips_rack['wells'][0]['ZeusTraversePosition'])
     # wait_until_zeus_reaches_traverse_height()
     # In the rack, find the first tip that exists
     for tip in tips_rack['wells']:
         if tip['exists']:
             # pick up tip
-            move_xy(tip['xy'])
-            zm.pickUpTip(tipTypeTableIndex=tip['tipTypeTableIndex'], deckGeometryTableIndex=0)
+            move_xy(tip['xy'], ensure_traverse_height= True)
+            zm.pickUpTip(tipTypeTableIndex=tip['tipTypeTableIndex'], deckGeometryTableIndex=tip['deckGeometryTableIndex'])
             tip['exists'] = False
             # wait_until_zeus_reaches_traverse_height()
             wait_until_zeus_responds_with_string('GTid')
@@ -645,11 +724,18 @@ def pick_tip(tips_rack):
     raise Exception
 
 def discard_tip():
-    move_z(ZeusTraversePosition)
+    move_z(ZeusTraversePosition_1000ul)
     # wait_until_zeus_reaches_traverse_height()
     move_xy(trash_xy)
-    zm.discardTip(deckGeometryTableIndex=0)
+    zm.discardTip(deckGeometryTableIndex=1)
     wait_until_zeus_responds_with_string('GUid')
+
+# def discard_tip_1000():
+#     move_z(ZeusTraversePosition_1000ul)
+#     # wait_until_zeus_reaches_traverse_height()
+#     move_xy(trash_xy)
+#     zm.discardTip(deckGeometryTableIndex=1)
+#     wait_until_zeus_responds_with_string('GUid')
 
 def change_tip(tips_rack):
     discard_tip()
@@ -678,24 +764,37 @@ def move_through_wells(plate, dwell_time=1):
         time.sleep(dwell_time)
 
 
-#
-def draw_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface,
+
+def draw_liquid(container, volume, lld = 1,  liquidClassTableIndex=2, liquidSurface=manual_vial_surface,
                 n_retries=3):
+
     container['volume'] -= volume
-    if zm.pos > ZeusTraversePosition:
-        move_z(ZeusTraversePosition)
+    if zm.pos > ZeusTraversePosition_1000ul:
+        move_z(ZeusTraversePosition_1000ul)
     #     wait_until_zeus_reaches_traverse_height()
     move_xy(container['xy'])
     for retry in range(n_retries):
         try:
-            print(f'Volume for zeus {int(round(volume_for_zeus(volume) * 10))}')
-            zm.aspiration(aspirationVolume=int(round(volume_for_zeus(volume)*10)),
+            # This is used for organic solvents, e.g.BMF
+            # print(f'Volume for zeus {int(round(volume_for_zeus(volume) * 10))}') # this is to offset the difference between water and the organic solvent, e.g. BMF
+            # zm.aspiration(aspirationVolume=int(round(volume_for_zeus(volume)*10)),
+            #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
+            #               deckGeometryTableIndex=1, liquidClassTableIndex=liquidClassTableIndex,
+            #               qpm=1, lld=1, lldSearchPosition=lld_search_position(container),
+            #               liquidSurface=liquid_surface_in_container(container),
+            #               mixVolume=0, mixFlowRate=0, mixCycles=0)
+
+            # This is used to test water
+            print(f'Volume for zeus {int(round(volume * 10))}')
+            zm.aspiration(aspirationVolume=int(round(volume * 10)),
                           containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                          deckGeometryTableIndex=0, liquidClassTableIndex=liquidClassTableIndex,
-                          qpm=1, lld=1, lldSearchPosition=lld_search_position(container),
+                          deckGeometryTableIndex=1, liquidClassTableIndex=liquidClassTableIndex,
+                          qpm=1, lld= lld, lldSearchPosition=lld_search_position(container),
                           liquidSurface=liquid_surface_in_container(container),
                           mixVolume=0, mixFlowRate=0, mixCycles=0)
-            time.sleep(1.5)
+
+            # time.sleep(1.5)
+            time.sleep(2)
             wait_until_zeus_responds_with_string('GAid')
             return True
         except ZeusError:
@@ -703,7 +802,7 @@ def draw_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual
                 # Empty tube detected during aspiration
                 print('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
                 time.sleep(2)
-                move_z(ZeusTraversePosition)
+                move_z(ZeusTraversePosition_1000ul)
                 time.sleep(2)
                 dispense_liquid(container, volume)
                 time.sleep(2)
@@ -712,45 +811,65 @@ def draw_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual
     print(f'Tried {n_retries} but zeus error is still there')
     raise Exception
 
+# draw_liquid(container = bottle1, volume = 300, lld = 1,  liquidClassTableIndex=18)
 
-def dispense_liquid(container, volume, liquidClassTableIndex=1, liquidSurface=manual_vial_surface,
-                    liquid_surface_margin=50, deckGeometryTableIndex=0):
-    if zm.pos > ZeusTraversePosition:
-        move_z(ZeusTraversePosition)
+
+def dispense_liquid(container, volume, liquidClassTableIndex=2, liquidSurface=manual_vial_surface,
+                    liquid_surface_margin=50, deckGeometryTableIndex=1):
+
+    if zm.pos > ZeusTraversePosition_1000ul:
+        move_z(ZeusTraversePosition_1000ul)
         # wait_until_zeus_reaches_traverse_height()
     move_xy(container['xy'])
-    print(f'Volume for zeus {int(round(volume_for_zeus(volume)*10))}')
-    zm.dispensing(dispensingVolume=int(round(volume_for_zeus(volume)*10)),
-                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                  deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
-                  lld=0, lldSearchPosition=lld_search_position(container),
-                  liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
-                  searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
-    time.sleep(1.5)
-    # wait_until_zeus_reaches_traverse_height()
-    wait_until_zeus_responds_with_string('GDid')
-    container['volume'] += volume
+    #print(f'Volume for zeus {int(round(volume_for_zeus(volume)*10))}') # this is to offset the difference between water and the organic solvent, e.g. BMF
 
-def dispense_to_balance(volume, container=balance_vial, liquidClassTableIndex=1, liquidSurface=manual_vial_surface,
-                    liquid_surface_margin=50, deckGeometryTableIndex=1):
-    if zm.pos > balance_traverse_height:
-        move_z(balance_traverse_height)
-        # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
-    move_to_balance(balance_vial)
+    # this is used for organic solvents, e.g.BMF
+    # zm.dispensing(dispensingVolume=int(round(volume_for_zeus(volume)*10)),
+    #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
+    #               deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
+    #               lld=0, lldSearchPosition=lld_search_position(container),
+    #               liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
+    #               searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
+    #
+
+    # this is used for testing water
     zm.dispensing(dispensingVolume=int(round(volume*10)),
                   containerGeometryTableIndex=container['containerGeometryTableIndex'],
                   deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
                   lld=0, lldSearchPosition=lld_search_position(container),
                   liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
                   searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
+
     time.sleep(1.5)
-    # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
+    # wait_until_zeus_reaches_traverse_height()
     wait_until_zeus_responds_with_string('GDid')
-    move_xy((-80, -195))
     container['volume'] += volume
 
 
-def transfer_liquid(source, destination, volume, max_volume=250):
+def dispense_to_balance(volume, container=balance_vial, liquidClassTableIndex=2, liquidSurface=manual_vial_surface,
+                    liquid_surface_margin=50, deckGeometryTableIndex=1):
+
+    print(f" balance_ vial volume is now : { container['volume']}")
+    if zm.pos > balance_traverse_height:
+        move_z(balance_traverse_height)
+        # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
+    move_to_balance(balance_vial)
+    zm.dispensing(dispensingVolume=int(round(volume*10)),
+                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
+                  deckGeometryTableIndex=deckGeometryTableIndex,
+                  liquidClassTableIndex=liquidClassTableIndex,
+                  lld=0, lldSearchPosition=lld_search_position(container),
+                  liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
+                  searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
+    time.sleep(1.5)
+    # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
+    wait_until_zeus_responds_with_string('GDid')
+    move_xy(xy_idle)
+    container['volume'] += volume
+    print(f" balance_ vial volume is now : { container['volume']}")
+
+
+def transfer_liquid(source, destination, volume, max_volume=900):
     # if it exceeds max_volume, then do several pipettings
     N_max_vol_pipettings = int(volume // max_volume)
     for i in range(N_max_vol_pipettings):
@@ -760,18 +879,92 @@ def transfer_liquid(source, destination, volume, max_volume=250):
     draw_liquid(source, volume=volume_of_last_pipetting)
     dispense_liquid(destination, volume=volume_of_last_pipetting)
 
-container_having_substance = {'Isocyano':bottle6,
-                              'amine':bottle5,
-                              'aldehyde':bottle2,
-                              'pTSA':bottle3,
-                              'DMF': jar1}
 
-excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\' \
-                 '2022-12-14-run01\\input_compositions\\compositions.xlsx'
-df = pd.read_excel(excel_filename,
-                   sheet_name='Sheet1', usecols='I,J,K,L,M')
+time.sleep(1)
+home_xy()
 
-# home_xy()
+
+# container_having_substance = {'Isocyano':bottle6,
+#                               'amine':bottle5,
+#                               'aldehyde':bottle2,
+#                               'pTSA':bottle3,
+#                               'DMF': jar1}
+#
+# excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\' \
+#                  '2022-12-14-run01\\input_compositions\\compositions.xlsx'
+# df = pd.read_excel(excel_filename,
+#                    sheet_name='Sheet1', usecols='I,J,K,L,M')
+#
+# xy1 = plate1['wells'][0]['xy'] # coord of the first 2ml vial
+
+
+
+
+## the following is for typing lazines
+def dis():
+    discard_tip()
+
+def request_zeus():
+    pass
+
+def pick():
+    pick_tip(tips_rack_1000ul)
+
+def draw():
+    draw_liquid(jar2, 200)
+
+def disp():
+    dispense_liquid(plate1['wells'][0], 800)
+
+def dispb():
+    dispense_liquid(balance_vial, 100)
+
+def weight():
+    dispense_to_balance_and_weight(bottle8, 100, timedelay=5)
+
+def weight_n(volume):
+    dispense_to_balance_and_weight_n_times(jar2, volume, ntimes=10, timedelay=5)
+
+def test_sd():
+    pick()
+    for i in range(1, 10):
+        weight_n(i*100)
+    dis()
+    json.dump(weighted_values, open("weighted_values.txt",'w'))
+
+def transfer1():
+    for i in range(9):
+        transfer_liquid(bottle1, plate1['wells'][i], 500)
+        time.sleep(0.5)
+
+def test_balance_vial():
+    for i in range(30):
+        print(f'n = {i} cycles')
+        draw_liquid(jar2, 800)
+        # time.sleep(0.5)
+        dispense_to_balance(800)
+        # time.sleep(0.5)
+
+avg = []
+std = []
+def ast(weighted_values= weighted_values):
+    global avg
+    global std
+    keys = [key for key in weighted_values]
+    for i in keys:
+        print(i)
+        avg.append(np.mean(weighted_values[i]))
+        std.append(np.std(weighted_values[i]))
+    xx = [i for i in range(1, 10)]
+    plt.errorbar(xx, avg[:9], std[:9], linestyle = 'None', marker = '^',  capsize=4, elinewidth=2, markersize = 6)
+    plt.plot(xx,[x*100 for x in xx], marker = '.', markersize = 6)
+    # plt.ylim(190, 210)
+    plt.show()
+    return [avg, std]
+
+
+# import json
+# json.dump(weighted_values, open("weighted_values.txt",'w'))
 
 # # df_one_plate = df.head(54)  # plate #1
 # df_one_plate = df.iloc[54:] # plate #2
@@ -801,3 +994,7 @@ df = pd.read_excel(excel_filename,
 # for i in range(10):
 #     move_xy((400, -100), block_until_motion_is_completed=True, use_time_estimates=True)
 #     move_xy((300, -200), block_until_motion_is_completed=True, use_time_estimates=True)
+
+
+##TODO
+# 1 change dispensing height for 2ml vials
