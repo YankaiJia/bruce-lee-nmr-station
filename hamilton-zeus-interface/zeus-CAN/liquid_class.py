@@ -1,29 +1,5 @@
 # LIQUID CLASS
-
-
-
-`
-`
-
-`
-``
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# example of a liquid class para
+ # example of a liquid class para
 # GMid0001 lq01 uu0 0 05000 0050 00050 00250 0200 010 0 3 3 0 0 05000 00000 000 00050 040 0200 010 00325
 
 import zeus
@@ -33,20 +9,24 @@ import json
 
 zm = zeus.ZeusModule(id=1)
 
-liquid_class_table_para = {}
+# load jason file
+with open('data/liquid_class_table_para_ALL.json') as json_file:
+    liquid_class_table_para = json.load(json_file)
 
-def get_liquid_class_parameter(id = '0001', liquid_index = '00'):
-    cmd = 'GMid'+ id + 'lq' + liquid_index
+def get_liquid_class_parameter(liquid_index, id = '0001'):
+    cmd = 'GMid'+ id+ 'lq' + str(liquid_index).zfill(2)
     print(f'cmd send is : {cmd}')
-    zm.sendCommand(cmd) # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
+    # zm.sendCommand(cmd) # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
     # print(zm.r.received_msg)
+    msg_received_from_Zeus = zm.r.received_msg
     time.sleep(1)
     zm.sendCommand(cmd)
     msg_received_from_Zeus = zm.r.received_msg
     print(f'msg_received_from_Zeus len is : {len(msg_received_from_Zeus)}')
-    return msg_received_fro`
-    m_Zeus
+    return msg_received_from_Zeus
 
+def get(liquid_index):
+    return get_liquid_class_parameter(liquid_index= liquid_index)
 
 def fill_one_liquid_class_parameter(id = '0001', liquid_index = '00'):
     msg = get_liquid_class_parameter(id, liquid_index)
@@ -86,39 +66,38 @@ def fill_one_liquid_class_parameter(id = '0001', liquid_index = '00'):
         n += var_dict[i]
     return liquid_class_table_para
 
+
 def extract_all_built_in_liquid_class_parameters_to_a_dict():
     global liquid_class_table_para
     liquid_class_table_para = {}
-    for i in range(18):
+    for i in range(31):
         liquid_index = str(i).zfill(2)
         # print(liquid_index)
         liquid_class_table_para[liquid_index] = {}
         fill_one_liquid_class_parameter(liquid_index = liquid_index)
         # print(liquid_class_table_para)
-        time.sleep(1)
-    # print(liquid_class_table_para)
-    with open('liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
-        json.dump(liquid_class_table_para, f, ensure_ascii=False, indent=4)
-    print(f'data save: {liquid_class_table_para}')
-
+        time.sleep(0.2)
 
 # extract_all_built_in_liquid_class_parameters_to_a_dict()
 
-# load jason file
-with open('liquid_class_table_para_ALL.json') as json_file:
-    liquid_class_table_para = json.load(json_file)
+def copy_para_from_to(index_from, index_to):
+    liquid_class_table_para[str(index_to).zfill(2)] = liquid_class_table_para[str(index_from).zfill(2)]
 
-# liquid_class_table_para['18'] = liquid_class_table_para['14']
-# liquid_class_table_para['18']['index'] = 18
-# liquid_class_table_para['18']['plldSensitivity'] = 2
-
-liquid_class_table_para['19'] = liquid_class_table_para['02']
-liquid_class_table_para['19']['index'] = 19
-liquid_class_table_para['19']['lld'] = 1
-# liquid_class_table_para['19']['plldSensitivity'] = 2
+# update the parameters for a liquid class
+# liquid_class_table_para['21']['lld'] = 1
+# # liquid_class_table_para['21']['plldSensitivity'] = 3
 
 # update json file
-with open('liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
+with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
     json.dump(liquid_class_table_para, f, ensure_ascii=False, indent=4)
 
-# pp(db['han'])
+
+## copy liquid class parameters from one index to another index
+## this is a dumb way to do it. Just copy in the dictionary and then load from the dictionary.
+# def copy_para_from_to(index_from, index_to):
+#     received_string = get_liquid_class_parameter(id='0001', liquid_index=str(index_from).zfill(2))
+#     print(f'The index_from class is:  {received_string}')
+#     assembly_string = 'GMid0001lq' + str(index_to).zfill(2) + received_string[12:100]
+#     zm.sendCommand(assembly_string)
+#     new_class_para = get_liquid_class_parameter(id='0001', liquid_index=str(index_to).zfill(2))
+#     print(f'The new class para is:  {new_class_para}')

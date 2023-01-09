@@ -32,15 +32,13 @@ class ZeusError(Exception):
 
 # ZeusTraversePosition_300ul = 650
 ZeusTraversePosition_1000ul = 880
-xy_idle = (-300, -180)
+xy_idle = (-345, -187)
 
 balance_traverse_height = 880
 floor_z = 2317
 manual_vial_surface = 2152
 
 weighted_values = {'100ul':[], '200ul':[], '300ul':[], '400ul':[],'500ul':[], '600ul':[],'700ul':[], '800ul':[],'900ul':[]}
-
-
 
 
 # # ZEUS
@@ -76,14 +74,14 @@ print('Zeus deck geometry loaded')
 #  the module's user
 container_2mL_vial = zeus.ContainerGeometry(index=0, diameter=98, bottomHeight=0, bottomSection=10000,
                  bottomPosition=2177, immersionDepth=20, leavingHeight=20, jetHeight=130,
-                 startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=50,
+                 startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=80,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial)
 print('2ml vial container loaded')
 
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2137, immersionDepth=20, leavingHeight=30, jetHeight=130,
+                 bottomPosition=2110, immersionDepth=20, leavingHeight=30, jetHeight=130,
                  startOfHeightBottomSearch=20, dispenseHeightAfterBottomSearch=50,
                  )
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
@@ -106,20 +104,17 @@ zm.setContainerGeometryParameters(containerGeometryParameters=container_balance_
 print('Large bottle container loaded')
 
 
-# LOAD LIQUID CLASS PARAMETERS FROM THE JSON FILE
-with open('liquid_class_table_para_ALL.json') as json_file:
+# Liquid class loading from JSON file
+
+with open('data/liquid_class_table_para_ALL.json') as json_file:
     liquid_class_table_para = json.load(json_file)
-# water0 = zeus.LiquidClass(**liquid_class_table_para['00'])
 
-# new liquid class base on ethanol14: plld sensitivity is turned down from 3 to 1.
-liquid_Nonpolar1 = zeus.LiquidClass(**liquid_class_table_para['18'])
-liquidClassParameters = zeus.LiquidClass(**liquid_class_table_para['18'])
+def load_liquid_class ():
 
-zm.setLiquidClassParameters(liquid_Nonpolar1)
+    for i in range(21, 30):
+        zeus.LiquidClass(**liquid_class_table_para[str(i).zfill(2)])
 
-# new liquid class base on water02
-liquid_Nonpolar2 = zeus.LiquidClass(**liquid_class_table_para['19'])
-zm.setLiquidClassParameters(liquid_Nonpolar2)
+load_liquid_class()
 
 
 def wait_until_zeus_reaches_traverse_height(n_retries=70, traverse_height=ZeusTraversePosition_1000ul):
@@ -346,7 +341,7 @@ def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
 
 # XY stage
 
-move_z(880)
+# move_z(880)
 
 def pos_z():
     print(zm.getAbsoluteZPosition())
@@ -559,9 +554,9 @@ def create_well_plate(template_well, Nwells, topleft, topright, bottomleft, bott
 
 well1 = {'volume': 0,
          'xy': (-37, -52),
-         'volume_max': 1500,
+         'volume_max': 1800,
          'area': 75.56,  # container's horizontal cross-section area is in square mm
-         'min_z': 1.2,  # location of container's # bottom above the floor
+         'min_z': 12,  # location of container's # bottom above the floor
          'top_z': 32,  # height of container
          'containerGeometryTableIndex': 0,
          'lldSearchPosition': 'auto',
@@ -609,11 +604,11 @@ tip_1000ul = {'tip_vol': 1000,
              'substance': 'None'
              }
 
-bottle_20ml = {'volume': 20000,
+bottle_20ml = {'volume': 0,
                'xy': (-51.0, -6.0),
                'volume_max': 20000,
                'area': 510.7,  # container's horizontal cross-section area is in square mm
-               'min_z': 3,  # location of container's # bottom above the floor
+               'min_z': 10,  # location of container's # bottom above the floor
                'top_z': 62,  # height of container
                'containerGeometryTableIndex': 1,
                'lldSearchPosition': 'auto',
@@ -638,11 +633,15 @@ bottle6['xy'] = (-42, -202)
 bottle7['xy'] = (-71, -202)
 bottle8['xy'] = (-100, -202)
 
-bottle6['volume'] = 6000
-bottle5['volume'] = 6000
-bottle2['volume'] = 15000
-bottle3['volume'] = 6000
-bottle7['volume'] = 25000
+bottle1['volume'] = 10000 # volume in ul. 15000 means 15 mL
+bottle2['volume'] = 10000
+bottle3['volume'] = 5000
+bottle4['volume'] = 15000
+bottle5['volume'] = 15000
+bottle6['volume'] = 15000
+bottle7['volume'] = 15000
+bottle8['volume'] = 15000
+
 
 jar1 = {'volume': 91500,
                 'xy': ((-177, -187)),
@@ -667,7 +666,6 @@ jar2 = {'volume': 91500,
                 'lldSearchPosition': 1700
         }
 
-
 def liquid_surface_in_container(container, verbose=True):
     height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
     if verbose:
@@ -680,8 +678,6 @@ def lld_search_position(container):
         return int(round(liquid_surface_in_container(container) - container['safety_margin_for_lldsearch_position']))
     else:
         return container['lldSearchPosition']
-
-
 
 
 # generate plate with tips
@@ -757,6 +753,29 @@ plate2 = create_well_plate(template_well=well1,
                           bottomleft=(-156.5, -321),
                           bottomright=(-261, -321))
 
+# save data to JSON file
+def save_data():
+    with open('data/plate1.json', 'w', encoding='utf-8') as f:
+        for i in plate1['wells']:
+            if not isinstance(i['xy'], list):
+                i['xy'] =  i['xy'].tolist()
+        json.dump(plate1, f, ensure_ascii=False, indent=4)
+    with open('data/plate2.json', 'w', encoding='utf-8') as f:
+        for i in plate1['wells']:
+            if not isinstance(i['xy'], list):
+                i['xy'] =  i['xy'].tolist()
+        json.dump(plate2, f, ensure_ascii=False, indent=4)
+    with open('data/tips_rack_300ul.json', 'w', encoding='utf-8') as f:
+        for i in tips_rack_300ul['wells']:
+            if not isinstance(i['xy'], list):
+                i['xy'] =  i['xy'].tolist()
+        json.dump(tips_rack_300ul, f, ensure_ascii=False, indent=4)
+    with open('data/tips_rack_1000ul.json', 'w', encoding='utf-8') as f:
+        for i in tips_rack_1000ul['wells']:
+            if not isinstance(i['xy'], list):
+                i['xy'] =  i['xy'].tolist()
+        json.dump(tips_rack_1000ul, f, ensure_ascii=False, indent=4)
+
 
 def move_through_wells(plate, dwell_time=1):
     for well in plate['wells']:
@@ -764,8 +783,7 @@ def move_through_wells(plate, dwell_time=1):
         time.sleep(dwell_time)
 
 
-
-def draw_liquid(container, volume, lld = 1,  liquidClassTableIndex=2, liquidSurface=manual_vial_surface,
+def draw_liquid(container, volume, lld,  liquidClassTableIndex, liquidSurface=manual_vial_surface,
                 n_retries=3):
 
     container['volume'] -= volume
@@ -811,16 +829,19 @@ def draw_liquid(container, volume, lld = 1,  liquidClassTableIndex=2, liquidSurf
     print(f'Tried {n_retries} but zeus error is still there')
     raise Exception
 
-# draw_liquid(container = bottle1, volume = 300, lld = 1,  liquidClassTableIndex=18)
 
-
-def dispense_liquid(container, volume, liquidClassTableIndex=2, liquidSurface=manual_vial_surface,
+def dispense_liquid(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=1):
 
     if zm.pos > ZeusTraversePosition_1000ul:
         move_z(ZeusTraversePosition_1000ul)
         # wait_until_zeus_reaches_traverse_height()
     move_xy(container['xy'])
+
+    # check if container is full.
+    if container['volume'] >= container["volume_max"]:
+        print("The target container is full. Dispensing is aborted.")
+        return
     #print(f'Volume for zeus {int(round(volume_for_zeus(volume)*10))}') # this is to offset the difference between water and the organic solvent, e.g. BMF
 
     # this is used for organic solvents, e.g.BMF
@@ -869,19 +890,53 @@ def dispense_to_balance(volume, container=balance_vial, liquidClassTableIndex=2,
     print(f" balance_ vial volume is now : { container['volume']}")
 
 
-def transfer_liquid(source, destination, volume, max_volume=900):
+def transfer_liquid(source, destination, volume_here, lld, liquidClassTableIndex, max_volume=900):
+
+    # check if container is full.
+    if destination['volume'] >= destination["volume_max"]:
+        print("The target container is full. Dispensing is aborted.")
+        return
+
     # if it exceeds max_volume, then do several pipettings
-    N_max_vol_pipettings = int(volume // max_volume)
+    N_max_vol_pipettings = int(volume_here // max_volume)
+
     for i in range(N_max_vol_pipettings):
-        draw_liquid(source, volume=max_volume)
+        draw_liquid(source, lld, volume = max_volume)
         dispense_liquid(destination, volume=max_volume)
-    volume_of_last_pipetting = volume % max_volume
-    draw_liquid(source, volume=volume_of_last_pipetting)
-    dispense_liquid(destination, volume=volume_of_last_pipetting)
+
+    volume_of_last_pipetting = volume_here % max_volume
+    draw_liquid(source, lld, liquidClassTableIndex, volume = volume_of_last_pipetting)
+    dispense_liquid(destination, liquidClassTableIndex, volume = volume_of_last_pipetting)
 
 
-time.sleep(1)
-home_xy()
+def transfer_liquid_simple(source, destination, volume, lld, liquidClassTableIndex):
+
+    # check if container is full.
+    if destination['volume'] >= destination["volume_max"]:
+        print("The target container is full. Dispensing is aborted.")
+        return
+    draw_liquid(container = source, lld =lld, liquidClassTableIndex = liquidClassTableIndex, volume = volume)
+    dispense_liquid(container = destination, liquidClassTableIndex = liquidClassTableIndex, volume = volume)
+
+
+def empty_plate_vials():
+    global plate1
+    global plate2
+    well1['volume'] = 0
+    plate1 = create_well_plate(template_well=well1,
+                               Nwells=(6, 9),
+                               topleft=(-7, -255.5),
+                               topright=(-111.5, -255.5),
+                               bottomleft=(-7, -321),
+                               bottomright=(-111.5, -321))
+    plate2 = create_well_plate(template_well=well1,
+                               Nwells=(6, 9),
+                               topleft=(-156.5, -255.5),
+                               topright=(-261, -255.5),
+                               bottomleft=(-156.5, -321),
+                               bottomright=(-261, -321))
+
+
 
 
 # container_having_substance = {'Isocyano':bottle6,
@@ -932,18 +987,45 @@ def test_sd():
     dis()
     json.dump(weighted_values, open("weighted_values.txt",'w'))
 
-def transfer1():
-    for i in range(9):
-        transfer_liquid(bottle1, plate1['wells'][i], 500)
+def reaction():
+    for i in range(0, 5):
+        transfer_liquid_simple(source=bottle1,
+                               destination=plate1['wells'][i],
+                               volume=500, lld = 0,
+                               liquidClassTableIndex=14)
         time.sleep(0.5)
+    dis()
+    pick()
+    for i in range(3, 6):
+        transfer_liquid_simple(source=bottle7,
+                               destination= plate1['wells'][i],
+                               volume=100, lld = 0,
+                               liquidClassTableIndex= 14)
+        time.sleep(0.5)
+    dis()
+    pick()
+    for i in range(3, 6):
+        transfer_liquid_simple(source=bottle8,
+                               destination=plate1['wells'][i],
+                               volume=100, lld = 0,
+                               liquidClassTableIndex= 14)
+        time.sleep(0.5)
+    dis()
+    move_xy(xy_idle)
+    print(f'Pipetting done!')
 
-def test_balance_vial():
-    for i in range(30):
-        print(f'n = {i} cycles')
-        draw_liquid(jar2, 800)
+
+
+def test_bv():
+    n_times = 5
+    for i in range(n_times):
+        print(f'n = {i} / {n_times} cycles')
+        draw_liquid(container=bottle6, volume=100, liquidClassTableIndex= 14, lld = 0)
         # time.sleep(0.5)
-        dispense_to_balance(800)
+        dispense_to_balance(volume=100, liquidClassTableIndex=14)
         # time.sleep(0.5)
+
+# zm.sendString('GAid0000ai01000ge01go01lq14gq1lb1zp1667cf1707ma00000mb00000dn00')
 
 avg = []
 std = []
@@ -962,6 +1044,9 @@ def ast(weighted_values= weighted_values):
     plt.show()
     return [avg, std]
 
+
+time.sleep(1)
+home_xy()
 
 # import json
 # json.dump(weighted_values, open("weighted_values.txt",'w'))
