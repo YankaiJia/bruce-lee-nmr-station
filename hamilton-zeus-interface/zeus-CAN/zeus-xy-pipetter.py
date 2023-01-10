@@ -110,7 +110,6 @@ with open('data/liquid_class_table_para_ALL.json') as json_file:
     liquid_class_table_para = json.load(json_file)
 
 def load_liquid_class ():
-
     for i in range(21, 30):
         zeus.LiquidClass(**liquid_class_table_para[str(i).zfill(2)])
 
@@ -404,13 +403,14 @@ def send_to_xy_stage(ser, command, wait_for_ok=True, verbose=True, read_all=Fals
 
 
 # send configuration parameters from grbl_settings.txt into the GRBL firmware
-with open('grbl_settings.txt', 'r') as grbl_config_file:
-    for line in grbl_config_file:
-        # extract command before the comments
-        send_to_xy_stage(ser, command=line.split('    (')[0], read_all=True, verbose=True)
+def configure_grbl():
+    with open('grbl_settings.txt', 'r') as grbl_config_file:
+        for line in grbl_config_file:
+            # extract command before the comments
+            send_to_xy_stage(ser, command=line.split('    (')[0], read_all=True, verbose=True)
+    print('XY stage configured.')
 
-
-print('XY stage initiated.')
+# configure_grbl()
 
 
 def xy_pos():

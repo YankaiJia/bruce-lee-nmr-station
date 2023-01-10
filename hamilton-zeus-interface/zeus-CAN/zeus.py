@@ -6,6 +6,8 @@ from time import sleep
 from colorama import init, Fore, Back, Style
 from threading import Thread, Lock
 import codecs
+import json
+
 import sys
 
 DEBUG = 0
@@ -85,7 +87,6 @@ def printMSG(type, msg):
         print(Fore.RED + "(" + "{0:f}".format(ts)
               + ") ERROR: " + msg + Style.RESET_ALL)
         # raise Exception(msg)
-
 
 class ContainerGeometry(object):
 
@@ -859,8 +860,8 @@ class ZeusModule(object):
         if liquidClassParameters.index is None:
             raise ValueError(
                 "Please specify a valid deck geometry table index.")
-        cmd = self.cmdHeader('GL')
-        cmd = cmd + 'id' + str(liquidClassParameters.id).zfill(4) + \
+        # cmd = self.cmdHeader('GL')
+        cmd = 'GL' + 'id' + str(liquidClassParameters.id).zfill(4) + \
               'lq' + str(liquidClassParameters.index).zfill(2) + \
               'uu' + str(liquidClassParameters.liquidClassForFilterTips) + \
               ' ' + str(liquidClassParameters.aspirationMode) + \
