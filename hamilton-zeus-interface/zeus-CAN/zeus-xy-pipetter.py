@@ -351,12 +351,6 @@ def move_z(z):
     zm.moveZDrive(z, 'fast')
     wait_until_zeus_responds_with_string('GZid')
 
-def zeus_is_at_traverese_height():
-    if zm.pos <= ZeusTraversePosition_1000ul:
-        return True
-    else:
-        print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {zm.pos}')
-        return False
 
 def pos_z():
     print(zm.getAbsoluteZPosition())
@@ -413,14 +407,13 @@ def send_to_xy_stage(ser, command, wait_for_ok=True, verbose=True, read_all=Fals
                 break
 
 # send configuration parameters from grbl_settings.txt into the GRBL firmware
-def configure_grbl():
-    with open('grbl_settings.txt', 'r') as grbl_config_file:
+with open('grbl_settings.txt', 'r') as grbl_config_file:
         for line in grbl_config_file:
             # extract command before the comments
             send_to_xy_stage(ser, command=line.split('    (')[0], read_all=True, verbose=True)
-    print('XY stage configured.')
+print('XY stage configured.')
 
-configure_grbl()
+
 
 def xy_pos():
     send_to_xy_stage(ser, '?', read_all=True, verbose=True)
