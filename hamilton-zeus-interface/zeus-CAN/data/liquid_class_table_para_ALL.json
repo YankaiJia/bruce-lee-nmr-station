@@ -2,7 +2,7 @@
     "data_container": {
         "21": "DMF, based on water 02, tip 1000ul",
         "22": "DMF, based on water 01, tip 300ul",
-        "23": "DMF, based on water 00, tip 300ul"
+        "23": "DMF, based on water 00, tip 50ul"
     },
     "liquid_class_para": {
         "00": {
@@ -500,7 +500,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -525,7 +525,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -625,7 +625,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -650,7 +650,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -675,7 +675,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -700,7 +700,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -725,7 +725,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -750,7 +750,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -775,7 +775,7 @@
             "stopFlowRate": 0,
             "stopBackVolume": 0,
             "dispensingTransportVolume": 0,
-            "acceleration": 400,
+            "acceleration": 245,
             "dispensingSwapSpeed": 0,
             "dispensingSettlingTime": 0,
             "flowRateTransportVolume": 0
@@ -804,7 +804,7 @@
             "18": "GEid0001gg18ck00100 00113 00200 00214 00500 00538 01000 01081 02000 02095 05000 05187 07500 07763 10000 10380",
             "19": "GEid0001gg19ck00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000",
             "20": "GEid0001gg20ck00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000",
-            "21": "GGid0001gg21ck00100 00109 00200 00214 00500 00538 01000 01069 02000 02095 05000 05187 07500 07763 10000 10340",
+            "21": "GGid0001gg21ck00100 00100 00200 00200 00500 00500 01000 01000 02000 02000 05000 05000 07500 07500 10000 10000",
             "22": "GGid0001gg22ck00010 00006 00050 00055 00100 00114 00250 00279 00500 00544 01000 01064 02000 02097 03000 03125",
             "23": "GGid0001gg23ck00100 00128 00200 00246 00500 00581 01000 01111 02000 02154 05000 05259 07500 07847 10000 10431",
             "24": "GEid0001gg24ck00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000",
@@ -837,7 +837,7 @@
             "18": "GIid0001gh18cl00100 00113 00200 00214 00500 00538 01000 01081 02000 02095 05000 05187 07500 07763 10000 10380",
             "19": "GIid0001gh19cl00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000",
             "20": "GIid0001gh20cl00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000",
-            "21": "GHid0001gh21cl00100 00109 00200 00214 00500 00538 01000 01069 02000 02095 05000 05187 07500 07763 10000 10340",
+            "21": "GHid0001gh21cl00100 00100 00200 00200 00500 00500 01000 01000 02000 02000 05000 05000 07500 07500 10000 10000",
             "22": "GHid0001gh22cl00010 00006 00050 00055 00100 00114 00250 00279 00500 00544 01000 01064 02000 02097 03000 03125",
             "23": "GHid0001gh23cl00005 00003 00010 00007 00020 00018 00050 00054 00100 00116 00200 00226 00300 00334 00500 00547",
             "24": "GIid0001gh24cl00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000 00000",

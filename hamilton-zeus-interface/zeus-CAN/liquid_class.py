@@ -33,7 +33,7 @@ import json
 
 zm = zeus.ZeusModule(id=1)
 
-### this is for the first time usage.
+# ## this is for the first time usage.
 # liquid_class_table_para = {
 #     'data_container': {},
 #     'liquid_class_para':{},
@@ -210,7 +210,7 @@ def copy_para_from_to(index_from, index_to):
 ## modify your new liquid class parameters
 liquid_class_table_para['data_container']['21'] = 'DMF, based on water 02, tip 1000ul'
 liquid_class_table_para['data_container']['22'] = 'DMF, based on water 01, tip 300ul'
-liquid_class_table_para['data_container']['23'] = 'DMF, based on water 00, tip 300ul'
+liquid_class_table_para['data_container']['23'] = 'DMF, based on water 00, tip 50ul'
 
 # liquid_class_table_para['21']['lld'] = 1
 # # liquid_class_table_para['21']['plldSensitivity'] = 3
@@ -250,7 +250,7 @@ def set_liquid_class_to_zeus( liquid_index):
     time.sleep(0.5)
     zm.sendCommand('RAid0000ragh')
     time.sleep(0.5)
-    para3_new = para2[:8] + para2[12:]
+    para3_new = para3[:8] + para3[12:]
     zm.sendCommand(para3_new)
     time.sleep(0.5)
 
@@ -282,11 +282,23 @@ def request_parameters_from_zeus(liquid_index):
     zm.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
     time.sleep(0.5)
 
+
+## the following code is for easy of typing in python console
 def wr(liquid_index):
     set_liquid_class_to_zeus(liquid_index = liquid_index )
 def re(liquid_index):
     request_parameters_from_zeus(liquid_index = liquid_index)
 
+def set():
+    copy_para_from_to(index_from = 2, index_to = 21)
+    copy_para_from_to(index_from = 1, index_to = 22)
+    copy_para_from_to(index_from = 0, index_to = 23)
+    for i in range(21,24):
+        wr(str(i))
+        re(str(i))
+    print('Finished!')
+
+# set()
 
  # example of a liquid class para
 # GMid0001 lq01 uu0 0 05000 0050 00050 00250 0200 010 0 3 3 0 0 05000 00000 000 00050 040 0200 010 00325

@@ -93,7 +93,7 @@ class ContainerGeometry(object):
     def __init__(self, index=0, diameter=0, bottomHeight=0, bottomSection=0,
                  bottomPosition=0, immersionDepth=0, leavingHeight=0, jetHeight=0,
                  startOfHeightBottomSearch=0, dispenseHeightAfterBottomSearch=0,
-                 ):
+                 ) -> object:
         self.index = index
         self.diameter = diameter
         self.bottomHeight = bottomHeight
@@ -664,7 +664,7 @@ class ZeusModule(object):
               'ma' + str(mixVolume).zfill(5) + \
               'mb' + str(mixFlowRate).zfill(5) + \
               'dn' + str(mixCycles).zfill(2)
-        print(f"YANKAI_note: The command sent to Zeus is : {cmd}")
+        # print(f"YANKAI_note: The command sent to Zeus is : {cmd}")
         self.sendCommand(cmd)
 
     def dispensing(self, dispensingVolume=0, containerGeometryTableIndex=0,
