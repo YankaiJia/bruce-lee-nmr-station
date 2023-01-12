@@ -6,6 +6,8 @@ from time import sleep
 from colorama import init, Fore, Back, Style
 from threading import Thread, Lock
 import codecs
+import json
+
 import sys
 
 DEBUG = 0
@@ -86,13 +88,12 @@ def printMSG(type, msg):
               + ") ERROR: " + msg + Style.RESET_ALL)
         # raise Exception(msg)
 
-
 class ContainerGeometry(object):
 
     def __init__(self, index=0, diameter=0, bottomHeight=0, bottomSection=0,
                  bottomPosition=0, immersionDepth=0, leavingHeight=0, jetHeight=0,
                  startOfHeightBottomSearch=0, dispenseHeightAfterBottomSearch=0,
-                 ):
+                 ) -> object:
         self.index = index
         self.diameter = diameter
         self.bottomHeight = bottomHeight
@@ -223,7 +224,7 @@ class remoteFrameListener(can.Listener):
 
             # self.received_msg += msg.data.replace(" ", "")[:-1]
             # self.received_msg += msg.data.replace(" ", "")
-            self.received_msg += msg.data[:-1].decode('iso-8859-1').replace(" ", "")
+            self.received_msg += msg.data[:-1].decode('iso-8859-1')#.replace(" ", "")
 
             if (self.msg_is_last(msg) == 0):
                 if self.parent.auto_response:
@@ -551,6 +552,7 @@ class ZeusModule(object):
 
     def sendCommand(self, cmd):
         data = list(split_by_n(cmd, 7))
+        # print(f'YANKAI_note: sent split list is : {data}')
         cmd_len = len(data)
         printMSG(
             "info", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
@@ -580,6 +582,7 @@ class ZeusModule(object):
                 else:
                     printMSG("warning", "Timeout waiting for remote response. Issuing retry {} of {}".format(
                         n + 1, self.transmission_retries))
+        print(f'cmd sent to zeus is : {cmd}')
         self.waitForKickFrame()
 
 
@@ -661,6 +664,7 @@ class ZeusModule(object):
               'ma' + str(mixVolume).zfill(5) + \
               'mb' + str(mixFlowRate).zfill(5) + \
               'dn' + str(mixCycles).zfill(2)
+        # print(f"YANKAI_note: The command sent to Zeus is : {cmd}")
         self.sendCommand(cmd)
 
     def dispensing(self, dispensingVolume=0, containerGeometryTableIndex=0,
@@ -856,36 +860,38 @@ class ZeusModule(object):
         if liquidClassParameters.index is None:
             raise ValueError(
                 "Please specify a valid deck geometry table index.")
-        cmd = self.cmdHeader('GL')
-        cmd = cmd + 'id' + str(liquidClassParameters.id).zfill(4) + \
+        # cmd = self.cmdHeader('GL')
+        cmd = 'GL' + 'id' + str(liquidClassParameters.id).zfill(4) + \
               'lq' + str(liquidClassParameters.index).zfill(2) + \
               'uu' + str(liquidClassParameters.liquidClassForFilterTips) + \
-              str(liquidClassParameters.aspirationMode) + \
-              str(liquidClassParameters.aspirationFlowRate).zfill(5) + \
-              str(liquidClassParameters.overAspiratedVolume).zfill(4) + \
-              str(liquidClassParameters.aspirationTransportVolume).zfill(5) + \
-              str(liquidClassParameters.blowoutAirVolume).zfill(5) + \
-              str(liquidClassParameters.aspirationSwapSpeed).zfill(4) + \
-              str(liquidClassParameters.aspirationSettlingTime).zfill(3) + \
-              str(liquidClassParameters.lld) + \
-              str(liquidClassParameters.clldSensitivity) + \
-              str(liquidClassParameters.plldSensitivity) + \
-              str(liquidClassParameters.adc) + \
-              str(liquidClassParameters.dispensingMode) + \
-              str(liquidClassParameters.dispensingFlowRate).zfill(5) + \
-              str(liquidClassParameters.stopFlowRate).zfill(5) + \
-              str(liquidClassParameters.stopBackVolume).zfill(3) + \
-              str(liquidClassParameters.dispensingTransportVolume).zfill(5) + \
-              str(liquidClassParameters.acceleration).zfill(3) + \
-              str(liquidClassParameters.dispensingSwapSpeed).zfill(4) + \
-              str(liquidClassParameters.dispensingSettlingTime).zfill(3) + \
-              str(liquidClassParameters.flowRateTransportVolume).zfill(5)
+              ' ' + str(liquidClassParameters.aspirationMode) + \
+              ' ' + str(liquidClassParameters.aspirationFlowRate).zfill(5) + \
+              ' ' + str(liquidClassParameters.overAspiratedVolume).zfill(4) + \
+              ' ' + str(liquidClassParameters.aspirationTransportVolume).zfill(5) + \
+              ' ' + str(liquidClassParameters.blowoutAirVolume).zfill(5) + \
+              ' ' + str(liquidClassParameters.aspirationSwapSpeed).zfill(4) + \
+              ' ' + str(liquidClassParameters.aspirationSettlingTime).zfill(3) + \
+              ' ' + str(liquidClassParameters.lld) + \
+              ' ' + str(liquidClassParameters.clldSensitivity) + \
+              ' ' + str(liquidClassParameters.plldSensitivity) + \
+              ' ' + str(liquidClassParameters.adc) + \
+              ' ' + str(liquidClassParameters.dispensingMode) + \
+              ' ' + str(liquidClassParameters.dispensingFlowRate).zfill(5) + \
+              ' ' + str(liquidClassParameters.stopFlowRate).zfill(5) + \
+              ' ' + str(liquidClassParameters.stopBackVolume).zfill(3) + \
+              ' ' + str(liquidClassParameters.dispensingTransportVolume).zfill(5) + \
+              ' ' + str(liquidClassParameters.acceleration).zfill(3) + \
+              ' ' + str(liquidClassParameters.dispensingSwapSpeed).zfill(4) + \
+              ' ' + str(liquidClassParameters.dispensingSettlingTime).zfill(3) + \
+              ' ' + str(liquidClassParameters.flowRateTransportVolume).zfill(5)
+        print(f'cmd send by GL: {cmd}')
         self.sendCommand(cmd)
 
     def getLiquidClassParameters(self, id, index):
         cmd = self.cmdHeader('GM')
         cmd = cmd + 'id' + str(id).zfill(4) + \
-              'iq' + str(index).zfill(2)
+              'lq' + str(index).zfill(2) # 'lq' was revised from 'iq'. iq is a typo. Yankai_20230106
+        print(f'cmd send is : {cmd}')
         self.sendCommand(cmd)
 
     def firmwareUpdate(self, filename):
