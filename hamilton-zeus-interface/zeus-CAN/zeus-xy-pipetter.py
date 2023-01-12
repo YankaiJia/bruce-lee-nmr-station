@@ -24,6 +24,8 @@ import pickle
 from scipy import interpolate
 import matplotlib.pyplot as plt
 import json
+import statistics
+
 
 # plt.ion()
 
@@ -45,6 +47,7 @@ weighted_values = {}
 zm = zeus.ZeusModule(id=1)
 time.sleep(3)
 
+## Declarations
 
 # Deck loading
 deckgeom = zeus.DeckGeometry(index=0, endTraversePosition=ZeusTraversePosition_1000ul,
@@ -68,7 +71,6 @@ zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom_balance)
 print('Zeus deck geometry loaded')
 time.sleep(1)
 
-# Declarations
 # TODO: In the object-oriented version this will be depend on target container dictionaries passed by
 #  the module's user
 container_2mL_vial = zeus.ContainerGeometry(index=0, diameter=98, bottomHeight=0, bottomSection=10000,
@@ -245,10 +247,8 @@ def generated_jar_container():
     return jar
 jar = generated_jar_container()
 
-## generate tip rack
-tip_rack = {}
 def generat_tip_tack():
-
+    tip_rack = {}
     tip = {'300ul': {'tip_vol': 300,
                      'xy': (300, -100),
                      'tipTypeTableIndex': 4,
@@ -266,7 +266,7 @@ def generat_tip_tack():
                       'substance': 'None'
                       }
            }
-    global tip_rack
+
     tip_rack['300ul'] = create_well_plate(template_well=tip['300ul'],
                                         Nwells=(8, 12),
                                         topleft=(-158.5, -44.5),
@@ -279,7 +279,8 @@ def generat_tip_tack():
                                         topright=(-396, -32.5),
                                         bottomleft=(-296.5, -95),
                                         bottomright=(-396, -95))
-generat_tip_tack()
+    return tip_rack
+tip_rack = generat_tip_tack()
 
 
 # Zeus
@@ -450,7 +451,6 @@ def time_that_xy_motion_takes(dx, dy, acceleration=2000, max_speed=333.33333):
     print(max(travel_times))
     return max(travel_times)
 
-
 def move_xy(xy, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
             use_time_estimate=True):
     if xy[0] < min_x or xy[0] > 0:
@@ -497,13 +497,11 @@ def move_xy(xy, verbose=False, ensure_traverse_height=True, block_until_motion_i
                 print('Finished moving xy stage')
     xy_position = xy
 
-
 def home_xy(ensure_traverse_height=True):
     if ensure_traverse_height and not zeus_is_at_traverese_height():
         return
     send_to_xy_stage(ser, '$H', read_all=True, verbose=True, ensure_traverse_height= True)
     xy_pos()
-
 
 def close_the_xy_stage():
     time.sleep(2)
@@ -518,7 +516,6 @@ def kill_alarm():
 
 
 # LIQUID
-
 def liquid_surface_in_container(container, verbose=True):
     height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
     if verbose:
@@ -558,12 +555,10 @@ def change_tip(tips_rack):
     discard_tip()
     pick_tip(tips_rack)
 
-
 def move_through_wells(plate, dwell_time=1):
     for well in plate['wells']:
         move_xy(well['xy'])
         time.sleep(dwell_time)
-
 
 def draw_liquid(container, volume, lld,  liquidClassTableIndex, liquidSurface=manual_vial_surface,
                 n_retries=3):
@@ -611,7 +606,6 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, liquidSurface=ma
     print(f'Tried {n_retries} but zeus error is still there')
     raise Exception
 
-
 def dispense_liquid(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=1):
 
@@ -651,7 +645,7 @@ def dispense_liquid(container, volume, liquidClassTableIndex, liquidSurface=manu
 
 
 # BALANCE
-balance_port = ser = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE, parity=serial.PARITY_NONE,
+balance_port = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE, parity=serial.PARITY_NONE,
                                    timeout=0.2)
 
 def send_command_to_balance(command, balance_port=balance_port, read_all=True, verbose=True):
@@ -674,6 +668,19 @@ def balance_tare(verbose=True):
             print(f'Tare in progress. Response from balance. {line}')
         if line == b'':
             if taring_complete:
+                break
+
+def balance_zero(verbose = True):
+    balance_port.write(str.encode('Z\n'))
+    zeroing_complete = False
+    while True:
+        line = balance_port.readline()
+        if b'Z' in line:
+            zeroing_complete = True
+        if verbose:
+            print(f'Tare in progress. Response from balance. {line}')
+        if line == b'':
+            if zeroing_complete:
                 break
 
 def balance_value(balance_port=balance_port, read_all=True, verbose=True):
@@ -709,18 +716,18 @@ def move_to_balance(container):
     move_z(balance_traverse_height)
     move_xy(container['xy'])
 
-def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_index, timedelay=3):
+def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_index, timedelay=5):
     global xy_position
     global weighted_values
     # if xy_position[0] < -80:
     #     move_xy((-80, -195))
     close_balance_door()
     time.sleep(timedelay)
-    balance_tare()
+    # balance_tare()
+    balance_zero(verbose=True)
+    draw_liquid(container=source_container, volume=volume, lld = lld, liquidClassTableIndex= liquid_class_index)
     weight_before = balance_value()
     print(f'weight_before: {weight_before} g')
-
-    draw_liquid(container=source_container, volume=volume, lld = lld, liquidClassTableIndex= liquid_class_index)
     dispense_to_balance(volume=volume, liquidClassTableIndex= liquid_class_index, container= balance_cup)
     close_balance_door()
     time.sleep(timedelay)
@@ -742,31 +749,29 @@ def dispense_to_balance_and_weight_n_times(source_container, volume,lld, liquid_
         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
     return result
 
-import statistics
 def get_calibration_values(index = 21):
 
     weighted_values = {}
     if index == 21:
         # volumes = [10, 20, 50, 100, 200, 500, 750, 1000]
-        volumes = [10]
+        volumes = [1000]
     for i in volumes:
         values = dispense_to_balance_and_weight_n_times(source_container = bottle['6'], volume = i, lld = 0, liquid_class_index = 21, ntimes = 10, timedelay=5)
         print(f'values: {values}')
         weighted_values[str(i)+'ul'] = {}
         weighted_values[str(i)+'ul']['data'] = values
-        weighted_values[str(i) + 'ul']['volume'] = [i / 0.944 for i in values]
-        weighted_values[str(i) + 'ul']['avg'] = sum(values) / len(values)
+        weighted_values[str(i) + 'ul']['volume'] = [i / 0.944 for i in values] # 0.994 is the density of DMF
+        weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) /0.994
         weighted_values[str(i) + 'ul']['std'] = statistics.stdev(values)
 
-    with open('data/Weighted_values_for_calibration.json', 'w', encoding='utf-8') as f:
-        json.dump(weighted_values, f, ensure_ascii=False, indent=4)
+        with open('data/Weighted_values_for_calibration.json', 'w', encoding='utf-8') as f:
+            json.dump(weighted_values, f, ensure_ascii=False, indent=4)
 
     print('done and data save!!!')
 
     return weighted_values
 
 # weighted_values = get_calibration_values(index = 21)
-
 
 
 # Calibration
@@ -892,14 +897,17 @@ def save_data():
 
 
 
+time.sleep(1)
+home_xy()
+print('init finished.')
+#
 
 
 
 
 
 
-
-## the following is for typing lazines
+## the following is for typing lazines. No more info presented below
 def home():
     home_xy()
 
@@ -983,11 +991,10 @@ def test_bv():
 
 # zm.sendString('GAid0000ai01000ge01go01lq14gq1lb1zp1667cf1707ma00000mb00000dn00')
 
-avg = []
-std = []
+
 def ast(weighted_values= weighted_values):
-    global avg
-    global std
+    avg = []
+    std = []
     keys = [key for key in weighted_values]
     for i in keys:
         print(i)
@@ -1001,10 +1008,7 @@ def ast(weighted_values= weighted_values):
     return [avg, std]
 
 
-time.sleep(1)
-# home_xy()
-print('init finished.')
-#
+
 #
 
 # container_having_substance = {'Isocyano':bottle6,
@@ -1047,3 +1051,16 @@ print('init finished.')
 #     move_xy((300, -200), block_until_motion_is_completed=True, use_time_estimates=True)
 
 # dispense_to_balance_and_weight(source_container = bottle['6'], volume = 200, lld = 0, liquid_class_index = 21, timedelay=3)
+
+
+
+def data():
+    with open('data/Weighted_values_for_calibration - ALL.json') as json_file:
+        aa = json.load(json_file)
+
+    for i in aa:
+        print(aa[i]['avg'])
+        aa[i]['avg'] = aa[i]['avg'] / 0.944
+
+    with open('data/Weighted_values_for_calibration - ALL.json', 'w', encoding='utf-8') as f:
+        json.dump(aa, f, ensure_ascii=False, indent=4)
