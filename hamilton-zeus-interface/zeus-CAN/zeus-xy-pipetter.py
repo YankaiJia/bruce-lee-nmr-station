@@ -50,10 +50,10 @@ time.sleep(3)
 ## Declarations
 
 # Deck loading
-deckgeom = zeus.DeckGeometry(index=0, endTraversePosition=ZeusTraversePosition_1000ul,
+deckgeom_300ul = zeus.DeckGeometry(index=0, endTraversePosition=ZeusTraversePosition_1000ul,
                              beginningofTipPickingPosition=1530,
                              positionofTipDepositProcess=1817)
-zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom)
+zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom_300ul)
 print('Zeus deck geometry loaded')
 time.sleep(1)
 
@@ -762,9 +762,9 @@ def get_calibration_values(index = 21):
         print(f'values: {values}')
         weighted_values[str(i)+'ul'] = {}
         weighted_values[str(i)+'ul']['data'] = values
-        weighted_values[str(i) + 'ul']['volume'] = [i / 0.944 for i in values] # 0.994 is the density of DMF
+        weighted_values[str(i) + 'ul']['volume'] = [x / 0.944 for x in values] # 0.994 is the density of DMF
         weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) /0.994
-        weighted_values[str(i) + 'ul']['std'] = statistics.stdev(values)
+        weighted_values[str(i) + 'ul']['std'] = statistics.stdev([x / 0.944 for x in values])
 
         with open('data/Weighted_values_for_calibration.json', 'w', encoding='utf-8') as f:
             json.dump(weighted_values, f, ensure_ascii=False, indent=4)
@@ -1053,16 +1053,3 @@ def ast(weighted_values= weighted_values):
 #     move_xy((300, -200), block_until_motion_is_completed=True, use_time_estimates=True)
 
 # dispense_to_balance_and_weight(source_container = bottle['6'], volume = 200, lld = 0, liquid_class_index = 21, timedelay=3)
-
-
-
-def data():
-    with open('data/Weighted_values_for_calibration - ALL.json') as json_file:
-        aa = json.load(json_file)
-
-    for i in aa:
-        print(aa[i]['avg'])
-        aa[i]['avg'] = aa[i]['avg'] / 0.944
-
-    with open('data/Weighted_values_for_calibration - ALL.json', 'w', encoding='utf-8') as f:
-        json.dump(aa, f, ensure_ascii=False, indent=4)
