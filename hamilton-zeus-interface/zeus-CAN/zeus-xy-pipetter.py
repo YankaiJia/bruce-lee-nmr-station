@@ -562,7 +562,7 @@ def move_through_wells(plate, dwell_time=1):
         move_xy(well['xy'])
         time.sleep(dwell_time)
 
-def draw_liquid(container, volume, lld,  liquidClassTableIndex, liquidSurface=manual_vial_surface,
+def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '1000ul', liquidSurface=manual_vial_surface,
                 n_retries=3):
 
     container['volume'] -= volume
@@ -581,11 +581,11 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, liquidSurface=ma
             #               liquidSurface=liquid_surface_in_container(container),
             #               mixVolume=0, mixFlowRate=0, mixCycles=0)
 
-            # This is used to test water
+            tip_dict = {'300ul':0, '1000ul':1}
             print(f'Volume for zeus {int(round(volume * 10))}')
             zm.aspiration(aspirationVolume=int(round(volume * 10)),
                           containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                          deckGeometryTableIndex=1, liquidClassTableIndex=liquidClassTableIndex,
+                          deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
                           qpm=1, lld= lld, lldSearchPosition=lld_search_position(container),
                           liquidSurface=liquid_surface_in_container(container),
                           mixVolume=0, mixFlowRate=0, mixCycles=0)
@@ -751,22 +751,25 @@ def dispense_to_balance_and_weight_n_times(source_container, volume,lld, liquid_
         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
     return result
 
-def get_calibration_values(index = 21):
+def get_calibration_values(index, liquid):
 
     weighted_values = {}
-    if index == 21:
-        # volumes = [10, 20, 50, 100, 200, 500, 750, 1000]
-        volumes = [1000]
+    density_dict = {'DMF': 0.944, "THF": 0.888, }
+    liquid_density = density_dict[liquid]
+    if index == 25:
+        # volumes = [10, 20, 50, 100, 200, 500, 750]
+        # volumes = [750, 1000]
+        volumes = [10, 750]
     for i in volumes:
-        values = dispense_to_balance_and_weight_n_times(source_container = bottle['6'], volume = i, lld = 0, liquid_class_index = 21, ntimes = 10, timedelay=5)
+        values = dispense_to_balance_and_weight_n_times(source_container = bottle['7'], volume = i, lld = 0, liquid_class_index = 25, ntimes = 10, timedelay=5)
         print(f'values: {values}')
         weighted_values[str(i)+'ul'] = {}
         weighted_values[str(i)+'ul']['data'] = values
-        weighted_values[str(i) + 'ul']['volume'] = [x / 0.944 for x in values] # 0.994 is the density of DMF
-        weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) /0.994
-        weighted_values[str(i) + 'ul']['std'] = statistics.stdev([x / 0.944 for x in values])
+        weighted_values[str(i) + 'ul']['volume'] = [x / liquid_density for x in values] # 0.994 is the density of DMF
+        weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) / liquid_density
+        weighted_values[str(i) + 'ul']['std'] = statistics.stdev([x / liquid_density for x in values])
 
-        with open('data/Weighted_values_for_calibration.json', 'w', encoding='utf-8') as f:
+        with open('data/Weighted_values_for_calibration_index25_temp.json', 'w', encoding='utf-8') as f:
             json.dump(weighted_values, f, ensure_ascii=False, indent=4)
 
     print('done and data save!!!')
