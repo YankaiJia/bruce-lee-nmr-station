@@ -71,6 +71,7 @@ zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom_balance)
 print('Zeus deck geometry loaded')
 time.sleep(1)
 
+# Declarations
 # TODO: In the object-oriented version this will be depend on target container dictionaries passed by
 #  the module's user
 container_2mL_vial = zeus.ContainerGeometry(index=0, diameter=98, bottomHeight=0, bottomSection=10000,
@@ -450,6 +451,7 @@ def time_that_xy_motion_takes(dx, dy, acceleration=2000, max_speed=333.33333):
         travel_times.append(time_here)
     print(max(travel_times))
     return max(travel_times)
+
 
 def move_xy(xy, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
             use_time_estimate=True):
