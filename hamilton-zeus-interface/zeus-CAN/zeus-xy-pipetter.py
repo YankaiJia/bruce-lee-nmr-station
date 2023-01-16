@@ -158,6 +158,8 @@ def generate_wellplates():
     return plate1, plate2
 plate1, plate2 = generate_wellplates()
 
+plate = (plate1, plate2)
+
 def generate_balance_container():
     # This is for the 2-ml vial on balance
     # balance_vial = {'volume': 0,
@@ -917,37 +919,108 @@ def update_volume_calibration(calibration_file, source_container, volume_list, n
 #     calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle',
 #     source_container=bottle6, volume_list=[10, 20, 30, 50, 70, 110], density=0.9445)
 
-def load_calibration_dict_from_file(calibration_file):
-    if os.path.exists(calibration_file):
-        with open(calibration_file, 'rb') as handle:
-            calibration_dictionary = pickle.load(handle)
-            print('Calibration file loaded.')
-    return calibration_dictionary
+# def load_calibration_dict_from_file(calibration_file):
+#     if os.path.exists(calibration_file):
+#         with open(calibration_file, 'rb') as handle:
+#             calibration_dictionary = pickle.load(handle)
+#             print('Calibration file loaded.')
+#     return calibration_dictionary
+#
+# calibration_dict = load_calibration_dict_from_file(
+#     calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle')
 
-calibration_dict = load_calibration_dict_from_file(
-    calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle')
-
-def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
-    zeus_volumes = [0]
-    real_volumes = [0]
-    sigmas = []
-    for zeus_volume in sorted(calibration_dict.keys()):
-        zeus_volumes.append(zeus_volume)
-        real_volumes.append(calibration_dict[zeus_volume][0])
-        sigmas.append(calibration_dict[zeus_volume][1])
-    zeus_volumes = np.array(zeus_volumes)
-    real_volumes = np.array(real_volumes)
-    sigmas = np.array(sigmas)
-    calibration_interpolator = interpolate.interp1d(x=real_volumes, y=zeus_volumes, fill_value='extrapolate')
-    result = calibration_interpolator(real_volume)
-    if not result.shape:
-        result = result.tolist()
-    return result
+#
+# def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
+#     zeus_volumes = [0]
+#     real_volumes = [0]
+#     sigmas = []
+#     for zeus_volume in sorted(calibration_dict.keys()):
+#         zeus_volumes.append(zeus_volume)
+#         real_volumes.append(calibration_dict[zeus_volume][0])
+#         sigmas.append(calibration_dict[zeus_volume][1])
+#     zeus_volumes = np.array(zeus_volumes)
+#     real_volumes = np.array(real_volumes)
+#     sigmas = np.array(sigmas)
+#     calibration_interpolator = interpolate.interp1d(x=real_volumes, y=zeus_volumes, fill_value='extrapolate')
+#     result = calibration_interpolator(real_volume)
+#     if not result.shape:
+#         result = result.tolist()
+#     return result
 
 
 time.sleep(1)
 home_xy()
 print('init finished.')
+
+
+###########################################################################
+#################### Run reactions ########################################
+
+t0 = time.time()
+indicator = 0 # Indicator from which plate the pipetting is going to. 0: plate['0']. 1: plate['1']
+container_having_substance = {'Isocyano': bottle['0'],
+                              'amine':bottle['1'],
+                              'aldehyde':bottle['2'],
+                              'pTSA':bottle['3'],
+                              'DMF': jar['0']}
+addition_sequence = ('DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano')
+# addition_sequence = ( 'aldehyde', 'pTSA', 'amine', 'Isocyano')
+
+excel_filename = 'multicompnent_reaction_input\\composition_input_20230110RF029.xlsx'
+df1 = pd.read_excel(excel_filename, sheet_name='Robot', usecols='R:V')
+df = df1.copy()
+df.columns = [i[:-2] if '.2' in i else i for i in df.columns]
+
+def devide_data_frame(data_frame, n):
+    """A generator to divide the reactions into chunks of n units. Each chunk is one reaction_plate"""
+    while len(data_frame):
+        yield data_frame.iloc[:n]
+        data_frame = data_frame.iloc[n:]
+
+def generate_n_reaction_plate():
+    reaction_plate_n = tuple(devide_data_frame(df, 53)) # The volume will not change after devision,
+                                                        # so use tuple for protection
+    for i in range(len(reaction_plate_n)):
+        index = reaction_plate_n[i].index[0]
+        print(f'reaction range in {i}th plate: {index} --- {index + len(reaction_plate_n[i])-1}')
+    return reaction_plate_n
+reaction_plate_n = generate_n_reaction_plate()
+
+
+def pipette_one_plate(reaction_plate_number ):
+    global indicator
+    for substance in addition_sequence:
+        for well_id, volume in enumerate(reaction_plate_n[reaction_plate_number][substance]):
+            print(f'substance: {substance}, index: {well_id}, tranfer volume: {volume}')
+            indicator = reaction_plate_number % 2 ## even or odd
+            move_xy(container_having_substance[substance]['xy'])
+            time.sleep(0.1)
+            move_xy(plate[indicator]['wells'][well_id]['xy'])
+            time.sleep(0.1)
+            # transfer_liquid(container_having_substance[substance],
+            #                     plate[str(indicator)]['wells'][well_id],
+            #                     volume, tip_type = 300)
+            print(f'well_plate0 or well_plate1: {str(indicator)}')
+            # print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
+
+def pipette_n_plate():
+    for i in range(len(reaction_plate_n)):
+        if input('Ready for next reaction_plate: ') in ['yes', 'Yes', 'Y', '1', 'True', 'true']:
+            print(f"OKAY, I will pipette the: {i}th reaction_plate! Starting...")
+            pipette_one_plate(reaction_plate_number=i)
+        else:
+            print(f"The pipetting is stopped! Next you should do the {i}th reaciton_plate")
+            return
+
+pipette_n_plate()
+
+
+
+
+
+
+
+
 #
 
 
@@ -1013,6 +1086,24 @@ def reaction():
 
 def height(container):
     liquid_surface_in_container(container = container, verbose=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
