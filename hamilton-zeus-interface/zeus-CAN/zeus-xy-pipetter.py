@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import json
 import statistics
 
-
+# statistics.stdev()
 # plt.ion()
 
 class ZeusError(Exception):
@@ -127,7 +127,7 @@ def create_well_plate(template_well, Nwells, topleft, topright, bottomleft, bott
     plate = {'wells': list()}
     for well_index in range(well_positions.shape[0]):
         plate['wells'].append(template_well.copy())
-        plate['wells'][-1]['xy'] = well_positions[well_index, :]
+        plate['wells'][-1]['xy'] = list(well_positions[well_index, :])
     return plate
 
 def generate_wellplates():
@@ -212,14 +212,14 @@ def generate_bottle_container():
     bottle['6']['xy'] = (-71, -202)
     bottle['7']['xy'] = (-100, -202)
 
-    bottle['0']['volume'] = 7500  # volume in ul. 15000 means 15 mL
-    bottle['1']['volume'] = 7500
-    bottle['2']['volume'] = 4000
-    bottle['3']['volume'] = 15000
-    bottle['4']['volume'] = 15000
-    bottle['5']['volume'] = 15000
-    bottle['6']['volume'] = 20000
-    bottle['7']['volume'] = 15000
+    bottle['0']['volume'] = 20000  # volume in ul. 15000 means 15 mL
+    bottle['1']['volume'] = 20000
+    bottle['2']['volume'] = 20000
+    bottle['3']['volume'] = 20000
+    bottle['4']['volume'] = 20000
+    bottle['5']['volume'] = 20000
+    bottle['6']['volume'] = 12000
+    bottle['7']['volume'] = 20000
     print('Bottle container generated!')
     return bottle
 bottle = generate_bottle_container()
@@ -248,8 +248,11 @@ def generated_jar_container():
     return jar
 jar = generated_jar_container()
 
-def generat_tip_tack():
-    tip_rack = {}
+def load_new_tip_tack(rack_reload ):
+    # tip_rack = {}
+    with open('data/tip_rack.json') as json_file:
+        tip_rack = json.load(json_file)
+
     tip = {'300ul': {'tip_vol': 300,
                      'xy': (300, -100),
                      'tipTypeTableIndex': 4,
@@ -267,21 +270,28 @@ def generat_tip_tack():
                       'substance': 'None'
                       }
            }
-
-    tip_rack['300ul'] = create_well_plate(template_well=tip['300ul'],
+    if rack_reload == '300ul':
+        tip_rack['300ul'] = create_well_plate(template_well=tip['300ul'],
                                         Nwells=(8, 12),
                                         topleft=(-158.5, -44.5),
                                         topright=(-257.5, -44.5),
                                         bottomleft=(-158.5, -107),
                                         bottomright=(-257.5, -107))
-    tip_rack['1000ul'] = create_well_plate(template_well=tip['1000ul'],
+    if rack_reload == '1000ul':
+        tip_rack['1000ul'] = create_well_plate(template_well=tip['1000ul'],
                                         Nwells=(8, 12),
                                         topleft=(-296.5, -32.5),
                                         topright=(-396, -32.5),
                                         bottomleft=(-296.5, -95),
                                         bottomright=(-396, -95))
+
+    with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
+        json.dump(tip_rack, f, ensure_ascii=False, indent=4)
+
     return tip_rack
-tip_rack = generat_tip_tack()
+## run this ONLY when changing new tip rack.
+# load_new_tip_tack(rack_reload = '300ul')
+# load_new_tip_tack(rack_reload = '1000ul')
 
 
 # Zeus
@@ -517,12 +527,15 @@ def kill_alarm():
     send_to_xy_stage(ser, "$X", read_all= True, verbose= True)
 
 
+
 # LIQUID
 def liquid_surface_in_container(container, verbose=True):
     height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
     if verbose:
         print(f'Height of liquid from the floor = {height_of_liquid_from_floor:.2f}')
-    return int(round(floor_z - height_of_liquid_from_floor * 10))
+    height  = int(round(floor_z - height_of_liquid_from_floor * 10))
+    print(f'liquid height in container is : {height}')
+    return height
 
 def lld_search_position(container):
     if container['lldSearchPosition'] == 'auto':
@@ -530,18 +543,26 @@ def lld_search_position(container):
     else:
         return container['lldSearchPosition']
 
-def pick_tip(tips_rack):
-    move_z(tips_rack['wells'][0]['ZeusTraversePosition'])
+
+def pick_tip(tip_type):
+
+    with open('data/tip_rack.json') as json_file:
+        tip_rack = json.load(json_file)
+
+    move_z(tip_rack[str(tip_type)+'ul']['wells'][0]['ZeusTraversePosition'])
     # wait_until_zeus_reaches_traverse_height()
     # In the rack, find the first tip that exists
-    for tip in tips_rack['wells']:
-        if tip['exists']:
+    for item in tip_rack[str(tip_type)+'ul']['wells']:
+        if item['exists']:
             # pick up tip
-            move_xy(tip['xy'], ensure_traverse_height= True)
-            zm.pickUpTip(tipTypeTableIndex=tip['tipTypeTableIndex'], deckGeometryTableIndex=tip['deckGeometryTableIndex'])
-            tip['exists'] = False
+            move_xy(item['xy'], ensure_traverse_height= True)
+            zm.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'], deckGeometryTableIndex=item['deckGeometryTableIndex'])
+            item['exists'] = False
             # wait_until_zeus_reaches_traverse_height()
             wait_until_zeus_responds_with_string('GTid')
+            # update json file
+            with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
+                json.dump(tip_rack, f, ensure_ascii=False, indent=4)
             return True
     print('ERROR: No tips in rack.')
     raise Exception
@@ -553,16 +574,16 @@ def discard_tip():
     zm.discardTip(deckGeometryTableIndex=1)
     wait_until_zeus_responds_with_string('GUid')
 
-def change_tip(tips_rack):
+def change_tip(tip_rack):
     discard_tip()
-    pick_tip(tips_rack)
+    pick_tip(tip_rack)
 
 def move_through_wells(plate, dwell_time=1):
     for well in plate['wells']:
         move_xy(well['xy'])
         time.sleep(dwell_time)
 
-def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '1000ul', liquidSurface=manual_vial_surface,
+def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
                 n_retries=3):
 
     container['volume'] -= volume
@@ -751,37 +772,80 @@ def dispense_to_balance_and_weight_n_times(source_container, volume,lld, liquid_
         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
     return result
 
-def get_calibration_values(index, liquid):
+# dispense_to_balance_and_weight_n_times(source_container = jar['0'], volume = 500,lld = 1, liquid_class_index = 23,  ntimes = 3, timedelay=3)
+
+def get_calibration_values21(index, liquid):
 
     weighted_values = {}
     density_dict = {'DMF': 0.944, "THF": 0.888, }
     liquid_density = density_dict[liquid]
-    if index == 25:
-        # volumes = [10, 20, 50, 100, 200, 500, 750]
+    if index == 2:
+        # volumes_list = [100, 200, 300, 400, 500, 700, 800, 1000]
+        volumes_list = [ 800, 1000]
+
         # volumes = [750, 1000]
-        volumes = [10, 750]
-    for i in volumes:
-        values = dispense_to_balance_and_weight_n_times(source_container = bottle['7'], volume = i, lld = 0, liquid_class_index = 25, ntimes = 10, timedelay=5)
+        # volumes = [10, 750]
+    for i in volumes_list[::-1]:
+        values = dispense_to_balance_and_weight_n_times(source_container = jar['0'], volume = i, lld = 1, liquid_class_index = index, ntimes = 5, timedelay=5)
         print(f'values: {values}')
         weighted_values[str(i)+'ul'] = {}
         weighted_values[str(i)+'ul']['data'] = values
-        weighted_values[str(i) + 'ul']['volume'] = [x / liquid_density for x in values] # 0.994 is the density of DMF
+        weighted_values[str(i) + 'ul']['volume'] = [x / liquid_density for x in values]
         weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) / liquid_density
         weighted_values[str(i) + 'ul']['std'] = statistics.stdev([x / liquid_density for x in values])
 
-        with open('data/Weighted_values_for_calibration_index25_temp.json', 'w', encoding='utf-8') as f:
+        with open('data/Weighted_values_for_calibration_index2_should_work.json', 'w', encoding='utf-8') as f:
             json.dump(weighted_values, f, ensure_ascii=False, indent=4)
 
     print('done and data save!!!')
 
     return weighted_values
 
+# get_calibration_values21(index = 2, liquid = 'DMF')
+
+
+def get_calibration_values22(index = 22, liquid = 'DMF', tip = 300):
+
+    if not zm.getTipPresenceStatus():
+        time.sleep(0.5)
+        pick_tip(300)
+
+    weighted_values = {}
+    density_dict = {'DMF': 0.944, "THF": 0.888, }
+    liquid_density = density_dict[liquid]
+    if index == 22:
+        # volumes = [10, 20, 50, 100, 200, 500, 750, 1000]
+        # volumes = [1, 5, 10, 25, 50, 100, 200, 300]
+
+        volumes = [1, 5]
+        # volumes = [1, 5, 10, 25]
+        # volumes = [750, 1000]
+        # volumes = [10, 750]
+    for i in volumes[::-1]:
+        values = dispense_to_balance_and_weight_n_times(source_container = bottle['6'], volume = i, lld = 1, liquid_class_index = index, ntimes = 10, timedelay=5)
+        print(f'values: {values}')
+        weighted_values[str(i)+'ul'] = {}
+        weighted_values[str(i)+'ul']['data'] = values
+        weighted_values[str(i) + 'ul']['volume'] = [x / liquid_density for x in values]
+        weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) / liquid_density
+        weighted_values[str(i) + 'ul']['std'] = statistics.stdev([x / liquid_density for x in values])
+
+        with open('data/Weighted_values_for_calibration_index22_fresh_liquid_lld1_1830.json', 'w', encoding='utf-8') as f:
+            json.dump(weighted_values, f, ensure_ascii=False, indent=4)
+
+    print('done and data save!!!')
+
+    return weighted_values
+
+# bbb = get_calibration_values22(index = 22, liquid = 'DMF')
+
+
 # weighted_values = get_calibration_values(index = 21)
 
 
 # Calibration
 def dispense_to_balance(volume, liquidClassTableIndex, container=balance_cup, liquidSurface=manual_vial_surface,
-                    liquid_surface_margin=50, deckGeometryTableIndex=1):
+                    liquid_surface_margin=50, deckGeometryTableIndex=0):
 
     print(f" balance_ vial volume is now : { container['volume']}")
     if zm.pos > balance_traverse_height:
@@ -881,27 +945,6 @@ def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
     return result
 
 
-
-# save data to JSON file
-def save_data():
-    with open('data/plate1.json', 'w', encoding='utf-8') as f:
-        for i in plate1['wells']:
-            if not isinstance(i['xy'], list):
-                i['xy'] =  i['xy'].tolist()
-        json.dump(plate1, f, ensure_ascii=False, indent=4)
-    with open('data/plate2.json', 'w', encoding='utf-8') as f:
-        for i in plate1['wells']:
-            if not isinstance(i['xy'], list):
-                i['xy'] =  i['xy'].tolist()
-        json.dump(plate2, f, ensure_ascii=False, indent=4)
-    with open('data/tips_rack.json', 'w', encoding='utf-8') as f:
-        for i in tip_rack['wells']:
-            if not isinstance(i['xy'], list):
-                i['xy'] =  i['xy'].tolist()
-        json.dump(tip_rack, f, ensure_ascii=False, indent=4)
-
-
-
 time.sleep(1)
 home_xy()
 print('init finished.')
@@ -924,14 +967,12 @@ def z_pos(z):
 
 def xy(pos):
     move_xy(pos)
+
 def dis():
     discard_tip()
 
-def request_zeus():
-    pass
-
-def pick():
-    pick_tip(tip_rack['1000ul'])
+def pick( tip ):
+    pick_tip(tip)
 
 def draw():
     draw_liquid(jar['1'], 200)
@@ -939,19 +980,6 @@ def draw():
 def disp():
     dispense_liquid(container = bottle['6'], volume = 200, liquidClassTableIndex = 21, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=1)
-
-def weight():
-    dispense_to_balance_and_weight(bottle['7'], 100, timedelay=5)
-
-def weight_n(volume):
-    dispense_to_balance_and_weight_n_times(jar['1'], volume, ntimes=10, timedelay=5)
-
-def test_sd():
-    pick()
-    for i in range(1, 10):
-        weight_n(i*100)
-    dis()
-    json.dump(weighted_values, open("weighted_values.txt",'w'))
 
 def reaction():
     pick()
@@ -983,38 +1011,13 @@ def reaction():
     move_xy(xy_idle)
     print(f'Pipetting for reations done!')
 
-
-
-def test_bv():
-    n_times = 5
-    for i in range(n_times):
-        print(f'n = {i} / {n_times} cycles')
-        draw_liquid(container=bottle['5'], volume=100, liquidClassTableIndex= 14, lld = 0)
-        # time.sleep(0.5)
-        dispense_to_balance(volume=100, liquidClassTableIndex=14)
-        # time.sleep(0.5)
-
-# zm.sendString('GAid0000ai01000ge01go01lq14gq1lb1zp1667cf1707ma00000mb00000dn00')
-
-
-def ast(weighted_values= weighted_values):
-    avg = []
-    std = []
-    keys = [key for key in weighted_values]
-    for i in keys:
-        print(i)
-        avg.append(np.mean(weighted_values[i]))
-        std.append(np.std(weighted_values[i]))
-    xx = [i for i in range(1, 10)]
-    plt.errorbar(xx, avg[:9], std[:9], linestyle = 'None', marker = '^',  capsize=4, elinewidth=2, markersize = 6)
-    plt.plot(xx,[x*100 for x in xx], marker = '.', markersize = 6)
-    # plt.ylim(190, 210)
-    plt.show()
-    return [avg, std]
+def height(container):
+    liquid_surface_in_container(container = container, verbose=True)
 
 
 
-#
+
+
 
 # container_having_substance = {'Isocyano':bottle6,
 #                               'amine':bottle5,
@@ -1022,9 +1025,8 @@ def ast(weighted_values= weighted_values):
 #                               'pTSA':bottle3,
 #                               'DMF': jar1}
 #
-# excel_filename = 'C:\\Users\\Chemiluminescence\\Desktop\\roborea_data\\' \
-#                  '2022-12-14-run01\\input_compositions\\compositions.xlsx'
-# df = pd.read_excel(excel_filename,
+# excel_filename = 'composition_input_20230110RF029.xlsx'
+# df = pd.read_excel(excel_filename ,
 #                    sheet_name='Sheet1', usecols='I,J,K,L,M')
 #
 # xy1 = plate1['wells'][0]['xy'] # coord of the first 2ml vial
@@ -1033,7 +1035,7 @@ def ast(weighted_values= weighted_values):
 # # addition_sequence = ['pTSA', 'amine', 'Isocyano']
 # for substance in addition_sequence:
 #     if not (substance == addition_sequence[0]):
-#         change_tip(tips_rack)
+#         change_tip(tip_rack)
 #         time.sleep(6)
 #     t0 = time.time()
 #     for well_id, volume in enumerate(df_one_plate[substance + '.1']):

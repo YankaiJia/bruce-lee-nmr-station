@@ -42,8 +42,12 @@ zm = zeus.ZeusModule(id=1)
 # }
 
 # load jason file
-with open('data/liquid_class_table_para_ALL.json') as json_file:
-    liquid_class_table_para = json.load(json_file)
+def open_json():
+    with open('data/liquid_class_table_para_ALL.json') as json_file:
+        liquid_class_table_para = json.load(json_file)
+    return liquid_class_table_para
+
+liquid_class_table_para = open_json()
 
 def extract_liquid_class_parameter(liquid_index, id = '0001'):
     cmd = 'GMid'+ id+ 'lq' + str(liquid_index).zfill(2)
@@ -115,9 +119,6 @@ def extract_qpm_dispensing(liquid_index, id = '0001'):
     print(f'msg_received_from_Zeus for qpm_dispensing is : {msg_received_from_Zeus}')
     return msg_received_from_Zeus
 
-
-def get(liquid_index):
-    return extract_liquid_class_parameter(liquid_index= liquid_index)
 
 def fill_one_liquid_class_parameter( liquid_index, id = '0001'):
     msg = extract_liquid_class_parameter(id = id, liquid_index = liquid_index)
@@ -208,9 +209,9 @@ def copy_para_from_to(index_from, index_to):
 
 
 ## modify your new liquid class parameters
-liquid_class_table_para['data_container']['21'] = 'DMF, based on water 02, tip 1000ul'
-liquid_class_table_para['data_container']['22'] = 'DMF, based on water 01, tip 300ul'
-liquid_class_table_para['data_container']['23'] = 'DMF, based on water 00, tip 50ul'
+# liquid_class_table_para['data_container']['21'] = 'DMF, based on water 02, tip 1000ul'
+# liquid_class_table_para['data_container']['22'] = 'DMF, based on water 01, tip 300ul'
+# liquid_class_table_para['data_container']['23'] = 'DMF, based on water 00, tip 50ul'
 
 # liquid_class_table_para['21']['lld'] = 1
 # # liquid_class_table_para['21']['plldSensitivity'] = 3
@@ -221,7 +222,7 @@ def update_liquid_dict():
     with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
         json.dump(liquid_class_table_para, f, ensure_ascii=False, indent=4)
 
-update_liquid_dict()
+# update_liquid_dict()
 
 def set_liquid_class_to_zeus( liquid_index):
     # write liquid class parameters
@@ -253,7 +254,9 @@ def set_liquid_class_to_zeus( liquid_index):
     para3_new = para3[:8] + para3[12:]
     zm.sendCommand(para3_new)
     time.sleep(0.5)
-
+    #
+    # set_liquid_class_to_zeus(liquid_index = 21)
+    # set_liquid_class_to_zeus(liquid_index = 22)
     ## write qpm
     # aspiration
     para4 = liquid_class_table_para['qpm']['aspiration'][str(liquid_index).zfill(2)]
@@ -282,8 +285,13 @@ def request_parameters_from_zeus(liquid_index):
     zm.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
     time.sleep(0.5)
 
+# set_liquid_class_to_zeus( liquid_index =23 )
+# time.sleep(1)
+# request_parameters_from_zeus(liquid_index = 23)
 
-## the following code is for easy of typing in python console
+# request_parameters_from_zeus(liquid_index = 22)
+
+## the following code is for easy of typing in python console. Use with care.
 def wr(liquid_index):
     set_liquid_class_to_zeus(liquid_index = liquid_index )
 def re(liquid_index):
@@ -297,6 +305,9 @@ def set():
         wr(str(i))
         re(str(i))
     print('Finished!')
+
+def get(liquid_index):
+    return extract_liquid_class_parameter(liquid_index= liquid_index)
 
 # set()
 

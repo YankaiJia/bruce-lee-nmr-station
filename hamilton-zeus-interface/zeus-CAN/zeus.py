@@ -738,6 +738,11 @@ class ZeusModule(object):
         cmd = self.cmdHeader('RT')
         self.sendCommand(cmd)
 
+        if 'rt1' in self.r.received_msg:
+            return True
+        else:
+            return False
+
     def getTechnicalStatus(self):
         cmd = self.cmdHeader('QT')
         self.sendCommand(cmd)
