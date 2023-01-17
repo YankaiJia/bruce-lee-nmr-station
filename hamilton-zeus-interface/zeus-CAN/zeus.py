@@ -552,7 +552,7 @@ class ZeusModule(object):
 
     def sendCommand(self, cmd):
         data = list(split_by_n(cmd, 7))
-        # print(f'YANKAI_note: sent split list is : {data}')
+        print(f'YANKAI_note: sent split list is : {data}')
         cmd_len = len(data)
         printMSG(
             "info", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))

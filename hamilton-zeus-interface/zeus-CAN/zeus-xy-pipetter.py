@@ -605,7 +605,7 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300u
             #               mixVolume=0, mixFlowRate=0, mixCycles=0)
 
             tip_dict = {'300ul':0, '1000ul':1}
-            print(f'Volume for zeus {int(round(volume * 10))}')
+            print(f'Aspiration volume: {int(round(volume * 10))}')
             zm.aspiration(aspirationVolume=int(round(volume * 10)),
                           containerGeometryTableIndex=container['containerGeometryTableIndex'],
                           deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
@@ -869,7 +869,7 @@ def dispense_to_balance(volume, liquidClassTableIndex, container=balance_cup, li
     print(f" balance_ vial volume is now : { container['volume']}")
 
 
-def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max_volume=900):
+def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max_volume=280):
 
     # check if container is full.
     if destination['volume'] >= destination["volume_max"]:
@@ -884,8 +884,9 @@ def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max
         dispense_liquid(container = destination, volume = max_volume, liquidClassTableIndex= liquidClassTableIndex)
 
     volume_of_last_pipetting = volume % max_volume
-    draw_liquid(container = source, volume = volume_of_last_pipetting, lld = lld, liquidClassTableIndex = liquidClassTableIndex, )
-    dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex)
+    if volume_of_last_pipetting:
+        draw_liquid(container = source, volume = volume_of_last_pipetting, lld = lld, liquidClassTableIndex = liquidClassTableIndex, )
+        dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex)
 
 
 def calibrate_volume_by_balance(source_container, volume, ntimes=5, timedelay=5, density=1):
@@ -958,10 +959,10 @@ print('init finished.')
 
 t0 = time.time()
 indicator = 0 # Indicator from which plate the pipetting is going to. 0: plate['0']. 1: plate['1']
-container_having_substance = {'Isocyano': bottle['0'],
-                              'amine':bottle['1'],
-                              'aldehyde':bottle['2'],
-                              'pTSA':bottle['3'],
+container_having_substance = {'Isocyano': bottle['4'],
+                              'amine':bottle['5'],
+                              'aldehyde':bottle['6'],
+                              'pTSA':bottle['7'],
                               'DMF': jar['0']}
 addition_sequence = ('DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano')
 # addition_sequence = ( 'aldehyde', 'pTSA', 'amine', 'Isocyano')
@@ -969,7 +970,8 @@ addition_sequence = ('DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano')
 excel_filename = 'multicompnent_reaction_input\\composition_input_20230110RF029.xlsx'
 df1 = pd.read_excel(excel_filename, sheet_name='Robot', usecols='R:V')
 df = df1.copy()
-df.columns = [i[:-2] if '.2' in i else i for i in df.columns]
+# df.columns = [i[:-2] if '.2' in i else i for i in df.columns]
+df.columns = [col_name.split('.')[0] for col_name in df.columns]
 
 def devide_data_frame(data_frame, n):
     """A generator to divide the reactions into chunks of n units. Each chunk is one reaction_plate"""
@@ -993,13 +995,13 @@ def pipette_one_plate(reaction_plate_number ):
         for well_id, volume in enumerate(reaction_plate_n[reaction_plate_number][substance]):
             print(f'substance: {substance}, index: {well_id}, tranfer volume: {volume}')
             indicator = reaction_plate_number % 2 ## even or odd
-            move_xy(container_having_substance[substance]['xy'])
-            time.sleep(0.1)
-            move_xy(plate[indicator]['wells'][well_id]['xy'])
-            time.sleep(0.1)
-            # transfer_liquid(container_having_substance[substance],
-            #                     plate[str(indicator)]['wells'][well_id],
-            #                     volume, tip_type = 300)
+            # move_xy(container_having_substance[substance]['xy'])
+            # time.sleep(0.1)
+            # move_xy(plate[indicator]['wells'][well_id]['xy'])
+            # time.sleep(0.1)
+            transfer_liquid(source = container_having_substance[substance],
+                            destination = plate[indicator]['wells'][well_id],
+                                volume = volume, lld = 1, liquidClassTableIndex=1)
             print(f'well_plate0 or well_plate1: {str(indicator)}')
             # print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
 
@@ -1012,7 +1014,7 @@ def pipette_n_plate():
             print(f"The pipetting is stopped! Next you should do the {i}th reaciton_plate")
             return
 
-pipette_n_plate()
+# pipette_n_plate()
 
 
 
@@ -1096,19 +1098,127 @@ def height(container):
 
 
 
+def dr(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
+                n_retries=3):
+
+    container['volume'] -= volume
+    if zm.pos > ZeusTraversePosition_1000ul:
+        move_z(ZeusTraversePosition_1000ul)
+    #     wait_until_zeus_reaches_traverse_height()
+    move_xy(container['xy'])
+
+    tip_dict = {'300ul':0, '1000ul':1}
+    print(f'Aspiration volume: {int(round(volume * 10))}')
+    zm.aspiration(aspirationVolume=int(round(volume * 10)),
+                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
+                  deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
+                  qpm=1, lld= lld, lldSearchPosition=lld_search_position(container),
+                  liquidSurface=liquid_surface_in_container(container),
+                  mixVolume=0, mixFlowRate=0, mixCycles=0)
+
+    #         # time.sleep(1.5)
+    #         time.sleep(2)
+    #         wait_until_zeus_responds_with_string('GAid')
+    #         return True
+    #     except ZeusError:
+    #         if zeus_error_code(zm.r.received_msg) == '81':
+    #             # Empty tube detected during aspiration
+    #             print('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
+    #             time.sleep(2)
+    #             move_z(ZeusTraversePosition_1000ul)
+    #             time.sleep(2)
+    #             dispense_liquid(container, volume)
+    #             time.sleep(2)
+    #             continue
+    #
+    # print(f'Tried {n_retries} but zeus error is still there')
+    # raise Exception
 
 
+def ds(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surface,
+                    liquid_surface_margin=50, deckGeometryTableIndex=1):
+
+    if zm.pos > ZeusTraversePosition_1000ul:
+        move_z(ZeusTraversePosition_1000ul)
+        # wait_until_zeus_reaches_traverse_height()
+    move_xy(container['xy'])
+
+    # check if container is full.
+    if container['volume'] >= container["volume_max"]:
+        print("The target container is full. Dispensing is aborted.")
+        return
+
+    # this is used for testing water
+    zm.dispensing(dispensingVolume=int(round(volume*10)),
+                  containerGeometryTableIndex=container['containerGeometryTableIndex'],
+                  deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
+                  lld=0, lldSearchPosition=lld_search_position(container),
+                  liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
+                  searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
 
 
+calibration_dict = {}
+def measure_qpm_asp():
+    global calibration_dict
+    # volumes = [5, 10, 25, 50, 75, 125, 200, 300]
+    volumes = [5, 10, 25]
 
+    for volume in volumes:
+        dr(container = jar['0'], volume = volume, lld = 1,
+           liquidClassTableIndex = 1, tip_type = '300ul',liquidSurface=manual_vial_surface, n_retries=3)
+        time.sleep(8)
+        # plot_pressure_curve()
+        data = get_pressure_curve()
+        calibration_dict[str(volume) + 'ul'] = data
+        with open('calibration_data/qpm_asp_second.json', 'w', encoding='utf-8') as json_file:
+            json.dump(calibration_dict, json_file, ensure_ascii=False, indent=4)
 
+        ds(container = jar['0'], volume = volume,  liquidClassTableIndex = 1, liquidSurface=manual_vial_surface,
+                    liquid_surface_margin=50, deckGeometryTableIndex=1)
+        time.sleep(8)
+    return calibration_dict
 
+abc = measure_qpm_asp()
 
+def devide_index():
+    index = list(range(4361, 5000))
+    while len(index):
+        yield index[:50]
+        index = index[50:]
 
+def get_pressure_curve():
+    data = []
+    chunk_list = list(devide_index())
+    for i in range(len(chunk_list)):
+        string = str(chunk_list[i][0])
+        zm.sendCommand('QIid0001li'+string+'ln50')
+        string_temp = zm.r.received_msg
+        time.sleep(0.5)
+        zm.sendCommand('QIid0001li' + string + 'ln50')
+        string = zm.r.received_msg
+        data_str = string[10:].split()
+        data_here = [int(i) for i in data_str]
+        data.append(data_here)
+        data_flatten = [item for sublist in data for item in sublist ]
+        time.sleep(0.5)
+    return data_flatten
 
+# data = get_pressure_curve()
 
+def plot_pressure_curve(aa):
+    # data = get_pressure_curve()
+    for key, value in aa.items():
+        xx= list(range(len(value)))
+        plt.plot(xx, value, 'o-', color='firebrick', label='No mask')
+    plt.show()
 
+plot_pressure_curve(aa = calibration_dict)
 
+# plot_pressure_curve()
+
+# jar0 = jar['0']['xy']
+
+# plt.show()
 
 # container_having_substance = {'Isocyano':bottle6,
 #                               'amine':bottle5,

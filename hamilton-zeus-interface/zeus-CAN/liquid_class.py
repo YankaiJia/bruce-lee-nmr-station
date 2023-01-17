@@ -29,6 +29,9 @@ Yankai Jia 2023/01/23
 import zeus
 import time
 import json
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
 
 
 zm = zeus.ZeusModule(id=1)
@@ -324,3 +327,28 @@ def get(liquid_index):
 #     zm.sendCommand(assembly_string)
 #     new_class_para = extract_liquid_class_parameter(id='0001', liquid_index=str(index_to).zfill(2))
 #     print(f'The new class para is:  {new_class_para}')
+
+###############################################################
+######################### For QPM #############################
+
+def open_qpm():
+    with open('calibration_data/qpm_asp.json') as json_file:
+        qpm = json.load(json_file)
+    return qpm
+
+qpm = open_qpm()
+
+def plot_pressure_curve(aa):
+    # data = get_pressure_curve()
+    color_dict = mcolors.TABLEAU_COLORS
+    color = [key for key in color_dict.keys() ]
+    i = 0
+    for key, value in aa.items():
+        xx= list(range(len(value)))
+        plt.plot(xx, value, '.', color=color[i%10], label='No mask')
+        i += 1
+
+    return plt
+
+plot_pressure_curve(qpm)
+plt.show()
