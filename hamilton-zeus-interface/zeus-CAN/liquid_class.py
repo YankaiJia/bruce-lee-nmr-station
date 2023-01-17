@@ -34,7 +34,7 @@ import matplotlib.colors as mcolors
 
 
 
-zm = zeus.ZeusModule(id=1)
+# zm = zeus.ZeusModule(id=1)
 
 # ## this is for the first time usage.
 # liquid_class_table_para = {
@@ -332,7 +332,7 @@ def get(liquid_index):
 ######################### For QPM #############################
 
 def open_qpm():
-    with open('calibration_data/qpm_asp.json') as json_file:
+    with open('calibration_data/qpm_asp_water_300ul_asp_index01.json') as json_file:
         qpm = json.load(json_file)
     return qpm
 
@@ -350,5 +350,12 @@ def plot_pressure_curve(aa):
 
     return plt
 
-plot_pressure_curve(qpm)
-plt.show()
+# plot_pressure_curve(qpm)
+# plt.show()
+
+
+# a = [902,868,902,900,902,902,898,898]
+# b = [895,828,893,871,885,845,816,786]
+# c = []
+# for i in range(len(a)):
+#     c.append((a[i]-b[i])/2)

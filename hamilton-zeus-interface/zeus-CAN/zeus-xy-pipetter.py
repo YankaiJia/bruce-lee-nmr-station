@@ -378,7 +378,7 @@ def pos_z():
 move_z(880)
 
 
-# XY stage
+################################### XY stage ########################################################################
 horiz_speed = 200 * 60 # horizontal speed in mm / min
 # xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
 xy_offset = (0, 0)
@@ -606,10 +606,17 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300u
 
             tip_dict = {'300ul':0, '1000ul':1}
             print(f'Aspiration volume: {int(round(volume * 10))}')
+            # zm.aspiration(aspirationVolume=int(round(volume * 10)),
+            #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
+            #               deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
+            #               qpm=1, lld= lld, lldSearchPosition=lld_search_position(container),
+            #               liquidSurface=liquid_surface_in_container(container),
+            #               mixVolume=0, mixFlowRate=0, mixCycles=0)
+
             zm.aspiration(aspirationVolume=int(round(volume * 10)),
                           containerGeometryTableIndex=container['containerGeometryTableIndex'],
                           deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
-                          qpm=1, lld= lld, lldSearchPosition=lld_search_position(container),
+                          qpm=1, lld=lld, lldSearchPosition=liquid_surface_in_container(container) - 100,
                           liquidSurface=liquid_surface_in_container(container),
                           mixVolume=0, mixFlowRate=0, mixCycles=0)
 
@@ -749,7 +756,7 @@ def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_i
     close_balance_door()
     time.sleep(timedelay)
     # balance_tare()
-    balance_zero(verbose=True)
+    # balance_zero(verbose=True)
     draw_liquid(container=source_container, volume=volume, lld = lld, liquidClassTableIndex= liquid_class_index)
     weight_before = balance_value()
     print(f'weight_before: {weight_before} g')
@@ -806,25 +813,25 @@ def get_calibration_values21(index, liquid):
 # get_calibration_values21(index = 2, liquid = 'DMF')
 
 
-def get_calibration_values22(index = 22, liquid = 'DMF', tip = 300):
+def get_calibration_values23(index = 23, liquid = 'DMF', tip = 1000):
 
-    if not zm.getTipPresenceStatus():
-        time.sleep(0.5)
-        pick_tip(300)
+    # if not zm.getTipPresenceStatus():
+    #     time.sleep(0.5)
+    #     pick_tip(300)
 
     weighted_values = {}
     density_dict = {'DMF': 0.944, "THF": 0.888, }
     liquid_density = density_dict[liquid]
-    if index == 22:
+    volumes = []
+    if index == 23:
         # volumes = [10, 20, 50, 100, 200, 500, 750, 1000]
-        # volumes = [1, 5, 10, 25, 50, 100, 200, 300]
-
-        volumes = [1, 5]
-        # volumes = [1, 5, 10, 25]
-        # volumes = [750, 1000]
-        # volumes = [10, 750]
-    for i in volumes[::-1]:
-        values = dispense_to_balance_and_weight_n_times(source_container = bottle['6'], volume = i, lld = 1, liquid_class_index = index, ntimes = 10, timedelay=5)
+        volumes = [750, 1000]
+        # volumes = [5, 10, 25, 50, 75, 100, 200, 300]
+    else:
+        print('Wrong index number!')
+        return
+    for i in volumes:
+        values = dispense_to_balance_and_weight_n_times(source_container = jar['0'], volume = i, lld = 1, liquid_class_index = index, ntimes = 5, timedelay=5)
         print(f'values: {values}')
         weighted_values[str(i)+'ul'] = {}
         weighted_values[str(i)+'ul']['data'] = values
@@ -832,15 +839,14 @@ def get_calibration_values22(index = 22, liquid = 'DMF', tip = 300):
         weighted_values[str(i) + 'ul']['avg'] = ( sum(values) / len(values) ) / liquid_density
         weighted_values[str(i) + 'ul']['std'] = statistics.stdev([x / liquid_density for x in values])
 
-        with open('data/Weighted_values_for_calibration_index22_fresh_liquid_lld1_1830.json', 'w', encoding='utf-8') as f:
+        with open('data/Weighted_values_for_calibration_index23_DMF_1000ul.json', 'w', encoding='utf-8') as f:
             json.dump(weighted_values, f, ensure_ascii=False, indent=4)
 
     print('done and data save!!!')
 
     return weighted_values
 
-# bbb = get_calibration_values22(index = 22, liquid = 'DMF')
-
+# get_calibration_values23(index = 23, liquid = 'DMF')
 
 # weighted_values = get_calibration_values(index = 21)
 
@@ -1020,17 +1026,7 @@ def pipette_n_plate():
 
 
 
-
-
-
-#
-
-
-
-
-
-
-## the following is for typing lazines. No more info presented below
+## The following is for typing lazines. No more info presented below
 def home():
     home_xy()
 
@@ -1097,6 +1093,8 @@ def height(container):
 
 
 
+########################################################################################################################
+############################# For QPM ##################################################################################
 
 def dr(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
                 n_retries=3):
@@ -1134,7 +1132,6 @@ def dr(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liqui
     # print(f'Tried {n_retries} but zeus error is still there')
     # raise Exception
 
-
 def ds(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=1):
 
@@ -1160,11 +1157,11 @@ def ds(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surfa
 calibration_dict = {}
 def measure_qpm_asp():
     global calibration_dict
-    # volumes = [5, 10, 25, 50, 75, 125, 200, 300]
-    volumes = [5, 10, 25]
+    volumes = [5, 10, 25, 50, 75, 125, 200, 300]
+    # volumes = [5, 10, 25]
 
     for volume in volumes:
-        dr(container = jar['0'], volume = volume, lld = 1,
+        dr(container = bottle['4'], volume = volume, lld = 1,
            liquidClassTableIndex = 1, tip_type = '300ul',liquidSurface=manual_vial_surface, n_retries=3)
         time.sleep(8)
         # plot_pressure_curve()
@@ -1173,12 +1170,12 @@ def measure_qpm_asp():
         with open('calibration_data/qpm_asp_second.json', 'w', encoding='utf-8') as json_file:
             json.dump(calibration_dict, json_file, ensure_ascii=False, indent=4)
 
-        ds(container = jar['0'], volume = volume,  liquidClassTableIndex = 1, liquidSurface=manual_vial_surface,
+        ds(container = bottle['4'], volume = volume,  liquidClassTableIndex = 1, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=1)
         time.sleep(8)
     return calibration_dict
 
-abc = measure_qpm_asp()
+# abc = measure_qpm_asp()
 
 def devide_index():
     index = list(range(4361, 5000))
@@ -1212,7 +1209,7 @@ def plot_pressure_curve(aa):
         plt.plot(xx, value, 'o-', color='firebrick', label='No mask')
     plt.show()
 
-plot_pressure_curve(aa = calibration_dict)
+# plot_pressure_curve(aa = calibration_dict)
 
 # plot_pressure_curve()
 
