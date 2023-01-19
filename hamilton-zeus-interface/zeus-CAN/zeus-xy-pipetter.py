@@ -103,6 +103,14 @@ zm.setContainerGeometryParameters(containerGeometryParameters=container_balance_
 print('Balance container loaded')
 time.sleep(1)
 
+container_wellplate_bio = zeus.ContainerGeometry(index=4, diameter=68, bottomHeight=0, bottomSection=10000,
+                 bottomPosition=2160, immersionDepth=20, leavingHeight=20, jetHeight=60,
+                 startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=80)
+zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial)
+print('2ml vial container loaded')
+time.sleep(1)
+
+
 def generate_well_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a well plate from coordinates of corner wells.'''
     # left_side_wells
@@ -141,6 +149,16 @@ def generate_wellplates():
              'lldSearchPosition': 'auto',
              'safety_margin_for_lldsearch_position': 40
              }
+    well_bio = {'volume': 0,
+             'xy': (-37, -52),
+             'volume_max': 200,
+             'area': 6.8 * 6.8 * 3.14 / 4,  # container's horizontal cross-section area is in square mm
+             'min_z': (2300 - 2160) / 10, # location of container's bottom above the floor in mm
+             'top_z': 12,  # height of container
+             'containerGeometryTableIndex': 4,
+             'lldSearchPosition': 'auto',
+             'safety_margin_for_lldsearch_position': 40
+             }
     # generate coordinates for all wells of a well plate from coordinates of corner wells.
     plate1 = create_well_plate(template_well=well1,
                               Nwells=(6, 9),
@@ -155,10 +173,17 @@ def generate_wellplates():
                               topright=(-261, -255.5),
                               bottomleft=(-156.5, -321),
                               bottomright=(-261, -321))
-    return plate1, plate2
-plate1, plate2 = generate_wellplates()
+    plate3 = create_well_plate(template_well= well_bio,
+                               Nwells=(8, 12),
+                               topleft=(-307.2,-257.3),
+                               topright=(-406, -257.6),
+                               bottomleft=(-306.5,-320.3),
+                               bottomright=(-405.5,-320.3))
 
-plate = (plate1, plate2)
+    return plate1, plate2, plate3
+plate1, plate2, plate3 = generate_wellplates()
+
+plate = (plate1, plate2, plate3)
 
 def generate_balance_container():
     # This is for the 2-ml vial on balance
@@ -220,14 +245,14 @@ def generate_bottle_container():
     bottle['3']['volume'] = 20000
     bottle['4']['volume'] = 20000
     bottle['5']['volume'] = 20000
-    bottle['6']['volume'] = 12000
+    bottle['6']['volume'] = 20000
     bottle['7']['volume'] = 20000
     print('Bottle container generated!')
     return bottle
 bottle = generate_bottle_container()
 
 def generated_jar_container():
-    jar = {'0': {'volume': 91500,
+    jar = {'0': {'volume': 78000,
                     'xy': ((-177, -187)),
                     'volume_max': 100000,
                     'area': 2123.7,  # container's horizontal cross-section area is in square mm
@@ -236,7 +261,7 @@ def generated_jar_container():
                     'neck_r': 3,  # inner radius of the neck in mm
                     'containerGeometryTableIndex': 2,
                     'lldSearchPosition': 1700},
-           '1' : {'volume': 91500,
+           '1' : {'volume': 100000,
                     'xy': (-238.5, -187),
                     'volume_max': 100000,
                     'area': 2123.7,  # container's horizontal cross-section area is in square mm
@@ -394,7 +419,7 @@ while time.time() - t0 < 8:
     line = ser.readline()
     print(line)
 
-def send_to_xy_stage(ser, command, wait_for_ok=True, verbose=True, read_all=False, ensure_traverse_height = True):
+def send_to_xy_stage(ser, command, wait_for_ok=True, verbose=False, read_all=False, ensure_traverse_height = True):
     # start_time = datetime.now()
     ser.write(str.encode(command + '\r\n'))
     # ser.write(str.encode(command))
@@ -581,10 +606,11 @@ def change_tip(tip_rack):
     pick_tip(tip_rack)
 
 def move_through_wells(plate, dwell_time=1):
-    for well in plate['wells']:
-        move_xy(well['xy'])
+    for index in range(len(plate['wells'])):
+        print(f'This is well index: {index}')
+        move_xy(plate['wells'][index]['xy'])
         time.sleep(dwell_time)
-
+    print(f"Walked through {index+1} wells!")
 def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
                 n_retries=3):
 
@@ -965,13 +991,13 @@ print('init finished.')
 
 t0 = time.time()
 indicator = 0 # Indicator from which plate the pipetting is going to. 0: plate['0']. 1: plate['1']
-container_having_substance = {'Isocyano': bottle['4'],
-                              'amine':bottle['5'],
-                              'aldehyde':bottle['6'],
-                              'pTSA':bottle['7'],
+container_having_substance = {'Isocyano': bottle['7'],
+                              'amine':bottle['6'],
+                              'aldehyde':bottle['5'],
+                              'pTSA': jar['1'],
                               'DMF': jar['0']}
 addition_sequence = ('DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano')
-# addition_sequence = ( 'aldehyde', 'pTSA', 'amine', 'Isocyano')
+# addition_sequence = ( 'amine', 'Isocyano')
 
 excel_filename = 'multicompnent_reaction_input\\composition_input_20230110RF029.xlsx'
 df1 = pd.read_excel(excel_filename, sheet_name='Robot', usecols='R:V')
@@ -979,19 +1005,20 @@ df = df1.copy()
 # df.columns = [i[:-2] if '.2' in i else i for i in df.columns]
 df.columns = [col_name.split('.')[0] for col_name in df.columns]
 
-def devide_data_frame(data_frame, n):
+def divide_data_frame(data_frame, n):
     """A generator to divide the reactions into chunks of n units. Each chunk is one reaction_plate"""
     while len(data_frame):
         yield data_frame.iloc[:n]
         data_frame = data_frame.iloc[n:]
 
 def generate_n_reaction_plate():
-    reaction_plate_n = tuple(devide_data_frame(df, 53)) # The volume will not change after devision,
+    reaction_plate_n = tuple(divide_data_frame(df, 54)) # The volume will not change after devision,
                                                         # so use tuple for protection
     for i in range(len(reaction_plate_n)):
         index = reaction_plate_n[i].index[0]
         print(f'reaction range in {i}th plate: {index} --- {index + len(reaction_plate_n[i])-1}')
     return reaction_plate_n
+
 reaction_plate_n = generate_n_reaction_plate()
 
 
@@ -999,7 +1026,7 @@ def pipette_one_plate(reaction_plate_number ):
     global indicator
     for substance in addition_sequence:
         for well_id, volume in enumerate(reaction_plate_n[reaction_plate_number][substance]):
-            print(f'substance: {substance}, index: {well_id}, tranfer volume: {volume}')
+            print(f'substance: {substance}, well index: {well_id}, tranfer volume: {volume}')
             indicator = reaction_plate_number % 2 ## even or odd
             # move_xy(container_having_substance[substance]['xy'])
             # time.sleep(0.1)
@@ -1007,15 +1034,18 @@ def pipette_one_plate(reaction_plate_number ):
             # time.sleep(0.1)
             transfer_liquid(source = container_having_substance[substance],
                             destination = plate[indicator]['wells'][well_id],
-                                volume = volume, lld = 1, liquidClassTableIndex=1)
+                                volume = volume, lld = 1, liquidClassTableIndex=22)
             print(f'well_plate0 or well_plate1: {str(indicator)}')
             # print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
+        dis()
+        pick(300)
 
 def pipette_n_plate():
     for i in range(len(reaction_plate_n)):
         if input('Ready for next reaction_plate: ') in ['yes', 'Yes', 'Y', '1', 'True', 'true']:
             print(f"OKAY, I will pipette the: {i}th reaction_plate! Starting...")
             pipette_one_plate(reaction_plate_number=i)
+
         else:
             print(f"The pipetting is stopped! Next you should do the {i}th reaciton_plate")
             return
@@ -1256,3 +1286,26 @@ def plot_pressure_curve(aa):
 #     move_xy((300, -200), block_until_motion_is_completed=True, use_time_estimates=True)
 
 # dispense_to_balance_and_weight(source_container = bottle['6'], volume = 200, lld = 0, liquid_class_index = 21, timedelay=3)
+
+
+# temp
+
+
+def pipette_one_plate(reaction_plate_number = 3 ):
+    addition_sequence_here = ('aldehyde', 'pTSA', 'amine', 'Isocyano')
+    global indicator
+    for substance in addition_sequence_here:
+        for well_id, volume in enumerate(reaction_plate_n[reaction_plate_number][substance]):
+            print(f'substance: {substance}, well index: {well_id}, tranfer volume: {volume}')
+            indicator = reaction_plate_number % 2 ## even or odd
+            # move_xy(container_having_substance[substance]['xy'])
+            # time.sleep(0.1)
+            # move_xy(plate[indicator]['wells'][well_id]['xy'])
+            # time.sleep(0.1)
+            transfer_liquid(source = container_having_substance[substance],
+                            destination = plate[indicator]['wells'][well_id],
+                                volume = volume, lld = 1, liquidClassTableIndex=22)
+            print(f'well_plate0 or well_plate1: {str(indicator)}')
+            # print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
+        dis()
+        pick(300)

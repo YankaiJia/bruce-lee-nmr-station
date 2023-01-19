@@ -737,7 +737,7 @@ class ZeusModule(object):
     def getTipPresenceStatus(self):
         cmd = self.cmdHeader('RT')
         self.sendCommand(cmd)
-
+        time.sleep(0.5)
         if 'rt1' in self.r.received_msg:
             return True
         else:
