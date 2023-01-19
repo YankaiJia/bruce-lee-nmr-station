@@ -10,8 +10,9 @@ from mayavi.core.ui.api import MayaviScene, SceneEditor, \
 import pandas as pd
 from scipy.interpolate import Rbf
 import numpy as np
+from mayavi import mlab
 
-value_to_plot = 'rate'
+value_to_plot = 'yield'
 data_folder = 'D:\\Docs\\Science\\UNIST\\Projects\\robochem\\data\\'
 
 excel_filename = data_folder + 'multicomp-reactions\\2022-12-14-run01\\input_compositions\\compositions.xlsx'
@@ -24,6 +25,7 @@ stock_concentrations = {'aldehyde': 0.794065682,
                         'amine':2.387782168,
                         'Isocyano':2.38104247}
 substances = ['DMF', 'aldehyde', 'amine', 'Isocyano', 'pTSA']
+
 substrate_cs = []
 for substance in substances[1:]:
     substrate_cs.append(df_plates[substance + '.1'].to_numpy() * stock_concentrations[substance] / 100)
@@ -34,7 +36,6 @@ for x in [xs0, ys0, zs0]:
     print(max(x))
 
 unique_cats = sorted(list(set(list(cats))))
-print(f'Unique cats: {unique_cats}')
 
 product_concentrations_vs_time = np.load(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\product_vs_time.npy', allow_pickle=True).T
 
@@ -54,12 +55,21 @@ if value_to_plot == 'rate':
         ks.append(slope)
     ks0 = np.array(ks)
     ks0[ks0<0] = 0
+elif value_to_plot == 'yield':
+    # product_concentrations_vs_time.shape[0]
+    ks = []
+    for i in range(105):
+        least_abundant_substrate = min(xs0[i], ys0[i], zs0[i])
+        concentration_at_16_hours = product_concentrations_vs_time[i, -1]
+        ks.append(concentration_at_16_hours/least_abundant_substrate)
+    ks0 = np.array(ks)
+    ks0[ks0<0] = 0
 
 print(max(ks0))
 print(min(ks0))
 
 all_wnews = []
-
+all_points = []
 for cat_here in unique_cats:
     mask = (cats == cat_here)
     xs = xs0[mask]
@@ -85,13 +95,20 @@ for cat_here in unique_cats:
     # plt.show()
 
     rbf4 = Rbf(xs, ys, zs, ks, epsilon=0.12, smooth=0.02) # function="thin_plate"
-    ti = np.linspace(0, 0.35, 10)
+
+    # mlab.points3d(xs, ys, zs, ks)
+    # mlab.show()
+
+    ti = np.linspace(0, 0.36, 10)
     # xnew, ynew, znew = np.meshgrid(ti, ti, ti)
     npoints = 30j
-    xnew, ynew, znew = np.mgrid[0:0.35:npoints, 0:0.35:npoints, 0:0.35:npoints]
+    xnew, ynew, znew = np.mgrid[0:0.36:npoints, 0:0.36:npoints, 0:0.36:npoints]
     wnew = rbf4(xnew, ynew, znew)
     wnew[wnew<0] = 0
     all_wnews.append(wnew)
+
+    ks[ks<0.5] = 0
+    all_points.append((xs, ys, zs, ks))
 
 
 
@@ -99,7 +116,7 @@ dphi = pi/1000.
 phi = arange(0.0, 2*pi + 0.5*dphi, dphi, 'd')
 
 def curve(n_mer):
-    return all_wnews[n_mer]
+    return all_wnews[n_mer], all_points[n_mer]
 
 
 class MyModel(HasTraits):
@@ -115,10 +132,11 @@ class MyModel(HasTraits):
     # update the plot.
     @on_trait_change('pTSA_concentration_id,scene.activated')
     def update_plot(self):
-        wnew = curve(self.pTSA_concentration_id)
+        wnew, the_points = curve(self.pTSA_concentration_id)
         if self.plot is None:
-            self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew, contours=8, opacity=0.5, vmin=0, vmax=0.000160386113793563,
+            self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew, contours=5, opacity=0.5, vmin=0, vmax=1.2,
                                   colormap='summer')
+
 
             # 7.95508836282453e-05
             # 0.000160386113793563
@@ -132,18 +150,24 @@ class MyModel(HasTraits):
             self.scene.mlab.zlabel(f'{substances[3]}')
             self.scene.mlab.outline(self.plot)
             # mlab.axes.label_text_property.font_size = 12
-            self.vslice = self.scene.mlab.volume_slice(xnew, ynew, znew, wnew, plane_orientation='x_axes', opacity=0.5)#, colormap='summer')
+            self.vslice = self.scene.mlab.volume_slice(xnew, ynew, znew, wnew, plane_orientation='x_axes', opacity=0.5,
+                                                       vmin=0, vmax=1.2)#, colormap='summer')
             self.scene.background = (1, 1, 1)
-            cb = self.scene.mlab.colorbar(object=self.vslice, title="Reaction rate, mol/L/min")
+            cb = self.scene.mlab.colorbar(object=self.vslice, title="Yield")
             cb.scalar_bar.unconstrained_font_size = True
             cb.label_text_property.font_size = 15
             # self.scene.children[1].children[0].scalar_lut_manager.title_text_property.font_size = 6
             ax1.axes.font_factor = 0.83
             # ax2 = self.scene.mlab.axes(color=(0.5, 0.5, 0.5), nb_labels=4)
             # ax2.axes.font_factor = 0.83
+            xs, ys, zs, ks = the_points
+            self.plot_points = self.scene.mlab.points3d(xs, ys, zs, ks, vmin=0, vmax=1.2)
+                                  # colormap='summer')
         else:
             self.plot.mlab_source.trait_set(x=xnew, y=ynew, z=znew, scalars=wnew)
             self.vslice.mlab_source.trait_set(x=xnew, y=ynew, z=znew, scalars=wnew)
+            xs, ys, zs, ks = the_points
+            self.plot_points.mlab_source.trait_set(x=xs, y=ys, z=zs, scalars=ks)
             # self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew, contours=6, opacity=0.5, vmin=0, vmax=0.000160386113793563,
             #                       colormap='summer')
             #

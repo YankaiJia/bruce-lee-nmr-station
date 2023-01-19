@@ -347,6 +347,8 @@ def construct_product_reference_2(
         new_ref_spectrum = np.copy(ref_spectrum)
         new_ref_spectrum[mask] = (target_spectrum[mask] - popt[1]) / slope
 
+        new_ref_spectrum = new_ref_spectrum - new_ref_spectrum[-1] + target_spectrum[-1]/slope
+
         if do_plot:
             plt.plot(target_spectrum, label='data', color='C0', alpha=0.5)
 
@@ -487,6 +489,8 @@ def process_spectra_to_concentrations(timepoint, plate_id, run_name='2022-12-07-
             # plt.legend()
             # plt.show()
 
+
+
     target_concentrations = np.array(target_concentrations)
     target_concentration_errors = np.array(target_concentration_errors)
     target_concentration_relerrors = np.array(target_concentration_relerrors)
@@ -497,11 +501,9 @@ def process_spectra_to_concentrations(timepoint, plate_id, run_name='2022-12-07-
     dataset.to_excel(data_folder + results_excel_file)
 
 
-
-
 def process_spectra_to_concentrations_2(timepoint, plate_id, run_name='2022-12-07-run01',
                                       results_excel_file='multicomp-reactions\\2022-12-07-run01\\results\\v6.xlsx',
-                                        do_plot=True):
+                                        do_plot=True, save_bkg_2=False):
 
     coeff_to_concentration_interpolator, reference_interpolator, bkg_spectrum = \
         construct_product_reference_2(
@@ -534,8 +536,17 @@ def process_spectra_to_concentrations_2(timepoint, plate_id, run_name='2022-12-0
                                       f'microspectrometer_data\\timepoint_{timepoint:03d}\\'
     plate_folder = experiment_folder + f'plate-{plate_id:02d}\\'
     # show_all_spectra(plate_folder)
-    bkg_2_id = 5 # 29 # 45 38
     datas = load_all_spectra(plate_folder=plate_folder)
+    if save_bkg_2:
+        bkg_2_id = 5  # 29 # 45 38
+        bkg_2_spectrum = datas[bkg_2_id][:, 1] - bkg_spectrum[:, 1]
+        np.save(data_folder + f'multicomp-reactions\\{run_name}\\' \
+                                      f'microspectrometer_data\\calibration\\bkg_2_spectrum.npy', bkg_2_spectrum)
+    else:
+        bkg_2_spectrum = np.load(data_folder + f'multicomp-reactions\\{run_name}\\' \
+                      f'microspectrometer_data\\calibration\\bkg_2_spectrum.npy')
+
+
 
     # if do_plot:
     #     for well_id, data in enumerate(datas):
@@ -548,7 +559,7 @@ def process_spectra_to_concentrations_2(timepoint, plate_id, run_name='2022-12-0
 
 
     wavelength_indices = np.arange(datas[0].shape[0])
-    baseline_2_interpolator = interpolate.interp1d(wavelength_indices, datas[bkg_2_id][:, 1] - bkg_spectrum[:, 1],
+    baseline_2_interpolator = interpolate.interp1d(wavelength_indices, bkg_2_spectrum,
                                                  fill_value='extrapolate')
 
     thresh_w_indices = [0,    25,   127, 2000]
@@ -558,48 +569,48 @@ def process_spectra_to_concentrations_2(timepoint, plate_id, run_name='2022-12-0
     target_concentration_errors = []
     target_concentration_relerrors = []
     unmixing_errors = []
-    cut_from = 115
+    cut_from = 88
     # to_id = 600 # len(wavelength_indices)
 
-    for plate_id in [1, 2]:
-        plate_folder = experiment_folder + f'plate-{plate_id:02d}\\'
-        datas = load_all_spectra(plate_folder=plate_folder)
-        for well_id, data in enumerate(datas):
-            target_spectrum = data[:, 1] - bkg_spectrum[:, 1]
 
-            def func(xs, a, b, c):
-                return a * reference_interpolator(xs) + b*baseline_2_interpolator(xs) + c
+    plate_folder = experiment_folder + f'plate-{plate_id:02d}\\'
+    datas = load_all_spectra(plate_folder=plate_folder)
+    for well_id, data in enumerate(datas):
+        target_spectrum = data[:, 1] - bkg_spectrum[:, 1]
 
-            mask = np.logical_and(target_spectrum < threshold_interpolator(wavelength_indices),
-                                  wavelength_indices > cut_from)
+        def func(xs, a, b, c):
+            return a * reference_interpolator(xs) + b*baseline_2_interpolator(xs) + c
 
-            p0 = (0.5, 0, 0)
-            bounds = ([0, -np.inf, -np.inf], [np.inf, np.inf, np.inf])
-            popt, pcov = curve_fit(func,
-                                   wavelength_indices[mask],
-                                   target_spectrum[mask],
-                                   p0=p0, bounds=bounds)
-            # sigma=noise_std*np.ones_like(target_spectrum),
-            # absolute_sigma=True)
-            perr = np.sqrt(np.diag(pcov))
-            slope = popt[0]
-            slope_error = perr[0]
-            concentration_error = (coeff_to_concentration_interpolator(slope + slope_error) - \
-                                  coeff_to_concentration_interpolator(slope - slope_error) ) / 2
-            target_concentrations.append(coeff_to_concentration_interpolator(slope))
-            target_concentration_errors.append(concentration_error)
-            target_concentration_relerrors.append(concentration_error / coeff_to_concentration_interpolator(slope))
-            unmixing_errors.append(np.mean(np.abs(func(wavelength_indices[mask], *popt) - target_spectrum[mask])))
-            if do_plot:
-                plt.plot(target_spectrum, label='data', color='C0', alpha=0.5)
-                plt.plot(func(wavelength_indices, *popt), color='r', label='fit', alpha=0.5)
-                plt.plot(func(wavelength_indices, popt[0], 0, 0), color='C1', label='product', alpha=0.5)
-                mask_illustration = np.ones_like(target_spectrum) * np.max(target_spectrum)
-                mask_illustration[mask] = 0
-                plt.fill_between(x=wavelength_indices, y1=0, y2=mask_illustration, color='yellow', alpha=0.3)
-                plt.title(f'Well {well_id}')
-                plt.legend()
-                plt.show()
+        mask = np.logical_and(target_spectrum < threshold_interpolator(wavelength_indices),
+                              wavelength_indices > cut_from)
+
+        p0 = (0.5, 0, 0)
+        bounds = ([0, 0, -0.01], [np.inf, np.inf, 0.01])
+        popt, pcov = curve_fit(func,
+                               wavelength_indices[mask],
+                               target_spectrum[mask],
+                               p0=p0, bounds=bounds)
+        # sigma=noise_std*np.ones_like(target_spectrum),
+        # absolute_sigma=True)
+        perr = np.sqrt(np.diag(pcov))
+        slope = popt[0]
+        slope_error = perr[0]
+        concentration_error = (coeff_to_concentration_interpolator(slope + slope_error) - \
+                              coeff_to_concentration_interpolator(slope - slope_error) ) / 2
+        target_concentrations.append(coeff_to_concentration_interpolator(slope))
+        target_concentration_errors.append(concentration_error)
+        target_concentration_relerrors.append(concentration_error / coeff_to_concentration_interpolator(slope))
+        unmixing_errors.append(np.mean(np.abs(func(wavelength_indices[mask], *popt) - target_spectrum[mask])))
+        if do_plot:
+            plt.plot(target_spectrum, label='data', color='C0', alpha=0.5)
+            plt.plot(func(wavelength_indices, *popt), color='r', label='fit', alpha=0.5)
+            plt.plot(func(wavelength_indices, popt[0], 0, 0), color='C1', label='product', alpha=0.5)
+            mask_illustration = np.ones_like(target_spectrum) * np.max(target_spectrum)
+            mask_illustration[mask] = 0
+            plt.fill_between(x=wavelength_indices, y1=0, y2=mask_illustration, color='yellow', alpha=0.3)
+            plt.title(f'Well {well_id}')
+            plt.legend()
+            plt.show()
 
     target_concentrations = np.array(target_concentrations)
     target_concentration_errors = np.array(target_concentration_errors)
@@ -614,47 +625,93 @@ def process_spectra_to_concentrations_2(timepoint, plate_id, run_name='2022-12-0
 
 data_folder = 'D:\\Docs\\Science\\UNIST\\Projects\\robochem\\data\\'
 
-product_concentrations_vs_time = []
-for timepoint in [1,2,3,4,5]:
-    product_concentrations = process_spectra_to_concentrations_2(timepoint, plate_id=1, run_name='2022-12-14-run01',
-                                            results_excel_file=f'multicomp-reactions\\2022-12-14-run01\\results\\v7_timepoint{timepoint}.xlsx',
-                                        do_plot=False)
-    product_concentrations_vs_time.append(product_concentrations)
 
-product_concentrations_vs_time = np.array(product_concentrations_vs_time)
-np.save(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\product_vs_time.npy', product_concentrations_vs_time)
-
-
-dataset = pd.DataFrame({f'Product (mol/L) at timepoint {timepoint}': product_concentrations_vs_time[timepoint-1] for timepoint in [1,2,3,4,5]})
-dataset.to_excel(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\v7_product_vs_time.xlsx')
-
-    # plt.plot(data[:, 0], data[:, 1])
-# plt.legend()
-# plt.show()
-
-
-# construct_reference()
-# data_folder = 'D:\\Docs\\Science\\UNIST\\Projects\\robochem\\data\\'
-# experiment_folder = data_folder + 'multicomp-reactions\\2022-12-07-run01\\'
-# spectra_folder = experiment_folder + 'microspectrometer_data\\timepoint_001\\'
-# for plate_id in [1, 2, 3]:
-#     plate_folder = spectra_folder + f'plate-{plate_id:02d}\\'
-#     show_all_spectra(plate_folder)
-# plt.show()
-
-# nd_index = 0
-# plt.plot(wavelengths, agilent_data[nd_index], label='agilent')
-# plt.plot(wavelengths, craic_data[nd_index], label='craic')
-# plt.legend()
-# plt.show()
-# df = pd.read_csv(spectrophotometer_file, skiprows=[0], nrows=600, usecols=[2, 3])
-# scalefactor = 1
-# # plt.plot(df.loc[:, 'Wavelength (nm).4'], scalefactor * (df.loc[:, 'Abs.4'] - df.loc[330, 'Abs.4']))
-# plt.plot(df.loc[:, 'Wavelength (nm).1'], scalefactor * (df.loc[:, 'Abs.1'] - df.loc[330, 'Abs.1']),
-#          label='Ground truth (Agilent)')
+# # test uniformity of signal on identical wells
 #
-# # plt.ylim(-0.1, 2)
+# prefix='spectrum_-'
+# plate_folder = data_folder + '\\multicomp-reactions\\2023-01-04-run01\\calibration_tests\\plate-02\\'
+# only_wells = np.array([0, 1, 2, 3, 9, 10, 11, 12,13,14,15, 16, 17])
+#
+# color = 'C0'
+# for well_id, data in enumerate(load_all_spectra(plate_folder, prefix=prefix)):
+#     if well_id in only_wells:
+#         plt.plot(data[:, 0], data[:, 1], alpha=0.3, label=f'{well_id}', color=color)
+#         print(f'{well_id}: max {np.max(data[:, 1])}')
+# only_wells = 18 + np.array([0, 1, 2, 3, 9, 10, 11, 12,13,14,15, 16, 17])
+# color = 'C1'
+# for well_id, data in enumerate(load_all_spectra(plate_folder, prefix=prefix)):
+#     if well_id in only_wells:
+#         plt.plot(data[:, 0], data[:, 1], alpha=0.3, label=f'{well_id}', color=color)
+#         print(f'{well_id}: max {np.max(data[:, 1])}')
+# only_wells = 18*2 + np.array([0, 1, 2, 3, 9, 10, 11, 12,13,14,15, 16, 17])
+# color = 'C2'
+# for well_id, data in enumerate(load_all_spectra(plate_folder, prefix=prefix)):
+#     if well_id in only_wells:
+#         plt.plot(data[:, 0], data[:, 1], alpha=0.3, label=f'{well_id}', color=color)
+#         print(f'{well_id}: max {np.max(data[:, 1])}')
 # plt.ylabel('Absorbance')
 # plt.xlabel('Wavelength, nm')
-# plt.legend()
 # plt.show()
+#
+# only_wells = np.array([0, 1, 2, 3, 9, 10, 11, 12,13,14,15, 16, 17])
+# abs_diffs = []
+# wav_ind_ref = 1000
+# wav_ind_sig = 480
+# for well_id, data in enumerate(load_all_spectra(plate_folder, prefix=prefix)):
+#     if well_id in only_wells:
+#         abs_diffs.append(data[wav_ind_sig, 1] - data[wav_ind_ref, 1])
+# abs_diffs = np.array(abs_diffs)
+# abs_diffs = abs_diffs / np.mean(abs_diffs) * 100
+#
+# import seaborn as sns
+# sns.boxplot(data=abs_diffs)
+# # plt.scatter(x=np.zeros_like(abs_diffs), y=abs_diffs, color='red', alpha=0.5)
+# plt.ylabel('Relative to true, %')
+# plt.ylim(0, 130)
+# plt.show()
+
+
+
+
+# product_concentrations_vs_time = []
+# for timepoint in [1,2,3,4,5]:
+#     product_concentrations = process_spectra_to_concentrations_2(timepoint, plate_id=1, run_name='2022-12-14-run01',
+#                                             results_excel_file=f'multicomp-reactions\\2022-12-14-run01\\results\\v7_timepoint{timepoint}.xlsx',
+#                                         do_plot=False)
+#     product_concentrations_vs_time.append(product_concentrations)
+#
+# product_concentrations_vs_time = np.array(product_concentrations_vs_time)
+# np.save(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\product_vs_time.npy', product_concentrations_vs_time)
+#
+#
+# dataset = pd.DataFrame({f'Product (mol/L) at timepoint {timepoint}': product_concentrations_vs_time[timepoint-1] for timepoint in [1,2,3,4,5]})
+# dataset.to_excel(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\v7_product_vs_time.xlsx')
+#
+# product_concentrations_vs_time = []
+# timepoint = 5
+# product_concentrations = process_spectra_to_concentrations_2(timepoint, plate_id=1, run_name='2022-12-14-run01',
+#                                         results_excel_file=f'multicomp-reactions\\2022-12-14-run01\\results\\v7_timepoint{timepoint}.xlsx',
+#                                     do_plot=True, save_bkg_2=False)
+# product_concentrations_vs_time.append(product_concentrations)
+
+run_name = '2023-01-18-run01'
+
+# product_concentrations_vs_time = []
+# for timepoint in [1,2,3,4,5]:
+#     product_concentrations = process_spectra_to_concentrations_2(timepoint, plate_id=1, run_name=run_name,
+#                                             results_excel_file=f'multicomp-reactions\\2022-12-14-run01\\results\\v7_timepoint{timepoint}.xlsx',
+#                                         do_plot=False)
+#     product_concentrations_vs_time.append(product_concentrations)
+#
+# product_concentrations_vs_time = np.array(product_concentrations_vs_time)
+# np.save(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\product_vs_time.npy', product_concentrations_vs_time)
+#
+#
+# dataset = pd.DataFrame({f'Product (mol/L) at timepoint {timepoint}': product_concentrations_vs_time[timepoint-1] for timepoint in [1,2,3,4,5]})
+# dataset.to_excel(data_folder + 'multicomp-reactions\\2022-12-14-run01\\results\\v7_product_vs_time.xlsx')
+
+timepoint = 1
+for plate_id in [1,2,3,4]:
+    product_concentrations = process_spectra_to_concentrations_2(timepoint, plate_id=plate_id, run_name=run_name,
+                                            results_excel_file=f'multicomp-reactions\\{run_name}\\results\\timepoint{timepoint}_plate_{plate_id}.xlsx',
+                                        do_plot=False, save_bkg_2=False)
