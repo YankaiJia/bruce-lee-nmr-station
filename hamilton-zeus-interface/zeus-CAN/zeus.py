@@ -7,6 +7,8 @@ from colorama import init, Fore, Back, Style
 from threading import Thread, Lock
 import codecs
 import json
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 import sys
 
@@ -156,6 +158,291 @@ class LiquidClass(object):
         self.dispensingSwapSpeed = dispensingSwapSpeed
         self.dispensingSettlingTime = dispensingSettlingTime
         self.flowRateTransportVolume = flowRateTransportVolume
+
+
+class ZeusLiquidClass:
+
+    with open('data/liquid_class_table_para_ALL.json') as json_file:
+        liquid_class_table_para = json.load(json_file)
+
+    def __init__(self, zm = None):
+
+        self.zm = zm
+        print(zm)
+
+    def import_from_json(self):
+
+        return liquid_class_table_para
+
+    def extract_liquid_class_parameter(self, liquid_index, id = '0001'):
+        cmd = 'GMid' + id + 'lq' + str(liquid_index).zfill(2)
+        print(f'cmd send is : {cmd}')
+        self.zm.sendCommand(
+            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
+        # print(zm.r.received_msg)
+        temp = self.zm.r.received_msg
+        print(temp)
+        time.sleep(1)
+        self.zm.sendCommand(cmd)
+        msg_received_from_Zeus = self.zm.r.received_msg
+        print(f'msg_received_from_Zeus len is : {len(msg_received_from_Zeus)}')
+        return msg_received_from_Zeus
+
+    def extract_calibration_aspiration(self, liquid_index, id='0001'):
+
+        cmd = 'GEid' + id + 'gg' + str(liquid_index).zfill(2)
+        print(f'cmd send is : {cmd}')
+        self.zm.sendCommand(
+            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
+        # print(zm.r.received_msg)
+        temp = self.zm.r.received_msg
+        print(temp)
+        time.sleep(1)
+        self.zm.sendCommand(cmd)
+        msg_received_from_Zeus = self.zm.r.received_msg
+        print(f'msg_received_from_Zeus for calibration_aspiration is : {msg_received_from_Zeus}')
+        return msg_received_from_Zeus
+
+    def extract_calibration_dispensing(self, liquid_index, id='0001'):
+        cmd = 'GIid' + id + 'gh' + str(liquid_index).zfill(2)
+        print(f'cmd send is : {cmd}')
+        self.zm.sendCommand(
+            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
+        # print(zm.r.received_msg)
+        temp = self.zm.r.received_msg
+        print(temp)
+        time.sleep(1)
+        self.zm.sendCommand(cmd)
+        msg_received_from_Zeus = self.zm.r.received_msg
+        print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
+        return msg_received_from_Zeus
+
+    def extract_qpm_aspiration(self,liquid_index, id='0001'):
+        cmd = 'GSid' + id + 'gv' + str(liquid_index).zfill(2)
+        print(f'cmd send is : {cmd}')
+        self.zm.sendCommand(
+            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
+        # print(zm.r.received_msg)
+        temp = self.zm.r.received_msg
+        print(temp)
+        time.sleep(1)
+        self.zm.sendCommand(cmd)
+        msg_received_from_Zeus = self.zm.r.received_msg
+        print(f'msg_received_from_Zeus for qpm_aspiration is : {msg_received_from_Zeus}')
+        return msg_received_from_Zeus
+
+    def extract_qpm_dispensing(self, liquid_index, id='0001'):
+        cmd = 'GWid' + id + 'gp' + str(liquid_index).zfill(2)
+        print(f'cmd send is : {cmd}')
+        self.zm.sendCommand(
+            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
+        # print(zm.r.received_msg)
+        temp = self.zm.r.received_msg
+        print(temp)
+        time.sleep(1)
+        self.zm.sendCommand(cmd)
+        msg_received_from_Zeus = self.zm.r.received_msg
+        print(f'msg_received_from_Zeus for qpm_dispensing is : {msg_received_from_Zeus}')
+        return msg_received_from_Zeus
+
+    def fill_one_liquid_class_parameter(self, liquid_index, id='0001'):
+        msg = self.extract_liquid_class_parameter(id=id, liquid_index=liquid_index)
+        para_container = ''.join(i for i in msg if i.isdigit())
+        # print(para_container)
+        global liquid_class_table_para
+        var_dict = {'id': 4,
+                    'index': 2,
+                    'liquidClassForFilterTips': 1,
+                    'aspirationMode': 1,
+                    'aspirationFlowRate': 5,
+                    'overAspiratedVolume': 4,
+                    'aspirationTransportVolume': 5,
+                    'blowoutAirVolume': 5,
+                    'aspirationSwapSpeed': 4,
+                    'aspirationSettlingTime': 3,
+                    'lld': 1,
+                    'clldSensitivity': 1,
+                    'plldSensitivity': 1,
+                    'adc': 1,
+                    'dispensingMode': 1,
+                    'dispensingFlowRate': 5,
+                    'stopFlowRate': 5,
+                    'stopBackVolume': 3,
+                    'dispensingTransportVolume': 5,
+                    'acceleration': 3,
+                    'dispensingSwapSpeed': 4,
+                    'dispensingSettlingTime': 3,
+                    'flowRateTransportVolume': 5}  # store variables and its len
+        # if not sum(var_dict.values()) +  ==  len (para_container):
+        #     print("Msg string length does not match the needed length!")
+        #     return
+        n = 0
+        for i in var_dict:
+            # print(f'liquid index is : {liquid_index}')
+            liquid_class_table_para['liquid_class_para'][liquid_index][i] = int(para_container[n:n + var_dict[i]])
+            n += var_dict[i]
+        return liquid_class_table_para
+
+    def extract_all_built_in_liquid_class_parameters_to_a_dict(self):
+        global liquid_class_table_para
+        for i in range(31):
+            liquid_index = str(i).zfill(2)
+
+            liquid_class_table_para['liquid_class_para'][liquid_index] = {}
+            self.fill_one_liquid_class_parameter(liquid_index, id='0001')
+
+            liquid_class_table_para['calibration']['aspiration'][liquid_index] = {}
+            string1 = self.extract_calibration_aspiration(liquid_index, id='0001')
+            liquid_class_table_para['calibration']['aspiration'][liquid_index] = string1[:-3]
+
+            liquid_class_table_para['calibration']['dispensing'][liquid_index] = {}
+            string2 = self.extract_calibration_dispensing(liquid_index, id='0001')
+            liquid_class_table_para['calibration']['dispensing'][liquid_index] = string2[:-3]
+
+            liquid_class_table_para['qpm']['aspiration'][liquid_index] = {}
+            string3 = self.extract_qpm_aspiration(liquid_index, id='0001')
+            liquid_class_table_para['qpm']['aspiration'][liquid_index] = string3[:-4]
+
+            liquid_class_table_para['qpm']['dispensing'][liquid_index] = {}
+            string4 = self.extract_qpm_dispensing(liquid_index, id='0001')
+            liquid_class_table_para['qpm']['dispensing'][liquid_index] = string4
+
+    # extract_all_built_in_liquid_class_parameters_to_a_dict() # Do this only when needed
+
+    def copy_para_from_to(self, index_from, index_to):
+        liquid_class_table_para['liquid_class_para'][str(index_to).zfill(2)] = \
+        liquid_class_table_para['liquid_class_para'][str(index_from).zfill(2)]
+        liquid_class_table_para['liquid_class_para'][str(index_to).zfill(2)][
+            'index'] = index_to  # Update new liquid index
+
+        string1 = liquid_class_table_para['calibration']['aspiration'][str(index_from).zfill(2)]
+        new_string1 = 'GGid0001gg' + str(index_to).zfill(2) + string1[
+                                                              12:]  # Update new liquid index and change GE (reequest) to GG (set)
+        liquid_class_table_para['calibration']['aspiration'][str(index_to).zfill(2)] = new_string1
+
+        string2 = liquid_class_table_para['calibration']['dispensing'][str(index_from).zfill(2)]
+        new_string2 = 'GHid0001gh' + str(index_to).zfill(2) + string2[
+                                                              12:]  # Update new liquid index and change GI(reequest) to GH (set)
+        liquid_class_table_para['calibration']['dispensing'][str(index_to).zfill(2)] = new_string2
+
+        string3 = liquid_class_table_para['qpm']['aspiration'][str(index_from).zfill(2)]
+        new_string3 = 'GQid0001gv' + str(index_to).zfill(2) + string3[
+                                                              12:]  # Update new liquid index and change GS (reequest) to GQ (set)
+        liquid_class_table_para['qpm']['aspiration'][str(index_to).zfill(2)] = new_string3
+
+        string4 = liquid_class_table_para['qpm']['dispensing'][str(index_from).zfill(2)]
+        new_string4 = 'GVid0001gp' + str(index_to).zfill(2) + string4[
+                                                              12:]  # Update new liquid index and change GW (reequest) to Gv (set)
+        liquid_class_table_para['qpm']['dispensing'][str(index_to).zfill(2)] = new_string4
+
+        self.update_liquid_dict()
+
+    def update_liquid_dict(self):
+        # update json file
+        with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
+            json.dump(liquid_class_table_para, f, ensure_ascii=False, indent=4)
+
+    def set_liquid_class_to_zeus(self, liquid_index):
+        # write liquid class parameters
+        para1 = liquid_class_table_para['liquid_class_para'][str(liquid_index).zfill(2)]
+        lc_param = LiquidClass(**para1)
+        self.zm.setLiquidClassParameters(lc_param)
+        time.sleep(0.5)
+
+        ## write calibration curve
+        # aspiration
+        para2 = liquid_class_table_para['calibration']['aspiration'][str(liquid_index).zfill(2)]
+        ## There is a firmware malfuction here. Instead of send the string: GGid0001gg21ck + parameters. You should remove
+        ## gg21 from the string and send this:GGid0001ck + parameters. But before send this, you should do this:
+        ## zm.sendCommand('GHid0001gh21') and zm.sendCommand('RAid0000ragh'). Yaroslav figured this out. There was a lot of frustration
+        ## before this was figured out.
+        self.zm.sendCommand('GGid0001gg' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+        self.zm.sendCommand('RAid0000ragg')
+        time.sleep(0.5)
+        para2_new = para2[:8] + para2[12:]
+        self.zm.sendCommand(para2_new)
+        time.sleep(0.5)
+        # dispensing
+        para3 = liquid_class_table_para['calibration']['dispensing'][str(liquid_index).zfill(2)]
+        self.zm.sendCommand('GHid0001gh' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+        self.zm.sendCommand('RAid0000ragh')
+        time.sleep(0.5)
+        para3_new = para3[:8] + para3[12:]
+        self.zm.sendCommand(para3_new)
+        time.sleep(0.5)
+        #
+        # set_liquid_class_to_zeus(liquid_index = 21)
+        # set_liquid_class_to_zeus(liquid_index = 22)
+        ## write qpm
+        # aspiration
+        para4 = liquid_class_table_para['qpm']['aspiration'][str(liquid_index).zfill(2)]
+        self.zm.sendCommand(para4)
+        time.sleep(0.5)
+        # dispensing
+        para5 = liquid_class_table_para['qpm']['dispensing'][str(liquid_index).zfill(2)]
+        self.zm.sendCommand(para5)
+        time.sleep(0.5)
+
+    def request_parameters_from_zeus(self, liquid_index):
+
+        # liquid parameters
+        self.zm.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+
+        # calibrations
+        self.zm.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+        self.zm.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+
+        # qpm
+        self.zm.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+        self.zm.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
+        time.sleep(0.5)
+
+    # set_liquid_class_to_zeus( liquid_index =23 )
+    # time.sleep(1)
+    # request_parameters_from_zeus(liquid_index = 23)
+
+    # request_parameters_from_zeus(liquid_index = 22)
+
+    ## the following code is for easy of typing in python console. Use with care.
+    def wr(self, liquid_index):
+        self.set_liquid_class_to_zeus(liquid_index=liquid_index)
+
+    def re(self, liquid_index):
+        self.request_parameters_from_zeus(liquid_index=liquid_index)
+
+    def set(self):
+        self.copy_para_from_to(index_from=2, index_to=21)
+        self.copy_para_from_to(index_from=1, index_to=22)
+        self.copy_para_from_to(index_from=0, index_to=23)
+        for i in range(21, 24):
+            self.wr(str(i))
+            self.re(str(i))
+        print('Finished!')
+
+    # set()
+
+    # example of a liquid class para
+    # GMid0001 lq01 uu0 0 05000 0050 00050 00250 0200 010 0 3 3 0 0 05000 00000 000 00050 040 0200 010 00325
+
+    ## copy liquid class parameters from one index to another index
+    ## this is a dumb way to do it. Just copy in the dictionary and then load from the dictionary.
+    # def copy_para_from_to(index_from, index_to):
+    #     received_string = extract_liquid_class_parameter(id='0001', liquid_index=str(index_from).zfill(2))
+    #     print(f'The index_from class is:  {received_string}')
+    #     assembly_string = 'GMid0001lq' + str(index_to).zfill(2) + received_string[12:100]
+    #     zm.sendCommand(assembly_string)
+    #     new_class_para = extract_liquid_class_parameter(id='0001', liquid_index=str(index_to).zfill(2))
+    #     print(f'The new class para is:  {new_class_para}')
+
+    ###############################################################
+    ######################### For QPM #############################
+
 
 
 class remoteFrameListener(can.Listener):
@@ -773,7 +1060,7 @@ class ZeusModule(object):
         if state in set([1, 'on', 'ON', 'True', 'true']):
             cmd = self.cmdHeader('AB')
         if state in set([0, 'off', 'OFF', 'False', 'false']):
-            cmd = seld.cmdHeader('AW')
+            cmd = self.cmdHeader('AW')
         self.sendCommand(cmd)
 
     def switchDigitalOutput(self, out1State, out2State):

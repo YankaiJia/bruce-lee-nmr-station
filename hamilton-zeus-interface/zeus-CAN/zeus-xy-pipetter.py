@@ -45,7 +45,30 @@ weighted_values = {}
 
 # # ZEUS
 zm = zeus.ZeusModule(id=1)
+
 time.sleep(3)
+
+# # run only once for init.
+# def build_param_dict():
+#     liquid_class_table_para = {
+#         'data_container': {},
+#         'liquid_class_para': {},
+#         'calibration': {'aspiration': {}, 'dispensing': {}},
+#         'qpm': {'aspiration': {}, 'dispensing': {}}
+#     }
+#     return liquid_class_table_para
+#
+# def import_from_json():
+#     with open('data/liquid_class_table_para_ALL.json') as json_file:
+#         liquid_class_table_para = json.load(json_file)
+#
+#     return liquid_class_table_para
+# liquid_class_table_para = import_from_json()
+
+lc = zeus.ZeusLiquidClass(zm = zm)
+
+
+
 
 ## Declarations
 
@@ -921,68 +944,9 @@ def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max
         dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex)
 
 
-def calibrate_volume_by_balance(source_container, volume, ntimes=5, timedelay=5, density=1):
-    # TODO: Volumes here must be nominal, not already corrected by calibration
-    # One way to do it is to load a 1:1 calibration dictionary
-    measured_masses = np.array(dispense_to_balance_and_weight_n_times(source_container=source_container,
-                                                             volume=volume,
-                                                             ntimes=ntimes,
-                                                             timedelay=timedelay))
-    measured_volumes = measured_masses / density
-    return np.mean(measured_volumes), np.std(measured_volumes)
-
-
-def update_volume_calibration(calibration_file, source_container, volume_list, ntimes=5, timedelay=5, density=1):
-    if os.path.exists(calibration_file):
-        with open(calibration_file, 'rb') as handle:
-            calibration_dictionary = pickle.load(handle)
-            print('Calibration file loaded.')
-    else:
-        calibration_dictionary = dict()
-    for volume in volume_list:
-        calibration_dictionary[volume] = calibrate_volume_by_balance(source_container, volume,
-                                                                     ntimes, timedelay, density)
-    with open(calibration_file, 'wb') as handle:
-        pickle.dump(calibration_dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        print(f'Calibration saved to: {calibration_file}')
-        print(f'Dictionary data now: {calibration_dictionary}')
-    return calibration_dictionary
-
-# calibration_dict = update_volume_calibration(
-#     calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle',
-#     source_container=bottle6, volume_list=[10, 20, 30, 50, 70, 110], density=0.9445)
-
-# def load_calibration_dict_from_file(calibration_file):
-#     if os.path.exists(calibration_file):
-#         with open(calibration_file, 'rb') as handle:
-#             calibration_dictionary = pickle.load(handle)
-#             print('Calibration file loaded.')
-#     return calibration_dictionary
-#
-# calibration_dict = load_calibration_dict_from_file(
-#     calibration_file='calibration/calibration_DMF_300ul_lld_qpm__empty_jet.pickle')
-
-#
-# def volume_for_zeus(real_volume, calibration_dict=calibration_dict):
-#     zeus_volumes = [0]
-#     real_volumes = [0]
-#     sigmas = []
-#     for zeus_volume in sorted(calibration_dict.keys()):
-#         zeus_volumes.append(zeus_volume)
-#         real_volumes.append(calibration_dict[zeus_volume][0])
-#         sigmas.append(calibration_dict[zeus_volume][1])
-#     zeus_volumes = np.array(zeus_volumes)
-#     real_volumes = np.array(real_volumes)
-#     sigmas = np.array(sigmas)
-#     calibration_interpolator = interpolate.interp1d(x=real_volumes, y=zeus_volumes, fill_value='extrapolate')
-#     result = calibration_interpolator(real_volume)
-#     if not result.shape:
-#         result = result.tolist()
-#     return result
-
 
 time.sleep(1)
-home_xy()
+# home_xy()
 print('init finished.')
 
 
@@ -1042,6 +1006,9 @@ def pipette_one_plate(reaction_plate_number ):
 
 def pipette_n_plate():
     for i in range(len(reaction_plate_n)):
+        if i in [0, 1, 2, 3]:
+            print(f"{i} the vial is skipped.")
+            continue
         if input('Ready for next reaction_plate: ') in ['yes', 'Yes', 'Y', '1', 'True', 'true']:
             print(f"OKAY, I will pipette the: {i}th reaction_plate! Starting...")
             pipette_one_plate(reaction_plate_number=i)
@@ -1051,74 +1018,6 @@ def pipette_n_plate():
             return
 
 # pipette_n_plate()
-
-
-
-
-
-## The following is for typing lazines. No more info presented below
-def home():
-    home_xy()
-
-def z(z):
-    move_z(z)
-
-def z_pos(z):
-    pos_z(z)
-
-def xy(pos):
-    move_xy(pos)
-
-def dis():
-    discard_tip()
-
-def pick( tip ):
-    pick_tip(tip)
-
-def draw():
-    draw_liquid(jar['1'], 200)
-
-def disp():
-    dispense_liquid(container = bottle['6'], volume = 200, liquidClassTableIndex = 21, liquidSurface=manual_vial_surface,
-                    liquid_surface_margin=50, deckGeometryTableIndex=1)
-
-def reaction():
-    pick()
-    for i in range(0, 6):
-        transfer_liquid(source=bottle['0'],
-                               destination=plate1['wells'][i],
-                               volume=500, lld = 0,
-                               liquidClassTableIndex=21)
-        time.sleep(0.5)
-    dis()
-    pick()
-    for i in range(0, 6):
-        # transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max_volume=900)
-
-        transfer_liquid(source=bottle['1'],
-                               destination= plate1['wells'][i],
-                               volume=500, lld = 0,
-                               liquidClassTableIndex= 21)
-        time.sleep(0.5)
-    dis()
-    pick()
-    for i in range(0, 6):
-        transfer_liquid(source=bottle['2'],
-                               destination=plate1['wells'][i],
-                               volume=500, lld = 0,
-                               liquidClassTableIndex= 21)
-        time.sleep(0.5)
-    dis()
-    move_xy(xy_idle)
-    print(f'Pipetting for reations done!')
-
-def height(container):
-    liquid_surface_in_container(container = container, verbose=True)
-
-
-
-
-
 
 
 
@@ -1285,27 +1184,64 @@ def plot_pressure_curve(aa):
 #     move_xy((400, -100), block_until_motion_is_completed=True, use_time_estimates=True)
 #     move_xy((300, -200), block_until_motion_is_completed=True, use_time_estimates=True)
 
-# dispense_to_balance_and_weight(source_container = bottle['6'], volume = 200, lld = 0, liquid_class_index = 21, timedelay=3)
 
 
-# temp
 
+## The following is for typing lazines. No more info presented below
+def home():
+    home_xy()
 
-def pipette_one_plate(reaction_plate_number = 3 ):
-    addition_sequence_here = ('aldehyde', 'pTSA', 'amine', 'Isocyano')
-    global indicator
-    for substance in addition_sequence_here:
-        for well_id, volume in enumerate(reaction_plate_n[reaction_plate_number][substance]):
-            print(f'substance: {substance}, well index: {well_id}, tranfer volume: {volume}')
-            indicator = reaction_plate_number % 2 ## even or odd
-            # move_xy(container_having_substance[substance]['xy'])
-            # time.sleep(0.1)
-            # move_xy(plate[indicator]['wells'][well_id]['xy'])
-            # time.sleep(0.1)
-            transfer_liquid(source = container_having_substance[substance],
-                            destination = plate[indicator]['wells'][well_id],
-                                volume = volume, lld = 1, liquidClassTableIndex=22)
-            print(f'well_plate0 or well_plate1: {str(indicator)}')
-            # print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
-        dis()
-        pick(300)
+def z(z):
+    move_z(z)
+
+def z_pos(z):
+    pos_z(z)
+
+def xy(pos):
+    move_xy(pos)
+
+def dis():
+    discard_tip()
+
+def pick( tip ):
+    pick_tip(tip)
+
+def draw():
+    draw_liquid(jar['1'], 200)
+
+def disp():
+    dispense_liquid(container = bottle['6'], volume = 200, liquidClassTableIndex = 21, liquidSurface=manual_vial_surface,
+                    liquid_surface_margin=50, deckGeometryTableIndex=1)
+
+def reaction():
+    pick()
+    for i in range(0, 6):
+        transfer_liquid(source=bottle['0'],
+                               destination=plate1['wells'][i],
+                               volume=500, lld = 0,
+                               liquidClassTableIndex=21)
+        time.sleep(0.5)
+    dis()
+    pick()
+    for i in range(0, 6):
+        # transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max_volume=900)
+
+        transfer_liquid(source=bottle['1'],
+                               destination= plate1['wells'][i],
+                               volume=500, lld = 0,
+                               liquidClassTableIndex= 21)
+        time.sleep(0.5)
+    dis()
+    pick()
+    for i in range(0, 6):
+        transfer_liquid(source=bottle['2'],
+                               destination=plate1['wells'][i],
+                               volume=500, lld = 0,
+                               liquidClassTableIndex= 21)
+        time.sleep(0.5)
+    dis()
+    move_xy(xy_idle)
+    print(f'Pipetting for reations done!')
+
+def height(container):
+    liquid_surface_in_container(container = container, verbose=True)
