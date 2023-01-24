@@ -15,8 +15,6 @@ import numpy as np
 import matplotlib
 import pandas as pd
 
-# import liquid_class
-
 matplotlib.use('TkAgg')
 import serial
 import os
@@ -34,40 +32,33 @@ class ZeusError(Exception):
 
 # ZeusTraversePosition_300ul = 650
 ZeusTraversePosition_1000ul = 880
-xy_idle = (-345, -187)
-
+xy_idle = (-500, -70)
 balance_traverse_height = 880
 floor_z = 2300
 manual_vial_surface = 2152
-
 weighted_values = {}
 
 
 # # ZEUS
 zm = zeus.ZeusModule(id=1)
+time.sleep(1)
 
-time.sleep(3)
 
-# # run only once for init.
-# def build_param_dict():
-#     liquid_class_table_para = {
-#         'data_container': {},
-#         'liquid_class_para': {},
-#         'calibration': {'aspiration': {}, 'dispensing': {}},
-#         'qpm': {'aspiration': {}, 'dispensing': {}}
-#     }
-#     return liquid_class_table_para
-#
-# def import_from_json():
-#     with open('data/liquid_class_table_para_ALL.json') as json_file:
-#         liquid_class_table_para = json.load(json_file)
-#
-#     return liquid_class_table_para
-# liquid_class_table_para = import_from_json()
+# # run only once for init of liquid_class dict.
+def build_param_dict():
+    liquid_class_table_para = {
+        'data_container': {},
+        'liquid_class_para': {},
+        'calibration': {'aspiration': {}, 'dispensing': {}},
+        'qpm': {'aspiration': {}, 'dispensing': {}}
+    }
+    with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
+        json.dump(liquid_class_table_para, f, ensure_ascii=False, indent=4)
+    return liquid_class_table_para
 
+# # Liquid Class Manipulation
 lc = zeus.ZeusLiquidClass(zm = zm)
-
-
+liquid_class_table_para = lc.import_from_json()
 
 
 ## Declarations
@@ -94,9 +85,15 @@ zm.setDeckGeometryParameters(deckGeometryParameters=deckgeom_balance)
 print('Zeus deck geometry loaded')
 time.sleep(1)
 
-# Declarations
-# TODO: In the object-oriented version this will be depend on target container dictionaries passed by
-#  the module's user
+deckgeom_50ul = zeus.DeckGeometry(index=3, endTraversePosition=ZeusTraversePosition_1000ul,
+                             beginningofTipPickingPosition=1530,
+                             positionofTipDepositProcess=1817)  # this is the same as 300ul tips
+zm.setDeckGeometryParameters(deckGeometryParameters= deckgeom_50ul)
+print("Zeus deck geometry loaded for 50 ul tips")
+time.sleep(1)
+
+
+# Containers
 container_2mL_vial = zeus.ContainerGeometry(index=0, diameter=98, bottomHeight=0, bottomSection=10000,
                  bottomPosition=2172, immersionDepth=20, leavingHeight=20, jetHeight=130,
                  startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=80)
@@ -307,7 +304,7 @@ def load_new_tip_tack(rack_reload ):
                      'xy': (300, -100),
                      'tipTypeTableIndex': 4,
                      'deckGeometryTableIndex': 0,
-                     'ZeusTraversePosition': 650,
+                     'ZeusTraversePosition': 880,
                      'exists': True,
                      'substance': 'None'
                      },
@@ -318,7 +315,15 @@ def load_new_tip_tack(rack_reload ):
                       'ZeusTraversePosition': 880,
                       'exists': True,
                       'substance': 'None'
-                      }
+                      },
+           '50ul': {'tip_vol': 50,
+                     'xy': (300, -100),
+                     'tipTypeTableIndex': 2,
+                     'deckGeometryTableIndex': 0,
+                     'ZeusTraversePosition': 880,
+                     'exists': True,
+                     'substance': 'None'
+    },
            }
     if rack_reload == '300ul':
         tip_rack['300ul'] = create_well_plate(template_well=tip['300ul'],
@@ -334,6 +339,14 @@ def load_new_tip_tack(rack_reload ):
                                         topright=(-396, -32.5),
                                         bottomleft=(-296.5, -95),
                                         bottomright=(-396, -95))
+    if rack_reload == '50ul':
+        tip_rack['50ul'] = create_well_plate(template_well=tip['50ul'],
+                                              Nwells=(8, 12),
+                                              topleft=(-33.5, -44.5),
+                                              topright=(-132.5, -44.5),
+                                              bottomleft=(-33.5, -107),
+                                              bottomright=(-132.5, -107))
+
 
     with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
@@ -342,6 +355,7 @@ def load_new_tip_tack(rack_reload ):
 ## run this ONLY when changing new tip rack.
 # load_new_tip_tack(rack_reload = '300ul')
 # load_new_tip_tack(rack_reload = '1000ul')
+# load_new_tip_tack(rack_reload = '50ul')
 
 
 # Zeus
@@ -413,6 +427,9 @@ def move_z(z):
     zm.moveZDrive(z, 'fast')
     wait_until_zeus_responds_with_string('GZid')
 
+def z(z): # this for ease of typing
+    move_z(z = z)
+
 def zeus_is_at_traverese_height():
     if zm.pos <= ZeusTraversePosition_1000ul:
         return True
@@ -423,6 +440,9 @@ def zeus_is_at_traverese_height():
 def pos_z():
     print(zm.getAbsoluteZPosition())
 
+def z_pos():
+    print(zm.getAbsoluteZPosition())
+
 move_z(880)
 
 
@@ -430,7 +450,7 @@ move_z(880)
 horiz_speed = 200 * 60 # horizontal speed in mm / min
 # xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
 xy_offset = (0, 0)
-trash_xy = (-345, -187) # can for discarding the pipette tips into
+trash_xy = xy_idle # can for discarding the pipette tips into
 xy_position = (593.760, -1.000)
 min_x = -720
 min_y = -357
@@ -512,7 +532,6 @@ def time_that_xy_motion_takes(dx, dy, acceleration=2000, max_speed=333.33333):
     print(max(travel_times))
     return max(travel_times)
 
-
 def move_xy(xy, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
             use_time_estimate=True):
     if xy[0] < min_x or xy[0] > 0:
@@ -593,7 +612,6 @@ def lld_search_position(container):
     else:
         return container['lldSearchPosition']
 
-
 def pick_tip(tip_type):
 
     with open('data/tip_rack.json') as json_file:
@@ -653,7 +671,7 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300u
             #               liquidSurface=liquid_surface_in_container(container),
             #               mixVolume=0, mixFlowRate=0, mixCycles=0)
 
-            tip_dict = {'300ul':0, '1000ul':1}
+            tip_dict = {'300ul':0, '1000ul':1, '50ul': 3}
             print(f'Aspiration volume: {int(round(volume * 10))}')
             # zm.aspiration(aspirationVolume=int(round(volume * 10)),
             #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
@@ -797,7 +815,7 @@ def move_to_balance(container):
     move_z(balance_traverse_height)
     move_xy(container['xy'])
 
-def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_index, timedelay=5):
+def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_index, tip_type, timedelay=5):
     global xy_position
     global weighted_values
     # if xy_position[0] < -80:
@@ -806,7 +824,7 @@ def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_i
     time.sleep(timedelay)
     # balance_tare()
     # balance_zero(verbose=True)
-    draw_liquid(container=source_container, volume=volume, lld = lld, liquidClassTableIndex= liquid_class_index)
+    draw_liquid(container=source_container, volume=volume, lld = lld, liquidClassTableIndex= liquid_class_index, tip_type= tip_type)
     weight_before = balance_value()
     print(f'weight_before: {weight_before} g')
     dispense_to_balance(volume=volume, liquidClassTableIndex= liquid_class_index, container= balance_cup)
@@ -818,13 +836,17 @@ def dispense_to_balance_and_weight(source_container, volume, lld, liquid_class_i
     print(f'Volume of aliquot: {volume}')
     return round((weight_after - weight_before)*1000, 1)
 
-def dispense_to_balance_and_weight_n_times(source_container, volume,lld, liquid_class_index,  ntimes, timedelay=3):
+
+
+
+def dispense_to_balance_and_weight_n_times(source_container, volume,lld, liquid_class_index,  ntimes, tip_type, timedelay=3):
     result = []
     t0 = time.time()
     for i in range(ntimes):
         print(f'Dispensing to balance and weighting: iteration {i} out of {ntimes}')
         weight_here = dispense_to_balance_and_weight(source_container=source_container,
-                                                     volume=volume, timedelay=timedelay, lld = lld, liquid_class_index = liquid_class_index)
+                                                     volume=volume, timedelay=timedelay, lld = lld,
+                                                     liquid_class_index = liquid_class_index, tip_type= tip_type)
         result.append(weight_here)
         time.sleep(timedelay)
         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
@@ -860,7 +882,6 @@ def get_calibration_values21(index, liquid):
     return weighted_values
 
 # get_calibration_values21(index = 2, liquid = 'DMF')
-
 
 def get_calibration_values23(index = 23, liquid = 'DMF', tip = 1000):
 
@@ -1025,6 +1046,7 @@ def pipette_n_plate():
 ########################################################################################################################
 ############################# For QPM ##################################################################################
 
+### revised version of draw_liquid()
 def dr(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
                 n_retries=3):
 
@@ -1060,7 +1082,7 @@ def dr(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liqui
     #
     # print(f'Tried {n_retries} but zeus error is still there')
     # raise Exception
-
+## revised version of dispense_liquid()
 def ds(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surface,
                     liquid_surface_margin=50, deckGeometryTableIndex=1):
 
@@ -1242,6 +1264,7 @@ def reaction():
     dis()
     move_xy(xy_idle)
     print(f'Pipetting for reations done!')
+
 
 def height(container):
     liquid_surface_in_container(container = container, verbose=True)

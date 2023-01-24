@@ -188,10 +188,12 @@ class ZeusLiquidClass:
     Yankai Jia 2023/01/23
     """
 
-    with open('data/liquid_class_table_para_ALL.json') as json_file:
-        liquid_class_table_para = json.load(json_file)
 
-    def __init__(self, zm = None, liquid_class_table_para = liquid_class_table_para):
+
+    def __init__(self, zm = None):
+
+        with open('data/liquid_class_table_para_ALL.json') as json_file:
+            liquid_class_table_para = json.load(json_file)
 
         self.zm = zm
         self.liquid_class_table_para = liquid_class_table_para

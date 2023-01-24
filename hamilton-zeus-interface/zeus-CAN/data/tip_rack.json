@@ -2310,5 +2310,1161 @@
                 "substance": "None"
             }
         ]
+    },
+    "50ul": {
+        "wells": [
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -44.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -53.42857142857143
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -62.35714285714286
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -71.28571428571428
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -80.21428571428572
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -89.14285714285714
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -98.07142857142857
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -33.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -42.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -51.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -60.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -69.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -78.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -87.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -96.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -105.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -114.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -123.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -132.5,
+                    -107.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            }
+        ]
     }
 }
