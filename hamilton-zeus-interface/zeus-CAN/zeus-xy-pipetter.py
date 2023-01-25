@@ -1092,8 +1092,6 @@ def mapping():
     return d
 map_dict = mapping()
 
-tip_on_zeus = ''
-
 def change_tip(tip_type):
     if zm.getTipPresenceStatus():
         dis()
