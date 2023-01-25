@@ -34,7 +34,7 @@ class ZeusError(Exception):
 ZeusTraversePosition_1000ul = 880
 xy_idle = (-500, -70)
 balance_traverse_height = 880
-floor_z = 2300
+floor_z = 2250
 manual_vial_surface = 2152
 weighted_values = {}
 
@@ -102,7 +102,7 @@ print('2ml vial container loaded')
 time.sleep(1)
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2135, immersionDepth=20, leavingHeight=30, jetHeight=130,
+                 bottomPosition=2300, immersionDepth=20, leavingHeight=30, jetHeight=130,
                  startOfHeightBottomSearch=20, dispenseHeightAfterBottomSearch=50)
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
 print('20 ml bottle container loaded')
@@ -220,7 +220,7 @@ def generate_balance_container():
 
     # This is the 40*40*40 square glass container
     balance_cup = {'volume': 0,
-             'xy': (-715, -187),
+             'xy': (-805, -190),
              'volume_max': 15000,
              'area': 40*40,  # container's horizontal cross-section area is in square mm
              'min_z': (floor_z - container_balance_vial.bottomPosition) / 10,  # location of container's bottom above the floor in mm
@@ -449,10 +449,10 @@ move_z(880)
 ################################### XY stage ########################################################################
 horiz_speed = 200 * 60 # horizontal speed in mm / min
 # xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
-xy_offset = (0, 0)
+xy_offset = (-5, 0) # negative to right, closer; positive, to left, further
 trash_xy = xy_idle # can for discarding the pipette tips into
 xy_position = (593.760, -1.000)
-min_x = -720
+min_x = -805
 min_y = -357
 
 ser = serial.Serial('COM6', 115200, timeout=0.2)
@@ -945,7 +945,7 @@ def dispense_to_balance(volume, liquidClassTableIndex, container=balance_cup, li
     print(f" balance_ vial volume is now : { container['volume']}")
 
 
-def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max_volume=280):
+def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, tip_type, max_volume=280):
 
     # check if container is full.
     if destination['volume'] >= destination["volume_max"]:
@@ -956,7 +956,7 @@ def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max
     N_max_vol_pipettings = int(volume // max_volume)
 
     for i in range(N_max_vol_pipettings):
-        draw_liquid(container = source,volume = max_volume,  lld = lld, liquidClassTableIndex = liquidClassTableIndex)
+        draw_liquid(container = source,volume = max_volume,  lld = lld, liquidClassTableIndex = liquidClassTableIndex, tip_type=tip_type)
         dispense_liquid(container = destination, volume = max_volume, liquidClassTableIndex= liquidClassTableIndex)
 
     volume_of_last_pipetting = volume % max_volume
@@ -965,9 +965,10 @@ def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, max
         dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex)
 
 
+#
 
 time.sleep(1)
-# home_xy()
+home_xy()
 print('init finished.')
 
 
@@ -981,7 +982,9 @@ container_having_substance = {'Isocyano': bottle['7'],
                               'aldehyde':bottle['5'],
                               'pTSA': jar['1'],
                               'DMF': jar['0']}
-addition_sequence = ('DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano')
+# addition_sequence = ('DMF', 'aldehyde', 'pTSA', 'amine', 'Isocyano')
+addition_sequence = ('Isocyano')
+
 # addition_sequence = ( 'amine', 'Isocyano')
 
 excel_filename = 'multicompnent_reaction_input\\composition_input_20230110RF029.xlsx'
@@ -1011,6 +1014,10 @@ def pipette_one_plate(reaction_plate_number ):
     global indicator
     for substance in addition_sequence:
         for well_id, volume in enumerate(reaction_plate_n[reaction_plate_number][substance]):
+            print(well_id)
+            if well_id < 15:
+                print(f"well_id : {well_id} is skipped.")
+                continue
             print(f'substance: {substance}, well index: {well_id}, tranfer volume: {volume}')
             indicator = reaction_plate_number % 2 ## even or odd
             # move_xy(container_having_substance[substance]['xy'])
@@ -1019,7 +1026,7 @@ def pipette_one_plate(reaction_plate_number ):
             # time.sleep(0.1)
             transfer_liquid(source = container_having_substance[substance],
                             destination = plate[indicator]['wells'][well_id],
-                                volume = volume, lld = 1, liquidClassTableIndex=22)
+                                volume = volume, lld = 1, liquidClassTableIndex=22, tip_type= '300ul')
             print(f'well_plate0 or well_plate1: {str(indicator)}')
             # print('Time_elapsed: {0:.1f} min'.format((time.time() - t0) / 60))
         dis()
@@ -1027,11 +1034,12 @@ def pipette_one_plate(reaction_plate_number ):
 
 def pipette_n_plate():
     for i in range(len(reaction_plate_n)):
-        if i in [0, 1, 2, 3]:
+        if i in [0, 1, 2, 3, 4, 5, 6, 7]:
             print(f"{i} the vial is skipped.")
             continue
         if input('Ready for next reaction_plate: ') in ['yes', 'Yes', 'Y', '1', 'True', 'true']:
             print(f"OKAY, I will pipette the: {i}th reaction_plate! Starting...")
+            print(f'i is now : {i}')
             pipette_one_plate(reaction_plate_number=i)
 
         else:
@@ -1045,6 +1053,8 @@ def pipette_n_plate():
 
 ########################################################################################################################
 ############################# For QPM ##################################################################################
+
+
 
 ### revised version of draw_liquid()
 def dr(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
@@ -1268,3 +1278,19 @@ def reaction():
 
 def height(container):
     liquid_surface_in_container(container = container, verbose=True)
+
+
+
+# for i in range(54):
+#     if i % 3 ==0:
+#         transfer_liquid(source = bottle['3'], destination = plate1['wells'][i], volume = 40, lld = 1, liquidClassTableIndex = 21, tip_type = '50ul', max_volume=50)
+
+
+# for i in range(54):
+#     if i % 3 ==0:
+#         transfer_liquid(source = bottle['3'], destination = plate1['wells'][i], volume = 40, lld = 1, liquidClassTableIndex = 21, tip_type = '50ul', max_volume=50)
+
+for i in range(15,54):
+    transfer_liquid(source=bottle['7'],
+                    destination=plate[0]['wells'][i],
+                    volume=90, lld=1, liquidClassTableIndex=22, tip_type='300ul')
