@@ -34,10 +34,10 @@ class ZeusError(Exception):
 ZeusTraversePosition_1000ul = 880
 xy_idle = (-500, -70)
 balance_traverse_height = 880
-floor_z = 2250
+floor_z = 2210 # this is the z-position on the surface of the plate holder.
 manual_vial_surface = 2152
 weighted_values = {}
-
+tip_on_zeus = ''
 
 # # ZEUS
 zm = zeus.ZeusModule(id=1)
@@ -102,7 +102,7 @@ print('2ml vial container loaded')
 time.sleep(1)
 
 container_20mL_bottle = zeus.ContainerGeometry(index=1, diameter=255, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2300, immersionDepth=20, leavingHeight=30, jetHeight=130,
+                 bottomPosition=2165, immersionDepth=20, leavingHeight=30, jetHeight=130,
                  startOfHeightBottomSearch=20, dispenseHeightAfterBottomSearch=50)
 zm.setContainerGeometryParameters(containerGeometryParameters=container_20mL_bottle)
 print('20 ml bottle container loaded')
@@ -124,10 +124,10 @@ print('Balance container loaded')
 time.sleep(1)
 
 container_wellplate_bio = zeus.ContainerGeometry(index=4, diameter=68, bottomHeight=0, bottomSection=10000,
-                 bottomPosition=2160, immersionDepth=20, leavingHeight=20, jetHeight=60,
+                 bottomPosition = 2180 , immersionDepth=20, leavingHeight=20, jetHeight=60,
                  startOfHeightBottomSearch=30, dispenseHeightAfterBottomSearch=80)
-zm.setContainerGeometryParameters(containerGeometryParameters=container_2mL_vial)
-print('2ml vial container loaded')
+zm.setContainerGeometryParameters(containerGeometryParameters=container_wellplate_bio)
+print('Bio wells container loaded')
 time.sleep(1)
 
 
@@ -173,8 +173,8 @@ def generate_wellplates():
              'xy': (-37, -52),
              'volume_max': 200,
              'area': 6.8 * 6.8 * 3.14 / 4,  # container's horizontal cross-section area is in square mm
-             'min_z': (2300 - 2160) / 10, # location of container's bottom above the floor in mm
-             'top_z': 12,  # height of container
+             'min_z': 3.4, # location of container's bottom above the floor in mm
+             'top_z': 12,  # height of container in mm
              'containerGeometryTableIndex': 4,
              'lldSearchPosition': 'auto',
              'safety_margin_for_lldsearch_position': 40
@@ -449,7 +449,7 @@ move_z(880)
 ################################### XY stage ########################################################################
 horiz_speed = 200 * 60 # horizontal speed in mm / min
 # xy_offset = (-0.3, 7) # offsets in x and y that are automatically added to each move_xy()
-xy_offset = (-5, 0) # negative to right, closer; positive, to left, further
+xy_offset = (-4, 0) # negative to right, closer; positive, to left, further
 trash_xy = xy_idle # can for discarding the pipette tips into
 xy_position = (593.760, -1.000)
 min_x = -805
@@ -598,8 +598,8 @@ def kill_alarm():
 
 
 # LIQUID
-def liquid_surface_in_container(container, verbose=True):
-    height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']
+def liquid_surface_in_container(container, verbose=False):
+    height_of_liquid_from_floor = container['min_z'] + container['volume'] / container['area']  ## in mm
     if verbose:
         print(f'Height of liquid from the floor = {height_of_liquid_from_floor:.2f}')
     height  = int(round(floor_z - height_of_liquid_from_floor * 10))
@@ -613,7 +613,7 @@ def lld_search_position(container):
         return container['lldSearchPosition']
 
 def pick_tip(tip_type):
-
+    global tip_on_zeus
     with open('data/tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
 
@@ -625,6 +625,8 @@ def pick_tip(tip_type):
             # pick up tip
             move_xy(item['xy'], ensure_traverse_height= True)
             zm.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'], deckGeometryTableIndex=item['deckGeometryTableIndex'])
+            tip_on_zeus = str(tip_type) + 'ul'
+            print(f'Now the tip on zeus is : {tip_type}')
             item['exists'] = False
             # wait_until_zeus_reaches_traverse_height()
             wait_until_zeus_responds_with_string('GTid')
@@ -636,20 +638,22 @@ def pick_tip(tip_type):
     raise Exception
 
 def discard_tip():
+    global tip_on_zeus
     move_z(ZeusTraversePosition_1000ul)
     # wait_until_zeus_reaches_traverse_height()
     move_xy(trash_xy)
     zm.discardTip(deckGeometryTableIndex=1)
+    tip_on_zeus = ''
     wait_until_zeus_responds_with_string('GUid')
 
 def change_tip(tip_rack):
     discard_tip()
     pick_tip(tip_rack)
 
-def move_through_wells(plate, dwell_time=1):
+def move_through_wells(plate, dwell_time=1, ensure_traverse_height = True):
     for index in range(len(plate['wells'])):
         print(f'This is well index: {index}')
-        move_xy(plate['wells'][index]['xy'])
+        move_xy(plate['wells'][index]['xy'], ensure_traverse_height = ensure_traverse_height)
         time.sleep(dwell_time)
     print(f"Walked through {index+1} wells!")
 def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300ul', liquidSurface=manual_vial_surface,
@@ -683,7 +687,7 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300u
             zm.aspiration(aspirationVolume=int(round(volume * 10)),
                           containerGeometryTableIndex=container['containerGeometryTableIndex'],
                           deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
-                          qpm=1, lld=lld, lldSearchPosition=liquid_surface_in_container(container) - 100,
+                          qpm=1, lld=lld, lldSearchPosition=liquid_surface_in_container(container),
                           liquidSurface=liquid_surface_in_container(container),
                           mixVolume=0, mixFlowRate=0, mixCycles=0)
 
@@ -705,8 +709,8 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300u
     print(f'Tried {n_retries} but zeus error is still there')
     raise Exception
 
-def dispense_liquid(container, volume, liquidClassTableIndex, liquidSurface=manual_vial_surface,
-                    liquid_surface_margin=50, deckGeometryTableIndex=1):
+def dispense_liquid(container, volume, liquidClassTableIndex, tip_type, liquidSurface=manual_vial_surface,
+                    liquid_surface_margin=50):
 
     if zm.pos > ZeusTraversePosition_1000ul:
         move_z(ZeusTraversePosition_1000ul)
@@ -728,10 +732,12 @@ def dispense_liquid(container, volume, liquidClassTableIndex, liquidSurface=manu
     #               searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
     #
 
+    tip_dict = {'300ul': 0, '1000ul': 1, '50ul': 3}
+
     # this is used for testing water
     zm.dispensing(dispensingVolume=int(round(volume*10)),
                   containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                  deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
+                  deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
                   lld=0, lldSearchPosition=lld_search_position(container),
                   liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
                   searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
@@ -956,13 +962,13 @@ def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, tip
     N_max_vol_pipettings = int(volume // max_volume)
 
     for i in range(N_max_vol_pipettings):
-        draw_liquid(container = source,volume = max_volume,  lld = lld, liquidClassTableIndex = liquidClassTableIndex, tip_type=tip_type)
-        dispense_liquid(container = destination, volume = max_volume, liquidClassTableIndex= liquidClassTableIndex)
+        draw_liquid(container = source,volume = max_volume,  lld = lld, liquidClassTableIndex = liquidClassTableIndex, tip_type=tip_type )
+        dispense_liquid(container = destination, volume = max_volume, liquidClassTableIndex= liquidClassTableIndex, tip_type= tip_type)
 
     volume_of_last_pipetting = volume % max_volume
     if volume_of_last_pipetting:
-        draw_liquid(container = source, volume = volume_of_last_pipetting, lld = lld, liquidClassTableIndex = liquidClassTableIndex, )
-        dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex)
+        draw_liquid(container = source, volume = volume_of_last_pipetting, lld = lld, liquidClassTableIndex = liquidClassTableIndex, tip_type= tip_type)
+        dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex, tip_type= tip_type)
 
 
 #
@@ -1053,6 +1059,72 @@ def pipette_n_plate():
 
 ########################################################################################################################
 ############################# For QPM ##################################################################################
+
+
+
+
+t0 = time.time()
+container_having_substance = {'PBS': bottle['7'],
+                              'DMEM':bottle['6'],
+                              'NPs':plate1['wells'][53],
+                              'BSA': bottle['1'],
+                              'FBS': bottle['0']}
+# addition_sequence = ('PBS', 'DMEM', 'NPs', 'BSA', 'FBS')
+addition_sequence = ('NPs', 'BSA', 'FBS')
+# addition_sequence = ('PBS', 'FBS')
+
+
+
+excel_filename = 'portein_screen\\01252023_Yankai_test.xlsx'
+df = pd.read_excel(excel_filename, sheet_name='Sheet1', usecols='B:F')
+# df.columns = [i[:-2] if '.2' in i else i for i in df.columns]
+df.columns = [col_name.split('.')[0] for col_name in df.columns]
+
+def mapping():
+    a = list(range(36))
+    b = []
+    d = {}
+    for i in range(13, 79):
+        if i % 12 <= 6 and i % 12 != 0:
+            b.append(i)
+    for i in range(len(a)):
+        d[a[i]] = b[i]
+    return d
+map_dict = mapping()
+
+tip_on_zeus = ''
+
+def change_tip(tip_type):
+    if zm.getTipPresenceStatus():
+        dis()
+    pick(int(tip_type[:-2]))
+
+
+def pipette_one_plate():
+
+    for substance in addition_sequence:
+        for reaction_id, volume in enumerate(df[substance]):
+            well_id = map_dict[reaction_id]
+            print(f'substance: {substance}, well index: {well_id}, tranfer volume: {volume}')
+            if volume < 50:
+                if tip_on_zeus != '50ul':
+                    change_tip('50ul')
+                transfer_liquid(source = container_having_substance[substance],
+                            destination = plate3['wells'][well_id],
+                            volume = volume, lld = 1, liquidClassTableIndex=21, tip_type= '50ul')
+            else:
+                if tip_on_zeus != '300ul':
+                    change_tip('300ul')
+                transfer_liquid(source = container_having_substance[substance],
+                            destination = plate3['wells'][well_id],
+                            volume = volume, lld = 1, liquidClassTableIndex=1, tip_type= '300ul')
+
+    dis()
+
+
+
+
+
 
 
 
@@ -1276,7 +1348,7 @@ def reaction():
     print(f'Pipetting for reations done!')
 
 
-def height(container):
+def surface(container):
     liquid_surface_in_container(container = container, verbose=True)
 
 
@@ -1290,7 +1362,7 @@ def height(container):
 #     if i % 3 ==0:
 #         transfer_liquid(source = bottle['3'], destination = plate1['wells'][i], volume = 40, lld = 1, liquidClassTableIndex = 21, tip_type = '50ul', max_volume=50)
 
-for i in range(15,54):
-    transfer_liquid(source=bottle['7'],
-                    destination=plate[0]['wells'][i],
-                    volume=90, lld=1, liquidClassTableIndex=22, tip_type='300ul')
+# for i in range(15,54):
+#     transfer_liquid(source=bottle['7'],
+#                     destination=plate[0]['wells'][i],
+#                     volume=90, lld=1, liquidClassTableIndex=22, tip_type='300ul')
