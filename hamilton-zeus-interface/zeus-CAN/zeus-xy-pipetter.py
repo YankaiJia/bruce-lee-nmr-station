@@ -1064,16 +1064,15 @@ def pipette_n_plate():
 
 
 t0 = time.time()
-container_having_substance = {'PBS': bottle['7'],
-                              'DMEM':bottle['6'],
-                              'NPs':plate1['wells'][53],
-                              'BSA': bottle['1'],
-                              'FBS': bottle['0']}
+container_having_substance = {'PBS': bottle['0'],
+                              'DMEM':bottle['1'],
+                              'NPs':plate2['wells'][53],
+                              'BSA': bottle['2'],
+                              'FBS': bottle['3']}
+
 # addition_sequence = ('PBS', 'DMEM', 'NPs', 'BSA', 'FBS')
-addition_sequence = ('NPs', 'BSA', 'FBS')
-# addition_sequence = ('PBS', 'FBS')
-
-
+# addition_sequence = ('NPs')
+addition_sequence = ('BSA', 'FBS')
 
 excel_filename = 'portein_screen\\01252023_Yankai_test.xlsx'
 df = pd.read_excel(excel_filename, sheet_name='Sheet1', usecols='B:F')
@@ -1103,6 +1102,8 @@ def pipette_one_plate():
     for substance in addition_sequence:
         for reaction_id, volume in enumerate(df[substance]):
             well_id = map_dict[reaction_id]
+            # if well_id < 53:
+            #     continue
             print(f'substance: {substance}, well index: {well_id}, tranfer volume: {volume}')
             if volume < 50:
                 if tip_on_zeus != '50ul':
@@ -1117,8 +1118,29 @@ def pipette_one_plate():
                             destination = plate3['wells'][well_id],
                             volume = volume, lld = 1, liquidClassTableIndex=1, tip_type= '300ul')
 
-    dis()
+        dis()
 
+def pipette_one_plate1():
+
+        for reaction_id, volume in enumerate(df['NPs']):
+            well_id = map_dict[reaction_id]
+            if well_id < 53:
+                continue
+            # print(f'substance: 'NPs', well index: {well_id}, tranfer volume: {volume}')
+            if volume < 50:
+                if tip_on_zeus != '50ul':
+                    change_tip('50ul')
+                transfer_liquid(source = container_having_substance['NPs'],
+                            destination = plate3['wells'][well_id],
+                            volume = volume, lld = 1, liquidClassTableIndex=21, tip_type= '50ul')
+            else:
+                if tip_on_zeus != '300ul':
+                    change_tip('300ul')
+                transfer_liquid(source = container_having_substance['NPs'],
+                            destination = plate3['wells'][well_id],
+                            volume = volume, lld = 1, liquidClassTableIndex=1, tip_type= '300ul')
+
+        dis()
 
 
 
