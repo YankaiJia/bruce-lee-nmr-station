@@ -952,7 +952,7 @@ def dispense_to_balance(volume, liquidClassTableIndex, container=balance_cup, li
     print(f" balance_ vial volume is now : { container['volume']}")
 
 
-def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, tip_type, max_volume=280):
+def transfer_liquid(source, destination, volume, lld, liquidClassTableIndex, tip_type, max_volume=900):
 
     # check if container is full.
     if destination['volume'] >= destination["volume_max"]:
@@ -1387,3 +1387,21 @@ def surface(container):
 #     transfer_liquid(source=bottle['7'],
 #                     destination=plate[0]['wells'][i],
 #                     volume=90, lld=1, liquidClassTableIndex=22, tip_type='300ul')
+
+
+def vd():
+    change_tip('1000ul')
+    for i in range(48,51):
+        transfer_liquid(source=bottle['7'], destination=plate2['wells'][i],
+                        volume=300, lld=1, liquidClassTableIndex=2,
+                        tip_type='1000ul', max_volume=800)
+        time.sleep(0.5)
+        transfer_liquid(source=bottle['6'], destination=plate2['wells'][i],
+                        volume=300, lld=1, liquidClassTableIndex=2,
+                        tip_type='1000ul', max_volume=800)
+        time.sleep(0.5)
+        transfer_liquid(source=bottle['4'], destination=plate2['wells'][i],
+                        volume=300, lld=1, liquidClassTableIndex=2,
+                        tip_type='1000ul', max_volume=800)
+        time.sleep(0.5)
+
