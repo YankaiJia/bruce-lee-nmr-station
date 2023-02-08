@@ -906,7 +906,8 @@ class ZeusModule(object):
         cmd = self.cmdHeader('ZI')
         printMSG(
             "info", "ZeusModule {}: initializing z-drive...".format(self.id))
-        self.pos = self.maxZPosition
+        # self.pos = self.maxZPosition # This bug is commented out by Yankai.The following line is used
+        self.pos = self.minZPosition
         self.sendCommand(cmd)
 
     def moveZDrive(self, pos, speed):
@@ -1052,6 +1053,10 @@ class ZeusModule(object):
     def getAbsoluteZPosition(self):
         cmd = self.cmdHeader('RZ')
         self.sendCommand(cmd)
+        time.sleep(0.2)
+        self.sendCommand(cmd)
+        output = int(self.r.received_msg[-4:])
+        return output
 
     def getCycleCounter(self):
         cmd = self.cmdHeader('RV')
