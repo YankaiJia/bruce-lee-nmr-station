@@ -7,6 +7,8 @@ import serial
 import numpy as np
 import time
 
+import breadboard
+
 import zeus
 
 
@@ -16,7 +18,7 @@ class Gantry():
     xy_position = ((0, 0)) # this is to mark the gantry position after every move.
 
     def __init__(self,
-                 zm, # pass the zeus module to gantry, this is for checking traverse height,
+                 zeus, # pass the zeus module to gantry, this is for checking traverse height,
                  max_x = -805,
                  max_y = -357,
                  horiz_speed = 200*60,# horizontal speed in mm / min
@@ -31,8 +33,10 @@ class Gantry():
         self.idle_xy = self.trash_xy
         self.max_x = max_x
         self.max_y = max_y
-        self.zm = zm
+        self.zm = zeus
         self.zeus_traverse_position = zeus_traverse_position
+
+        # self.home_xy()
 
     def send_to_xy_stage(self, command, wait_for_ok=True,
                          verbose=False, read_all=False,
@@ -164,10 +168,17 @@ class Gantry():
         self.send_to_xy_stage('$$', read_all=True, verbose=True)
         self.xy_pos()
 
+    def move_through_wells(self, plate, dwell_time=0.2, ensure_traverse_height=True):
+        for index in range(len(plate['wells'])):
+            print(f'This is well index: {index}')
+            self.move_xy(plate['wells'][index]['xy'], ensure_traverse_height=ensure_traverse_height)
+            time.sleep(dwell_time)
+        print(f"Walked through {index + 1} wells!")
+
 def main():
     zm = zeus.ZeusModule(id=1)
     time.sleep(5)
-    gt = Gantry(zm = zm)
+    gt = Gantry(zeus = zm)
     time.sleep(3)
     # gt.configure_grbl() # This only need to be done once.
     gt.home_xy()

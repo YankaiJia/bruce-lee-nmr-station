@@ -628,6 +628,8 @@ def split_by_n(seq, n):
         yield seq[:n]
         seq = seq[n:]
 
+class ZeusError(Exception):
+    pass
 
 class ZeusModule(object):
     CANBus = None
@@ -675,6 +677,9 @@ class ZeusModule(object):
         "84": "Foam detected during dispensing.",
         "85": "No communication to the digital potentiometer.",
     }
+
+    ZeusTraversePosition = 880
+    tip_on_zeus = ''
 
     def __init__(self, id=None, init_module=True, auto_response=True):
         # colorama.init()
@@ -1399,3 +1404,85 @@ class ZeusModule(object):
                 return defaultError
         else:
             return "Error code returned '{}' corresponds to unknown command.".format(errorString)
+
+
+    def wait_until_zeus_reaches_traverse_height(self, n_retries=70):
+        traverse_height = self.ZeusTraversePosition
+        time.sleep(0.5)
+        for i in range(n_retries):
+            print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
+            self.getAbsoluteZPosition()
+            time.sleep(0.5)
+            idx = self.r.received_msg.find("gy")
+            if idx == -1:
+                # this means that there is an error. Retry
+                self.parseErrors(self.r.received_msg)
+                time.sleep(0.5)
+                continue
+            else:
+                position = int(self.r.received_msg[idx + 2:])
+                print(f'Current position (true): {position}')
+            if position <= traverse_height:
+                print('Traverse height is reached.')
+                return True
+        print(f'Traverse height was not reached after {n_retries} retries. This is dangerous, so we do emergency stop')
+        raise Exception
+        return False
+
+    def zeus_had_error(self, errorString):
+        cmd = str(errorString[:2])
+        eidx = errorString.find("er")
+        if (eidx == -1):
+            return False
+        ec = str(errorString[(eidx + 2): (eidx + 4)])
+        if ec == '00':
+            return False
+
+        return True
+
+    def zeus_error_code(self, errorString):
+        cmd = str(errorString[:2])
+        eidx = errorString.find("er")
+        if (eidx == -1):
+            return False
+        return str(errorString[(eidx + 2): (eidx + 4)])
+
+    def wait_until_zeus_responds_with_string(self, search_pattern, n_retries=200):
+        time.sleep(0.5)
+        print(f'Waiting for Zeus to respond')
+        for i in range(n_retries):
+            # print(f'Waiting for Zeus to respond: attempt {i}')
+            # zm.getAbsoluteZPosition()
+            # time.sleep(0.6)
+            if self.zeus_had_error(self.r.received_msg):
+                print('Zeus responded with error message. Aborting all operations.')
+                raise ZeusError
+
+            idx = self.r.received_msg.find(search_pattern)
+            if idx == -1:
+                # this means that there is no pattern. Retry
+                # zm.parseErrors(zm.r.received_msg)
+                time.sleep(0.1)
+                continue
+            else:
+                print(f'Competion response received after {i} attempts.')
+                return True
+        print(f'Response not received after {n_retries} retries. This is dangerous, so we do emergency stop')
+        raise Exception
+        return False
+
+    def move_z(self, z):
+        self.moveZDrive(z, 'fast')
+        self.wait_until_zeus_responds_with_string('GZid')
+
+    def zeus_is_at_traverese_height(self):
+        if self.pos <= self.ZeusTraversePosition:
+            return True
+        else:
+            print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.pos}')
+            return False
+    def move_zeus_to_traverse_height(self):
+        if self.zeus_is_at_traverese_height():
+            return
+        else:
+            self.move_z(self.ZeusTraversePosition)

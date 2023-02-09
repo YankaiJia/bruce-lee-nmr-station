@@ -104,8 +104,9 @@ def main():
     # assembly_compund_list()
     # geom_space()
     # plot_calibration_dots()
-    pp = build_df_from_compound_list()
+    df_compound_list = build_df_from_compound_list()
+    return df_compound_list
 
 
 if __name__ == "__main__":
-    main()
+     df_compound_list = main()
