@@ -7,15 +7,9 @@ import serial
 import numpy as np
 import time
 
-import breadboard
-
-import zeus
-
-
-
 class Gantry():
 
-    xy_position = ((0, 0)) # this is to mark the gantry position after every move.
+    xy_position = ((0, 0)) # this is to store the gantry position after every move.
 
     def __init__(self,
                  zeus, # pass the zeus module to gantry, this is for checking traverse height,
@@ -168,14 +162,15 @@ class Gantry():
         self.send_to_xy_stage('$$', read_all=True, verbose=True)
         self.xy_pos()
 
-    def move_through_wells(self, plate, dwell_time=0.2, ensure_traverse_height=True):
-        for index in range(len(plate['wells'])):
-            print(f'This is well index: {index}')
-            self.move_xy(plate['wells'][index]['xy'], ensure_traverse_height=ensure_traverse_height)
+    def move_through_wells(self, plate, dwell_time=0.1, ensure_traverse_height=True):
+        for container in plate.containers:
+            print(f'This is well index: {container}')
+            self.move_xy(container.xy, ensure_traverse_height=ensure_traverse_height)
             time.sleep(dwell_time)
-        print(f"Walked through {index + 1} wells!")
 
 def main():
+
+    import zeus
     zm = zeus.ZeusModule(id=1)
     time.sleep(5)
     gt = Gantry(zeus = zm)

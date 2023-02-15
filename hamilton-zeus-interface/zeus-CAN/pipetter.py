@@ -4,13 +4,9 @@ dispense_liquid, transfer_liquid and so on. It takes gantry and zeus as argument
 
 '''
 
-import importlib
 import json
 import time
 import serial
-
-import zeus
-import gantry
 
 
 
@@ -22,7 +18,7 @@ class Pipetter():
         self.balance_port = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE,
                                           parity=serial.PARITY_NONE, timeout=0.2)
 
-    def pick_tip(self, tip_type):
+    def pick_tip(self, tip_type: int):
         global tip_on_zeus
         with open('data/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
@@ -60,40 +56,25 @@ class Pipetter():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
-    def draw_liquid(self, container, volume, lld, liquidClassTableIndex, tip_type='300ul', n_retries=3):
-        container['volume'] -= volume
+    def draw_liquid(self, transfer_event , n_retries=3):
 
-        self.zeus.move_zeus_to_traverse_height(self)
-        self.gantry.move_xy(container['xy'])
+        self.zeus.move_zeus_to_traverse_height()
+        self.gantry.move_xy(transfer_event.source_container.xy)
 
         for retry in range(n_retries):
             try:
-                # This is used for organic solvents, e.g.BMF
-                # print(f'Volume for zeus {int(round(volume_for_zeus(volume) * 10))}') # this is to offset the difference between water and the organic solvent, e.g. BMF
-                # zm.aspiration(aspirationVolume=int(round(volume_for_zeus(volume)*10)),
-                #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                #               deckGeometryTableIndex=1, liquidClassTableIndex=liquidClassTableIndex,
-                #               qpm=1, lld=1, lldSearchPosition=lld_search_position(container),
-                #               liquidSurface=liquid_surface_in_container(container),
-                #               mixVolume=0, mixFlowRate=0, mixCycles=0)
-
-                tip_dict = {'300ul': 0, '1000ul': 1, '50ul': 3}
-                print(f'Aspiration volume: {int(round(volume * 10))}')
-                # zm.aspiration(aspirationVolume=int(round(volume * 10)),
-                #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                #               deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
-                #               qpm=1, lld= lld, lldSearchPosition=lld_search_position(container),
-                #               liquidSurface=liquid_surface_in_container(container),
-                #               mixVolume=0, mixFlowRate=0, mixCycles=0)
-
-                zm.aspiration(aspirationVolume=int(round(volume * 10)),
-                              containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                              deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
-                              qpm=1, lld=lld, lldSearchPosition=container.lld_search_position,
-                              liquidSurface=container.liquid_surface_height,
-                              mixVolume=0, mixFlowRate=0, mixCycles=0)
-
-                # time.sleep(1.5)
+                print(f'Aspiration volume: {int(round(transfer_event.aspirationVolume * 10))}')
+                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)),
+                              containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
+                              deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
+                              liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
+                              qpm=transfer_event.asp_qpm,
+                              lld=transfer_event.asp_lld,
+                              lldSearchPosition=transfer_event.asp_lldSearchPosition,
+                              liquidSurface=transfer_event.asp_liquidSurface,
+                              mixVolume=transfer_event.asp_mixVolume,
+                              mixFlowRate=transfer_event.asp_mixFlowRate,
+                              mixCycles=transfer_event.asp_mixCycles)
                 time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True
@@ -104,66 +85,57 @@ class Pipetter():
                     time.sleep(2)
                     self.zeus.move_z(self.zeus.ZeusTraversePosition)
                     time.sleep(2)
-                    self.dispense_liquid(container, volume)
+                    self.dispense_liquid(transfer_event)
                     time.sleep(2)
                     continue
 
         print(f'Tried {n_retries} but zeus error is still there')
         raise Exception
 
-    def dispense_liquid(self, container, volume, liquidClassTableIndex, tip_type, liquid_surface_margin=50):
+    def dispense_liquid(self, transfer_event):
 
-        self.zeus.move_zeus_to_traverse_height(self)
-        self.gantry.move_xy(container['xy'])
+        self.zeus.move_zeus_to_traverse_height()
+        self.gantry.move_xy(transfer_event.destination_container.xy)
 
         # check if container is full.
-        if container['volume'] >= container["volume_max"]:
+        if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
             print("The target container is full. Dispensing is aborted.")
             return
-        # print(f'Volume for zeus {int(round(volume_for_zeus(volume)*10))}') # this is to offset the difference between water and the organic solvent, e.g. BMF
 
-        # this is used for organic solvents, e.g.BMF
-        # zm.dispensing(dispensingVolume=int(round(volume_for_zeus(volume)*10)),
-        #               containerGeometryTableIndex=container['containerGeometryTableIndex'],
-        #               deckGeometryTableIndex=deckGeometryTableIndex, liquidClassTableIndex=liquidClassTableIndex,
-        #               lld=0, lldSearchPosition=lld_search_position(container),
-        #               liquidSurface=liquid_surface_in_container(container) - liquid_surface_margin,
-        #               searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
-        #
-
-        tip_dict = {'300ul': 0, '1000ul': 1, '50ul': 3}
-
-        # this is used for testing water
-        zm.dispensing(dispensingVolume=int(round(volume * 10)),
-                      containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                      deckGeometryTableIndex=tip_dict[tip_type], liquidClassTableIndex=liquidClassTableIndex,
-                      lld=0, lldSearchPosition=container.lld_search_position,
-                      liquidSurface=container.liquid_surface_in_container - liquid_surface_margin,
-                      searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
+        self.zeus.dispensing(dispensingVolume=int(round(transfer_event.dispensingVolume * 10)),
+                      containerGeometryTableIndex=transfer_event.disp_containerGeometryTableIndex,
+                      deckGeometryTableIndex=transfer_event.disp_deckGeometryTableIndex,
+                      liquidClassTableIndex=transfer_event.disp_liquidClassTableIndex,
+                      lld=transfer_event.disp_lld,
+                      lldSearchPosition=transfer_event.disp_lldSearchPosition,
+                      liquidSurface=transfer_event.disp_liquidSurface,
+                      searchBottomMode=transfer_event.searchBottomMode,
+                      mixVolume=transfer_event.disp_mixVolume,
+                      mixFlowRate=transfer_event.disp_mixVolume,
+                      mixCycles=transfer_event.disp_mixCycles)
 
         time.sleep(1.5)
         # wait_until_zeus_reaches_traverse_height()
         self.zeus.wait_until_zeus_responds_with_string('GDid')
-        container['volume'] += volume
 
-    def transfer_liquid(self, source, destination, volume, lld, liquidClassTableIndex, tip_type, max_volume=300):
+    def transfer_liquid(self, transfer_event,max_volume=300):
 
         # check if container is full.
-        if destination['volume'] >= destination["volume_max"]:
+        if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
             print("The target container is full. Dispensing is aborted.")
             return
 
         # if it exceeds max_volume, then do several pipettings
-        N_max_vol_pipettings = int(volume // max_volume)
+        N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
 
         for i in range(N_max_vol_pipettings):
-            self.draw_liquid(container = source,volume = max_volume,  lld = lld, liquidClassTableIndex = liquidClassTableIndex, tip_type=tip_type )
-            self.dispense_liquid(container = destination, volume = max_volume, liquidClassTableIndex= liquidClassTableIndex, tip_type= tip_type)
+            self.draw_liquid(transfer_event)
+            self.dispense_liquid(transfer_event)
 
-        volume_of_last_pipetting = volume % max_volume
+        volume_of_last_pipetting = transfer_event.aspirationVolume % max_volume
         if volume_of_last_pipetting:
-            self.draw_liquid(container = source, volume = volume_of_last_pipetting, lld = lld, liquidClassTableIndex = liquidClassTableIndex, tip_type= tip_type)
-            self.dispense_liquid(container = destination, volume = volume_of_last_pipetting, liquidClassTableIndex= liquidClassTableIndex, tip_type= tip_type)
+            self.draw_liquid(transfer_event)
+            self.dispense_liquid(transfer_event)
 
     def send_command_to_balance(self, command, read_all=True, verbose=True):
 
@@ -298,9 +270,12 @@ class ZeusError(Exception):
     pass
 
 def main():
+    import zeus
+    import gantry
     zm =  zeus.ZeusModule(id=1)
     time.sleep(5)
     gt = gantry.Gantry(zeus = zm)
+    # gt.home_xy()
     time.sleep(5)
     pt = Pipetter(zeus = zm, gantry = gt)
 
