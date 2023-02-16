@@ -10,15 +10,12 @@ plate: plate0, plate1, plate2, plate3, plate4, palte5, plate6, plate7
        plate5: bottle_20ml
        plate6: jar_100ml
        plate7: jar_100ml
-
-
-
-
 """
 
 from dataclasses import dataclass
 import numpy as np
 import copy
+import json
 
 floor_z = 2210
 
@@ -66,7 +63,7 @@ vial_2ml = Container(
     diameter=98,
     bottomHeight=0,
     bottomSection=10000,
-    bottomPosition=2172,
+    bottomPosition=2191,
     immersionDepth=10,
     leavingHeight=20,
     jetHeight=130,
@@ -190,10 +187,10 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
 x_length_vial_2ml = 103
 y_length_vial_2ml = 65
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(-3, -257),
-                                                             topright=(-3 - x_length_vial_2ml, -257),
-                                                             bottomleft=(-3, -257 - y_length_vial_2ml),
-                                                             bottomright=(-3 - x_length_vial_2ml, -257 - y_length_vial_2ml))
+                                                             topleft=(-7, -255),
+                                                             topright=(-7 - x_length_vial_2ml, -255),
+                                                             bottomleft=(-7, -255 - y_length_vial_2ml),
+                                                             bottomright=(-7 - x_length_vial_2ml, -255 - y_length_vial_2ml))
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-157, -256),
                                                              topright=(-157 - x_length_vial_2ml, -256),
@@ -204,6 +201,13 @@ plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topright=(-307 - x_length_vial_2ml, -256),
                                                              bottomleft=(-307, -256 - y_length_vial_2ml),
                                                              bottomright=(-307 - x_length_vial_2ml, -256 - y_length_vial_2ml))
+plate7_vial_2ml_coordinates = generate_container_coordinates(Nwells=(6, 9),
+                                                             topleft=(-458, -157),
+                                                             topright=(-458 - x_length_vial_2ml, -157),
+                                                             bottomleft=(-458, -157- y_length_vial_2ml),
+                                                             bottomright=(-458 - x_length_vial_2ml, -157 - y_length_vial_2ml))
+
+
 x_length_well_bio = 99
 y_length_well_bio = 63
 plate3_well_bio_coordinates = generate_container_coordinates(Nwells=(8, 12),
@@ -224,7 +228,6 @@ plate5_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
                                                                 bottomleft=(-164, -175-y_length_bottle_20ml),
                                                                 bottomright=(-164-x_length_bottle_20ml, -175-y_length_bottle_20ml))
 plate6_jar_100ml_coordinates = [(-325, -189), ( -388, -189 )]
-plate7_jar_100ml_coordinates = [(-476, -189), (-539, -189)]
 
 
 # return a list of container(object) in one plate.
@@ -269,7 +272,7 @@ def plate_on_breadboard():
     plate6 = Plate()
     plate6.add_container(container_list(jar_100ml, plate6_jar_100ml_coordinates))
     plate7 = Plate()
-    plate7.add_container(container_list(jar_100ml, plate7_jar_100ml_coordinates))
+    plate7.add_container(container_list(vial_2ml, plate7_vial_2ml_coordinates))
 
     return plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7
 
@@ -302,12 +305,125 @@ stock_bottle_dict = {'bottle0': plate4.containers[0],
                      'bottle15': plate5.containers[7],
                      'jar0': plate6.containers[0],
                      'jar1': plate6.containers[1],
-                     'jar2': plate7.containers[0],
-                     'jar3': plate7.containers[1]
+                     'plate7': plate7.containers,
                      }
+bottle0 = plate4.containers[0]
+bottle1 =plate4.containers[1]
+bottle2= plate4.containers[2]
+bottle3 =plate4.containers[3]
+bottle4 =plate4.containers[4]
+bottle5 =plate4.containers[5]
+bottle6 =plate4.containers[6]
+bottle7 =plate4.containers[7]
+bottle8 =plate5.containers[0]
+bottle9 =plate5.containers[1]
+bottle10 =plate5.containers[2]
+bottle11 =plate5.containers[3]
+bottle12 =plate5.containers[4]
+bottle13 =plate5.containers[5]
+bottle14 =plate5.containers[6]
+bottle15 =plate5.containers[7]
+jar0 =plate6.containers[0]
+jar1 =plate6.containers[1]
+
+
+def generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
+    '''generate coordinates for all wells of a well plate from coordinates of corner wells.'''
+    # left_side_wells
+    xs = np.linspace(topleft[0], bottomleft[0], Nwells[0])
+    ys = np.linspace(topleft[1], bottomleft[1], Nwells[0])
+    left_side_wells = np.stack((xs, ys)).T
+
+    # right side wells
+    xs = np.linspace(topright[0], bottomright[0], Nwells[0])
+    ys = np.linspace(topright[1], bottomright[1], Nwells[0])
+    right_side_wells = np.stack((xs, ys)).T
+
+    wells = []
+    for i in range(Nwells[0]):
+        xs = np.linspace(left_side_wells[i, 0], right_side_wells[i, 0], Nwells[1])
+        ys = np.linspace(left_side_wells[i, 1], right_side_wells[i, 1], Nwells[1])
+        wells.append(np.stack((xs, ys)).T)
+    return np.vstack(wells)
+
+def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomright):
+    well_positions = generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright)
+    plate = {'wells': list()}
+    for well_index in range(well_positions.shape[0]):
+        plate['wells'].append(template_well.copy())
+        plate['wells'][-1]['xy'] = list(well_positions[well_index, :])
+    return plate
+
+def load_new_tip_tack(rack_reload ):
+    # tip_rack = {}
+    with open('data/tip_rack.json') as json_file:
+        tip_rack = json.load(json_file)
+
+    tip = {'300ul': {'tip_vol': 300,
+                     'xy': (300, -100),
+                     'tipTypeTableIndex': 4,
+                     'deckGeometryTableIndex': 0,
+                     'ZeusTraversePosition': 880,
+                     'exists': True,
+                     'substance': 'None'
+                     },
+           '1000ul': {'tip_vol': 1000,
+                      'xy': (-296.5, -32.5),
+                      'tipTypeTableIndex': 6,
+                      'deckGeometryTableIndex': 1,
+                      'ZeusTraversePosition': 880,
+                      'exists': True,
+                      'substance': 'None'
+                      },
+           '50ul': {'tip_vol': 50,
+                     'xy': (300, -100),
+                     'tipTypeTableIndex': 2,
+                     'deckGeometryTableIndex': 0,
+                     'ZeusTraversePosition': 880,
+                     'exists': True,
+                     'substance': 'None'
+    },
+           }
+    if rack_reload == '300ul':
+        tip_rack['300ul'] = create_deck(template_well=tip['300ul'],
+                                        Nwells=(8, 12),
+                                        topleft=(-158.5, -44.5),
+                                        topright=(-257.5, -44.5),
+                                        bottomleft=(-158.5, -107),
+                                        bottomright=(-257.5, -107))
+    if rack_reload == '1000ul':
+        tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
+                                        Nwells=(8, 12),
+                                        topleft=(-296.5, -32.5),
+                                        topright=(-396, -32.5),
+                                        bottomleft=(-296.5, -95),
+                                        bottomright=(-396, -95))
+    if rack_reload == '50ul':
+        tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
+                                              Nwells=(8, 12),
+                                              topleft=(-33.5, -44.5),
+                                              topright=(-132.5, -44.5),
+                                              bottomleft=(-33.5, -107),
+                                              bottomright=(-132.5, -107))
+
+
+    with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
+        json.dump(tip_rack, f, ensure_ascii=False, indent=4)
+
+    return tip_rack
+## run this ONLY when changing new tip rack.
+# load_new_tip_tack(rack_reload = '300ul')
+# load_new_tip_tack(rack_reload = '1000ul')
+# load_new_tip_tack(rack_reload = '50ul')
+
 
 def main():
-    pass
+    print("This is main.")
+
+    ## run this ONLY when changing new tip rack.
+    # load_new_tip_tack(rack_reload = '300ul')
+    # load_new_tip_tack(rack_reload = '1000ul')
+    # load_new_tip_tack(rack_reload = '50ul')
 
 
 if __name__ == "__main__":

@@ -1,32 +1,31 @@
 import time
 import copy
+import re
 from dataclasses import dataclass
 import pandas as pd
 from pprint import pprint
 
 import breadboard as brb
 
-import zeus
-import gantry
-
-# zm = zeus.ZeusModule(id=1)
-# gt = gantry.Gantry(zeus=zm)
-
 # add substance to containers
 def add_one_substance_to_stock_containers(line_str: str) -> None:
-    substance_name, source_container, stock_volume = line_str.split()
-    print([substance_name,source_container, stock_volume])
+    substance_name, source_container_name, stock_volume = line_str.split()
+    # print([substance_name,source_container_name, stock_volume])
     stock_volume_int = int(stock_volume[:-2])
-    if 'bottle' in source_container:
-        plate_id = 4 + int(source_container[-1]) // 8
-        print(f'plate_id : {plate_id}')
-        container_id = int(source_container[-1]) % 8
-        print(f'container_id: {container_id}')
-        print([plate_id, container_id])
-    elif 'jar' in source_container:
-        plate_id = 6 + int(source_container[-1]) // 2
-        container_id = int(source_container[-1]) % 2
-        print([plate_id, container_id])
+    if 'bottle' in source_container_name:
+        plate_id = 4 + int(source_container_name[-1]) // 8
+        # print(f'plate_id : {plate_id}')
+        container_id = int(source_container_name[-1]) % 8
+        # print(f'container_id: {container_id}')
+        # print([plate_id, container_id])
+    elif 'jar' in source_container_name:
+        plate_id = 6 + int(source_container_name[-1]) // 2
+        container_id = int(source_container_name[-1]) % 2
+        # print([plate_id, container_id])
+    elif 'plate7' in source_container_name:
+        # source_container_name exp: 'plate_7_container_12'
+        plate_id = 7
+        container_id =int(re.findall(r'\d+',source_container_name)[-1])
 
     brb.plate_list[plate_id].add_substance_to_container(substance_name=substance_name,
                                                         container_id=container_id, liquid_volume= stock_volume_int)
@@ -36,12 +35,11 @@ def add_all_substance_to_stock_containers(txt_path: str =
     with open(txt_path) as file:
         lines_without_header = file.readlines()[1:]
         for this_line in lines_without_header:
-            print(this_line)
+            # print(this_line)
             add_one_substance_to_stock_containers(this_line)
 
 add_all_substance_to_stock_containers()
 
-print(1)
 # load container geometry parameters
 # def setContainerGeometryparameters(containers=None):
 #     if containers is None:
@@ -72,8 +70,8 @@ class TransferEventConstructor:
     def __init__(self, event_dataframe, solvent: str = 'DMF'):
 
         self.substance_name = event_dataframe['substance']
-        self.event_label = 'event_id:'+str(event_dataframe['event_id'])+\
-                        'substance:'+str(event_dataframe['substance'])+\
+        self.event_label = 'event_id:'+str(event_dataframe['event_id'])+ ' '+\
+                        'substance:'+str(event_dataframe['substance'])+ ' '+\
                         'transfer_volume:'+str(event_dataframe['transfer_volume'])
 
         self.solvent = solvent
@@ -188,12 +186,16 @@ class TransferEventConstructor:
         if transfer_volume > 600 and transfer_volume < 3000:
             return "1000ul_tip"
 
-    def get_liquid_surface(self, container: object = brb.plate0.containers[0]):
+    def get_liquid_surface(self, container: object = brb.plate0.containers[0]) -> int:
 
-        liquid_height = container.bottomPosition - container.liquid_volume / container.area
+        # container.liquid_volume. This is in uL
+        # container.area This is in mm^2
+        # container.liquid_volume / container.area This is in mm
 
-        return 1500
+        liquid_height = round(container.bottomPosition -
+                              (container.liquid_volume / container.area) * 10)
 
+        return liquid_height
 
 
 class EventInterpreter:
@@ -213,7 +215,7 @@ class EventInterpreter:
         self.substance_container_volume = substance_container_volume
         # print(self.substance_container_volume)
         self.dataframe_filename = dataframe_filename
-        self.reaction_df = pd.read_excel(self.dataframe_filename, sheet_name='Robot', usecols='R:V')
+        self.reaction_df = pd.read_excel(self.dataframe_filename, sheet_name='Sheet2', usecols='A:E')
         self.pd_output = pd.DataFrame(columns=['reaction_id',
                                                'event_id',
                                                'plate_number',
@@ -235,15 +237,20 @@ class EventInterpreter:
 
     def creat_events(self):
         # print('plate_id')
-        for plate_id in range(self.reaction_df.shape[0] // self.containers_per_plate):
+        if self.reaction_df.shape[0] // self.containers_per_plate == 0:
+            plate_list = [0]
+        else:
+            plate_list = list(range(self.reaction_df.shape[0] // self.containers_per_plate))
+
+        for plate_id in plate_list:
             # print(plate_id)
-            this_plate = tuple(self._yield_plates())
-            # print(this_plate)
+            this_plate = list(self._yield_plates())
+            print(this_plate)
             for enum, substance in enumerate(this_plate[0].columns):
                 # print(this_plate[0].columns)
                 for container_id in this_plate[0][substance].index:
                     event_id = container_id + \
-                               enum * self.containers_per_plate + \
+                               enum * len(this_plate[0][substance]) + \
                                plate_id * self.containers_per_plate * this_plate[0].shape[1]
 
                     transfer_volume = this_plate[0][substance][container_id]
@@ -261,12 +268,36 @@ class EventInterpreter:
                     self.pd_output = pd.concat([self.pd_output, pd.DataFrame(_dict, index=[event_id])],
                                                ignore_index=True)
 
+if __name__ == '__main__':
 
-reaction1 = EventInterpreter(dataframe_filename='multicomponent_reaction_input'
-                                                '\\composition_input_20230110RF029_adj.xlsx')
-reaction1.creat_events()
+    import zeus
+    import gantry
 
-pd_output = reaction1.pd_output
+    # zm = zeus.ZeusModule(id=1)
+    # gt = gantry.Gantry(zeus=zm)
+
+    reaction = EventInterpreter(dataframe_filename='multicomponent_reaction_input'
+                                                       '\\composition_input_20230110RF029_adj.xlsx')
+    reaction.creat_events()
+    event_dataframe = reaction.pd_output
+
+    event_dataframe.to_json('multicomponent_reaction_input\\event_dataframe.json', orient='records', lines=True)
+
+    df_read = pd.read_json('multicomponent_reaction_input\\event_dataframe.json', lines=True)
+
+
+    event_list = []
+
+    for i in range(len(event_dataframe.index)):
+        # print(i)
+        event = TransferEventConstructor(event_dataframe=event_dataframe.iloc[i])
+        print(event.source_container_id, event.destination_container_id)
+        print(f'event_substance: {event.substance_name}')
+        volume_update(transfer_volume=event.aspirationVolume,
+                          source_container=event.source_container,
+                          destination_container=event.destination_container)
+        # pprint(vars(event))
+        event_list.append(copy.deepcopy(event))
 
 
 

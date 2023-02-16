@@ -14,8 +14,8 @@ import sys
 
 DEBUG = 0
 INFO = 0
-WARNING = 0
-ERROR = 0
+WARNING = 1
+ERROR = 1
 # KICK_MASK = 0x0400
 KICK_MASK = 0b10000000000
 SENDER_ID_MASK = 0x03E0
@@ -1410,7 +1410,7 @@ class ZeusModule(object):
         traverse_height = self.ZeusTraversePosition
         time.sleep(0.5)
         for i in range(n_retries):
-            print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
+            # print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
             self.getAbsoluteZPosition()
             time.sleep(0.5)
             idx = self.r.received_msg.find("gy")
@@ -1449,7 +1449,7 @@ class ZeusModule(object):
 
     def wait_until_zeus_responds_with_string(self, search_pattern, n_retries=200):
         time.sleep(0.5)
-        print(f'Waiting for Zeus to respond')
+        # print(f'Waiting for Zeus to respond')
         for i in range(n_retries):
             # print(f'Waiting for Zeus to respond: attempt {i}')
             # zm.getAbsoluteZPosition()
@@ -1486,3 +1486,11 @@ class ZeusModule(object):
             return
         else:
             self.move_z(self.ZeusTraversePosition)
+
+
+if __name__ == '__main__':
+    print('This is main of zeus.py')
+
+    # load liquid classes
+    # load deck parameters
+    # load container parameters

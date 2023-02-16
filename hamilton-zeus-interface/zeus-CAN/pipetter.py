@@ -3,7 +3,7 @@ This is the pipetter module. Its function includes pick_tip, discard_tip, draw_l
 dispense_liquid, transfer_liquid and so on. It takes gantry and zeus as arguments.
 
 '''
-
+import copy
 import json
 import time
 import serial
@@ -18,20 +18,20 @@ class Pipetter():
         self.balance_port = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE,
                                           parity=serial.PARITY_NONE, timeout=0.2)
 
-    def pick_tip(self, tip_type: int):
+    def pick_tip(self, tip_type: str):
         global tip_on_zeus
         with open('data/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
-        self.zeus.move_z(tip_rack[str(tip_type) + 'ul']['wells'][0]['ZeusTraversePosition'])
+        self.zeus.move_z(tip_rack[tip_type]['wells'][0]['ZeusTraversePosition'])
         # wait_until_zeus_reaches_traverse_height()
         # In the rack, find the first tip that exists
-        for item in tip_rack[str(tip_type)+'ul']['wells']:
+        for item in tip_rack[tip_type]['wells']:
             if item['exists']:
                 # pick up tip
                 self.gantry.move_xy(item['xy'], ensure_traverse_height= True)
                 self.zeus.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'], deckGeometryTableIndex=item['deckGeometryTableIndex'])
-                tip_on_zeus = str(tip_type) + 'ul'
+                tip_on_zeus = tip_type
                 print(f'Now the tip on zeus is : {tip_type}')
                 item['exists'] = False
                 # wait_until_zeus_reaches_traverse_height()
@@ -52,7 +52,9 @@ class Pipetter():
         self.zeus.wait_until_zeus_responds_with_string('GUid')
 
     def change_tip(self, tip_rack):
-        if self.zeus.tip_on_zeus != '':
+        self.zeus.getTipPresenceStatus()
+        time.sleep(1)
+        if self.zeus.getTipPresenceStatus():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
@@ -129,13 +131,19 @@ class Pipetter():
         N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
 
         for i in range(N_max_vol_pipettings):
-            self.draw_liquid(transfer_event)
-            self.dispense_liquid(transfer_event)
+            _split_event_1 = copy.deepcopy(transfer_event)
+            _split_event_1.aspirationVolume = max_volume
+            _split_event_1.dispensingVolume = max_volume
+            self.draw_liquid(_split_event_1)
+            self.dispense_liquid(_split_event_1)
 
         volume_of_last_pipetting = transfer_event.aspirationVolume % max_volume
         if volume_of_last_pipetting:
-            self.draw_liquid(transfer_event)
-            self.dispense_liquid(transfer_event)
+            _split_event_2 = copy.deepcopy(transfer_event)
+            _split_event_2.aspirationVolume = volume_of_last_pipetting
+            _split_event_2.dispensingVolume = volume_of_last_pipetting
+            self.draw_liquid(_split_event_2)
+            self.dispense_liquid(_split_event_2)
 
     def send_command_to_balance(self, command, read_all=True, verbose=True):
 

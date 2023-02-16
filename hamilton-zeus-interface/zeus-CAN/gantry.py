@@ -97,7 +97,7 @@ class Gantry():
         print(max(travel_times))
         return max(travel_times)
 
-    def move_xy(self, xy, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
+    def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
                 use_time_estimate=True):
         if xy[0] < self.max_x or xy[0] > 0:
             print(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')

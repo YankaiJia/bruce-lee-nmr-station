@@ -34,7 +34,7 @@ import matplotlib.colors as mcolors
 
 
 
-# zm = zeus.ZeusModule(id=1)
+zm = zeus.ZeusModule(id=1)
 
 # ## this is for the first time usage.
 # liquid_class_table_para = {
@@ -52,7 +52,7 @@ def open_json():
 
 liquid_class_table_para = open_json()
 
-def extract_liquid_class_parameter(liquid_index, id = '0001'):
+def extract_liquid_class_parameter(liquid_index:int, id:str = '0001'):
     cmd = 'GMid'+ id+ 'lq' + str(liquid_index).zfill(2)
     print(f'cmd send is : {cmd}')
     zm.sendCommand(cmd) # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
@@ -210,7 +210,7 @@ def copy_para_from_to(index_from, index_to):
 
     update_liquid_dict()
 
-
+# copy_para_from_to(index_from = 1, index_to = 30)
 ## modify your new liquid class parameters
 # liquid_class_table_para['data_container']['21'] = 'DMF, based on water 02, tip 1000ul'
 # liquid_class_table_para['data_container']['22'] = 'DMF, based on water 01, tip 300ul'
@@ -336,7 +336,7 @@ def open_qpm():
         qpm = json.load(json_file)
     return qpm
 
-qpm = open_qpm()
+# qpm = open_qpm()
 
 def plot_pressure_curve(aa):
     # data = get_pressure_curve()
