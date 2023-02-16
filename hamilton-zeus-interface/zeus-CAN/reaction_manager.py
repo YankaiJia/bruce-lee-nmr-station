@@ -70,8 +70,8 @@ def run_events():
     logging.info("A tip 300ul is to be taken.")
     pt.pick_tip('300ul')
 
-    starting_index = 0
-    for event_index in range(starting_index, len(event_list)-5):
+    starting_index = 5
+    for event_index in range(starting_index, len(event_list)):
         pt.transfer_liquid(event_list[event_index])
         logging.info(f"Performed one event::: {event_list[event_index].event_label}")
 

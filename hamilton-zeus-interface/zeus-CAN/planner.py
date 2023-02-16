@@ -1,44 +1,49 @@
 import time
 import copy
 import re
-from dataclasses import dataclass
+from typing import Dict, Any, List
+
 import pandas as pd
 from pprint import pprint
 
 import breadboard as brb
 
+
 # add substance to containers
-def add_one_substance_to_stock_containers(line_str: str) -> None:
+def add_one_substance_to_stock_containers(line_str: str) -> dict[Any, dict[str, int]]:
+    """
+    line example: DMF plate_4_container_2 20ml
+    """
     substance_name, source_container_name, stock_volume = line_str.split()
     # print([substance_name,source_container_name, stock_volume])
-    stock_volume_int = int(stock_volume[:-2])
-    if 'bottle' in source_container_name:
-        plate_id = 4 + int(source_container_name[-1]) // 8
-        # print(f'plate_id : {plate_id}')
-        container_id = int(source_container_name[-1]) % 8
-        # print(f'container_id: {container_id}')
-        # print([plate_id, container_id])
-    elif 'jar' in source_container_name:
-        plate_id = 6 + int(source_container_name[-1]) // 2
-        container_id = int(source_container_name[-1]) % 2
-        # print([plate_id, container_id])
-    elif 'plate7' in source_container_name:
-        # source_container_name exp: 'plate_7_container_12'
-        plate_id = 7
-        container_id =int(re.findall(r'\d+',source_container_name)[-1])
+    stock_volume_int = int(stock_volume[:-2]) # volume in ml
+
+    # source_container_name exp: 'plate_7_container_12'
+    plate_id = int(re.findall(r'\d+', source_container_name)[0])
+    container_id = int(re.findall(r'\d+', source_container_name)[-1])
 
     brb.plate_list[plate_id].add_substance_to_container(substance_name=substance_name,
-                                                        container_id=container_id, liquid_volume= stock_volume_int)
+                                                        container_id=container_id, liquid_volume=stock_volume_int)
+
+    # return exp {'DMF': {'plate_id': 4, 'container_id': 2}}
+    substance_container = {substance_name: {'plate_id': plate_id, 'container_id': container_id}}
+
+    return substance_container
 
 def add_all_substance_to_stock_containers(txt_path: str =
-                                          'multicomponent_reaction_input/reaction_settings.txt') -> None:
+                                          'multicomponent_reaction_input/reaction_settings.txt') -> list[
+    dict[Any, dict[str, int]]]:
+    source_substance_containers = []
     with open(txt_path) as file:
         lines_without_header = file.readlines()[1:]
         for this_line in lines_without_header:
             # print(this_line)
-            add_one_substance_to_stock_containers(this_line)
+            one_substance = add_one_substance_to_stock_containers(this_line)
+            source_substance_containers.append(one_substance)
+    return source_substance_containers
 
-add_all_substance_to_stock_containers()
+source_substance_containers = add_all_substance_to_stock_containers()
+
 
 # load container geometry parameters
 # def setContainerGeometryparameters(containers=None):
@@ -54,13 +59,13 @@ def volume_update(transfer_volume: int, source_container: object, destination_co
     # print(f'source_container: {source_container}')
 
     # print(f'destination_container: {destination_container}')
-    print(f'source_container.liquid_volume: {source_container.liquid_volume}')
-    source_container.liquid_volume = source_container.liquid_volume -transfer_volume
-    print(f'source_container.liquid_volume: {source_container.liquid_volume}')
+    # print(f'source_container.liquid_volume: {source_container.liquid_volume}')
+    source_container.liquid_volume = source_container.liquid_volume - transfer_volume
+    # print(f'source_container.liquid_volume: {source_container.liquid_volume}')
 
-    print(f'destination_container.liquid_volume: {destination_container.liquid_volume}')
-    destination_container.liquid_volume = destination_container.liquid_volume+ transfer_volume
-    print(f'destination_container.liquid_volume: {destination_container.liquid_volume}')
+    # print(f'destination_container.liquid_volume: {destination_container.liquid_volume}')
+    destination_container.liquid_volume = destination_container.liquid_volume + transfer_volume
+    # print(f'destination_container.liquid_volume: {destination_container.liquid_volume}')
 
     # print("Volume updated for containers!")
 
@@ -70,18 +75,18 @@ class TransferEventConstructor:
     def __init__(self, event_dataframe, solvent: str = 'DMF'):
 
         self.substance_name = event_dataframe['substance']
-        self.event_label = 'event_id:'+str(event_dataframe['event_id'])+ ' '+\
-                        'substance:'+str(event_dataframe['substance'])+ ' '+\
-                        'transfer_volume:'+str(event_dataframe['transfer_volume'])
+        self.event_label = 'event_id:::' + str(event_dataframe['event_id']) + '  ' + \
+                           'substance:::' + str(event_dataframe['substance']) + '  ' + \
+                           'transfer_volume:::' + str(event_dataframe['transfer_volume'])
 
         self.solvent = solvent
         # print(f'solvent: {solvent}')
         # print(event_dataframe['substance'])
-        self.source_container = self._get_source_container(event_dataframe['substance'])[0]
+        self.source_container = self._get_source_container(event_dataframe['substance'])
         # print(f'source_container: {self.source_container}')
         self.source_container_xy = self.source_container.xy
         # print(f'source_container_xy: {self.source_container_xy}')
-        self.source_container_id = self._get_source_container(event_dataframe['substance'])[1]
+        self.source_container_id = self.source_container.container_id
 
         self.destination_container = brb.plate_list[event_dataframe['plate_id_on_breadboard']].containers[
             event_dataframe['container_id']]
@@ -108,7 +113,6 @@ class TransferEventConstructor:
         self.asp_lldSearchPosition: int = self.asp_liquidSurface - 50
         # print(f'asp_lldSearchPosition: {self.asp_lldSearchPosition}')
 
-
         # for dispensing
         self.dispensingVolume: int = event_dataframe['transfer_volume']
         # print(f'dispensingVolume: {self.dispensingVolume}')
@@ -123,7 +127,6 @@ class TransferEventConstructor:
         self.disp_lldSearchPosition: int = self.disp_liquidSurface - 50
         # print(f'disp_lldSearchPosition: {self.disp_lldSearchPosition}')
 
-
         # default values
         self.asp_qpm: int = 1
         self.asp_lld: int = 1
@@ -137,14 +140,22 @@ class TransferEventConstructor:
         self.searchBottomMode: int = 0
 
     def _get_source_container(self, substance_name: str):
-        # print(f'Looking for : {substance_name}')
-        for plate_index, plate in enumerate([brb.plate4, brb.plate5, brb.plate6, brb.plate7]):
-            for container_index, container in enumerate(plate.containers):
-                # print(f'substance: {container.substance} is in {container}')
-                if container.substance == substance_name:
-                    # print(f'{substance_name} is found!')
-                    return [container, f'source_plate_id:{4+plate_index} source_container_id: {container_index}']
-        print('Subtance not found in the stock container!')
+
+        '''
+        source_substance_containers exp:  {'DMF': {'plate_id': 4, 'container_id': 2}, 'amine': {'plate_id': 7, 'container_id': 15}}
+        '''
+        # print(substance_name)
+        for this_substance in source_substance_containers: # iterate through keys
+            # print(this_substance)
+            # print(substance_name)
+            # print(list(this_substance.keys())[0])
+            if substance_name == list(this_substance.keys())[0]:
+                plate_id = this_substance[substance_name]['plate_id']
+                container_id = this_substance[substance_name]['container_id']
+                # print(f'substance is found in container::: brb.plate_list[{plate_id}].containers[{container_id}]')
+                return brb.plate_list[plate_id].containers[container_id]
+
+        print('Subtance is not found in the stock container!')
 
     def _get_deck_index(self, tip_type: str):
         if '50' in tip_type:
@@ -245,7 +256,7 @@ class EventInterpreter:
         for plate_id in plate_list:
             # print(plate_id)
             this_plate = list(self._yield_plates())
-            print(this_plate)
+            # print(this_plate)
             for enum, substance in enumerate(this_plate[0].columns):
                 # print(this_plate[0].columns)
                 for container_id in this_plate[0][substance].index:
@@ -255,7 +266,7 @@ class EventInterpreter:
 
                     transfer_volume = this_plate[0][substance][container_id]
                     _dict = {'event_id': event_id,
-                            "reaction_id": container_id + plate_id * self.containers_per_plate,
+                             "reaction_id": container_id + plate_id * self.containers_per_plate,
 
                              "plate_number": plate_id,
                              'plate_id_on_breadboard': plate_id % 3,
@@ -268,6 +279,7 @@ class EventInterpreter:
                     self.pd_output = pd.concat([self.pd_output, pd.DataFrame(_dict, index=[event_id])],
                                                ignore_index=True)
 
+
 if __name__ == '__main__':
 
     import zeus
@@ -277,7 +289,7 @@ if __name__ == '__main__':
     # gt = gantry.Gantry(zeus=zm)
 
     reaction = EventInterpreter(dataframe_filename='multicomponent_reaction_input'
-                                                       '\\composition_input_20230110RF029_adj.xlsx')
+                                                   '\\composition_input_20230110RF029_adj.xlsx')
     reaction.creat_events()
     event_dataframe = reaction.pd_output
 
@@ -285,19 +297,15 @@ if __name__ == '__main__':
 
     df_read = pd.read_json('multicomponent_reaction_input\\event_dataframe.json', lines=True)
 
-
     event_list = []
 
     for i in range(len(event_dataframe.index)):
         # print(i)
         event = TransferEventConstructor(event_dataframe=event_dataframe.iloc[i])
-        print(event.source_container_id, event.destination_container_id)
-        print(f'event_substance: {event.substance_name}')
+        # print(event.source_container_id, event.destination_container_id)
+        # print(f'event_substance: {event.substance_name}')
         volume_update(transfer_volume=event.aspirationVolume,
-                          source_container=event.source_container,
-                          destination_container=event.destination_container)
+                      source_container=event.source_container,
+                      destination_container=event.destination_container)
         # pprint(vars(event))
         event_list.append(copy.deepcopy(event))
-
-
-

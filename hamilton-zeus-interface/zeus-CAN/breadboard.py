@@ -31,6 +31,7 @@ class DeckGeometry:
 @dataclass
 class Container:
     name: str
+    container_id: str
     # contaniner geometry table for zeus
     containerGeometryTableIndex: int
     diameter: int
@@ -53,6 +54,7 @@ class Container:
     solvent: str
     # coordinate
     xy: tuple = (0, 0)
+
 
     substance: str = ' '
 
@@ -79,7 +81,8 @@ vial_2ml = Container(
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0),    # coordinate
-    substance = ' '
+    substance = ' ',
+    container_id = ''
 )
 
 well_bio = Container(
@@ -104,7 +107,9 @@ well_bio = Container(
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0),     # coordinate
-    substance = ' '
+    substance = ' ',
+    container_id = ''
+
 )
 
 bottle_20ml = Container(
@@ -129,7 +134,9 @@ bottle_20ml = Container(
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0), # coordinate
-    substance = ' '
+    substance = ' ',
+    container_id=''
+
 )
 jar_100ml = Container(
     name='jar_100ml',
@@ -153,7 +160,9 @@ jar_100ml = Container(
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0),     # coordinate
-    substance = ' '
+    substance = ' ',
+    container_id=''
+
 )
 
 
@@ -232,10 +241,12 @@ plate6_jar_100ml_coordinates = [(-325, -189), ( -388, -189 )]
 
 # return a list of container(object) in one plate.
 # this function puts container geometry and container coordinate together for one specific plate
-def container_list(container_geom, container_coordinates) -> list:
+def container_list(container_geom: object, container_coordinates: list[tuple]) -> list:
+
+    # input exp: vial_2ml, plate0_vial_2mL_coordinates
     container_list = []
-    for i in range(len(container_coordinates)):
-        container_geom.xy = container_coordinates[i]
+    for container_index in range(len(container_coordinates)):
+        container_geom.xy = container_coordinates[container_index]
         container_temp = copy.copy(container_geom)
         container_list.append(container_temp)
     return container_list
@@ -256,23 +267,44 @@ class Plate:
         self.containers[container_id].substance = substance_name
         self.containers[container_id].liquid_volume = liquid_volume
 
+    def assign_container_id(self, plate_id: int):
+        for container_index in range(len(self.containers)):
+            # print(f'brb.plate_list[{plate_id}].containers[{container_index}]')
+            self.containers[container_index].container_id = f'brb.plate_list[{plate_id}].containers[{container_index}]'
+
 def plate_on_breadboard():
     plate0 = Plate()
     plate0.add_container(container_list(vial_2ml, plate0_vial_2mL_coordinates))
+    plate0.assign_container_id(plate_id=0)
+
     plate1 = Plate()
     plate1.add_container(container_list(vial_2ml, plate1_vial_2mL_coordinates))
+    plate1.assign_container_id(plate_id=1)
+
     plate2 = Plate()
     plate2.add_container(container_list(vial_2ml, plate2_vial_2mL_coordinates))
+    plate2.assign_container_id(plate_id=2)
+
     plate3 = Plate()
     plate3.add_container(container_list(well_bio, plate3_well_bio_coordinates))
+    plate3.assign_container_id(plate_id=3)
+
     plate4 = Plate()
     plate4.add_container(container_list(bottle_20ml, plate4_bottle_20ml_coordinates))
+    plate4.assign_container_id(plate_id=4)
+
     plate5 = Plate()
     plate5.add_container(container_list(bottle_20ml, plate5_bottle_20ml_coordinates))
+    plate5.assign_container_id(plate_id=5)
+
     plate6 = Plate()
     plate6.add_container(container_list(jar_100ml, plate6_jar_100ml_coordinates))
+    plate6.assign_container_id(plate_id=6)
+
     plate7 = Plate()
     plate7.add_container(container_list(vial_2ml, plate7_vial_2ml_coordinates))
+    plate7.assign_container_id(plate_id=7)
+
 
     return plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7
 
