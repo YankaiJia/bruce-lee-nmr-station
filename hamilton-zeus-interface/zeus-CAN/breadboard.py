@@ -49,7 +49,6 @@ class Container:
     area: float  # container's horizontal cross-section area is in square mm
     min_z: float  # location of container's bottom above the floor in mm
     top_z: float  # height of container
-    lldSearchPosition: str
     safety_margin_for_lldsearch_position: int
     solvent: str
     # coordinate
@@ -74,10 +73,9 @@ vial_2ml = Container(
 
     liquid_volume=0,
     volume_max=2000,
-    area=75.56,
+    area=75.7, # wall thickness=0.88mm, OD=11.58, ID = 11.58-0.88*2
     min_z=floor_z - 2172,
     top_z=32,
-    lldSearchPosition='auto',
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0),    # coordinate
@@ -103,7 +101,6 @@ well_bio = Container(
     area=76.8 * 6.8 * 3.14 / 4,  # container's horizontal cross-section area is in square mm
     min_z= 3.4, # location of container's bottom above the floor in mm
     top_z= 12,
-    lldSearchPosition='auto',
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0),     # coordinate
@@ -130,7 +127,6 @@ bottle_20ml = Container(
     area= 510.7,
     min_z= (floor_z - 2165) / 10,
     top_z=62,
-    lldSearchPosition='auto',
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0), # coordinate
@@ -156,7 +152,6 @@ jar_100ml = Container(
     area= 2123.7,
     min_z= (floor_z - 2070) / 10,
     top_z=70,
-    lldSearchPosition='auto',
     safety_margin_for_lldsearch_position=40,
     solvent='water',
     xy=(0, 0),     # coordinate
@@ -253,11 +248,13 @@ def container_list(container_geom: object, container_coordinates: list[tuple]) -
 
 
 class Plate:
-    def __init__(self, containers=None):
+    def __init__(self, plate_id: str, containers=None):
         if containers == None:
             self.containers = []
         else:
             self.containers = containers
+
+        self.plate_id = plate_id
 
     def add_container(self, container_list: list):
         for container in container_list:
@@ -273,35 +270,35 @@ class Plate:
             self.containers[container_index].container_id = f'brb.plate_list[{plate_id}].containers[{container_index}]'
 
 def plate_on_breadboard():
-    plate0 = Plate()
+    plate0 = Plate(plate_id = 'plate0')
     plate0.add_container(container_list(vial_2ml, plate0_vial_2mL_coordinates))
     plate0.assign_container_id(plate_id=0)
 
-    plate1 = Plate()
+    plate1 = Plate(plate_id = 'plate1')
     plate1.add_container(container_list(vial_2ml, plate1_vial_2mL_coordinates))
     plate1.assign_container_id(plate_id=1)
 
-    plate2 = Plate()
+    plate2 = Plate(plate_id = 'plate2')
     plate2.add_container(container_list(vial_2ml, plate2_vial_2mL_coordinates))
     plate2.assign_container_id(plate_id=2)
 
-    plate3 = Plate()
+    plate3 = Plate(plate_id = 'plate3')
     plate3.add_container(container_list(well_bio, plate3_well_bio_coordinates))
     plate3.assign_container_id(plate_id=3)
 
-    plate4 = Plate()
+    plate4 = Plate(plate_id = 'plate4')
     plate4.add_container(container_list(bottle_20ml, plate4_bottle_20ml_coordinates))
     plate4.assign_container_id(plate_id=4)
 
-    plate5 = Plate()
+    plate5 = Plate(plate_id = 'plate5')
     plate5.add_container(container_list(bottle_20ml, plate5_bottle_20ml_coordinates))
     plate5.assign_container_id(plate_id=5)
 
-    plate6 = Plate()
+    plate6 = Plate(plate_id = 'plate6')
     plate6.add_container(container_list(jar_100ml, plate6_jar_100ml_coordinates))
     plate6.assign_container_id(plate_id=6)
 
-    plate7 = Plate()
+    plate7 = Plate(plate_id = 'plate7')
     plate7.add_container(container_list(vial_2ml, plate7_vial_2ml_coordinates))
     plate7.assign_container_id(plate_id=7)
 
@@ -319,26 +316,6 @@ container_jar_100ml = plate6.containers[0]
 
 containers: list= [container_vial_2ml, container_well_bio, container_bottle_20ml, container_jar_100ml]
 
-stock_bottle_dict = {'bottle0': plate4.containers[0],
-                     'bottle1': plate4.containers[1],
-                     'bottle2': plate4.containers[2],
-                     'bottle3': plate4.containers[3],
-                     'bottle4': plate4.containers[4],
-                     'bottle5': plate4.containers[5],
-                     'bottle6': plate4.containers[6],
-                     'bottle7': plate4.containers[7],
-                     'bottle8': plate5.containers[0],
-                     'bottle9': plate5.containers[1],
-                     'bottle10': plate5.containers[2],
-                     'bottle11': plate5.containers[3],
-                     'bottle12': plate5.containers[4],
-                     'bottle13': plate5.containers[5],
-                     'bottle14': plate5.containers[6],
-                     'bottle15': plate5.containers[7],
-                     'jar0': plate6.containers[0],
-                     'jar1': plate6.containers[1],
-                     'plate7': plate7.containers,
-                     }
 bottle0 = plate4.containers[0]
 bottle1 =plate4.containers[1]
 bottle2= plate4.containers[2]

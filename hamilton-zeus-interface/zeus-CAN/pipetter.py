@@ -7,8 +7,9 @@ import copy
 import json
 import time
 import serial
+import logging
 
-
+ZeusTraversePosition = 880
 
 class Pipetter():
 
@@ -23,29 +24,35 @@ class Pipetter():
         with open('data/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
-        self.zeus.move_z(tip_rack[tip_type]['wells'][0]['ZeusTraversePosition'])
-        # wait_until_zeus_reaches_traverse_height()
+        self.zeus.move_z(ZeusTraversePosition)
+        self.zeus.wait_until_zeus_reaches_traverse_height()
+
         # In the rack, find the first tip that exists
         for item in tip_rack[tip_type]['wells']:
             if item['exists']:
                 # pick up tip
                 self.gantry.move_xy(item['xy'], ensure_traverse_height= True)
                 self.zeus.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'], deckGeometryTableIndex=item['deckGeometryTableIndex'])
-                tip_on_zeus = tip_type
-                print(f'Now the tip on zeus is : {tip_type}')
-                item['exists'] = False
-                # wait_until_zeus_reaches_traverse_height()
                 self.zeus.wait_until_zeus_responds_with_string('GTid')
-                # update json file
-                with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
-                    json.dump(tip_rack, f, ensure_ascii=False, indent=4)
+                tip_is_picked = self.zeus.getTipPresenceStatus()
+                if tip_is_picked:
+                    # print(f'tip_status: {self.zeus.getTipPresenceStatus()}')
+                    self.zeus.tip_on_zeus = tip_type
+                    logging.info(f'Now the tip on zeus is : {tip_type}')
+                    item['exists'] = False
+                    # wait_until_zeus_reaches_traverse_height()
+                    # update json file
+                    with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
+                        json.dump(tip_rack, f, ensure_ascii=False, indent=4)
+                else:
+                    raise ValueError('No tip is picked up.')
                 return True
         print('ERROR: No tips in rack.')
         raise Exception
 
     def discard_tip(self):
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
-        # wait_until_zeus_reaches_traverse_height()
+        self.zeus.wait_until_zeus_reaches_traverse_height()
         self.gantry.move_xy(self.gantry.trash_xy)
         self.zeus.discardTip(deckGeometryTableIndex=1)
         self.zeus.tip_on_zeus = ''
@@ -101,7 +108,7 @@ class Pipetter():
 
         # check if container is full.
         if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
-            print("The target container is full. Dispensing is aborted.")
+            logging.warning("The target container is full. Dispensing is aborted.")
             return
 
         self.zeus.dispensing(dispensingVolume=int(round(transfer_event.dispensingVolume * 10)),
@@ -124,8 +131,8 @@ class Pipetter():
 
         # check if container is full.
         if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
-            print("The target container is full. Dispensing is aborted.")
-            return
+            print(f'transfer_event.destination_container.liquid_volume:{transfer_event.destination_container.container_id}, {transfer_event.destination_container.liquid_volume}')
+            raise ValueError('The target container is full. Dispensing is aborted')
 
         # if it exceeds max_volume, then do several pipettings
         N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)

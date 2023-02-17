@@ -22,6 +22,7 @@ SENDER_ID_MASK = 0x03E0
 RECEIVER_ID_MASK = 0x001F
 EOM_MASK = 0b10000000
 
+
 # # NOTE TO SELF:
 # # this is how the respective can.Message code was modified for all this to work:
 # #
@@ -89,6 +90,7 @@ def printMSG(type, msg):
         print(Fore.RED + "(" + "{0:f}".format(ts)
               + ") ERROR: " + msg + Style.RESET_ALL)
         # raise Exception(msg)
+
 
 class ContainerGeometry(object):
 
@@ -188,9 +190,7 @@ class ZeusLiquidClass:
     Yankai Jia 2023/01/23
     """
 
-
-
-    def __init__(self, zm = None):
+    def __init__(self, zm=None):
 
         with open('data/liquid_class_table_para_ALL.json') as json_file:
             liquid_class_table_para = json.load(json_file)
@@ -198,11 +198,10 @@ class ZeusLiquidClass:
         self.zm = zm
         self.liquid_class_table_para = liquid_class_table_para
 
-
     def import_from_json(self):
         return self.liquid_class_table_para
 
-    def extract_liquid_class_parameter(self, liquid_index, id = '0001'):
+    def extract_liquid_class_parameter(self, liquid_index, id='0001'):
         cmd = 'GMid' + id + 'lq' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
         self.zm.sendCommand(
@@ -245,7 +244,7 @@ class ZeusLiquidClass:
         print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
 
-    def extract_qpm_aspiration(self,liquid_index, id='0001'):
+    def extract_qpm_aspiration(self, liquid_index, id='0001'):
         cmd = 'GSid' + id + 'gv' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
         self.zm.sendCommand(
@@ -339,7 +338,7 @@ class ZeusLiquidClass:
 
     def copy_para_from_to(self, index_from, index_to):
         self.liquid_class_table_para['liquid_class_para'][str(index_to).zfill(2)] = \
-        self.liquid_class_table_para['liquid_class_para'][str(index_from).zfill(2)]
+            self.liquid_class_table_para['liquid_class_para'][str(index_from).zfill(2)]
         self.liquid_class_table_para['liquid_class_para'][str(index_to).zfill(2)][
             'index'] = index_to  # Update new liquid index
 
@@ -456,8 +455,6 @@ class ZeusLiquidClass:
         print('Finished!')
 
 
-
-
 class remoteFrameListener(can.Listener):
 
     def __init__(self, p):
@@ -524,7 +521,7 @@ class remoteFrameListener(can.Listener):
 
             # self.received_msg += msg.data.replace(" ", "")[:-1]
             # self.received_msg += msg.data.replace(" ", "")
-            self.received_msg += msg.data[:-1].decode('iso-8859-1')#.replace(" ", "")
+            self.received_msg += msg.data[:-1].decode('iso-8859-1')  # .replace(" ", "")
 
             if (self.msg_is_last(msg) == 0):
                 if self.parent.auto_response:
@@ -628,8 +625,10 @@ def split_by_n(seq, n):
         yield seq[:n]
         seq = seq[n:]
 
+
 class ZeusError(Exception):
     pass
+
 
 class ZeusModule(object):
     CANBus = None
@@ -679,13 +678,13 @@ class ZeusModule(object):
     }
 
     ZeusTraversePosition = 880
-    tip_on_zeus = ''
 
-    def __init__(self, id=None, init_module=True, auto_response=True):
+    def __init__(self, id=None, tip_on_zeus='', init_module=True, auto_response=True):
         # colorama.init()
         print(f"this is class __init__, id = {id}")
         init()
         self.id = id
+        self.tip_on_zeus = tip_on_zeus
         self.auto_response = auto_response
         if id is None:
             raise ValueError(
@@ -754,7 +753,7 @@ class ZeusModule(object):
         while ((c - s) < self.remote_timeout):
             c = time.time()
             if (self.r.remote_received() == 1):
-                printMSG("debug", f'waitForRemoteFrame: Received remote frame after {time.time()-s} s')
+                printMSG("debug", f'waitForRemoteFrame: Received remote frame after {time.time() - s} s')
                 # printMSG("debug", "ACK Received.")
                 return 1
         return 0
@@ -890,7 +889,6 @@ class ZeusModule(object):
         print(f'cmd sent to zeus is : {cmd}')
         self.waitForKickFrame()
 
-
     def initCANBus(self):
         printMSG(
             "info", "ZeusModule {}: initializing CANBus...".format(self.id))
@@ -921,7 +919,7 @@ class ZeusModule(object):
             raise ValueError(
                 "ZeusModule {}: requested z-position out of range. "
                 " Valid range for z-position is between {} and {}"
-                    .format(self.id, self.minZPosition, self.maxZPosition))
+                .format(self.id, self.minZPosition, self.maxZPosition))
         if (speed == "slow"):
             speed = 0
         elif (speed == "fast"):
@@ -933,7 +931,7 @@ class ZeusModule(object):
                 " and \'fast\'.")
         print(
             "ZeusModule {}: moving z-drive from position {} to position {}."
-                .format(self.id, self.pos, pos))
+            .format(self.id, self.pos, pos))
         cmd = cmd + 'gy' + str(pos).zfill(4) + 'gw' + str(speed)
         self.pos = pos
         self.sendCommand(cmd)
@@ -1027,7 +1025,7 @@ class ZeusModule(object):
             raise ValueError(
                 "ZeusModule {}: Invalid parameter \'{}\' requested. "
                 " Parameter format must be two lower-case letters."
-                    .format(parameterName))
+                .format(parameterName))
         cmd = self.cmdHeader('RA')
         cmd = cmd + 'ra' + parameterName
         self.sendCommand(cmd)
@@ -1207,7 +1205,7 @@ class ZeusModule(object):
     def getLiquidClassParameters(self, id, index):
         cmd = self.cmdHeader('GM')
         cmd = cmd + 'id' + str(id).zfill(4) + \
-              'lq' + str(index).zfill(2) # 'lq' was revised from 'iq'. iq is a typo. Yankai_20230106
+              'lq' + str(index).zfill(2)  # 'lq' was revised from 'iq'. iq is a typo. Yankai_20230106
         print(f'cmd send is : {cmd}')
         self.sendCommand(cmd)
 
@@ -1405,10 +1403,9 @@ class ZeusModule(object):
         else:
             return "Error code returned '{}' corresponds to unknown command.".format(errorString)
 
-
     def wait_until_zeus_reaches_traverse_height(self, n_retries=70):
         traverse_height = self.ZeusTraversePosition
-        time.sleep(0.5)
+        # time.sleep(0.5)
         for i in range(n_retries):
             # print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
             self.getAbsoluteZPosition()
@@ -1481,6 +1478,7 @@ class ZeusModule(object):
         else:
             print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.pos}')
             return False
+
     def move_zeus_to_traverse_height(self):
         if self.zeus_is_at_traverese_height():
             return

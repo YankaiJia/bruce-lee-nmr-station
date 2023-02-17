@@ -22,62 +22,60 @@ import planner as pln
 import breadboard as brb
 import importlib
 
-# initiate hardware
+# initiate zeus
 zm = zeus.ZeusModule(id=1)
 time.sleep(5)
 
+# initiate gantry
 gt = gantry.Gantry(zeus=zm)
 time.sleep(5)
 # gt.configure_grbl() # This only need to be done once.
 gt.home_xy()
 
+#initiate pipetter
 pt = pipetter.Pipetter(zeus=zm, gantry=gt)
 
+# load containers for source substances
+pln.source_substance_containers = \
+    pln.add_all_substance_to_stock_containers(txt_path =
+                                              'multicomponent_reaction_input/reaction_settings.txt')
 
-def interpretor():
-    reaction = pln.EventInterpreter(dataframe_filename='multicomponent_reaction_input'
-                                                       '\\composition_input_20230110RF029_adj.xlsx')
-    reaction.creat_events()
-    event_dataframe = reaction.pd_output
+# generate event dataframes
+event_dataframe = \
+    pln.interprete_events_from_excel_to_dataframe(dataframe_filename =
+                                                  'multicomponent_reaction_input\\composition_input_20230110RF029_adj.xlsx')
 
-    event_dataframe.to_json('multicomponent_reaction_input\\event_dataframe.json', orient='records', lines=True)
-    df_read = pd.read_json('multicomponent_reaction_input\\event_dataframe.json', lines=True)
-
-    return df_read
-
-event_dataframe = interpretor()
-
-def generate_event_object():
-    event_list = []
-
-    for i in range(len(event_dataframe.index)):
-        # print(i)
-        event = pln.TransferEventConstructor(event_dataframe=event_dataframe.iloc[i])
-        print(event.source_container_id, event.destination_container_id)
-        print(f'event_substance: {event.substance_name}')
-        pln.volume_update(transfer_volume=event.aspirationVolume,
-                          source_container=event.source_container,
-                          destination_container=event.destination_container)
-        # pprint(vars(event))
-        event_list.append(copy.deepcopy(event))
-
-    return event_list
-
-event_list = generate_event_object()
+# generate event list
+event_list = pln.generate_event_list(event_dataframe = event_dataframe)
 
 
 def run_events():
-    logging.info("A tip 300ul is to be taken.")
-    pt.pick_tip('300ul')
 
-    starting_index = 5
+    # logging.info("A tip 300ul is to be taken.")
+    if not zm.getTipPresenceStatus():
+        pt.pick_tip('50ul')
+
+    starting_index = 0
     for event_index in range(starting_index, len(event_list)):
         pt.transfer_liquid(event_list[event_index])
-        logging.info(f"Performed one event::: {event_list[event_index].event_label}")
+        logging.info(f"Performed one event: {event_list[event_index].event_label}")
 
-        # check tip type and change tip if need
+        # check tip type and change tip if needed
         if event_index != len(event_list)-1: # check if this is the last event.
             if event_list[event_index].substance_name!= event_list[event_index+1].substance_name:
-                pt.change_tip(event_list[event_index+1].tip_type[:-4])
-                logging.info(f'Tip is changed and its type is {event_list[event_index+1].tip_type[:-4]}')
+                pt.change_tip(event_list[event_index+1].tip_type)
         time.sleep(0.5)
+    pt.discard_tip()
+
+def bio_settings():
+    for i in event_list:
+        i.tip_type = '50ul'
+        i.asp_liquidClassTableIndex = 21
+        i.disp_liquidClassTableIndex = 21
+        i.disp_liquidSurface = 1900
+        i.dispensingVolume = 3
+        i.aspirationVolume = 3
+
+
+bio_settings()
+run_events()
