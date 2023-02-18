@@ -1,9 +1,9 @@
 import numpy as np
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
-import  pandas as pd
+import pandas as pd
 
-excel_filename = '20230203RFcalibration_spec.xlsx'
+excel_filename = '../multicomponent_reaction_input/20230203RFcalibration_spec.xlsx'
 df = pd.read_excel(excel_filename, sheet_name='Sheet1', usecols='A:J')
 
 # define a data class for storage of compound

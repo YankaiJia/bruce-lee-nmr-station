@@ -3,7 +3,7 @@ import json
 import numpy as np
 import statistics
 
-with open('data/Weighted_values_for_calibration_index21_1000ul.json') as json_file:
+with open('../data/Weighted_values_for_calibration_index21_1000ul.json') as json_file:
     liquid_class_table_para = json.load(json_file)
 
 # for i in liquid_class_table_para:

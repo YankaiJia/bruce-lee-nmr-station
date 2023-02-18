@@ -164,7 +164,7 @@ class LiquidClass(object):
 
 class ZeusLiquidClass:
     """
-    This Class is for liquid class storing and setting.
+    This Class is for reading and setting liquid class parametes to Zeus.
 
     Working steps:
         1 extract all the parameters for the built-in liquid classes.

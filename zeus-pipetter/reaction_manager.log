@@ -986,3 +986,30 @@
 2023-02-17 18:50:58 INFO Now the tip on zeus is : 50ul
 2023-02-17 18:51:08 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
 2023-02-17 18:51:19 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-18 16:51:33 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 16:51:33 INFO NumExpr defaulting to 8 threads.
+2023-02-18 16:51:35 INFO loaded kvaser's CAN library
+2023-02-18 16:51:35 INFO CAN Filters: None
+2023-02-18 16:51:35 INFO Got configuration of: {'bitrate': 500000}
+2023-02-18 16:51:35 INFO Found 3 available channels
+2023-02-18 16:51:35 INFO 0: Kvaser Leaf Light v2, S/N 100291 (#1)
+2023-02-18 16:51:35 INFO 1: Kvaser Virtual CAN Driver, S/N 0 (#1)
+2023-02-18 16:51:35 INFO 2: Kvaser Virtual CAN Driver, S/N 0 (#2)
+2023-02-18 16:51:35 INFO Hardware filtering has been disabled
+2023-02-18 16:51:35 INFO ZeusModule 1: initializing...
+2023-02-18 16:52:24 INFO Event_list is generated with 10 events.
+2023-02-18 16:52:30 INFO Now the tip on zeus is : 50ul
+2023-02-18 16:52:40 INFO Performed one event: event_id:::0  substance:::Isocyano  transfer_volume:::20
+2023-02-18 16:52:51 INFO Performed one event: event_id:::1  substance:::Isocyano  transfer_volume:::20
+2023-02-18 16:53:03 INFO Now the tip on zeus is : 50ul
+2023-02-18 16:53:14 INFO Performed one event: event_id:::2  substance:::amine  transfer_volume:::20
+2023-02-18 16:53:25 INFO Performed one event: event_id:::3  substance:::amine  transfer_volume:::20
+2023-02-18 16:53:36 INFO Now the tip on zeus is : 50ul
+2023-02-18 16:53:47 INFO Performed one event: event_id:::4  substance:::aldehyde  transfer_volume:::20
+2023-02-18 16:53:58 INFO Performed one event: event_id:::5  substance:::aldehyde  transfer_volume:::20
+2023-02-18 16:54:09 INFO Now the tip on zeus is : 50ul
+2023-02-18 16:54:20 INFO Performed one event: event_id:::6  substance:::pTSA  transfer_volume:::20
+2023-02-18 16:54:31 INFO Performed one event: event_id:::7  substance:::pTSA  transfer_volume:::20
+2023-02-18 16:54:42 INFO Now the tip on zeus is : 50ul
+2023-02-18 16:54:53 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
+2023-02-18 16:55:04 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
