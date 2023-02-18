@@ -16,8 +16,8 @@ class Pipetter():
     def __init__(self, zeus, gantry):
         self.zeus = zeus
         self.gantry = gantry
-        self.balance_port = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE,
-                                          parity=serial.PARITY_NONE, timeout=0.2)
+        self.balance = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE,
+                                     parity=serial.PARITY_NONE, timeout=0.2)
 
     def pick_tip(self, tip_type: str):
         global tip_on_zeus
@@ -154,19 +154,19 @@ class Pipetter():
 
     def send_command_to_balance(self, command, read_all=True, verbose=True):
 
-        self.balance_port.write(str.encode(command + '\n'))
+        self.balance.write(str.encode(command + '\n'))
         while True:
-            line = self.balance_port.readline()
+            line = self.balance.readline()
             if verbose:
                 print(f'Response from balance. {line}')
             if line == b'':
                 break
 
     def balance_tare(self, verbose=True):
-        self.balance_port.write(str.encode('T\n'))
+        self.balance.write(str.encode('T\n'))
         taring_complete = False
         while True:
-            line = self.balance_port.readline()
+            line = self.balance.readline()
             if b'T' in line:
                 taring_complete = True
             if verbose:
@@ -176,10 +176,10 @@ class Pipetter():
                     break
 
     def balance_zero(self, verbose = True):
-        self.balance_port.write(str.encode('Z\n'))
+        self.balance.write(str.encode('Z\n'))
         zeroing_complete = False
         while True:
-            line = self.balance_port.readline()
+            line = self.balance.readline()
             if b'Z' in line:
                 zeroing_complete = True
             if verbose:
@@ -190,10 +190,10 @@ class Pipetter():
 
     def balance_value(self, read_all=True, verbose=True):
         value = 0
-        self.balance_port.write(str.encode('SI\n'))
+        self.balance.write(str.encode('SI\n'))
         measurement_successful = False
         while True:
-            line = self.balance_port.readline()
+            line = self.balance.readline()
             if (b'S D' in line) or (b'S S' in line):
                 raw_parsed = line.split(b' g\r\n')[0][-8:]
                 if verbose:
@@ -203,7 +203,7 @@ class Pipetter():
             if b'S I' in line:
                 'Balance command not executed.'
                 time.sleep(5)
-                self.balance_port.write(str.encode('SI\n'))
+                self.balance.write(str.encode('SI\n'))
             if verbose:
                 print(line)
             if line == b'':
@@ -221,63 +221,59 @@ class Pipetter():
         self.open_balance_door()
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.gantry.move_xy(container['xy'])
-
-    def dispense_to_balance(self, volume, liquidClassTableIndex, container,
-                        liquid_surface_margin=50, deckGeometryTableIndex=0):
-
-        print(f" balance_ vial volume is now : { container['volume']}")
-        self.zeus.move_zeus_to_traverse_height()
-        self.move_to_balance(container)
-        zm.dispensing(dispensingVolume=int(round(volume*10)),
-                      containerGeometryTableIndex=container['containerGeometryTableIndex'],
-                      deckGeometryTableIndex=deckGeometryTableIndex,
-                      liquidClassTableIndex=liquidClassTableIndex,
-                      lld=0, lldSearchPosition=container.lld_search_position,
-                      liquidSurface=container.liquid_surface_in_container - liquid_surface_margin,
-                      searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
-        time.sleep(1.5)
-        # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
-        self.zeus.wait_until_zeus_responds_with_string('GDid')
-        self.gantry.move_xy(self.gantry.xy_idle)
-        container['volume'] += volume
-        print(f" balance_ vial volume is now : { container['volume']}")
-
-
-    def dispense_to_balance_and_weight(self, source_container, volume, lld, liquid_class_index, tip_type, container,
-                                       timedelay=5):
-        global xy_position
-        global weighted_values
-        # if xy_position[0] < -80:
-        #     move_xy((-80, -195))
-        self.close_balance_door()
-        time.sleep(timedelay)
-        # balance_tare()
-        # balance_zero(verbose=True)
-        self.draw_liquid(container=source_container, volume=volume, lld = lld, liquidClassTableIndex= liquid_class_index, tip_type= tip_type)
-        weight_before = self.balance_value()
-        print(f'weight_before: {weight_before} g')
-        self.dispense_to_balance(volume=volume, liquidClassTableIndex= liquid_class_index, container= container)
-        self.close_balance_door()
-        time.sleep(timedelay)
-        weight_after = self.balance_value()
-        print(f'weight_after: {weight_after} g')
-        print(f'Weight of aliquot: {(weight_after - weight_before)*1000} mg')
-        print(f'Volume of aliquot: {volume}')
-        return round((weight_after - weight_before)*1000, 1)
-
-
-    def dispense_to_balance_and_weight_n_times(self, source_container, volume,lld, liquid_class_index,  ntimes, tip_type, timedelay=3):
-        result = []
-        t0 = time.time()
-        for i in range(ntimes):
-            print(f'Dispensing to balance and weighting: iteration {i} out of {ntimes}')
-            weight_here = self.dispense_to_balance_and_weight(source_container=source_container,
-                                                         volume=volume, timedelay=timedelay, lld=lld,
-                                                         liquid_class_index=liquid_class_index, tip_type=tip_type)
-            result.append(weight_here)
-            time.sleep(timedelay)
-            print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
-        return result
+    #
+    # def dispense_to_balance(self, transfer_event):
+    #
+    #     print(f" balance_ vial volume is now : { container['volume']}")
+    #     self.zeus.move_zeus_to_traverse_height()
+    #     self.move_to_balance(container)
+    #     zm.dispensing(dispensingVolume=int(round(volume*10)),
+    #                   containerGeometryTableIndex=container['containerGeometryTableIndex'],
+    #                   deckGeometryTableIndex=deckGeometryTableIndex,
+    #                   liquidClassTableIndex=liquidClassTableIndex,
+    #                   lld=0, lldSearchPosition=container.lld_search_position,
+    #                   liquidSurface=container.liquid_surface_in_container - liquid_surface_margin,
+    #                   searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
+    #     time.sleep(1.5)
+    #     # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
+    #     self.zeus.wait_until_zeus_responds_with_string('GDid')
+    #     self.gantry.move_xy(self.gantry.xy_idle)
+    #     container['volume'] += volume
+    #     print(f" balance_ vial volume is now : { container['volume']}")
+    #
+    #
+    # def dispense_to_balance_and_weight(self, transfer_event, timedelay=5):
+    #     global xy_position
+    #     global weighted_values
+    #     # if xy_position[0] < -80:
+    #     #     move_xy((-80, -195))
+    #     self.close_balance_door()
+    #     time.sleep(timedelay)
+    #     # balance_tare()
+    #     # balance_zero(verbose=True)
+    #     self.draw_liquid( transfer_event = transfer_evert)
+    #     weight_before = self.balance_value()
+    #     print(f'weight_before: {weight_before} g')
+    #     self.dispense_to_balance(transfer_event = transfer_event)
+    #     self.close_balance_door()
+    #     time.sleep(timedelay)
+    #     weight_after = self.balance_value()
+    #     print(f'weight_after: {weight_after} g')
+    #     print(f'Weight of aliquot: {(weight_after - weight_before)*1000} mg')
+    #     print(f'Volume of aliquot: {volume}')
+    #     return round((weight_after - weight_before)*1000, 1)
+    #
+    #
+    # def dispense_to_balance_and_weight_n_times(self, source_container, volume,lld, liquid_class_index,  ntimes, tip_type, timedelay=3):
+    #     result = []
+    #     t0 = time.time()
+    #     for i in range(ntimes):
+    #         print(f'Dispensing to balance and weighting: iteration {i} out of {ntimes}')
+    #         weight_here = self.dispense_to_balance_and_weight(transfer_evert=transfer_evert, timedelay=timedelay)
+    #         result.append(weight_here)
+    #         time.sleep(timedelay)
+    #         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
+    #     return result
 
 
 

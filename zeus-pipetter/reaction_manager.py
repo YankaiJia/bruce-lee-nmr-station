@@ -5,10 +5,10 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[
+    handlers={
         logging.FileHandler("reaction_manager.log"),
         logging.StreamHandler()
-    ],
+    },
 )
 
 import time
