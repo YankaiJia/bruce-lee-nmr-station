@@ -1,0 +1,6 @@
+substance, container, volume
+Isocyano plate_1_container0 2ml
+amine plate_1_container1 2ml
+aldehyde plate_1_container2 2ml
+pTSA plate_1_container3 2ml
+DMF plate_1_container4 2ml
