@@ -1013,3 +1013,163 @@
 2023-02-18 16:54:42 INFO Now the tip on zeus is : 50ul
 2023-02-18 16:54:53 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
 2023-02-18 16:55:04 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-18 19:44:12 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 19:44:12 INFO NumExpr defaulting to 8 threads.
+2023-02-18 19:44:12 INFO loaded kvaser's CAN library
+2023-02-18 19:44:12 INFO CAN Filters: None
+2023-02-18 19:44:12 INFO Got configuration of: {'bitrate': 500000}
+2023-02-18 19:44:12 INFO Found 3 available channels
+2023-02-18 19:44:12 INFO 0: Kvaser Leaf Light v2, S/N 100291 (#1)
+2023-02-18 19:44:12 INFO 1: Kvaser Virtual CAN Driver, S/N 0 (#1)
+2023-02-18 19:44:12 INFO 2: Kvaser Virtual CAN Driver, S/N 0 (#2)
+2023-02-18 19:44:12 INFO Hardware filtering has been disabled
+2023-02-18 19:44:12 INFO ZeusModule 1: initializing...
+2023-02-18 19:45:02 INFO Event_list is generated with 10 events.
+2023-02-18 21:12:56 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:12:56 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:13:21 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:13:21 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:14:09 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:14:09 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:15:36 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:15:36 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:15:44 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:15:44 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:17:58 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:17:58 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:18:25 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:18:25 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:18:26 INFO loaded kvaser's CAN library
+2023-02-18 21:18:26 INFO CAN Filters: None
+2023-02-18 21:18:26 INFO Got configuration of: {'bitrate': 500000}
+2023-02-18 21:18:26 INFO Found 3 available channels
+2023-02-18 21:18:26 INFO 0: Kvaser Leaf Light v2, S/N 100291 (#1)
+2023-02-18 21:18:26 INFO 1: Kvaser Virtual CAN Driver, S/N 0 (#1)
+2023-02-18 21:18:26 INFO 2: Kvaser Virtual CAN Driver, S/N 0 (#2)
+2023-02-18 21:18:26 INFO Hardware filtering has been disabled
+2023-02-18 21:18:26 INFO ZeusModule 1: initializing...
+2023-02-18 21:18:58 INFO Event_list is generated with 10 events.
+2023-02-18 21:19:04 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:19:15 INFO Performed one event: event_id:::0  substance:::Isocyano  transfer_volume:::20
+2023-02-18 21:19:26 INFO Performed one event: event_id:::1  substance:::Isocyano  transfer_volume:::20
+2023-02-18 21:19:37 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:19:48 INFO Performed one event: event_id:::2  substance:::amine  transfer_volume:::20
+2023-02-18 21:19:59 INFO Performed one event: event_id:::3  substance:::amine  transfer_volume:::20
+2023-02-18 21:20:10 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:20:21 INFO Performed one event: event_id:::4  substance:::aldehyde  transfer_volume:::20
+2023-02-18 21:20:32 INFO Performed one event: event_id:::5  substance:::aldehyde  transfer_volume:::20
+2023-02-18 21:20:43 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:20:54 INFO Performed one event: event_id:::6  substance:::pTSA  transfer_volume:::20
+2023-02-18 21:21:05 INFO Performed one event: event_id:::7  substance:::pTSA  transfer_volume:::20
+2023-02-18 21:21:17 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:21:27 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
+2023-02-18 21:21:38 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-18 21:23:52 INFO Note: NumExpr detected 16 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 8.
+2023-02-18 21:23:52 INFO NumExpr defaulting to 8 threads.
+2023-02-18 21:23:53 INFO loaded kvaser's CAN library
+2023-02-18 21:23:53 INFO CAN Filters: None
+2023-02-18 21:23:53 INFO Got configuration of: {'bitrate': 500000}
+2023-02-18 21:23:53 INFO Found 3 available channels
+2023-02-18 21:23:53 INFO 0: Kvaser Leaf Light v2, S/N 100291 (#1)
+2023-02-18 21:23:53 INFO 1: Kvaser Virtual CAN Driver, S/N 0 (#1)
+2023-02-18 21:23:53 INFO 2: Kvaser Virtual CAN Driver, S/N 0 (#2)
+2023-02-18 21:23:53 INFO Hardware filtering has been disabled
+2023-02-18 21:23:53 INFO ZeusModule 1: initializing...
+2023-02-18 21:24:42 INFO Event_list is generated with 10 events.
+2023-02-18 21:24:48 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:24:58 INFO Performed one event: event_id:::0  substance:::Isocyano  transfer_volume:::20
+2023-02-18 21:25:10 INFO Performed one event: event_id:::1  substance:::Isocyano  transfer_volume:::20
+2023-02-18 21:25:21 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:25:32 INFO Performed one event: event_id:::2  substance:::amine  transfer_volume:::20
+2023-02-18 21:25:43 INFO Performed one event: event_id:::3  substance:::amine  transfer_volume:::20
+2023-02-18 21:25:54 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:26:05 INFO Performed one event: event_id:::4  substance:::aldehyde  transfer_volume:::20
+2023-02-18 21:26:16 INFO Performed one event: event_id:::5  substance:::aldehyde  transfer_volume:::20
+2023-02-18 21:26:27 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:26:38 INFO Performed one event: event_id:::6  substance:::pTSA  transfer_volume:::20
+2023-02-18 21:26:49 INFO Performed one event: event_id:::7  substance:::pTSA  transfer_volume:::20
+2023-02-18 21:27:00 INFO Now the tip on zeus is : 50ul
+2023-02-18 21:27:11 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
+2023-02-18 21:27:22 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-19 13:36:46 INFO Now the tip on zeus is : 50ul
+2023-02-19 13:36:56 INFO Performed one event: event_id:::0  substance:::Isocyano  transfer_volume:::20
+2023-02-19 13:37:08 INFO Performed one event: event_id:::1  substance:::Isocyano  transfer_volume:::20
+2023-02-19 13:37:19 INFO Now the tip on zeus is : 50ul
+2023-02-19 13:37:30 INFO Performed one event: event_id:::2  substance:::amine  transfer_volume:::20
+2023-02-19 13:37:41 INFO Performed one event: event_id:::3  substance:::amine  transfer_volume:::20
+2023-02-19 13:37:52 INFO Now the tip on zeus is : 50ul
+2023-02-19 13:38:03 INFO Performed one event: event_id:::4  substance:::aldehyde  transfer_volume:::20
+2023-02-19 13:38:14 INFO Performed one event: event_id:::5  substance:::aldehyde  transfer_volume:::20
+2023-02-19 13:38:25 INFO Now the tip on zeus is : 50ul
+2023-02-19 13:38:36 INFO Performed one event: event_id:::6  substance:::pTSA  transfer_volume:::20
+2023-02-19 13:38:47 INFO Performed one event: event_id:::7  substance:::pTSA  transfer_volume:::20
+2023-02-19 13:38:59 INFO Now the tip on zeus is : 50ul
+2023-02-19 13:39:09 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
+2023-02-19 13:39:20 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-19 16:04:03 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:04:13 INFO Performed one event: event_id:::0  substance:::Isocyano  transfer_volume:::20
+2023-02-19 16:04:25 INFO Performed one event: event_id:::1  substance:::Isocyano  transfer_volume:::20
+2023-02-19 16:04:36 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:04:47 INFO Performed one event: event_id:::2  substance:::amine  transfer_volume:::20
+2023-02-19 16:04:58 INFO Performed one event: event_id:::3  substance:::amine  transfer_volume:::20
+2023-02-19 16:05:10 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:05:21 INFO Performed one event: event_id:::4  substance:::aldehyde  transfer_volume:::20
+2023-02-19 16:05:32 INFO Performed one event: event_id:::5  substance:::aldehyde  transfer_volume:::20
+2023-02-19 16:05:43 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:05:54 INFO Performed one event: event_id:::6  substance:::pTSA  transfer_volume:::20
+2023-02-19 16:06:05 INFO Performed one event: event_id:::7  substance:::pTSA  transfer_volume:::20
+2023-02-19 16:06:17 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:06:27 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
+2023-02-19 16:06:38 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-19 16:07:54 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:08:05 INFO Performed one event: event_id:::0  substance:::Isocyano  transfer_volume:::20
+2023-02-19 16:08:16 INFO Performed one event: event_id:::1  substance:::Isocyano  transfer_volume:::20
+2023-02-19 16:08:28 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:08:39 INFO Performed one event: event_id:::2  substance:::amine  transfer_volume:::20
+2023-02-19 16:08:50 INFO Performed one event: event_id:::3  substance:::amine  transfer_volume:::20
+2023-02-19 16:09:01 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:09:12 INFO Performed one event: event_id:::4  substance:::aldehyde  transfer_volume:::20
+2023-02-19 16:09:23 INFO Performed one event: event_id:::5  substance:::aldehyde  transfer_volume:::20
+2023-02-19 16:09:35 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:09:46 INFO Performed one event: event_id:::6  substance:::pTSA  transfer_volume:::20
+2023-02-19 16:09:56 INFO Performed one event: event_id:::7  substance:::pTSA  transfer_volume:::20
+2023-02-19 16:10:08 INFO Now the tip on zeus is : 50ul
+2023-02-19 16:10:19 INFO Performed one event: event_id:::8  substance:::DMF  transfer_volume:::20
+2023-02-19 16:10:29 INFO Performed one event: event_id:::9  substance:::DMF  transfer_volume:::20
+2023-02-19 20:30:08 INFO zeus is loaded as: zm.
+2023-02-19 20:30:13 INFO gantry is loaded as: gt.
+2023-02-19 20:30:26 INFO gantry is now homed.
+2023-02-19 20:30:28 INFO pipetter is loaded as: pt.
+2023-02-19 20:30:28 INFO all substances are loaded to the corresponding containers.
+2023-02-19 20:30:29 INFO all events are generated to dataframes from excel.
+2023-02-19 20:30:29 INFO all event objects are generated from dataframes.
+2023-02-19 20:30:31 INFO Performed one event:  event_id:0   substance:Isocyano   transfer_volume:20
+2023-02-19 20:30:34 INFO Performed one event:  event_id:1   substance:Isocyano   transfer_volume:20
+2023-02-19 20:30:36 INFO Performed one event:  event_id:2   substance:amine   transfer_volume:20
+2023-02-19 20:30:39 INFO Performed one event:  event_id:3   substance:amine   transfer_volume:20
+2023-02-19 20:30:41 INFO Performed one event:  event_id:4   substance:aldehyde   transfer_volume:20
+2023-02-19 20:30:44 INFO Performed one event:  event_id:5   substance:aldehyde   transfer_volume:20
+2023-02-19 20:30:46 INFO Performed one event:  event_id:6   substance:pTSA   transfer_volume:20
+2023-02-19 20:30:49 INFO Performed one event:  event_id:7   substance:pTSA   transfer_volume:20
+2023-02-19 20:30:51 INFO Performed one event:  event_id:8   substance:DMF   transfer_volume:20
+2023-02-19 20:30:54 INFO Performed one event:  event_id:9   substance:DMF   transfer_volume:20
+2023-02-19 20:34:38 INFO zeus is loaded as: zm.
+2023-02-19 20:34:43 INFO gantry is loaded as: gt.
+2023-02-19 20:34:56 INFO gantry is now homed.
+2023-02-19 20:35:12 INFO zeus is loaded as: zm.
+2023-02-19 20:35:17 INFO gantry is loaded as: gt.
+2023-02-19 20:35:30 INFO gantry is now homed.
+2023-02-19 20:35:33 INFO pipetter is loaded as: pt.
+2023-02-19 20:35:33 INFO all substances are loaded to the corresponding containers.
+2023-02-19 20:35:33 INFO all events are generated to dataframes from excel.
+2023-02-19 20:35:33 INFO all event objects are generated from dataframes.
+2023-02-19 20:35:35 INFO Performed one event:  event_id:0   substance:Isocyano   transfer_volume:20
+2023-02-19 20:35:38 INFO Performed one event:  event_id:1   substance:Isocyano   transfer_volume:20
+2023-02-19 20:35:40 INFO Performed one event:  event_id:2   substance:amine   transfer_volume:20
+2023-02-19 20:35:43 INFO Performed one event:  event_id:3   substance:amine   transfer_volume:20
+2023-02-19 20:35:45 INFO Performed one event:  event_id:4   substance:aldehyde   transfer_volume:20
+2023-02-19 20:35:48 INFO Performed one event:  event_id:5   substance:aldehyde   transfer_volume:20
+2023-02-19 20:35:50 INFO Performed one event:  event_id:6   substance:pTSA   transfer_volume:20
+2023-02-19 20:35:53 INFO Performed one event:  event_id:7   substance:pTSA   transfer_volume:20
+2023-02-19 20:35:55 INFO Performed one event:  event_id:8   substance:DMF   transfer_volume:20
+2023-02-19 20:35:58 INFO Performed one event:  event_id:9   substance:DMF   transfer_volume:20

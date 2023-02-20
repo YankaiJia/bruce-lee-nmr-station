@@ -1,30 +1,29 @@
-'''
-This is the pipetter module. Its function includes pick_tip, discard_tip, draw_liquid,
-dispense_liquid, transfer_liquid and so on. It takes gantry and zeus as arguments.
+"""
 
-'''
+The pipetter module combines gantry and zeus, and deals with actions including pick_tip, discard_tip, draw_liquid,
+dispense_liquid, transfer_liquid and so on.
+
+"""
 import copy
 import json
 import time
 import serial
 import logging
 
-ZeusTraversePosition = 880
 
 class Pipetter():
 
     def __init__(self, zeus, gantry):
         self.zeus = zeus
         self.gantry = gantry
-        self.balance = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE,
-                                     parity=serial.PARITY_NONE, timeout=0.2)
+        self.balance = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE, parity=serial.PARITY_NONE, timeout=0.2)
 
     def pick_tip(self, tip_type: str):
         global tip_on_zeus
         with open('data/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
-        self.zeus.move_z(ZeusTraversePosition)
+        self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.zeus.wait_until_zeus_reaches_traverse_height()
 
         # In the rack, find the first tip that exists
@@ -65,14 +64,14 @@ class Pipetter():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
-    def draw_liquid(self, transfer_event , n_retries=3):
+    def draw_liquid(self, transfer_event, n_retries=3):
 
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.source_container.xy)
 
         for retry in range(n_retries):
             try:
-                print(f'Aspiration volume: {int(round(transfer_event.aspirationVolume * 10))}')
+                # print(f'Aspiration volume: {int(round(transfer_event.aspirationVolume * 10))}')
                 self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)),
                               containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
                               deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
@@ -127,7 +126,7 @@ class Pipetter():
         # wait_until_zeus_reaches_traverse_height()
         self.zeus.wait_until_zeus_responds_with_string('GDid')
 
-    def transfer_liquid(self, transfer_event,max_volume=300):
+    def transfer_liquid(self, transfer_event, max_volume=300):
 
         # check if container is full.
         if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:

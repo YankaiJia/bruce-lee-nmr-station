@@ -1,7 +1,7 @@
 '''
 This module is for the xy gantry. It concerns the motion of the xy stage.
 Gantry() take zeus object as argument, which is used to request position of Z drive.
-The gantry will move only when the Z drive position is in safe traverse height.
+Only when the Z drive position is in safe traverse height will the gantry be able to move.
 '''
 import serial
 import numpy as np
@@ -12,13 +12,13 @@ class Gantry():
     xy_position = ((0, 0)) # this is to store the gantry position after every move.
 
     def __init__(self,
-                 zeus, # pass the zeus module to gantry, this is for checking traverse height,
-                 max_x = -805,
-                 max_y = -357,
-                 horiz_speed = 200*60,# horizontal speed in mm / min
-                 xy_offset = (0, 0),# offsets in x and y, negative to right, closer; positive, to left, further
-                 trash_xy = (-500, -70),
-                 zeus_traverse_position = 880,
+                 zeus: object, # pass the zeus module to gantry, this is for checking traverse height,
+                 max_x: int = -805,
+                 max_y: int = -357,
+                 horiz_speed: int = 200*60,# horizontal speed in mm / min
+                 xy_offset: tuple = (0, 0),# offsets in x and y, negative to right, closer; positive, to left, further
+                 trash_xy: tuple = (-500, -70),
+                 zeus_traverse_position: int = 880,
                  ):
         self.serial = serial.Serial('COM6', 115200, timeout=0.2)
         self.horiz_speed = horiz_speed # horizontal speed in mm/min
@@ -32,9 +32,8 @@ class Gantry():
 
         # self.home_xy()
 
-    def send_to_xy_stage(self, command, wait_for_ok=True,
-                         verbose=False, read_all=False,
-                         ensure_traverse_height=True):
+    def send_to_xy_stage(self, command, wait_for_ok=True, verbose=False, read_all=False,
+                         ensure_traverse_height=True) -> None:
         ser = self.serial
         ser.write(str.encode(command + '\r\n'))
         # ser.write(str.encode(command))
@@ -66,16 +65,16 @@ class Gantry():
                 if line == b'':
                     break
 
-    def configure_grbl(self):
-        with open("grbl_settings.txt", 'r') as grbl_config_file:
+    def configure_grbl(self) -> None:
+        with open("grbl_source_code\\grbl_settings.txt", 'r') as grbl_config_file:
             for line in grbl_config_file:
                self.send_to_xy_stage(command = line.split('    (')[0], read_all= True, verbose= True)
         print("XY stage configured!")
 
-    def xy_pos(self):
+    def xy_pos(self) -> None:
         self.send_to_xy_stage(command= '?', read_all= True, verbose= True)
 
-    def time_that_xy_motion_takes(self, dx, dy, acceleration=2000, max_speed=333.33333):
+    def time_that_xy_motion_takes(self, dx: int, dy: int, acceleration=2000, max_speed=333.33333):
 
         travel_times = []
         for distance in [abs(dx), abs(dy)]:
@@ -98,7 +97,7 @@ class Gantry():
         return max(travel_times)
 
     def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
-                use_time_estimate=True):
+                use_time_estimate=True) -> None:
         if xy[0] < self.max_x or xy[0] > 0:
             print(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
             return
@@ -111,8 +110,6 @@ class Gantry():
             print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.zm.pos}.\n'
                   f'Motion aborted!')
             return
-
-
 
         # if np.linalg.norm(np.array((x, y))) <= R:
         self.send_to_xy_stage(command= 'G0 X{0:.3f} Y{1:.3f}'.format(xy[0] + self.xy_offset[0], xy[1] + self.xy_offset[1]),
@@ -144,25 +141,25 @@ class Gantry():
                     print('Finished moving xy stage')
         self.xy_position = xy
 
-    def home_xy(self, ensure_traverse_height=True):
+    def home_xy(self, ensure_traverse_height=True) -> None:
 
         self.send_to_xy_stage(command = '$H', read_all=True, verbose=True,
                               ensure_traverse_height=ensure_traverse_height)
         self.xy_pos()
         print('Homing finished!')
 
-    def kill_alarm(self):
+    def kill_alarm(self) -> None:
         self.send_to_xy_stage("$X", read_all= True, verbose= True)
 
-    def close_gantry(self):
+    def close_gantry(self)-> None:
         time.sleep(2)
         self.serial.close()
 
-    def view_grbl_settings(self):
+    def view_grbl_settings(self)-> None:
         self.send_to_xy_stage('$$', read_all=True, verbose=True)
         self.xy_pos()
 
-    def move_through_wells(self, plate, dwell_time=0.1, ensure_traverse_height=True):
+    def move_through_wells(self, plate: object, dwell_time=0.1, ensure_traverse_height=True):
         for container in plate.containers:
             print(f'This is well index: {container}')
             self.move_xy(container.xy, ensure_traverse_height=ensure_traverse_height)

@@ -143,9 +143,9 @@ class TransferEventConstructor:
     def __init__(self, event_dataframe, solvent: str = 'DMF'):
 
         self.substance_name = event_dataframe['substance']
-        self.event_label = 'event_id:::' + str(event_dataframe['event_id']) + '  ' + \
-                           'substance:::' + str(event_dataframe['substance']) + '  ' + \
-                           'transfer_volume:::' + str(event_dataframe['transfer_volume'])
+        self.event_label = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
+                           'substance:' + str(event_dataframe['substance']) + '   ' + \
+                           'transfer_volume:' + str(event_dataframe['transfer_volume'])
 
         self.solvent = solvent
         # print(f'solvent: {solvent}')
