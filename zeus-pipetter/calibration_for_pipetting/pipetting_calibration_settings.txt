@@ -1,0 +1,4 @@
+substance, container, volume, solvent, density
+PBS plate_4_container0 20ml water_empty 1.0
+DMEM plate_4_container1 20ml water_empty 1.0
+BSA_32uM plate_7_container11 1.5ml water_empty 1.0

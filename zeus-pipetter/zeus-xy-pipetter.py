@@ -1267,7 +1267,7 @@ def dispense_liquid(container, volume, liquidClassTableIndex, tip_type, liquidSu
 #         # plot_pressure_curve()
 #         data = get_pressure_curve()
 #         calibration_dict[str(volume) + 'ul'] = data
-#         with open('calibration_data/qpm_asp_second.json', 'w', encoding='utf-8') as json_file:
+#         with open('calibration_for_pipetting/qpm_asp_second.json', 'w', encoding='utf-8') as json_file:
 #             json.dump(calibration_dict, json_file, ensure_ascii=False, indent=4)
 #
 #         ds(container = bottle['4'], volume = volume,  liquidClassTableIndex = 1, liquidSurface=manual_vial_surface,

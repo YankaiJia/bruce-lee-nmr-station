@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
 import sys
+import pprint
 
 DEBUG = 0
 INFO = 0
@@ -92,24 +93,21 @@ def printMSG(type, msg):
         # raise Exception(msg)
 
 
-class ContainerGeometry(object):
-
-    def __init__(self, index=0, diameter=0, bottomHeight=0, bottomSection=0,
-                 bottomPosition=0, immersionDepth=0, leavingHeight=0, jetHeight=0,
-                 startOfHeightBottomSearch=0, dispenseHeightAfterBottomSearch=0,
-                 ) -> object:
-        self.index = index
-        self.diameter = diameter
-        self.bottomHeight = bottomHeight
-        self.bottomSection = bottomSection
-        self.bottomPosition = bottomPosition
-        self.immersionDepth = immersionDepth
-        self.leavingHeight = leavingHeight
-        self.jetHeight = jetHeight
-        self.startOfHeightBottomSearch = startOfHeightBottomSearch
-        self.dispenseHeightAfterBottomSearch = dispenseHeightAfterBottomSearch
-
-    pass
+# class ContainerGeometry(object):
+#
+#     def __init__(self, container: object) -> object:
+#         self.index = container.index
+#         self.diameter = container.diameter
+#         self.bottomHeight = container.bottomHeight
+#         self.bottomSection = container.bottomSection
+#         self.bottomPosition = container.bottomPosition
+#         self.immersionDepth = container.immersionDepth
+#         self.leavingHeight = container.leavingHeight
+#         self.jetHeight = container.jetHeight
+#         self.startOfHeightBottomSearch = container.startOfHeightBottomSearch
+#         self.dispenseHeightAfterBottomSearch = container.dispenseHeightAfterBottomSearch
+#
+#     pass
 
 
 class DeckGeometry(object):
@@ -929,9 +927,9 @@ class ZeusModule(object):
                 "ZeusModule {}: invalid z-axis drive speed specified."
                 " Accepted values for z-axis drive speed are \'slow\'"
                 " and \'fast\'.")
-        print(
-            "ZeusModule {}: moving z-drive from position {} to position {}."
-            .format(self.id, self.pos, pos))
+        # print(
+        #     "ZeusModule {}: moving z-drive from position {} to position {}."
+        #     .format(self.id, self.pos, pos))
         cmd = cmd + 'gy' + str(pos).zfill(4) + 'gw' + str(speed)
         self.pos = pos
         self.sendCommand(cmd)
@@ -1125,21 +1123,24 @@ class ZeusModule(object):
         cmd = self.cmdHeader('GX')
         self.sendCommand(cmd)
 
-    def setContainerGeometryParameters(self, containerGeometryParameters):
+    def setContainerGeometryParameters(self, container:object):
+        # pprint(vars(container))
+        print(f'Container name: {container}')
         cmd = self.cmdHeader('GC')
-        cmd = cmd + 'ge' + str(containerGeometryParameters.index).zfill(2) + \
-              'cb' + str(containerGeometryParameters.diameter).zfill(3) + \
-              'bg' + str(containerGeometryParameters.bottomHeight).zfill(4) + \
-              'gx' + str(containerGeometryParameters.bottomSection).zfill(5) + \
-              'ce' + str(containerGeometryParameters.bottomPosition).zfill(4) + \
-              'ie' + str(containerGeometryParameters.immersionDepth).zfill(4) + \
-              'yq' + str(containerGeometryParameters.leavingHeight).zfill(4) + \
-              'yr' + str(containerGeometryParameters.jetHeight).zfill(4) + \
+        cmd = cmd + 'ge' + str(container.containerGeometryTableIndex).zfill(2) + \
+              'cb' + str(container.diameter).zfill(3) + \
+              'bg' + str(container.bottomHeight).zfill(4) + \
+              'gx' + str(container.bottomSection).zfill(5) + \
+              'ce' + str(container.bottomPosition).zfill(4) + \
+              'ie' + str(container.immersionDepth).zfill(4) + \
+              'yq' + str(container.leavingHeight).zfill(4) + \
+              'yr' + str(container.jetHeight).zfill(4) + \
               'ch' + \
-              str(containerGeometryParameters.startOfHeightBottomSearch).zfill(4) + \
+              str(container.startOfHeightBottomSearch).zfill(4) + \
               'ci' + \
-              str(containerGeometryParameters.dispenseHeightAfterBottomSearch).zfill(
+              str(container.dispenseHeightAfterBottomSearch).zfill(
                   4)
+        print(f'cmd sent is : {cmd}')
         self.sendCommand(cmd)
 
     def getContainerGeometryParameters(self, index):
@@ -1148,9 +1149,13 @@ class ZeusModule(object):
                 "Please specify a valid container geometry table index.")
         cmd = self.cmdHeader('GB')
         cmd = cmd + 'ge' + str(index).zfill(2)
-        ret = ContainerGeometry(index=index)
-        # Request and fill class attributes here
-        return ret
+        self.sendCommand(cmd)
+        time.sleep(3)
+        paras = self.r.received_msg
+        time.sleep(3)
+        paras = self.r.received_msg
+
+        return paras
 
     def setDeckGeometryParameters(self, deckGeometryParameters):
         cmd = self.cmdHeader('GO')
@@ -1204,8 +1209,7 @@ class ZeusModule(object):
 
     def getLiquidClassParameters(self, id, index):
         cmd = self.cmdHeader('GM')
-        cmd = cmd + 'id' + str(id).zfill(4) + \
-              'lq' + str(index).zfill(2)  # 'lq' was revised from 'iq'. iq is a typo. Yankai_20230106
+        cmd = cmd + 'lq' + str(index).zfill(2)  # 'lq' was revised from 'iq'. iq is a typo. Yankai_20230106
         print(f'cmd send is : {cmd}')
         self.sendCommand(cmd)
 
@@ -1418,9 +1422,9 @@ class ZeusModule(object):
                 continue
             else:
                 position = int(self.r.received_msg[idx + 2:])
-                print(f'Current position (true): {position}')
+                # print(f'Current position (true): {position}')
             if position <= traverse_height:
-                print('Traverse height is reached.')
+                # print('Traverse height is reached.')
                 return True
         print(f'Traverse height was not reached after {n_retries} retries. This is dangerous, so we do emergency stop')
         raise Exception
@@ -1453,6 +1457,8 @@ class ZeusModule(object):
             # time.sleep(0.6)
             if self.zeus_had_error(self.r.received_msg):
                 print('Zeus responded with error message. Aborting all operations.')
+                time.sleep(1)
+                self.move_z(ZeusModule.ZeusTraversePosition)
                 raise ZeusError
 
             idx = self.r.received_msg.find(search_pattern)
@@ -1462,7 +1468,7 @@ class ZeusModule(object):
                 time.sleep(0.1)
                 continue
             else:
-                print(f'Competion response received after {i} attempts.')
+                # print(f'Competion response received after {i} attempts.')
                 return True
         print(f'Response not received after {n_retries} retries. This is dangerous, so we do emergency stop')
         raise Exception
@@ -1485,10 +1491,28 @@ class ZeusModule(object):
         else:
             self.move_z(self.ZeusTraversePosition)
 
+    def check_last_faulty_para(self):
+        self.sendCommand('VPid0001')
+
 
 if __name__ == '__main__':
+    import breadboard as brb
+
     print('This is main of zeus.py')
 
     # load liquid classes
     # load deck parameters
+
     # load container parameters
+    zm = ZeusModule(id = 1)
+    zm.setContainerGeometryParameters(brb.vial_2ml)
+    time.sleep(2)
+    zm.setContainerGeometryParameters(brb.well_bio)
+    time.sleep(2)
+    zm.setContainerGeometryParameters(brb.bottle_20ml)
+    time.sleep(2)
+    zm.setContainerGeometryParameters(brb.jar_100ml)
+    time.sleep(2)
+    zm.setContainerGeometryParameters(brb.tube_1500ul)
+
+    lc = ZeusLiquidClass(zm = zm)

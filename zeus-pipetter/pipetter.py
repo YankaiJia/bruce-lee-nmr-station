@@ -11,6 +11,8 @@ import serial
 import logging
 
 
+
+
 class Pipetter():
 
     def __init__(self, zeus, gantry):
@@ -105,10 +107,10 @@ class Pipetter():
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.destination_container.xy)
 
-        # check if container is full.
-        if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
-            logging.warning("The target container is full. Dispensing is aborted.")
-            return
+        # # check if container is full.
+        # if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
+        #     logging.warning("The target container is full. Dispensing is aborted.")
+        #     return
 
         self.zeus.dispensing(dispensingVolume=int(round(transfer_event.dispensingVolume * 10)),
                       containerGeometryTableIndex=transfer_event.disp_containerGeometryTableIndex,
@@ -129,9 +131,9 @@ class Pipetter():
     def transfer_liquid(self, transfer_event, max_volume=300):
 
         # check if container is full.
-        if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
-            print(f'transfer_event.destination_container.liquid_volume:{transfer_event.destination_container.container_id}, {transfer_event.destination_container.liquid_volume}')
-            raise ValueError('The target container is full. Dispensing is aborted')
+        # if transfer_event.destination_container.liquid_volume > transfer_event.destination_container.volume_max:
+        #     print(f'transfer_event.destination_container.liquid_volume:{transfer_event.destination_container.container_id}, {transfer_event.destination_container.liquid_volume}')
+        #     raise ValueError('The target container is full. Dispensing is aborted')
 
         # if it exceeds max_volume, then do several pipettings
         N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
@@ -151,7 +153,7 @@ class Pipetter():
             self.draw_liquid(_split_event_2)
             self.dispense_liquid(_split_event_2)
 
-    def send_command_to_balance(self, command, read_all=True, verbose=True):
+    def send_command_to_balance(self, command, read_all=True, verbose=False):
 
         self.balance.write(str.encode(command + '\n'))
         while True:
@@ -161,7 +163,7 @@ class Pipetter():
             if line == b'':
                 break
 
-    def balance_tare(self, verbose=True):
+    def balance_tare(self, verbose=False):
         self.balance.write(str.encode('T\n'))
         taring_complete = False
         while True:
@@ -169,12 +171,13 @@ class Pipetter():
             if b'T' in line:
                 taring_complete = True
             if verbose:
-                print(f'Tare in progress. Response from balance. {line}')
+                pass
+                # print(f'Tare in progress. Response from balance. {line}')
             if line == b'':
                 if taring_complete:
                     break
 
-    def balance_zero(self, verbose = True):
+    def balance_zero(self, verbose = False):
         self.balance.write(str.encode('Z\n'))
         zeroing_complete = False
         while True:
@@ -182,17 +185,19 @@ class Pipetter():
             if b'Z' in line:
                 zeroing_complete = True
             if verbose:
-                print(f'Tare in progress. Response from balance. {line}')
+                pass
+                # print(f'Tare in progress. Response from balance. {line}')
             if line == b'':
                 if zeroing_complete:
                     break
 
-    def balance_value(self, read_all=True, verbose=True):
+    def balance_value(self, read_all=True, verbose= False):
         value = 0
         self.balance.write(str.encode('SI\n'))
         measurement_successful = False
         while True:
             line = self.balance.readline()
+            print(f'balance line: {line}')
             if (b'S D' in line) or (b'S S' in line):
                 raw_parsed = line.split(b' g\r\n')[0][-8:]
                 if verbose:
@@ -216,51 +221,36 @@ class Pipetter():
     def close_balance_door(self):
         self.send_command_to_balance('WS 0')
 
-    def move_to_balance(self, container):
+    def move_to_balance(self, xy: tuple):
         self.open_balance_door()
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
-        self.gantry.move_xy(container['xy'])
-    #
-    # def dispense_to_balance(self, transfer_event):
-    #
-    #     print(f" balance_ vial volume is now : { container['volume']}")
-    #     self.zeus.move_zeus_to_traverse_height()
-    #     self.move_to_balance(container)
-    #     zm.dispensing(dispensingVolume=int(round(volume*10)),
-    #                   containerGeometryTableIndex=container['containerGeometryTableIndex'],
-    #                   deckGeometryTableIndex=deckGeometryTableIndex,
-    #                   liquidClassTableIndex=liquidClassTableIndex,
-    #                   lld=0, lldSearchPosition=container.lld_search_position,
-    #                   liquidSurface=container.liquid_surface_in_container - liquid_surface_margin,
-    #                   searchBottomMode=0, mixVolume=0, mixFlowRate=0, mixCycles=0)
-    #     time.sleep(1.5)
-    #     # wait_until_zeus_reaches_traverse_height(traverse_height=balance_traverse_height)
-    #     self.zeus.wait_until_zeus_responds_with_string('GDid')
-    #     self.gantry.move_xy(self.gantry.xy_idle)
-    #     container['volume'] += volume
-    #     print(f" balance_ vial volume is now : { container['volume']}")
-    #
-    #
-    # def dispense_to_balance_and_weight(self, transfer_event, timedelay=5):
-    #     global xy_position
-    #     global weighted_values
-    #     # if xy_position[0] < -80:
-    #     #     move_xy((-80, -195))
-    #     self.close_balance_door()
-    #     time.sleep(timedelay)
-    #     # balance_tare()
-    #     # balance_zero(verbose=True)
-    #     self.draw_liquid( transfer_event = transfer_evert)
-    #     weight_before = self.balance_value()
-    #     print(f'weight_before: {weight_before} g')
-    #     self.dispense_to_balance(transfer_event = transfer_event)
-    #     self.close_balance_door()
-    #     time.sleep(timedelay)
-    #     weight_after = self.balance_value()
-    #     print(f'weight_after: {weight_after} g')
-    #     print(f'Weight of aliquot: {(weight_after - weight_before)*1000} mg')
-    #     print(f'Volume of aliquot: {volume}')
-    #     return round((weight_after - weight_before)*1000, 1)
+        self.gantry.move_xy(xy)
+
+    def dispense_to_balance_and_weight(self, transfer_event, timedelay=5) -> int:
+        global xy_position
+        global weighted_values
+        # if xy_position[0] < -80:
+        #     move_xy((-80, -195))
+        self.close_balance_door()
+        time.sleep(timedelay)
+        # balance_tare()
+        self.balance_zero(verbose=False)
+        weight_before = self.balance_value()
+        print(f'weight_before: {weight_before} g')
+        self.open_balance_door()
+        self.transfer_liquid(transfer_event=transfer_event)
+        time.sleep(0.5)
+        self.gantry.move_to_idle()
+        self.close_balance_door()
+        time.sleep(timedelay)
+        weight_after = self.balance_value()
+        print(f'weight_after: {weight_after} g')
+
+        pipetting_weight = round((weight_after- weight_before) *1000, 6) # mg
+        pipetting_volume = pipetting_weight / transfer_event.source_container.substance_density
+        print(f'Weight of aliquot: {pipetting_weight} mg')
+        print(f'Volume of aliquot: {pipetting_volume} ul')
+        return pipetting_volume
     #
     #
     # def dispense_to_balance_and_weight_n_times(self, source_container, volume,lld, liquid_class_index,  ntimes, tip_type, timedelay=3):
@@ -282,6 +272,7 @@ class ZeusError(Exception):
 def main():
     import zeus
     import gantry
+    import breadboard as brb
     zm =  zeus.ZeusModule(id=1)
     time.sleep(5)
     gt = gantry.Gantry(zeus = zm)

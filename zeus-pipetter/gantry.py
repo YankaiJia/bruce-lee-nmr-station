@@ -13,10 +13,10 @@ class Gantry():
 
     def __init__(self,
                  zeus: object, # pass the zeus module to gantry, this is for checking traverse height,
-                 max_x: int = -805,
+                 max_x: int = -810,
                  max_y: int = -357,
                  horiz_speed: int = 200*60,# horizontal speed in mm / min
-                 xy_offset: tuple = (0, 0),# offsets in x and y, negative to right, closer; positive, to left, further
+                 xy_offset: tuple = (4, 0),# offsets in x and y, negative to right, closer; positive, to left, further
                  trash_xy: tuple = (-500, -70),
                  zeus_traverse_position: int = 880,
                  ):
@@ -93,7 +93,7 @@ class Gantry():
                 const_speed_halftime = distance_traveled_at_constant_speed / max_speed
                 time_here = 2 * (constant_acceleration_halftime + const_speed_halftime)
             travel_times.append(time_here)
-        print(max(travel_times))
+        # print(max(travel_times))
         return max(travel_times)
 
     def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
@@ -136,10 +136,13 @@ class Gantry():
                             finished_moving = True
                         if line == b'':
                             break
-                print(f'{time.time() - t0}')
+                # print(f'{time.time() - t0}')
                 if verbose:
                     print('Finished moving xy stage')
         self.xy_position = xy
+
+    def move_to_idle(self):
+        self.move_xy(self.idle_xy)
 
     def home_xy(self, ensure_traverse_height=True) -> None:
 
@@ -179,4 +182,4 @@ def main():
     return gt, zm
 
 if __name__ == '__main__':
-    gantry, zm = main()
+    gt, zm = main()
