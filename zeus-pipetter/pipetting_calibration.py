@@ -1,7 +1,29 @@
+import logging
+import log_formatter
+
+# create logger with 'spam_application'
+logger = logging.getLogger('pipet_calib')
+logger.setLevel(logging.DEBUG)
+
+# create file handler which logs even debug messages
+fh = logging.FileHandler('pp123.log')
+fh.setLevel(logging.INFO)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+
+# create formatter and add it to the handlers
+formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+fh.setFormatter(formatter)
+ch.setFormatter(log_formatter.CustomFormatter())
+
+# add the handlers to the logger
+logger.addHandler(fh)
+logger.addHandler(ch)
+
 import time
 import json
 from datetime import datetime
-
 
 import zeus
 import gantry
@@ -9,16 +31,6 @@ import pipetter
 import planner as pln
 import breadboard as brb
 
-import logging
-
-logger = logging.getLogger("pipetting_calibration")
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-
-file_handler = logging.FileHandler('calibration_for_pipetting\\pipetting_calibration.log')
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
 
 # initiate zeus
 zm = zeus.ZeusModule(id=1)
@@ -32,7 +44,7 @@ logger.info("gantry is loaded as: gt")
 # gt.configure_grbl() # This only need to be done once.
 gt.home_xy()
 if gt.xy_position == (0, 0):
-    logger.info("gantry is now homed")
+    logger.info("gantry is homed")
 
 #initiate pipetter
 pt = pipetter.Pipetter(zeus=zm, gantry=gt)
@@ -40,7 +52,7 @@ time.sleep(2)
 logger.info("pipetter is loaded as: pt")
 
 def generate_events():
-
+    '''This function is used to generate events for calibration of pipetting of substances.'''
     # load containers for source substances
     txt_path_for_substance = 'calibration_for_pipetting/pipetting_calibration_settings.txt'
     pln.source_substance_containers = pln.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
@@ -68,7 +80,7 @@ def calibrate_pipetting_of_substances():
     results_for_calibration = []
     if zm.tip_on_zeus:
         pt.discard_tip()
-    starting_index = 24
+    starting_index = 32
     ending_index = len(calibration_event_list)
     # ending_index = 3
     for event_index in range(starting_index, ending_index):
@@ -91,13 +103,13 @@ def calibrate_pipetting_of_substances():
     return results_for_calibration
 
 
-for index in range(15):
-    calibration_event_list[index].tip_type = '300ul'
-    calibration_event_list[index].asp_liquidClassTableIndex = 1
+# for index in range(15):
+#     calibration_event_list[index].tip_type = '300ul'
+#     calibration_event_list[index].asp_liquidClassTableIndex = 1
 
-weighing_result = calibrate_pipetting_of_substances()
+# weighing_result = calibrate_pipetting_of_substances()
 
-with open(f'calibration_for_pipetting//weights_for_calibration_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
-          'w', encoding='utf-8') as f:
-    json.dump(weighing_result, f, ensure_ascii=False, indent=4)
+# with open(f'calibration_for_pipetting//weights_for_calibration_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
+#           'w', encoding='utf-8') as f:
+#     json.dump(weighing_result, f, ensure_ascii=False, indent=4)
 

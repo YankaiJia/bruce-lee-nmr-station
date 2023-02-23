@@ -1,5 +1,7 @@
-import can
 import logging
+module_logger = logging.getLogger('zeus')
+
+import can
 import signal
 import time
 from time import sleep
@@ -697,8 +699,9 @@ class ZeusModule(object):
         self.maxZPosition = 2340
         self.r = remoteFrameListener(self)
         self.remoteFrameNotifier = can.Notifier(self.CANBus, [self.r])
+        self.logger = logging.getLogger("zeus.ZeusModule")
         # print("ZeusModule {}: initializing...".format(self.id))
-        logging.info("ZeusModule {}: initializing...".format(self.id))
+        self.logger.info(f"ZeusModule {self.id}: initializing...")
 
         if init_module:
             self.initZDrive()
@@ -1505,14 +1508,14 @@ if __name__ == '__main__':
 
     # load container parameters
     zm = ZeusModule(id = 1)
-    zm.setContainerGeometryParameters(brb.vial_2ml)
-    time.sleep(2)
-    zm.setContainerGeometryParameters(brb.well_bio)
-    time.sleep(2)
-    zm.setContainerGeometryParameters(brb.bottle_20ml)
-    time.sleep(2)
-    zm.setContainerGeometryParameters(brb.jar_100ml)
-    time.sleep(2)
-    zm.setContainerGeometryParameters(brb.tube_1500ul)
+    # zm.setContainerGeometryParameters(brb.vial_2ml)
+    # time.sleep(2)
+    # zm.setContainerGeometryParameters(brb.well_bio)
+    # time.sleep(2)
+    # zm.setContainerGeometryParameters(brb.bottle_20ml)
+    # time.sleep(2)
+    # zm.setContainerGeometryParameters(brb.jar_100ml)
+    # time.sleep(2)
+    # zm.setContainerGeometryParameters(brb.tube_1500ul)
 
-    lc = ZeusLiquidClass(zm = zm)
+    # lc = ZeusLiquidClass(zm = zm)

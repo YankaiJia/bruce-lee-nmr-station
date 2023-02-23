@@ -8,7 +8,6 @@ import pandas as pd
 from pprint import pprint
 
 import breadboard as brb
-import logging
 
 source_substance_containers: list = []
 
@@ -338,7 +337,7 @@ def generate_event_list(event_dataframe, pipeting_to_balance = False):
         # pprint(vars(event))
         event_list.append(copy.deepcopy(event))
 
-    logging.info(f'Event_list is generated with {len(event_list)} events.')
+    # logging.info(f'Event_list is generated with {len(event_list)} events.')
 
     return event_list
 
