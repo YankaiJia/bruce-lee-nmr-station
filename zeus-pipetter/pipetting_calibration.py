@@ -68,7 +68,7 @@ def calibrate_pipetting_of_substances():
     results_for_calibration = []
     if zm.tip_on_zeus:
         pt.discard_tip()
-    starting_index = 16
+    starting_index = 24
     ending_index = len(calibration_event_list)
     # ending_index = 3
     for event_index in range(starting_index, ending_index):
