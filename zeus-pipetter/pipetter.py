@@ -7,8 +7,11 @@ dispense_liquid, transfer_liquid and so on.
 import copy
 import json
 import time
+
 import serial
 import logging
+pipetter_logger = logging.getLogger('pipetter_module')
+
 
 
 
@@ -18,7 +21,14 @@ class Pipetter():
     def __init__(self, zeus, gantry):
         self.zeus = zeus
         self.gantry = gantry
-        self.balance = serial.Serial('COM7', 19200, stopbits=serial.STOPBITS_ONE, parity=serial.PARITY_NONE, timeout=0.2)
+        self.balance = serial.Serial(port='COM7',
+                                     baudrate=19200,
+                                     stopbits=serial.STOPBITS_ONE,
+                                     parity=serial.PARITY_NONE,
+                                     timeout=0.2)
+
+        self.logger = logging.getLogger('pipetter.Pipetter')
+        self.logger.info('creating an instance of Pepetter')
 
     def pick_tip(self, tip_type: str):
         global tip_on_zeus
@@ -48,7 +58,7 @@ class Pipetter():
                 else:
                     raise ValueError('No tip is picked up.')
                 return True
-        print('ERROR: No tips in rack.')
+        self.logger.info('ERROR: No tips in rack.')
         raise Exception
 
     def discard_tip(self):
@@ -91,7 +101,7 @@ class Pipetter():
             except ZeusError:
                 if self.zeus.zeus_error_code(self.zeus.r.received_msg) == '81':
                     # Empty tube detected during aspiration
-                    print('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
+                    self.logger.info('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
                     time.sleep(2)
                     self.zeus.move_z(self.zeus.ZeusTraversePosition)
                     time.sleep(2)
@@ -99,7 +109,7 @@ class Pipetter():
                     time.sleep(2)
                     continue
 
-        print(f'Tried {n_retries} but zeus error is still there')
+        self.logger.info(f'Tried {n_retries} but zeus error is still there')
         raise Exception
 
     def dispense_liquid(self, transfer_event):
@@ -197,7 +207,7 @@ class Pipetter():
         measurement_successful = False
         while True:
             line = self.balance.readline()
-            print(f'balance line: {line}')
+            # print(f'balance line: {line}')
             if (b'S D' in line) or (b'S S' in line):
                 raw_parsed = line.split(b' g\r\n')[0][-8:]
                 if verbose:
@@ -226,7 +236,7 @@ class Pipetter():
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.gantry.move_xy(xy)
 
-    def dispense_to_balance_and_weight(self, transfer_event, timedelay=5) -> int:
+    def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5) -> tuple[float, float]:
         global xy_position
         global weighted_values
         # if xy_position[0] < -80:
@@ -248,22 +258,24 @@ class Pipetter():
 
         pipetting_weight = round((weight_after- weight_before) *1000, 6) # mg
         pipetting_volume = pipetting_weight / transfer_event.source_container.substance_density
-        print(f'Weight of aliquot: {pipetting_weight} mg')
-        print(f'Volume of aliquot: {pipetting_volume} ul')
-        return pipetting_volume
-    #
-    #
-    # def dispense_to_balance_and_weight_n_times(self, source_container, volume,lld, liquid_class_index,  ntimes, tip_type, timedelay=3):
-    #     result = []
-    #     t0 = time.time()
-    #     for i in range(ntimes):
-    #         print(f'Dispensing to balance and weighting: iteration {i} out of {ntimes}')
-    #         weight_here = self.dispense_to_balance_and_weight(transfer_evert=transfer_evert, timedelay=timedelay)
-    #         result.append(weight_here)
-    #         time.sleep(timedelay)
-    #         print(f'Dispensing to balance and weighting took {time.time()-t0:.2f} seconds')
-    #     return result
+        self.logger.info(f'Weight of aliquot: {pipetting_weight} mg')
+        self.logger.info(f'Volume of aliquot: {pipetting_volume} ul')
+        return pipetting_weight, pipetting_volume
 
+    def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times = 3):
+        dict_for_one_event = {}
+        dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul'] = \
+            {'weight':[], 'volume':[], 'liquid_class_index':[], 'tip_type': []}
+        temp_dict = dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul']
+        for i in range(n_times):
+            weight, volume =self.pipetting_to_balance_and_weight(transfer_event=transfer_event)
+            temp_dict['weight'].append(weight)
+            temp_dict['volume'].append(volume)
+            temp_dict['liquid_class_index'].append(transfer_event.asp_liquidClassTableIndex)
+            temp_dict['tip_type'].append(transfer_event.tip_type)
+
+        print(dict_for_one_event)
+        return dict_for_one_event
 
 
 class ZeusError(Exception):
