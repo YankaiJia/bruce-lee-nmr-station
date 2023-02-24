@@ -1,5 +1,5 @@
 import logging
-module_logger = logging.getLogger('zeus')
+module_logger = logging.getLogger('main.zeus')
 
 import can
 import signal
@@ -630,7 +630,7 @@ class ZeusError(Exception):
     pass
 
 
-class ZeusModule(object):
+class ZeusModule:
     CANBus = None
     transmission_retries = 5
     remote_timeout = 1
@@ -681,7 +681,7 @@ class ZeusModule(object):
 
     def __init__(self, id=None, tip_on_zeus='', init_module=True, auto_response=True):
         # colorama.init()
-        print(f"this is class __init__, id = {id}")
+        self.logger = logging.getLogger("main.zeus.ZeusModule")
         init()
         self.id = id
         self.tip_on_zeus = tip_on_zeus
@@ -699,14 +699,13 @@ class ZeusModule(object):
         self.maxZPosition = 2340
         self.r = remoteFrameListener(self)
         self.remoteFrameNotifier = can.Notifier(self.CANBus, [self.r])
-        self.logger = logging.getLogger("zeus.ZeusModule")
-        # print("ZeusModule {}: initializing...".format(self.id))
-        self.logger.info(f"ZeusModule {self.id}: initializing...")
+
+        self.logger.info(f"ZeusModule {self.id} is initializing...")
 
         if init_module:
             self.initZDrive()
             printMSG("debug", 'sleeping before initDosingDrive')
-            sleep(5)
+            sleep(3)
             printMSG("debug", f'Kick flag = {self.r.getKickFlag()}')
             self.initDosingDrive()
             printMSG("debug", 'sleeping after initDosingDrive')

@@ -3,6 +3,9 @@ This module is for the xy gantry. It concerns the motion of the xy stage.
 Gantry() take zeus object as argument, which is used to request position of Z drive.
 Only when the Z drive position is in safe traverse height will the gantry be able to move.
 '''
+import logging
+module_logger = logging.getLogger('main.gantry')
+
 import serial
 import numpy as np
 import time
@@ -20,6 +23,8 @@ class Gantry():
                  trash_xy: tuple = (-500, -70),
                  zeus_traverse_position: int = 880,
                  ):
+        self.logger = logging.getLogger('main.gantry.Gantry')
+        self.logger.info('gantry is initiating...')
         self.serial = serial.Serial('COM6', 115200, timeout=0.2)
         self.horiz_speed = horiz_speed # horizontal speed in mm/min
         self.xy_offset = xy_offset
@@ -72,7 +77,7 @@ class Gantry():
         print("XY stage configured!")
 
     def xy_pos(self) -> None:
-        self.send_to_xy_stage(command= '?', read_all= True, verbose= True)
+        self.send_to_xy_stage(command= '?', read_all= True, verbose= False)
 
     def time_that_xy_motion_takes(self, dx: int, dy: int, acceleration=2000, max_speed=333.33333):
 
@@ -145,11 +150,10 @@ class Gantry():
         self.move_xy(self.idle_xy)
 
     def home_xy(self, ensure_traverse_height=True) -> None:
-
-        self.send_to_xy_stage(command = '$H', read_all=True, verbose=True,
+        self.logger.info('The gantry is homing...')
+        self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,
                               ensure_traverse_height=ensure_traverse_height)
         self.xy_pos()
-        print('Homing finished!')
 
     def kill_alarm(self) -> None:
         self.send_to_xy_stage("$X", read_all= True, verbose= True)

@@ -11,6 +11,15 @@ plate: plate0, plate1, plate2, plate3, plate4, palte5, plate6, plate7
        plate6: jar_100ml
        plate7: jar_100ml
 """
+import logging
+
+# create logger
+module_logger = logging.getLogger('pipette_calibration.breadboard')
+
+
+def some_function():
+    module_logger.error('received a call to "some_function"')
+
 
 from dataclasses import dataclass
 import numpy as np
@@ -323,12 +332,15 @@ def container_list(container_geom: object, container_coordinates: list[tuple]) -
 
 class Plate:
     def __init__(self, plate_id: str, containers=None):
+
         if containers == None:
             self.containers = []
         else:
             self.containers = containers
 
         self.plate_id = plate_id
+        self.logger = logging.getLogger('pipette_calibration.breadboard.Plate')
+        self.logger.debug(f'A Plate object is created with plate_id: {plate_id}.')
 
     def add_container(self, container_list: list):
         for container in container_list:
@@ -385,6 +397,8 @@ def plate_on_breadboard():
     plate7 = Plate(plate_id='plate7')
     plate7.add_container(container_list(tube_1500ul, plate7_tube_1500ul_coordinates))
     plate7.assign_container_id(plate_id=7)
+
+    module_logger.info('All plates in breadboard are created.')
 
     return plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7
 

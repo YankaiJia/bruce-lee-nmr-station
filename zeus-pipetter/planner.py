@@ -1,12 +1,12 @@
+import logging
+module_logger = logging.getLogger('main.planner')
 import time
+from datetime import datetime
 import copy
 import math
 import re
-from typing import Dict, Any, List
-
 import pandas as pd
 from pprint import pprint
-
 import breadboard as brb
 
 source_substance_containers: list = []
@@ -20,9 +20,11 @@ class EventInterpreter:
                  is_for_bio=False
                  ):
         self.dataframe_filename = dataframe_filename
+        self.logger = logging.getLogger('main.planner.EventInterpreter')
+        self.logger.info(f'Interpretating dataframe_filename from {self.dataframe_filename}')
+
         self.sheet_name = sheet_name
         self.usecols = usecols
-        print(f'dataframe_filename: {self.dataframe_filename}')
         self.reaction_df = pd.read_excel(io = self.dataframe_filename,
                                          sheet_name=self.sheet_name,
                                          usecols=self.usecols)
@@ -89,9 +91,8 @@ class EventInterpreter:
                     self.pd_output = pd.concat([self.pd_output, pd.DataFrame(_dict, index=[event_id])],
                                                ignore_index=True)
 
-
 # add substance to containers
-def add_one_substance_to_stock_containers(line_str: str) -> dict[Any, dict[str, int]]:
+def add_one_substance_to_stock_containers(line_str: str):
     """
     line example: DMF plate_4_container_2 20ml
     """
@@ -110,14 +111,12 @@ def add_one_substance_to_stock_containers(line_str: str) -> dict[Any, dict[str, 
                                                         substance_density = substance_density)
 
     # return exp {'DMF': {'plate_id': 4, 'container_id': 2}}
-    print(f'One substance added: {substance_name}:: "plate_id": {plate_id}, "container_id": {container_id}')
+    module_logger.info(f'Substance: {substance_name:<8} is added to: plate_id_{plate_id}_container_{container_id}')
     substance_container = {substance_name: {'plate_id': plate_id, 'container_id': container_id}}
 
     return substance_container
 
-
-def add_all_substance_to_stock_containers(txt_path: str ) -> list[
-    dict[Any, dict[str, int]]]:
+def add_all_substance_to_stock_containers(txt_path: str ):
     source_substance_containers = []
     with open(txt_path) as file:
         lines_without_header = file.readlines()[1:]
@@ -126,16 +125,6 @@ def add_all_substance_to_stock_containers(txt_path: str ) -> list[
             one_substance = add_one_substance_to_stock_containers(this_line)
             source_substance_containers.append(one_substance)
     return source_substance_containers
-
-
-# load container geometry parameters
-# def setContainerGeometryparameters(containers=None):
-#     if containers is None:
-#         containers = brb.containers
-#     for container in containers:
-#         zm.setContainerGeometryParameters(container)
-#         time.sleep(2)
-#         print(f"Zeus loaded: {container.name}")
 
 def volume_update(transfer_volume: int, source_container: object, destination_container: object):
     # print(f'source_container: {source_container}')
@@ -150,7 +139,6 @@ def volume_update(transfer_volume: int, source_container: object, destination_co
     # print(f'destination_container.liquid_volume: {destination_container.liquid_volume}')
 
     # print("Volume updated for containers!")
-
 
 class TransferEventConstructor:
 
@@ -308,7 +296,6 @@ class TransferEventConstructor:
             print('Container shape is not defined!')
         return round(container.bottomPosition - liquid_height)
 
-
 def interprete_events_from_excel_to_dataframe(dataframe_filename, sheet_name, usecols):
     reaction = EventInterpreter(dataframe_filename=dataframe_filename,
                                 sheet_name = sheet_name,
@@ -316,12 +303,11 @@ def interprete_events_from_excel_to_dataframe(dataframe_filename, sheet_name, us
                                 is_for_bio= False)
     reaction.creat_events()
     event_dataframe = reaction.pd_output
+    module_logger.info(f'event_dataframe is generated with {len(event_dataframe.index)} events.')
+    event_dataframe.to_json(f'event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json', orient='records', lines=True)
+    module_logger.info(f'event_dataframe is saved as event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json')
 
-    event_dataframe.to_json('multicomponent_reaction_input\\event_dataframe.json', orient='records', lines=True)
-    df_read = pd.read_json('multicomponent_reaction_input\\event_dataframe.json', lines=True)
-
-    return df_read
-
+    return event_dataframe
 
 def generate_event_list(event_dataframe, pipeting_to_balance = False):
     event_list = []
@@ -337,40 +323,78 @@ def generate_event_list(event_dataframe, pipeting_to_balance = False):
         # pprint(vars(event))
         event_list.append(copy.deepcopy(event))
 
-    # logging.info(f'Event_list is generated with {len(event_list)} events.')
+    module_logger.info(f'Event_list is generated with {len(event_list)} events.')
 
     return event_list
 
-
-if __name__ == '__main__':
-
-    import zeus
-    import gantry
-
-    # zm = zeus.ZeusModule(id=1)
-    # gt = gantry.Gantry(zeus=zm)
+def generate_event_object(pln, logger, txt_path_for_substance, excel_to_generate_dataframe, sheet_name, usecols,
+                          is_pipeting_to_balance=False):
+    '''This function is used to generate events for pipetting of substances.'''
 
     # load containers for source substances
-    source_substance_containers = \
-        add_all_substance_to_stock_containers(txt_path=
-                                                  'protein_screen/20230221_reaction_settings.txt')
-    print("all substances are loaded to the corresponding containers.")
+    pln.source_substance_containers = pln.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
+    logger.info("All substances are loaded to the corresponding containers.")
 
-    # generate event dataframes
-    # event_dataframe = \
-    #     pln.interprete_events_from_excel_to_dataframe(dataframe_filename =
-    #                                                   'multicomponent_reaction_input\\'
-    #                                                   'composition_input_20230110RF029_adj.xlsx',
-    #                                                   sheet_name = '80MUAa',
-    #                                                   usecols = 'C:O')
+    # generate event dataframes from excel
     event_dataframe = \
-        interprete_events_from_excel_to_dataframe(dataframe_filename='protein_screen/20230221_robot_protein.xlsx',
-                                                  sheet_name='80MUAa',
-                                                  usecols='C:O')
-    print("all events are generated to dataframes from excel.")
+        pln.interprete_events_from_excel_to_dataframe(dataframe_filename=excel_to_generate_dataframe,
+                                                      sheet_name=sheet_name,
+                                                      usecols=usecols)
+    logger.info(f"All events are generated to dataframes from excel here: {excel_to_generate_dataframe}")
 
     # generate event list
-    event_list = generate_event_list(event_dataframe=event_dataframe)
-    print("all event objects are generated from dataframes.")
+    event_list = pln.generate_event_list(event_dataframe= event_dataframe,
+                                         pipeting_to_balance= is_pipeting_to_balance)
+    logger.info("All event objects are generated from dataframes.")
 
+    return event_dataframe, event_list
 
+def do_calibration_on_events(zm,pt,calibration_event_list,logger):
+    '''This function is used to calibrate the pipetting of substances.'''
+    results_for_calibration = []
+    if zm.tip_on_zeus:
+        pt.discard_tip()
+    starting_index = 32
+    ending_index = len(calibration_event_list)
+    # ending_index = 3
+    for event_index in range(starting_index, ending_index):
+        if zm.tip_on_zeus != calibration_event_list[event_index].tip_type:
+            pt.change_tip(calibration_event_list[event_index].tip_type)
+            logger.info(f'The tip is changed to : {calibration_event_list[event_index].tip_type}')
+
+        result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index], n_times=10)
+        results_for_calibration.append(result)
+
+        time.sleep(1)
+        logger.info(f"Performed one measurement: {calibration_event_list[event_index].event_label}")
+        logger.info(f'Result: {result}')
+        # check tip type and change the tip if needed
+        if event_index != len(calibration_event_list) - 1:  # check if this is the last event.
+            if calibration_event_list[event_index].substance_name != calibration_event_list[event_index + 1].substance_name:
+                pt.discard_tip()
+        time.sleep(0.5)
+    pt.discard_tip()
+    return results_for_calibration
+
+def run_events_bio(zm, pt, logger, event_list):
+    if zm.tip_on_zeus:
+        pt.discard_tip()
+
+    starting_index = 0
+    ending_index = len(event_list)
+    for event_index in range(starting_index, ending_index):
+        if zm.tip_on_zeus != event_list[event_index].tip_type:
+            pt.change_tip(event_list[event_index].tip_type)
+            logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
+
+        pt.transfer_liquid(event_list[event_index])
+
+        time.sleep(0.5)
+        logger.info(f"Performed one event: {event_list[event_index].event_label}")
+
+        # check tip type and change tip if needed
+        if event_index != len(event_list) - 1:  # check if this is the last event.
+            if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
+                pt.change_tip(event_list[event_index + 1].tip_type)
+        time.sleep(0.5)
+    pt.discard_tip()

@@ -1,14 +1,14 @@
-substance, container, volume, solvent
-PBS plate_4_container0 20ml water_empty
-DMEM plate_4_container1 20ml water_empty
-BSA_32uM plate_7_container0 1.5ml water_empty
-BSA_16uM plate_7_container1  1.5ml water_empty
-BSA_8uM plate_7_container2  1.5ml water_empty
-BSA_4uM plate_7_container3  1.5ml water_empty
-BSA_2uM plate_7_container4  1.5ml water_empty
-LZ_32uM plate_7_container5  1.5ml water_empty
-LZ_16uM plate_7_container6  1.5ml water_empty
-LZ_8uM plate_7_container7  1.5ml water_empty
-LZ_4uM plate_7_container8  1.5ml water_empty
-LZ_2uM plate_7_container9  1.5ml water_empty
-NPs plate_7_container10  1.5ml water_empty
+substance, container, volume, solvent, density
+PBS plate_4_container0 20ml water_empty 1.0
+DMEM plate_4_container1 20ml water_empty 1.0
+BSA_32uM plate_7_container0 1.5ml water_empty 1.0
+BSA_16uM plate_7_container1  1.5ml water_empty 1.0
+BSA_8uM plate_7_container2  1.5ml water_empty 1.0
+BSA_4uM plate_7_container3  1.5ml water_empty 1.0
+BSA_2uM plate_7_container4  1.5ml water_empty 1.0
+LZ_32uM plate_7_container5  1.5ml water_empty 1.0
+LZ_16uM plate_7_container6  1.5ml water_empty 1.0
+LZ_8uM plate_7_container7  1.5ml water_empty 1.0
+LZ_4uM plate_7_container8  1.5ml water_empty 1.0
+LZ_2uM plate_7_container9  1.5ml water_empty 1.0
+NPs plate_7_container10  1.5ml water_empty 1.0

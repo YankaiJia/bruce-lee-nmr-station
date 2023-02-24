@@ -10,10 +10,7 @@ import time
 
 import serial
 import logging
-pipetter_logger = logging.getLogger('pipetter_module')
-
-
-
+pipetter_logger = logging.getLogger('main.pipetter')
 
 
 class Pipetter():
@@ -27,7 +24,7 @@ class Pipetter():
                                      parity=serial.PARITY_NONE,
                                      timeout=0.2)
 
-        self.logger = logging.getLogger('pipetter.Pipetter')
+        self.logger = logging.getLogger('main.pipetter.Pipetter')
         self.logger.info('creating an instance of Pepetter')
 
     def pick_tip(self, tip_type: str):
@@ -162,6 +159,9 @@ class Pipetter():
             _split_event_2.dispensingVolume = volume_of_last_pipetting
             self.draw_liquid(_split_event_2)
             self.dispense_liquid(_split_event_2)
+
+        self.logger.info(f'Aspiration volume: {transfer_event.aspirationVolume}ul '
+                         f'Dispensing volume: {transfer_event.dispensingVolume}ul')
 
     def send_command_to_balance(self, command, read_all=True, verbose=False):
 
