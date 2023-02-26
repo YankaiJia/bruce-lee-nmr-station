@@ -327,23 +327,23 @@ def generate_event_list(event_dataframe, pipeting_to_balance = False):
 
     return event_list
 
-def generate_event_object(pln, logger, txt_path_for_substance, excel_to_generate_dataframe, sheet_name, usecols,
+def generate_event_object( logger, txt_path_for_substance, excel_to_generate_dataframe, sheet_name, usecols,
                           is_pipeting_to_balance=False):
     '''This function is used to generate events for pipetting of substances.'''
 
     # load containers for source substances
-    pln.source_substance_containers = pln.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
+    source_substance_containers = add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
     logger.info("All substances are loaded to the corresponding containers.")
 
     # generate event dataframes from excel
     event_dataframe = \
-        pln.interprete_events_from_excel_to_dataframe(dataframe_filename=excel_to_generate_dataframe,
+        interprete_events_from_excel_to_dataframe(dataframe_filename=excel_to_generate_dataframe,
                                                       sheet_name=sheet_name,
                                                       usecols=usecols)
     logger.info(f"All events are generated to dataframes from excel here: {excel_to_generate_dataframe}")
 
     # generate event list
-    event_list = pln.generate_event_list(event_dataframe= event_dataframe,
+    event_list = generate_event_list(event_dataframe= event_dataframe,
                                          pipeting_to_balance= is_pipeting_to_balance)
     logger.info("All event objects are generated from dataframes.")
 
@@ -380,7 +380,7 @@ def run_events_bio(zm, pt, logger, event_list):
     if zm.tip_on_zeus:
         pt.discard_tip()
 
-    starting_index = 0
+    starting_index = 53
     ending_index = len(event_list)
     for event_index in range(starting_index, ending_index):
         if zm.tip_on_zeus != event_list[event_index].tip_type:

@@ -1,4 +1,5 @@
 import logging
+
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
@@ -20,7 +21,7 @@ class CustomFormatter(logging.Formatter):
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
-# create logger with 'spam_application'
+# create logger with 'main'
 logger = logging.getLogger('main')
 logger.setLevel(logging.DEBUG)
 # create file handler which logs even debug messages
@@ -62,13 +63,14 @@ pt = pipetter.Pipetter(zeus=zm, gantry=gt)
 time.sleep(2)
 logger.info("pipetter is loaded as: pt")
 
+
 def do_calibration():
     calibration_event_dataframe, calibration_event_list = \
-        pln.generate_event_object(pln=pln, logger=logger,
+        pln.generate_event_object(logger=logger,
                                   txt_path_for_substance='calibration_for_pipetting/pipetting_calibration_settings.txt',
                                   excel_to_generate_dataframe='calibration_for_pipetting/pipetting_calibration_substances.xlsx',
                                   sheet_name='80MUAa', usecols='B:F',
-                                  is_pipeting_to_balance = True)
+                                  is_pipeting_to_balance=True)
 
     weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
                                                    calibration_event_list=calibration_event_list)
@@ -78,7 +80,7 @@ def do_calibration():
 
 def do_reaction_bio():
     event_dataframe, event_list = \
-        pln.generate_event_object(pln = pln, logger = logger,
+        pln.generate_event_object(logger=logger,
                                   txt_path_for_substance='protein_screen/20230221_reaction_settings.txt',
                                   excel_to_generate_dataframe='protein_screen/20230221_robot_protein.xlsx',
                                   sheet_name='80MUAa', usecols='C:O',
@@ -86,4 +88,13 @@ def do_reaction_bio():
     pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list)
     return event_list
 
-event_list = do_reaction_bio()
+# event_list = do_reaction_bio()
+
+
+def cloud_logging_test():
+    i = 0
+    while True:
+        logger.info(f"{i * 10} minutes passed")
+        i += 1
+        time.sleep(10)
+

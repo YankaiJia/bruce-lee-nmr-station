@@ -17,14 +17,13 @@ import pprint
 
 DEBUG = 0
 INFO = 0
-WARNING = 0
-ERROR = 0
+WARNING = 1
+ERROR = 1
 # KICK_MASK = 0x0400
 KICK_MASK = 0b10000000000
 SENDER_ID_MASK = 0x03E0
 RECEIVER_ID_MASK = 0x001F
 EOM_MASK = 0b10000000
-
 
 # # NOTE TO SELF:
 # # this is how the respective can.Message code was modified for all this to work:
@@ -190,7 +189,7 @@ class ZeusLiquidClass:
     Yankai Jia 2023/01/23
     """
 
-    def __init__(self, zm=None):
+    def __init__(self, zm):
 
         with open('data/liquid_class_table_para_ALL.json') as json_file:
             liquid_class_table_para = json.load(json_file)
@@ -204,13 +203,9 @@ class ZeusLiquidClass:
     def extract_liquid_class_parameter(self, liquid_index, id='0001'):
         cmd = 'GMid' + id + 'lq' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
-        self.zm.sendCommand(
-            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
-        # print(zm.r.received_msg)
-        temp = self.zm.r.received_msg
-        print(temp)
-        time.sleep(1)
         self.zm.sendCommand(cmd)
+        time.sleep(1)# This delay is IMPORTANT. Without this delay, the msg will return the previous data.
+                        # This value should be larger than 0.1s.
         msg_received_from_Zeus = self.zm.r.received_msg
         print(f'msg_received_from_Zeus len is : {len(msg_received_from_Zeus)}')
         return msg_received_from_Zeus
@@ -219,13 +214,9 @@ class ZeusLiquidClass:
 
         cmd = 'GEid' + id + 'gg' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
-        self.zm.sendCommand(
-            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
-        # print(zm.r.received_msg)
-        temp = self.zm.r.received_msg
-        print(temp)
-        time.sleep(1)
         self.zm.sendCommand(cmd)
+        time.sleep(0.5) # This delay is IMPORTANT. Without this delay, the msg will return the previous data.
+                        # This value should be larger than 0.1s.
         msg_received_from_Zeus = self.zm.r.received_msg
         print(f'msg_received_from_Zeus for calibration_aspiration is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
@@ -233,13 +224,8 @@ class ZeusLiquidClass:
     def extract_calibration_dispensing(self, liquid_index, id='0001'):
         cmd = 'GIid' + id + 'gh' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
-        self.zm.sendCommand(
-            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
-        # print(zm.r.received_msg)
-        temp = self.zm.r.received_msg
-        print(temp)
-        time.sleep(1)
         self.zm.sendCommand(cmd)
+        time.sleep(0.5)
         msg_received_from_Zeus = self.zm.r.received_msg
         print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
@@ -247,13 +233,8 @@ class ZeusLiquidClass:
     def extract_qpm_aspiration(self, liquid_index, id='0001'):
         cmd = 'GSid' + id + 'gv' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
-        self.zm.sendCommand(
-            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
-        # print(zm.r.received_msg)
-        temp = self.zm.r.received_msg
-        print(temp)
-        time.sleep(1)
         self.zm.sendCommand(cmd)
+        time.sleep(0.5)
         msg_received_from_Zeus = self.zm.r.received_msg
         print(f'msg_received_from_Zeus for qpm_aspiration is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
@@ -261,13 +242,8 @@ class ZeusLiquidClass:
     def extract_qpm_dispensing(self, liquid_index, id='0001'):
         cmd = 'GWid' + id + 'gp' + str(liquid_index).zfill(2)
         print(f'cmd send is : {cmd}')
-        self.zm.sendCommand(
-            cmd)  # Here i send cmd twice because the msg buffer save the prvious data. this is dumb, but it works
-        # print(zm.r.received_msg)
-        temp = self.zm.r.received_msg
-        print(temp)
-        time.sleep(1)
         self.zm.sendCommand(cmd)
+        time.sleep(1)
         msg_received_from_Zeus = self.zm.r.received_msg
         print(f'msg_received_from_Zeus for qpm_dispensing is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
@@ -435,24 +411,6 @@ class ZeusLiquidClass:
     # request_parameters_from_zeus(liquid_index = 23)
 
     # request_parameters_from_zeus(liquid_index = 22)
-
-    ## the following code is for easy of typing in python console. Use with care.
-    def wr(self, liquid_index):
-        self.set_liquid_class_to_zeus(liquid_index=liquid_index)
-
-    def re(self, liquid_index):
-        self.request_parameters_from_zeus(liquid_index=liquid_index)
-
-    def set(self):
-        self.copy_para_from_to(index_from=2, index_to=21)
-        self.copy_para_from_to(index_from=1, index_to=22)
-        self.copy_para_from_to(index_from=0, index_to=23)
-        for i in range(21, 24):
-            self.wr(str(i))
-            time.sleep(0.5)
-            self.re(str(i))
-            time.sleep(0.5)
-        print('Finished!')
 
 
 class remoteFrameListener(can.Listener):
@@ -856,7 +814,7 @@ class ZeusModule:
 
     def sendCommand(self, cmd):
         data = list(split_by_n(cmd, 7))
-        # print(f'YANKAI_note: sent split list is : {data}')
+        # print(f'The split list sent is : {data}')
         cmd_len = len(data)
         printMSG(
             "info", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
@@ -1042,8 +1000,6 @@ class ZeusModule:
         cmd = self.cmdHeader('RT')
         self.sendCommand(cmd)
         time.sleep(0.3)
-        self.sendCommand(cmd)
-        time.sleep(0.3)
         if 'rt1' in self.r.received_msg:
             return True
         else:
@@ -1152,8 +1108,8 @@ class ZeusModule:
         cmd = self.cmdHeader('GB')
         cmd = cmd + 'ge' + str(index).zfill(2)
         self.sendCommand(cmd)
-        time.sleep(3)
-        paras = self.r.received_msg
+        # time.sleep(3)
+        # paras = self.r.received_msg
         time.sleep(3)
         paras = self.r.received_msg
 
@@ -1245,19 +1201,21 @@ class ZeusModule:
 
         defaultError = "Unknown error code returned."
         if cmd == 'DI':
-            if ec in set(['00', '30', '35', '36', '40', '50', '52']):
+            if ec in {'00', '30', '35', '36', '40', '50', '52'}:
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'ZI':
-            if ec in set(['00', '30', '35', '36', '40', '60', '62']):
+            if ec in {'00', '30', '35', '36', '40', '60', '62'}:
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GZ':
             if ec in set(['00', '31', '32', '35', '36', '40', '61', '62', '64']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1265,6 +1223,7 @@ class ZeusModule:
         elif cmd == 'GT':
             if ec in set(['00', '31', '32', '35', '36', '40', '51', '52', '61',
                           '62', '65', '75', '76']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1272,6 +1231,7 @@ class ZeusModule:
         elif cmd == 'GU':
             if ec in set(['00', '30', '31', '32', '35', '36', '40', '51', '52',
                           '61', '62', '65', '69', '75', '77']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1281,6 +1241,8 @@ class ZeusModule:
                           '52', '53', '54', '55', '56', '57', '61', '62', '65',
                           '66', '67', '68', '70', '71', '72', '74', '75', '80',
                           '81', '82', '85']):
+                self.logger.error(self.errorTable[ec])
+
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1289,6 +1251,7 @@ class ZeusModule:
             if ec in set(['00', '30', '31', '32', '35', '36', '38', '40', '51',
                           '52', '54', '55', '57', '61', '62', '63', '65', '66',
                           '67', '68', '70', '72', '74', '75', '83', '84', '85']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1297,112 +1260,131 @@ class ZeusModule:
             if ec in set(['00', '30', '31', '32', '35', '36', '38', '40', '51',
                           '52', '56', '57', '61', '62', '65', '66', '67', '68',
                           '70', '72', '74', '85']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'AB':
             if ec in set(['00', '30']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
         elif cmd == 'AW':
             if ec in set(['00', '30']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
         elif cmd == 'XA':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GK':
             if ec in set(['00', '30', '31', '32', '35', '51', '52', '54']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GC':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GO':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GB':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GR':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GL':
             if ec in set(['00', '20', '30', '31', '32', '39']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GM':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GQ':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GS':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GV':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GW':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GG':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GE':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GH':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GI':
             if ec in set(['00', '20', '30', '31', '32']):
+                self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1459,6 +1441,7 @@ class ZeusModule:
             # time.sleep(0.6)
             if self.zeus_had_error(self.r.received_msg):
                 print('Zeus responded with error message. Aborting all operations.')
+                self.logger.error('Zeus responded with error message. Aborting all operations.')
                 time.sleep(1)
                 self.move_z(ZeusModule.ZeusTraversePosition)
                 raise ZeusError
@@ -1473,6 +1456,7 @@ class ZeusModule:
                 # print(f'Competion response received after {i} attempts.')
                 return True
         print(f'Response not received after {n_retries} retries. This is dangerous, so we do emergency stop')
+        self.logger.error(f'Response not received after {n_retries} retries. This is dangerous, so we do emergency stop')
         raise Exception
         return False
 
@@ -1507,6 +1491,7 @@ if __name__ == '__main__':
 
     # load container parameters
     zm = ZeusModule(id = 1)
+    lc = ZeusLiquidClass(zm = zm)
     # zm.setContainerGeometryParameters(brb.vial_2ml)
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.well_bio)

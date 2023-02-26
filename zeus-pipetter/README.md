@@ -1,5 +1,7 @@
 # An automatic liquid transfer system by mounting a Zeus pipetter onto a XY gantry
 
+![Benjamin Bannekat]()
+
 ## Introduction ##
 This project is a  liquid transfer system that uses a Zeus pipetter and a XY 
 gantry to transfer liquid between specified containers.

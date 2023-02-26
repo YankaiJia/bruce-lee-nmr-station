@@ -1,3 +1,8 @@
+"""
+This code will read the last n lines of the main.log file and
+send it to the telegram bot when the bot is requested with the '/s' command.
+"""
+
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
