@@ -1,4 +1,4 @@
-# An automatic liquid transfer system by mounting a Zeus pipetter onto a XY gantry
+# An automatic liquid transfer system
 
 <img src="https://github.com/yaroslavsobolev/roborea/blob/robot_OOP_version_Yankai/zeus-pipetter/robot-joypixels.gif"  width="20%" height="20%">
 
