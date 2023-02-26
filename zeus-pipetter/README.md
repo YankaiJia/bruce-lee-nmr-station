@@ -1,7 +1,37 @@
-# Python implementation of serial interface commands to Hamilton Zeus pipettes. 
+# An automatic liquid transfer system by mounting a Zeus pipetter onto a XY gantry
 
-Manuals (PDFs):
+![A joyful bot](https://github.com/yaroslavsobolev/roborea/blob/robot_OOP_version_Yankai/zeus-pipetter/robot-joypixels.gif)
 
-[ZEUS Integrator manual](https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1_fZg-m8K_RFNviG_DikMRCbcxh2LwN2e%2Fview%3Fusp%3Ddrive_web&data=05%7C01%7C%7Caa0f77e167f7428a469d08dab55a364b%7C84df9e7fe9f640afb435aaaaaaaaaaaa%7C1%7C0%7C638021696732790977%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=xjpmvbFLTKLuhWtVHRUbeJFlG8xsrgXDrcRfD55AnQw%3D&reserved=0)
+## Introduction ##
+This project is a  liquid transfer system that uses a Zeus pipetter and a XY 
+gantry to transfer liquid between specified containers.
 
-[ZEUS LT Integrator manual](https://nam12.safelinks.protection.outlook.com/?url=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1gYwPEGmB4QBVx5qpZhMgzCGf6_iFEIR4%2Fview%3Fusp%3Ddrive_web&data=05%7C01%7C%7Caa0f77e167f7428a469d08dab55a364b%7C84df9e7fe9f640afb435aaaaaaaaaaaa%7C1%7C0%7C638021696732790977%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=PugAIrrcy%2Bqb418n7jIb%2F8%2FLLLY%2FOj6IF1zanbF3r%2Fs%3D&reserved=0)
+## Modules explanation ##
+
+#### Zeus.py ####
+Communication between the Zeus and the computer is done through a CAN bus. This module includes
+Zeus initialization, CAN bus initialization, and class to change the liquid class parameters.
+
+#### gantry.py ####  
+The XY gantry is placed on a breadboard. The gantry is controlled by an Arduino running GRBL firmware.
+The gantry is controlled by sending G-code commands to the Arduino. The Zeus is mounted on the gantry.
+
+#### breadboard.py #### 
+objects on the breadboard:
+* **plates**, inside which there are different containers including vials (2mL), 
+wells (200 uL), tubes (1.5 mL), bottles (20 mL) and jars (100 mL).
+* **racks** for tips
+* **balance**
+* **trash bin**
+
+#### pipetter.py #### 
+Combination of Zeus and the gantry. 
+
+#### planner.py #### 
+The planner is responsible for planning the liquid transfer. It takes an excel file as input and generates 
+dataframes for each transfer. The transfer events are then interpreted to objects. Later, the objects are sent to 
+pipetter.py to execute the transfer.
+
+#### main.py ####
+The main program controls the whole system. 
+
