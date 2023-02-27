@@ -41,20 +41,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=last_lines)
 
-async def inline_caps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.inline_query.query
-    if not query:
-        return
-    results = []
-    results.append(
-        InlineQueryResultArticle(
-            id=query.upper(),
-            title='Caps',
-            input_message_content=InputTextMessageContent(query.upper())
-        )
-    )
-    await context.bot.answer_inline_query(update.inline_query.id, results)
-
 if __name__ == '__main__':
     with open('token_DO_NOT_COMMIT.txt') as f:
         for line in f:
