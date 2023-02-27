@@ -3,7 +3,6 @@ from numpy import arange, pi, cos, sin
 from traits.api import HasTraits, Range, Instance, \
         on_trait_change
 from traitsui.api import View, Item, Group
-
 from mayavi.core.api import PipelineBase
 from mayavi.core.ui.api import MayaviScene, SceneEditor, \
                 MlabSceneModel
@@ -11,6 +10,10 @@ import pandas as pd
 from scipy.interpolate import Rbf
 import numpy as np
 import os
+
+def create_folder_unless_it_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 experiment_name = 'multicomp-reactions/2023-01-18-run01/'
@@ -103,7 +106,7 @@ def curve(n_mer):
 
 
 class MyModel(HasTraits):
-    pTSA_concentration_id    = Range(0, len(unique_cats)+1, 1, )#mode='spinner')
+    pTSA_concentration_id    = Range(0, len(unique_cats)-1, 1, )#mode='spinner')
 
     scene = Instance(MlabSceneModel, ())
     scene.background = (1, 1, 1)
@@ -132,7 +135,7 @@ class MyModel(HasTraits):
             self.scene.mlab.ylabel(f'{substances[1]}')
             self.scene.mlab.zlabel(f'{substances[2]}')
             self.scene.mlab.outline(self.plot)
-            self.texthere = self.scene.mlab.text3d(max_xs0/2, max_ys0/2, max_zs0*2, 'Catalyst %04.0f', scale=0.005)
+            self.texthere = self.scene.mlab.text3d(max_xs0*0.15, max_ys0*1.3, max_zs0/2, 'Catalyst', scale=0.005)
             # mlab.axes.label_text_property.font_size = 12
             self.vslice = self.scene.mlab.volume_slice(xnew, ynew, znew, wnew, plane_orientation='x_axes', opacity=0.5,
                                                        vmin=0, vmax=max_ks0)#, colormap='summer')
@@ -152,24 +155,11 @@ class MyModel(HasTraits):
             self.vslice.mlab_source.trait_set(x=xnew, y=ynew, z=znew, scalars=wnew)
             xs, ys, zs, ks = the_points
             self.plot_points.mlab_source.trait_set(x=xs, y=ys, z=zs, scalars=ks)
-            self.texthere.text = f'{self.pTSA_concentration_id}'
+            self.texthere.text = f'Catalyst (pTSA) {unique_cats[self.pTSA_concentration_id]:.3f} mol/L'
             self.texthere.vector_text.update()
+            create_folder_unless_it_exists(data_folder + experiment_name + f'results/4d-viewer-frames')
+            self.scene.mlab.savefig(data_folder + experiment_name + f'results/4d-viewer-frames/{self.pTSA_concentration_id:05d}.png')
 
-            # self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew, contours=6, opacity=0.5, vmin=0, vmax=0.000160386113793563,
-            #                       colormap='summer')
-            #
-            # # 7.95508836282453e-05
-            # # 0.000160386113793563
-            # # 0.00012190439571993896
-            #
-            # # cont.actor.actor.scale = (0.35, 0.35, 0.35)
-            # ax1 = self.scene.mlab.axes(color=(1, 1, 1), nb_labels=4)
-            # self.scene.mlab.xlabel(f'{substances[1]}')
-            # self.scene.mlab.ylabel(f'{substances[2]}')
-            # self.scene.mlab.zlabel(f'{substances[3]}')
-            # self.scene.mlab.outline(self.plot)
-            # # mlab.axes.label_text_property.font_size = 12
-            # ax1.axes.font_factor = 0.83
 
 
     # The layout of the dialog created
