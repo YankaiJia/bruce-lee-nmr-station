@@ -1,8 +1,7 @@
-# An automatic liquid transfer system
+# An automatic liquid transfer system by mounting a Zeus pipetter onto a XY gantry
 
-<img src="https://github.com/yaroslavsobolev/roborea/blob/robot_OOP_version_Yankai/zeus-pipetter/robot-joypixels.gif"  width="20%" height="20%">
-
-
+![A joyful bot](https://github.com/yaroslavsobolev/roborea/blob/robot_OOP_version_Yankai/zeus-pipetter/robot-joypixels.gif)
+<img src="https://github.com/yaroslavsobolev/roborea/blob/robot_OOP_version_Yankai/zeus-pipetter/robot-joypixels.gif"  width="60%" height="30%">
 ## Introduction ##
 This project is a  liquid transfer system that uses a Zeus pipetter and a XY 
 gantry to transfer liquid between specified containers.
