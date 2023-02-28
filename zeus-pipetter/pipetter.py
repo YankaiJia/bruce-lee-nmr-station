@@ -10,6 +10,7 @@ import time
 
 import serial
 import logging
+
 pipetter_logger = logging.getLogger('main.pipetter')
 
 
@@ -39,8 +40,9 @@ class Pipetter():
         for item in tip_rack[tip_type]['wells']:
             if item['exists']:
                 # pick up tip
-                self.gantry.move_xy(item['xy'], ensure_traverse_height= True)
-                self.zeus.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'], deckGeometryTableIndex=item['deckGeometryTableIndex'])
+                self.gantry.move_xy(item['xy'], ensure_traverse_height=True)
+                self.zeus.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'],
+                                    deckGeometryTableIndex=item['deckGeometryTableIndex'])
                 self.zeus.wait_until_zeus_responds_with_string('GTid')
                 tip_is_picked = self.zeus.getTipPresenceStatus()
                 if tip_is_picked:
@@ -82,16 +84,16 @@ class Pipetter():
             try:
                 # print(f'Aspiration volume: {int(round(transfer_event.aspirationVolume * 10))}')
                 self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)),
-                              containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
-                              deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
-                              liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
-                              qpm=transfer_event.asp_qpm,
-                              lld=transfer_event.asp_lld,
-                              lldSearchPosition=transfer_event.asp_lldSearchPosition,
-                              liquidSurface=transfer_event.asp_liquidSurface,
-                              mixVolume=transfer_event.asp_mixVolume,
-                              mixFlowRate=transfer_event.asp_mixFlowRate,
-                              mixCycles=transfer_event.asp_mixCycles)
+                                     containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
+                                     deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
+                                     liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
+                                     qpm=transfer_event.asp_qpm,
+                                     lld=transfer_event.asp_lld,
+                                     lldSearchPosition=transfer_event.asp_lldSearchPosition,
+                                     liquidSurface=transfer_event.asp_liquidSurface,
+                                     mixVolume=transfer_event.asp_mixVolume,
+                                     mixFlowRate=transfer_event.asp_mixFlowRate,
+                                     mixCycles=transfer_event.asp_mixCycles)
                 time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True
@@ -120,16 +122,16 @@ class Pipetter():
         #     return
 
         self.zeus.dispensing(dispensingVolume=int(round(transfer_event.dispensingVolume * 10)),
-                      containerGeometryTableIndex=transfer_event.disp_containerGeometryTableIndex,
-                      deckGeometryTableIndex=transfer_event.disp_deckGeometryTableIndex,
-                      liquidClassTableIndex=transfer_event.disp_liquidClassTableIndex,
-                      lld=transfer_event.disp_lld,
-                      lldSearchPosition=transfer_event.disp_lldSearchPosition,
-                      liquidSurface=transfer_event.disp_liquidSurface,
-                      searchBottomMode=transfer_event.searchBottomMode,
-                      mixVolume=transfer_event.disp_mixVolume,
-                      mixFlowRate=transfer_event.disp_mixVolume,
-                      mixCycles=transfer_event.disp_mixCycles)
+                             containerGeometryTableIndex=transfer_event.disp_containerGeometryTableIndex,
+                             deckGeometryTableIndex=transfer_event.disp_deckGeometryTableIndex,
+                             liquidClassTableIndex=transfer_event.disp_liquidClassTableIndex,
+                             lld=transfer_event.disp_lld,
+                             lldSearchPosition=transfer_event.disp_lldSearchPosition,
+                             liquidSurface=transfer_event.disp_liquidSurface,
+                             searchBottomMode=transfer_event.searchBottomMode,
+                             mixVolume=transfer_event.disp_mixVolume,
+                             mixFlowRate=transfer_event.disp_mixVolume,
+                             mixCycles=transfer_event.disp_mixCycles)
 
         time.sleep(1.5)
         # wait_until_zeus_reaches_traverse_height()
@@ -187,21 +189,27 @@ class Pipetter():
                 if taring_complete:
                     break
 
-    def balance_zero(self, verbose = False):
+    def balance_zero(self, verbose=True):
         self.balance.write(str.encode('Z\n'))
         zeroing_complete = False
+        time_stamp = time.time()
         while True:
             line = self.balance.readline()
             if b'Z' in line:
                 zeroing_complete = True
             if verbose:
-                pass
-                # print(f'Tare in progress. Response from balance. {line}')
+                print(f'Tare in progress. Response from balance. {line}')
+                # pass
             if line == b'':
                 if zeroing_complete:
                     break
+            if time.time() - time_stamp > 10:
+                self.logger.error(f'Balance zeroing took more than 10 seconds. Aborting.')
+                zeroing_complete = False
+                break
+        return zeroing_complete
 
-    def balance_value(self, read_all=True, verbose= False):
+    def balance_value(self, read_all=True, verbose=False):
         value = 0
         self.balance.write(str.encode('SI\n'))
         measurement_successful = False
@@ -239,15 +247,20 @@ class Pipetter():
     def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5) -> tuple[float, float]:
         global xy_position
         global weighted_values
+        # print(f'xy_position: {xy_position}')
+        # print(f'weighted_values: {weighted_values}')
         # if xy_position[0] < -80:
         #     move_xy((-80, -195))
         self.close_balance_door()
+        print('Waiting for balance to settle...')
         time.sleep(timedelay)
         # balance_tare()
-        self.balance_zero(verbose=False)
+        # self.balance_zero(verbose=False)
+        # print('Balance zeroed.')
         weight_before = self.balance_value()
         print(f'weight_before: {weight_before} g')
         self.open_balance_door()
+        print('Waiting for liquid transfer...')
         self.transfer_liquid(transfer_event=transfer_event)
         time.sleep(0.5)
         self.gantry.move_to_idle()
@@ -256,19 +269,22 @@ class Pipetter():
         weight_after = self.balance_value()
         print(f'weight_after: {weight_after} g')
 
-        pipetting_weight = round((weight_after- weight_before) *1000, 6) # mg
+        pipetting_weight = round((weight_after - weight_before) * 1000, 6)  # mg
         pipetting_volume = pipetting_weight / transfer_event.source_container.substance_density
         self.logger.info(f'Weight of aliquot: {pipetting_weight} mg')
         self.logger.info(f'Volume of aliquot: {pipetting_volume} ul')
         return pipetting_weight, pipetting_volume
 
-    def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times = 3):
+    def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times=3):
+        print(f'this is transfer_event: {transfer_event}')
         dict_for_one_event = {}
         dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul'] = \
-            {'weight':[], 'volume':[], 'liquid_class_index':[], 'tip_type': []}
+            {'weight': [], 'volume': [], 'liquid_class_index': [], 'tip_type': []}
         temp_dict = dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul']
         for i in range(n_times):
-            weight, volume =self.pipetting_to_balance_and_weight(transfer_event=transfer_event)
+            print(f'this is n_times: {i}')
+            print(transfer_event.event_label)
+            weight, volume = self.pipetting_to_balance_and_weight(transfer_event=transfer_event)
             temp_dict['weight'].append(weight)
             temp_dict['volume'].append(volume)
             temp_dict['liquid_class_index'].append(transfer_event.asp_liquidClassTableIndex)
@@ -281,18 +297,20 @@ class Pipetter():
 class ZeusError(Exception):
     pass
 
+
 def main():
     import zeus
     import gantry
     import breadboard as brb
-    zm =  zeus.ZeusModule(id=1)
+    zm = zeus.ZeusModule(id=1)
     time.sleep(5)
-    gt = gantry.Gantry(zeus = zm)
+    gt = gantry.Gantry(zeus=zm)
     # gt.home_xy()
     time.sleep(5)
-    pt = Pipetter(zeus = zm, gantry = gt)
+    pt = Pipetter(zeus=zm, gantry=gt)
 
     return zm, gt, pt
+
 
 if __name__ == '__main__':
     zm, gt, pt = main()

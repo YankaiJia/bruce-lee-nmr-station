@@ -1,3 +1,5 @@
+from datetime import datetime
+import json
 import logging
 
 class CustomFormatter(logging.Formatter):
@@ -39,6 +41,7 @@ logger.addHandler(fh)
 logger.addHandler(ch)
 
 import time
+import importlib
 import zeus
 import gantry
 import pipetter
@@ -63,38 +66,66 @@ pt = pipetter.Pipetter(zeus=zm, gantry=gt)
 time.sleep(2)
 logger.info("pipetter is loaded as: pt")
 
-
-def do_calibration():
-    calibration_event_dataframe, calibration_event_list = \
+# generate_calibration_event_list
+calibration_event_dataframe, calibration_event_list = \
         pln.generate_event_object(logger=logger,
-                                  txt_path_for_substance='calibration_for_pipetting/pipetting_calibration_settings.txt',
-                                  excel_to_generate_dataframe='calibration_for_pipetting/pipetting_calibration_substances.xlsx',
-                                  sheet_name='80MUAa', usecols='B:F',
+                                  txt_path_for_substance='calibration_for_pipetting/pipetting_calibration_settings_DMEM.txt',
+                                  excel_to_generate_dataframe='calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx',
+                                  sheet_name='80MUAa', usecols='B',
                                   is_pipeting_to_balance=True)
+time.sleep(2)
+def specify_tip_and_liquidClassIndex_for_calibration():
+    for event in calibration_event_list:
+        event.tip_type = '300ul'
+        event.asp_liquidClassTableIndex = 31
+        event.disp_liquidClassTableIndex = 31
 
-    weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-                                                   calibration_event_list=calibration_event_list)
-    return calibration_event_list, weighing_result
+# # do_calibration
+# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+#                                                    calibration_event_list=calibration_event_list)
 
-# calibration_event_list, weighing_result = do_calibration()
-
-def do_reaction_bio():
-    event_dataframe, event_list = \
-        pln.generate_event_object(logger=logger,
-                                  txt_path_for_substance='protein_screen/20230221_reaction_settings.txt',
-                                  excel_to_generate_dataframe='protein_screen/20230221_robot_protein.xlsx',
-                                  sheet_name='80MUAa', usecols='C:O',
-                                  is_pipeting_to_balance=False)
-    pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list)
-    return event_list
-
-# event_list = do_reaction_bio()
+# def do_reaction_bio():
+#     event_dataframe, event_list = \
+#         pln.generate_event_object(logger=logger,
+#                                   txt_path_for_substance='protein_screen/20230221_reaction_settings.txt',
+#                                   excel_to_generate_dataframe='protein_screen/20230221_robot_protein.xlsx',
+#                                   sheet_name='80MUAa', usecols='C:O',
+#                                   is_pipeting_to_balance=False)
+#     pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list)
+#     return event_list
+#
+# # event_list = do_reaction_bio()
 
 
-def cloud_logging_test():
-    i = 0
-    while True:
-        logger.info(f"{i * 10} minutes passed")
-        i += 1
-        time.sleep(10)
+event_dataframe_chem, event_list_chem = \
+    pln.generate_event_object(logger=logger,
+                              txt_path_for_substance='multicomponent_reaction_input\\reaction_settings.txt',
+                              excel_to_generate_dataframe='multicomponent_reaction_input\\'
+                                                          'composition_input_20230110RF029_adj.xlsx',
+                              sheet_name='reactions', usecols='A:E',
+                              is_pipeting_to_balance=False, is_for_bio=False)
 
+# pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list)
+
+
+
+
+
+
+# def cloud_logging_test():
+#     i = 0
+#     while True:
+#         logger.info(f"{i * 10} minutes passed")
+#         i += 1
+#         time.sleep(10)
+#
+# # with open(f'calibration_for_pipetting/weights_for_calibration_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
+# #           'w', encoding='utf-8') as f:
+# #     json.dump(weighing_result, f, ensure_ascii=False, indent=4)
+#
+# # avg = []
+# # for result in weighing_result:
+# #     for key, value in result.items():
+# #         avg.append(sum(value['weight'])/len(value['weight']))
+#
+#
