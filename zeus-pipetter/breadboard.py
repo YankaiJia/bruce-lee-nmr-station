@@ -320,7 +320,7 @@ plate6_jar_100ml_coordinates = [(-325, -189), (-388, -189)]
 
 # return a list of container(object) in one plate.
 # this function puts container geometry and container coordinate together for one specific plate
-def container_list(container_geom: object, container_coordinates: list[tuple]) -> list:
+def container_list(container_geom: object, container_coordinates) -> list:
     # input exp: vial_2ml, plate0_vial_2mL_coordinates
     container_list = []
     for container_index in range(len(container_coordinates)):

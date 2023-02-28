@@ -2846,3 +2846,43 @@
 2023-02-28 13:34:18,092 - main - INFO - All events are generated to dataframes from excel here: multicomponent_reaction_input\composition_input_20230110RF029_adj.xlsx
 2023-02-28 13:34:18,521 - main.planner - INFO - Event_list is generated with 2430 events.
 2023-02-28 13:34:18,521 - main - INFO - All event objects are generated from dataframes.
+2023-03-01 00:47:04,576 - main.planner - INFO - Substance: DMEM     is added to: plate_id_4_container_7
+2023-03-01 00:47:04,577 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-01 00:47:04,577 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx
+2023-03-01 00:47:05,547 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-01 00:47:05,548 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_01_00_47.json
+2023-03-01 00:47:05,548 - main - INFO - All events are generated to dataframes from excel here: calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx
+2023-03-01 00:47:05,550 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-01 00:47:05,550 - main - INFO - All event objects are generated from dataframes.
+2023-03-01 00:47:07,563 - main.planner - INFO - Substance: Isocyano is added to: plate_id_4_container_0
+2023-03-01 00:47:07,563 - main.planner - INFO - Substance: amine    is added to: plate_id_4_container_1
+2023-03-01 00:47:07,563 - main.planner - INFO - Substance: aldehyde is added to: plate_id_4_container_2
+2023-03-01 00:47:07,563 - main.planner - INFO - Substance: pTSA     is added to: plate_id_4_container_3
+2023-03-01 00:47:07,563 - main.planner - INFO - Substance: DMF      is added to: plate_id_4_container_4
+2023-03-01 00:47:07,563 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-01 00:47:07,563 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from multicomponent_reaction_input\composition_input_20230110RF029_adj.xlsx
+2023-03-01 00:47:10,342 - main.planner - INFO - event_dataframe is generated with 2430 events.
+2023-03-01 00:47:10,345 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_01_00_47.json
+2023-03-01 00:47:10,345 - main - INFO - All events are generated to dataframes from excel here: multicomponent_reaction_input\composition_input_20230110RF029_adj.xlsx
+2023-03-01 00:47:10,754 - main.planner - INFO - Event_list is generated with 2430 events.
+2023-03-01 00:47:10,755 - main - INFO - All event objects are generated from dataframes.
+2023-03-01 00:47:31,380 - main.planner - INFO - Substance: DMEM     is added to: plate_id_4_container_7
+2023-03-01 00:47:31,380 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-01 00:47:31,380 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx
+2023-03-01 00:47:31,586 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-01 00:47:31,587 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_01_00_47.json
+2023-03-01 00:47:31,588 - main - INFO - All events are generated to dataframes from excel here: calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx
+2023-03-01 00:47:31,589 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-01 00:47:31,589 - main - INFO - All event objects are generated from dataframes.
+2023-03-01 00:47:33,596 - main.planner - INFO - Substance: Isocyano is added to: plate_id_4_container_0
+2023-03-01 00:47:33,596 - main.planner - INFO - Substance: amine    is added to: plate_id_4_container_1
+2023-03-01 00:47:33,596 - main.planner - INFO - Substance: aldehyde is added to: plate_id_4_container_2
+2023-03-01 00:47:33,596 - main.planner - INFO - Substance: pTSA     is added to: plate_id_4_container_3
+2023-03-01 00:47:33,596 - main.planner - INFO - Substance: DMF      is added to: plate_id_4_container_4
+2023-03-01 00:47:33,597 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-01 00:47:33,597 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from multicomponent_reaction_input\composition_input_20230110RF029_adj.xlsx
+2023-03-01 00:47:36,524 - main.planner - INFO - event_dataframe is generated with 2430 events.
+2023-03-01 00:47:36,528 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_01_00_47.json
+2023-03-01 00:47:36,528 - main - INFO - All events are generated to dataframes from excel here: multicomponent_reaction_input\composition_input_20230110RF029_adj.xlsx
+2023-03-01 00:47:36,930 - main.planner - INFO - Event_list is generated with 2430 events.
+2023-03-01 00:47:36,930 - main - INFO - All event objects are generated from dataframes.

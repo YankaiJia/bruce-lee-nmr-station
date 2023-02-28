@@ -244,7 +244,7 @@ class Pipetter():
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.gantry.move_xy(xy)
 
-    def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5) -> tuple[float, float]:
+    def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5):
         global xy_position
         global weighted_values
         # print(f'xy_position: {xy_position}')

@@ -46,25 +46,25 @@ import zeus
 import gantry
 import pipetter
 import planner as pln
-
-# initiate zeus
-zm = zeus.ZeusModule(id=1)
-time.sleep(3)
-logger.info("zeus is loaded as: zm")
-
-# initiate gantry
-gt = gantry.Gantry(zeus=zm)
-time.sleep(3)
-logger.info("gantry is loaded as: gt")
-# gt.configure_grbl() # This only need to be done once.
-gt.home_xy()
-if gt.xy_position == (0, 0):
-    logger.info("gantry is homed")
-
-# initiate pipetter
-pt = pipetter.Pipetter(zeus=zm, gantry=gt)
-time.sleep(2)
-logger.info("pipetter is loaded as: pt")
+#
+# # initiate zeus
+# zm = zeus.ZeusModule(id=1)
+# time.sleep(3)
+# logger.info("zeus is loaded as: zm")
+#
+# # initiate gantry
+# gt = gantry.Gantry(zeus=zm)
+# time.sleep(3)
+# logger.info("gantry is loaded as: gt")
+# # gt.configure_grbl() # This only need to be done once.
+# gt.home_xy()
+# if gt.xy_position == (0, 0):
+#     logger.info("gantry is homed")
+#
+# # initiate pipetter
+# pt = pipetter.Pipetter(zeus=zm, gantry=gt)
+# time.sleep(2)
+# logger.info("pipetter is loaded as: pt")
 
 # generate_calibration_event_list
 calibration_event_dataframe, calibration_event_list = \
