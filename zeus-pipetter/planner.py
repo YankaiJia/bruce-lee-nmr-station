@@ -1,5 +1,7 @@
 import logging
 
+from intake.container import dataframe
+
 module_logger = logging.getLogger('main.planner')
 import time
 from datetime import datetime
@@ -347,11 +349,13 @@ def generate_event_list(event_dataframe, pipeting_to_balance=False):
                                          pipeting_to_balance=pipeting_to_balance)
         # print(event.source_container.container_id, event.destination_container.container_id)
         # print(f'event_substance: {event.substance_name}')
-        volume_update(transfer_volume=event.aspirationVolume,
-                      source_container=event.source_container,
-                      destination_container=event.destination_container)
+
+        # volume update
+        event.source_container.liquid_volume = event.source_container.liquid_volume - event.aspirationVolume
+        event.destination_container.liquid_volume = event.destination_container.liquid_volume + event.dispensingVolume
         # pprint(vars(event))
-        event_list.append(copy.deepcopy(event))
+
+        event_list.append(copy.deepcopy(event)) # use deepcopy to avoid the reference problem
 
     module_logger.info(f'Event_list is generated with {len(event_list)} events.')
 
