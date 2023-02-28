@@ -364,7 +364,8 @@ def generate_event_list(event_dataframe, pipeting_to_balance=False):
 
 def generate_event_object(logger, txt_path_for_substance, excel_to_generate_dataframe, sheet_name, usecols,
                           is_pipeting_to_balance=False, is_for_bio=False):
-    '''This function is used to generate events for pipetting of substances.'''
+
+    '''This function is used to generate event objects for pipetting of substances.'''
 
     # load containers for source substances
     source_substance_containers = add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
