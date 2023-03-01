@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import logging
 
+
 class CustomFormatter(logging.Formatter):
     grey = "\x1b[38;20m"
     yellow = "\x1b[33;20m"
@@ -22,6 +23,7 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
 
 # create logger with 'main'
 logger = logging.getLogger('main')
@@ -46,6 +48,7 @@ import zeus
 import gantry
 import pipetter
 import planner as pln
+
 #
 # # initiate zeus
 # zm = zeus.ZeusModule(id=1)
@@ -68,17 +71,20 @@ import planner as pln
 
 # generate_calibration_event_list
 calibration_event_dataframe, calibration_event_list = \
-        pln.generate_event_object(logger=logger,
-                                  txt_path_for_substance='calibration_for_pipetting/pipetting_calibration_settings_DMEM.txt',
-                                  excel_to_generate_dataframe='calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx',
-                                  sheet_name='80MUAa', usecols='B',
-                                  is_pipeting_to_balance=True)
+    pln.generate_event_object(logger=logger,
+                              txt_path_for_substance='calibration_for_pipetting/pipetting_calibration_settings_DMEM.txt',
+                              excel_to_generate_dataframe='calibration_for_pipetting/pipetting_calibration_substances_DMEM.xlsx',
+                              sheet_name='80MUAa', usecols='B',
+                              is_pipeting_to_balance=True)
 time.sleep(2)
+
+
 def specify_tip_and_liquidClassIndex_for_calibration():
     for event in calibration_event_list:
         event.tip_type = '300ul'
         event.asp_liquidClassTableIndex = 31
         event.disp_liquidClassTableIndex = 31
+
 
 # # do_calibration
 # weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
@@ -106,10 +112,6 @@ event_dataframe_chem, event_list_chem = \
                               is_pipeting_to_balance=False, is_for_bio=False)
 
 # pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list)
-
-
-
-
 
 
 # def cloud_logging_test():

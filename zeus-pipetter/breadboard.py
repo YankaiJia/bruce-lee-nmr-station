@@ -68,7 +68,6 @@ class Container:
     substance_density: float = 1.0
 
 
-
 vial_2ml = Container(
     name='vial_2ml',
     containerGeometryTableIndex=0,

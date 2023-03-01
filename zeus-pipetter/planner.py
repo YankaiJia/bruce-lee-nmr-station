@@ -147,9 +147,9 @@ class TransferEventConstructor:
     def __init__(self, event_dataframe, pipeting_to_balance=False):
 
         self.substance_name: str = event_dataframe['substance']
-        self.event_label : str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
-                           'substance:' + str(event_dataframe['substance']) + '   ' + \
-                           'transfer_volume:' + str(event_dataframe['transfer_volume'])
+        self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
+                                'substance:' + str(event_dataframe['substance']) + '   ' + \
+                                'transfer_volume:' + str(event_dataframe['transfer_volume'])
 
         # print(f'solvent: {solvent}')
         # print(event_dataframe['substance'])
@@ -164,7 +164,7 @@ class TransferEventConstructor:
         else:
             # print(f'event_dataframe: {event_dataframe["plate_id_on_breadboard"]}___{event_dataframe["container_id"]}')
             self.destination_container: object = brb.plate_list[event_dataframe['plate_id_on_breadboard']].containers[
-                                         event_dataframe['container_id']]
+                event_dataframe['container_id']]
         # print(f'destination_container: {self.destination_container}')
         # self.destination_container_xy = self.destination_container.xy
         # print(f'destination_container_xy: {self.destination_container_xy}')
@@ -226,8 +226,8 @@ class TransferEventConstructor:
         """
         # print(substance_name)
         if source_containers is None:
-            source_containers = source_substance_containers # global variable, mutable object (list),
-                                                            # so it should not be used directly as a default argument
+            source_containers = source_substance_containers  # global variable, mutable object (list),
+            # so it should not be used directly as a default argument
         for this_substance in source_containers:  # iterate through keys
             # print(this_substance)
             # print(substance_name)
@@ -347,7 +347,6 @@ def generate_event_list(event_dataframe, pipeting_to_balance=False):
 def generate_event_object(logger, txt_path_for_substance: str, excel_to_generate_dataframe: str,
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False):
-
     # load containers for source substances
     source_substance_containers = add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
     logger.info("All substances are loaded to the corresponding containers.")
