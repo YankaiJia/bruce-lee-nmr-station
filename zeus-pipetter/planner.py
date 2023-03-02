@@ -15,11 +15,13 @@ source_substance_containers: list = []
 
 
 class EventInterpreter:
-    """This class is used to interpret the MS excel file to a list of pipetting df.
-    How to use: 1, upon calling __init__, the MS excel file will be read into a
+    '''This class is used to interpret the MS excel file to a list of pipetting df.
+    **How to use:
+        1, upon calling __init__, the MS excel file will be read into a
     pandas dataframe called self.reaction_df. Also, an empty dataframe called self.pd_output
-    will be created. 2, call add_events_to_df() to add events to self.pd_output.
-    """
+    will be created.
+        2, call add_events_to_df() to add events to self.pd_output.
+    '''
 
     def __init__(self,
                  dataframe_filename: str,
@@ -124,7 +126,7 @@ def add_one_substance_to_stock_containers(line_str: str):
                                                         liquid_volume=stock_volume_int,
                                                         solvent=substance_solvent,
                                                         substance_density=substance_density)
-    module_logger.info(f'Substance: {substance_name:<8} is added to: plate_id_{plate_id}_container_{container_id}')
+    module_logger.info(f'Substance: {substance_name:<10} is added to: plate_id_{plate_id}_container_{container_id}')
     # return exp {'DMF': {'plate_id': 4, 'container_id': 2}}
     substance_container = {substance_name: {'plate_id': plate_id, 'container_id': container_id}}
 
@@ -270,17 +272,18 @@ class TransferEventConstructor:
             'DMF_empty_300ul_clld': 22,
             'DMF_empty_1000ul_clld': 23
         }
-        solvent_para = {solvent, mode, tip_type}  # define a set
+        solvent_para = {solvent, mode, tip_type}  # define a set of paras
         for liquid_class, index in liquid_class_dict.items():
             solvent_para_here = set(liquid_class.split('_'))
-            # print(f'solvent_para_here: {solvent_para_here}')
             if solvent_para.issubset(solvent_para_here):
+                # print(f'solvent_para_here: {solvent_para_here}')
+                # print(f'solvent_para: {solvent_para}')
                 return index
 
     def choose_tip_type(self, transfer_volume: int):
-        if transfer_volume <= 30:
+        if transfer_volume <= 50:
             return "50ul"
-        if transfer_volume > 30 and transfer_volume <= 600:
+        if transfer_volume > 50 and transfer_volume <= 600:
             return "300ul"
         if transfer_volume > 600 and transfer_volume < 3000:
             return "1000ul"
@@ -305,7 +308,7 @@ class TransferEventConstructor:
 
 def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_name: str, usecols: str, is_for_bio: bool):
     # generate empty dataframes
-    event_dataframes: object = EventInterpreter(dataframe_filename=dataframe_filename,
+    event_dataframes = EventInterpreter(dataframe_filename=dataframe_filename,
                                                 sheet_name=sheet_name,
                                                 usecols=usecols,
                                                 is_for_bio=is_for_bio)
@@ -314,9 +317,8 @@ def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_nam
     event_dataframes.add_events_to_df()
 
     module_logger.info(f'event_dataframe is generated with {len(event_dataframes.pd_output.index)} events.')
-    event_dataframes.pd_output.to_json(
-        f'event_dataframes\\event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json', orient='records',
-        lines=True)
+    event_dataframes.pd_output.to_json(f'event_dataframes\\event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
+                                       orient='records', lines=True)
     module_logger.info(f'event_dataframe is saved as event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json')
 
     return event_dataframes.pd_output
@@ -332,12 +334,14 @@ def generate_event_list(event_dataframe, pipeting_to_balance=False):
         # print(event.source_container.container_id, event.destination_container.container_id)
         # print(f'event_substance: {event.substance_name}')
 
+        event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
+
         # volume update
         event.source_container.liquid_volume = event.source_container.liquid_volume - event.aspirationVolume
         event.destination_container.liquid_volume = event.destination_container.liquid_volume + event.dispensingVolume
         # pprint(vars(event))
 
-        event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
+
 
     module_logger.info(f'Event_list is generated with {len(event_list)} events.')
 
@@ -389,8 +393,8 @@ def do_calibration_on_events(zm, pt, logger, calibration_event_list):
         logger.info(f'Result: {result}')
         # check tip type and change the tip if needed
         if event_index != len(calibration_event_list) - 1:  # check if this is the last event.
-            if calibration_event_list[event_index].substance_name != calibration_event_list[
-                event_index + 1].substance_name:
+            if calibration_event_list[event_index].substance_name != \
+                    calibration_event_list[event_index + 1].substance_name:
                 pt.discard_tip()
         time.sleep(0.5)
     pt.discard_tip()
@@ -435,7 +439,7 @@ def run_events_chem(zm, pt, logger, event_list):
 
         pt.transfer_liquid(event_list[event_index])
 
-        time.sleep(0.5)
+        time.sleep(0.05)
         logger.info(f"Performed one event: {event_list[event_index].event_label}")
 
         # check tip type and change tip if needed
