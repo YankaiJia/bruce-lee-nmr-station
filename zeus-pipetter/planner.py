@@ -1,5 +1,4 @@
 import logging
-
 module_logger = logging.getLogger('main.planner')
 
 import time
@@ -12,7 +11,6 @@ from pprint import pprint
 import breadboard as brb
 
 source_substance_containers: list = []
-
 
 class EventInterpreter:
     '''This class is used to interpret the MS excel file to a list of pipetting df.
@@ -341,8 +339,6 @@ def generate_event_list(event_dataframe, pipeting_to_balance=False):
         event.destination_container.liquid_volume = event.destination_container.liquid_volume + event.dispensingVolume
         # pprint(vars(event))
 
-
-
     module_logger.info(f'Event_list is generated with {len(event_list)} events.')
 
     return event_list
@@ -448,3 +444,9 @@ def run_events_chem(zm, pt, logger, event_list):
                 pt.change_tip(event_list[event_index + 1].tip_type)
         time.sleep(0.5)
     pt.discard_tip()
+
+def main():
+    print("This is the main function of the module.")
+
+if __name__ == "__main__":
+    main()

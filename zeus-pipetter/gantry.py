@@ -1,8 +1,4 @@
-'''
-This module is for the xy gantry. It concerns the motion of the xy stage.
-Gantry() take zeus object as argument, which is used to request position of Z drive.
-Only when the Z drive position is in safe traverse height will the gantry be able to move.
-'''
+
 import logging
 module_logger = logging.getLogger('main.gantry')
 
@@ -11,6 +7,13 @@ import numpy as np
 import time
 
 class Gantry():
+
+    """
+    The xy gantry moving with Zeus on it.
+
+    Gantry() take zeus object as argument, which is used to request position of Z drive.
+    Only when the Z drive position is in safe traverse height will the gantry be able to move.
+    """
 
     xy_position = ((0, 0)) # this is to store the gantry position after every move.
 

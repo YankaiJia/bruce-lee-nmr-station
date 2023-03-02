@@ -80,18 +80,18 @@ zm, gt, pt = initiate_hardware()
 # generate_calibration_event_list
 calibration_event_dataframe, calibration_event_list = \
     pln.generate_event_object(logger=logger,
-                              txt_path_for_substance='protein_screen\\20230301_ BSA_LZ_Robot_Yankai_settings.txt',
-                              excel_to_generate_dataframe='protein_screen\\20230301_ BSA_LZ_Robot_Yankai_calib_BSA.xlsx',
-                              sheet_name='80MUAb_10_13', usecols='H',
+                              txt_path_for_substance='protein_screen\\20230301_BSA_LZ_Robot_Yankai_settings.txt',
+                              excel_to_generate_dataframe='protein_screen\\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx',
+                              sheet_name='80MUAb_10_13', usecols='D',
                               is_pipeting_to_balance=True, is_for_bio=False)
 # time.sleep(2)
 calibration_event_list = calibration_event_list[::-1] # reverse the list
 #
 def specify_tip_and_liquidClassIndex_for_calibration():
     for event in calibration_event_list:
-        # event.tip_type = '50ul'
-        event.asp_liquidClassTableIndex = 36
-        event.disp_liquidClassTableIndex = 36
+        event.tip_type = '300ul'
+        event.asp_liquidClassTableIndex = 31
+        event.disp_liquidClassTableIndex = 31
 
 specify_tip_and_liquidClassIndex_for_calibration()
 

@@ -1,25 +1,19 @@
 """
-container: vial_2ml, well_bio, bottle_20ml, jar_100ml
+container: vial_2ml, well_bio, bottle_20ml, jar_100ml, tube_1.5ml
 
-plate: plate0, plate1, plate2, plate3, plate4, palte5, plate6, plate7
-       plate0: vial_2mL
-       plate1: vial_2mL
-       plate2: vial_2mL
-       plate3: well_bio
-       plate4: bottle_20ml
-       plate5: bottle_20ml
-       plate6: jar_100ml
-       plate7: jar_100ml
+plates plate0: vial_2ml, 54 vials
+       plate1: vial_2ml, 54 vials
+       plate2: vial_2ml, 54 vials
+       plate3: well_bio, 96 wells
+       plate4: bottle_20ml, 8 bottles
+       palte5, bottle_20ml, 8 bottles
+       plate6, jar_100ml, 2 jars
+       plate7, tube_1500ul, 20 tubes
+
 """
 import logging
-
 # create logger
 module_logger = logging.getLogger('pipette_calibration.breadboard')
-
-
-def some_function():
-    module_logger.error('received a call to "some_function"')
-
 
 from dataclasses import dataclass
 import numpy as np
@@ -27,7 +21,6 @@ import copy
 import json
 
 floor_z = 2210
-
 
 @dataclass
 class DeckGeometry:
@@ -264,57 +257,45 @@ plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-7, -255),
                                                              topright=(-7 - x_length_vial_2ml, -255),
                                                              bottomleft=(-7, -255 - y_length_vial_2ml),
-                                                             bottomright=(
-                                                             -7 - x_length_vial_2ml, -255 - y_length_vial_2ml))
+                                                             bottomright=(-7 - x_length_vial_2ml, -255 - y_length_vial_2ml))
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-157, -256),
                                                              topright=(-157 - x_length_vial_2ml, -256),
                                                              bottomleft=(-157, -256 - y_length_vial_2ml),
-                                                             bottomright=(
-                                                             -157 - x_length_vial_2ml, -256 - y_length_vial_2ml))
+                                                             bottomright=(-157 - x_length_vial_2ml, -256 - y_length_vial_2ml))
 plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-307, -256),
                                                              topright=(-307 - x_length_vial_2ml, -256),
                                                              bottomleft=(-307, -256 - y_length_vial_2ml),
-                                                             bottomright=(
-                                                             -307 - x_length_vial_2ml, -256 - y_length_vial_2ml))
-# plate7_vial_2ml_coordinates = generate_container_coordinates(Nwells=(6, 9),
-#                                                              topleft=(-458, -157),
-#                                                              topright=(-458 - x_length_vial_2ml, -157),
-#                                                              bottomleft=(-458, -157- y_length_vial_2ml),
-#                                                              bottomright=(-458 - x_length_vial_2ml, -157 - y_length_vial_2ml))
-x_length_tube_1500ul = 88.5
-y_length_tube_1500ul = 56
-plate7_tube_1500ul_coordinates = generate_container_coordinates(Nwells=(4, 5),
-                                                                topleft=(-465, -161),
-                                                                topright=(-465 - x_length_tube_1500ul, -161),
-                                                                bottomleft=(-465, -161 - y_length_tube_1500ul),
-                                                                bottomright=(-465 - x_length_tube_1500ul,
-                                                                             -161 - y_length_tube_1500ul))
-
+                                                             bottomright=(-307 - x_length_vial_2ml, -256 - y_length_vial_2ml))
 x_length_well_bio = 99
 y_length_well_bio = 63
 plate3_well_bio_coordinates = generate_container_coordinates(Nwells=(8, 12),
                                                              topleft=(-457, -258),
                                                              topright=(-457 - x_length_well_bio, -258),
                                                              bottomleft=(-457, -258 - y_length_well_bio),
-                                                             bottomright=(
-                                                             -457 - x_length_well_bio, -258 - y_length_well_bio))
+                                                             bottomright=(-457 - x_length_well_bio, -258 - y_length_well_bio))
 x_length_bottle_20ml = 85
 y_length_bottle_20ml = 28
 plate4_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
                                                                 topleft=(-15, -175),
                                                                 topright=(-15 - x_length_bottle_20ml, -175),
                                                                 bottomleft=(-15, -175 - y_length_bottle_20ml),
-                                                                bottomright=(-15 - x_length_bottle_20ml,
-                                                                             -175 - y_length_bottle_20ml))
+                                                                bottomright=(-15 - x_length_bottle_20ml, -175 - y_length_bottle_20ml))
 plate5_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
                                                                 topleft=(-164, -175),
                                                                 topright=(-164 - x_length_bottle_20ml, -175),
                                                                 bottomleft=(-164, -175 - y_length_bottle_20ml),
-                                                                bottomright=(-164 - x_length_bottle_20ml,
-                                                                             -175 - y_length_bottle_20ml))
+                                                                bottomright=(-164 - x_length_bottle_20ml, -175 - y_length_bottle_20ml))
 plate6_jar_100ml_coordinates = [(-325, -189), (-388, -189)]
+
+x_length_tube_1500ul = 88.5
+y_length_tube_1500ul = 56
+plate7_tube_1500ul_coordinates = generate_container_coordinates(Nwells=(4, 5),
+                                                                topleft=(-465, -161),
+                                                                topright=(-465 - x_length_tube_1500ul, -161),
+                                                                bottomleft=(-465, -161 - y_length_tube_1500ul),
+                                                                bottomright=(-465 - x_length_tube_1500ul, -161 - y_length_tube_1500ul))
 
 
 # return a list of container(object) in one plate.
@@ -327,7 +308,6 @@ def container_list(container_geom: object, container_coordinates) -> list:
         container_temp = copy.copy(container_geom)
         container_list.append(container_temp)
     return container_list
-
 
 class Plate:
     def __init__(self, plate_id: str, containers=None):
@@ -404,32 +384,6 @@ def plate_on_breadboard():
 
 plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7 = plate_on_breadboard()
 plate_list = [plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7]
-
-container_vial_2ml = plate0.containers[0]
-container_well_bio = plate3.containers[0]
-container_bottle_20ml = plate4.containers[0]
-container_jar_100ml = plate6.containers[0]
-
-containers: list = [container_vial_2ml, container_well_bio, container_bottle_20ml, container_jar_100ml]
-
-bottle0 = plate4.containers[0]
-bottle1 = plate4.containers[1]
-bottle2 = plate4.containers[2]
-bottle3 = plate4.containers[3]
-bottle4 = plate4.containers[4]
-bottle5 = plate4.containers[5]
-bottle6 = plate4.containers[6]
-bottle7 = plate4.containers[7]
-bottle8 = plate5.containers[0]
-bottle9 = plate5.containers[1]
-bottle10 = plate5.containers[2]
-bottle11 = plate5.containers[3]
-bottle12 = plate5.containers[4]
-bottle13 = plate5.containers[5]
-bottle14 = plate5.containers[6]
-bottle15 = plate5.containers[7]
-jar0 = plate6.containers[0]
-jar1 = plate6.containers[1]
 
 
 def generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
@@ -518,20 +472,17 @@ def load_new_tip_tack(rack_reload):
 
     return tip_rack
 
-
-## run this ONLY when changing new tip rack.
-# load_new_tip_tack(rack_reload = '300ul')
-# load_new_tip_tack(rack_reload = '1000ul')
-# load_new_tip_tack(rack_reload = '50ul')
-
-
 def main():
+
     print("This is main.")
 
     ## run this ONLY when changing new tip rack.
     load_new_tip_tack(rack_reload = '300ul')
+    module_logger.info('New tip rack: 300ul is loaded.')
     load_new_tip_tack(rack_reload = '1000ul')
+    module_logger.info('New tip rack: 1000ul is loaded.')
     load_new_tip_tack(rack_reload = '50ul')
+    module_logger.info('New tip rack: 50ul is loaded.')
 
 
 if __name__ == "__main__":
