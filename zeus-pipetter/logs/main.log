@@ -4730,3 +4730,422 @@
 2023-03-02 16:37:42,035 - main.pipetter.Pipetter - INFO - Volume of aliquot: 2.99 ul
 2023-03-02 16:37:43,041 - main - INFO - Performed one measurement:  event_id:0   substance:DMEM   transfer_volume:1.0
 2023-03-02 16:37:43,041 - main - INFO - Result: {'DMEM_1.0ul': {'weight': [2.73, 3.15, 2.99], 'volume': [2.73, 3.15, 2.99], 'liquid_class_index': [31, 31, 31], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 14:40:57,286 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 14:41:40,395 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 14:43:54,007 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 14:44:44,516 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 14:52:12,123 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 14:52:21,202 - main - INFO - zeus is loaded as: zm
+2023-03-04 14:52:21,202 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-04 14:52:24,217 - main - INFO - gantry is loaded as: gt
+2023-03-04 14:52:24,217 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 14:52:49,464 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 14:52:58,546 - main - INFO - zeus is loaded as: zm
+2023-03-04 14:52:58,546 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-04 14:53:01,557 - main - INFO - gantry is loaded as: gt
+2023-03-04 14:53:01,557 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 14:53:13,185 - main - INFO - gantry is homed
+2023-03-04 14:53:13,335 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-04 14:53:15,348 - main - INFO - pipetter is loaded as: pt
+2023-03-04 14:53:15,353 - main.planner - INFO - Substance: PBS        is added to: plate_id_4_container_0
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: DMEM       is added to: plate_id_4_container_1
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_8192uM is added to: plate_id_7_container_0
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_4096uM is added to: plate_id_7_container_1
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_2048uM is added to: plate_id_7_container_2
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_1024uM is added to: plate_id_7_container_3
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_512uM  is added to: plate_id_7_container_4
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_256uM  is added to: plate_id_7_container_5
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_128uM  is added to: plate_id_7_container_6
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_64uM   is added to: plate_id_7_container_7
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: BSA_32uM   is added to: plate_id_7_container_8
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: LZ_8192uM  is added to: plate_id_7_container_9
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: LZ_4096uM  is added to: plate_id_7_container_10
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: LZ_2048uM  is added to: plate_id_7_container_11
+2023-03-04 14:53:15,354 - main.planner - INFO - Substance: LZ_1024uM  is added to: plate_id_7_container_12
+2023-03-04 14:53:15,355 - main.planner - INFO - Substance: LZ_512uM   is added to: plate_id_7_container_13
+2023-03-04 14:53:15,355 - main.planner - INFO - Substance: LZ_256uM   is added to: plate_id_7_container_14
+2023-03-04 14:53:15,355 - main.planner - INFO - Substance: LZ_128uM   is added to: plate_id_7_container_15
+2023-03-04 14:53:15,355 - main.planner - INFO - Substance: LZ_64uM    is added to: plate_id_7_container_16
+2023-03-04 14:53:15,355 - main.planner - INFO - Substance: LZ_32uM    is added to: plate_id_7_container_17
+2023-03-04 14:53:15,355 - main.planner - INFO - Substance: NPs        is added to: plate_id_7_container_18
+2023-03-04 14:53:15,355 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-04 14:53:15,355 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 14:53:16,097 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-04 14:53:16,099 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_04_14_53.json
+2023-03-04 14:53:16,099 - main - INFO - All events are generated to dataframes from excel here: protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 14:53:16,101 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-04 14:53:16,101 - main - INFO - All event objects are generated from dataframes.
+2023-03-04 14:53:23,045 - main - INFO - The tip is changed to : 300ul
+2023-03-04 14:54:12,358 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 14:54:21,427 - main - INFO - zeus is loaded as: zm
+2023-03-04 14:54:21,427 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-04 14:54:24,439 - main - INFO - gantry is loaded as: gt
+2023-03-04 14:54:24,439 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 14:54:30,458 - main - INFO - gantry is homed
+2023-03-04 14:54:30,609 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-04 14:54:32,622 - main - INFO - pipetter is loaded as: pt
+2023-03-04 14:54:32,622 - main.planner - INFO - Substance: PBS        is added to: plate_id_4_container_0
+2023-03-04 14:54:32,622 - main.planner - INFO - Substance: DMEM       is added to: plate_id_4_container_1
+2023-03-04 14:54:32,622 - main.planner - INFO - Substance: BSA_8192uM is added to: plate_id_7_container_0
+2023-03-04 14:54:32,622 - main.planner - INFO - Substance: BSA_4096uM is added to: plate_id_7_container_1
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_2048uM is added to: plate_id_7_container_2
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_1024uM is added to: plate_id_7_container_3
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_512uM  is added to: plate_id_7_container_4
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_256uM  is added to: plate_id_7_container_5
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_128uM  is added to: plate_id_7_container_6
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_64uM   is added to: plate_id_7_container_7
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: BSA_32uM   is added to: plate_id_7_container_8
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_8192uM  is added to: plate_id_7_container_9
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_4096uM  is added to: plate_id_7_container_10
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_2048uM  is added to: plate_id_7_container_11
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_1024uM  is added to: plate_id_7_container_12
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_512uM   is added to: plate_id_7_container_13
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_256uM   is added to: plate_id_7_container_14
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_128uM   is added to: plate_id_7_container_15
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_64uM    is added to: plate_id_7_container_16
+2023-03-04 14:54:32,623 - main.planner - INFO - Substance: LZ_32uM    is added to: plate_id_7_container_17
+2023-03-04 14:54:32,624 - main.planner - INFO - Substance: NPs        is added to: plate_id_7_container_18
+2023-03-04 14:54:32,624 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-04 14:54:32,624 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 14:54:33,146 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-04 14:54:33,148 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_04_14_54.json
+2023-03-04 14:54:33,148 - main - INFO - All events are generated to dataframes from excel here: protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 14:54:33,150 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-04 14:54:33,150 - main - INFO - All event objects are generated from dataframes.
+2023-03-04 15:04:51,018 - main - INFO - The tip is changed to : 300ul
+2023-03-04 15:05:05,666 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 15:05:12,781 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 15:05:28,479 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 15:05:35,597 - main - INFO - Performed one event:  event_id:6   substance:DMEM   transfer_volume:200.0
+2023-03-04 15:05:50,854 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 15:05:57,985 - main - INFO - Performed one event:  event_id:5   substance:DMEM   transfer_volume:100.0
+2023-03-04 15:06:13,012 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 15:07:26,873 - main - INFO - The tip is changed to : 300ul
+2023-03-04 15:07:41,454 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 15:07:48,576 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 15:09:25,273 - main - INFO - The tip is changed to : 300ul
+2023-03-04 15:09:39,890 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 15:09:47,010 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 15:10:14,494 - main - INFO - The tip is changed to : 300ul
+2023-03-04 15:10:29,130 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 15:10:36,260 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 15:11:13,343 - main.zeus.ZeusModule - ERROR - No tip picked up or no tip present.
+2023-03-04 15:11:13,386 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-04 15:11:25,704 - main - INFO - The tip is changed to : 300ul
+2023-03-04 15:11:40,577 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 15:11:47,698 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 16:08:35,062 - main.zeus.ZeusModule - ERROR - No tip picked up or no tip present.
+2023-03-04 16:08:35,106 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-04 16:09:42,697 - main - INFO - The tip is changed to : 300ul
+2023-03-04 16:09:58,151 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:10:05,272 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 16:10:44,865 - main - INFO - The tip is changed to : 300ul
+2023-03-04 16:11:00,454 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:11:07,583 - main - INFO - Performed one event:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 16:38:51,533 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 16:39:00,615 - main - INFO - zeus is loaded as: zm
+2023-03-04 16:39:00,615 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-04 16:39:03,625 - main - INFO - gantry is loaded as: gt
+2023-03-04 16:39:03,625 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 16:39:11,952 - main - INFO - gantry is homed
+2023-03-04 16:39:12,101 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-04 16:39:14,106 - main - INFO - pipetter is loaded as: pt
+2023-03-04 16:39:14,106 - main.planner - INFO - Substance: PBS        is added to: plate_id_4_container_0
+2023-03-04 16:39:14,106 - main.planner - INFO - Substance: DMEM       is added to: plate_id_4_container_1
+2023-03-04 16:39:14,106 - main.planner - INFO - Substance: BSA_8192uM is added to: plate_id_7_container_0
+2023-03-04 16:39:14,106 - main.planner - INFO - Substance: BSA_4096uM is added to: plate_id_7_container_1
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_2048uM is added to: plate_id_7_container_2
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_1024uM is added to: plate_id_7_container_3
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_512uM  is added to: plate_id_7_container_4
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_256uM  is added to: plate_id_7_container_5
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_128uM  is added to: plate_id_7_container_6
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_64uM   is added to: plate_id_7_container_7
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: BSA_32uM   is added to: plate_id_7_container_8
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: LZ_8192uM  is added to: plate_id_7_container_9
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: LZ_4096uM  is added to: plate_id_7_container_10
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: LZ_2048uM  is added to: plate_id_7_container_11
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: LZ_1024uM  is added to: plate_id_7_container_12
+2023-03-04 16:39:14,107 - main.planner - INFO - Substance: LZ_512uM   is added to: plate_id_7_container_13
+2023-03-04 16:39:14,108 - main.planner - INFO - Substance: LZ_256uM   is added to: plate_id_7_container_14
+2023-03-04 16:39:14,108 - main.planner - INFO - Substance: LZ_128uM   is added to: plate_id_7_container_15
+2023-03-04 16:39:14,108 - main.planner - INFO - Substance: LZ_64uM    is added to: plate_id_7_container_16
+2023-03-04 16:39:14,108 - main.planner - INFO - Substance: LZ_32uM    is added to: plate_id_7_container_17
+2023-03-04 16:39:14,108 - main.planner - INFO - Substance: NPs        is added to: plate_id_7_container_18
+2023-03-04 16:39:14,108 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-04 16:39:14,108 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 16:39:14,630 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-04 16:39:14,632 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_04_16_39.json
+2023-03-04 16:39:14,632 - main - INFO - All events are generated to dataframes from excel here: protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 16:39:14,634 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-04 16:39:14,634 - main - INFO - All event objects are generated from dataframes.
+2023-03-04 16:39:38,556 - main - INFO - The tip is changed to : 300ul
+2023-03-04 16:40:00,412 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:41:40,471 - main - INFO - The tip is changed to : 300ul
+2023-03-04 16:43:15,185 - main - INFO - The tip is changed to : 300ul
+2023-03-04 16:43:36,132 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:43:45,228 - main.pipetter.Pipetter - INFO - Weight of aliquot: 306300.0 mg
+2023-03-04 16:43:45,228 - main.pipetter.Pipetter - INFO - Volume of aliquot: 306300.0 ul
+2023-03-04 16:44:06,686 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:44:15,782 - main.pipetter.Pipetter - INFO - Weight of aliquot: 309100.0 mg
+2023-03-04 16:44:15,782 - main.pipetter.Pipetter - INFO - Volume of aliquot: 309100.0 ul
+2023-03-04 16:44:37,334 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:44:46,429 - main.pipetter.Pipetter - INFO - Weight of aliquot: 310800.0 mg
+2023-03-04 16:44:46,429 - main.pipetter.Pipetter - INFO - Volume of aliquot: 310800.0 ul
+2023-03-04 16:44:47,442 - main - INFO - Performed one measurement:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 16:44:47,442 - main - INFO - Result: {'DMEM_300.0ul': {'weight': [306300.0, 309100.0, 310800.0], 'volume': [306300.0, 309100.0, 310800.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:45:09,096 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 16:45:18,191 - main.pipetter.Pipetter - INFO - Weight of aliquot: 207900.0 mg
+2023-03-04 16:45:18,191 - main.pipetter.Pipetter - INFO - Volume of aliquot: 207900.0 ul
+2023-03-04 16:45:38,592 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 16:45:47,716 - main.pipetter.Pipetter - INFO - Weight of aliquot: 208600.0 mg
+2023-03-04 16:45:47,716 - main.pipetter.Pipetter - INFO - Volume of aliquot: 208600.0 ul
+2023-03-04 16:46:08,070 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 16:46:17,163 - main.pipetter.Pipetter - INFO - Weight of aliquot: 210000.0 mg
+2023-03-04 16:46:17,163 - main.pipetter.Pipetter - INFO - Volume of aliquot: 210000.0 ul
+2023-03-04 16:46:18,176 - main - INFO - Performed one measurement:  event_id:6   substance:DMEM   transfer_volume:200.0
+2023-03-04 16:46:18,176 - main - INFO - Result: {'DMEM_200.0ul': {'weight': [207900.0, 208600.0, 210000.0], 'volume': [207900.0, 208600.0, 210000.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:46:38,736 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 16:46:47,843 - main.pipetter.Pipetter - INFO - Weight of aliquot: 103100.0 mg
+2023-03-04 16:46:47,843 - main.pipetter.Pipetter - INFO - Volume of aliquot: 103100.0 ul
+2023-03-04 16:47:07,883 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 16:47:16,988 - main.pipetter.Pipetter - INFO - Weight of aliquot: 103400.0 mg
+2023-03-04 16:47:16,988 - main.pipetter.Pipetter - INFO - Volume of aliquot: 103400.0 ul
+2023-03-04 16:47:37,036 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 16:47:46,128 - main.pipetter.Pipetter - INFO - Weight of aliquot: 109200.0 mg
+2023-03-04 16:47:46,128 - main.pipetter.Pipetter - INFO - Volume of aliquot: 109200.0 ul
+2023-03-04 16:47:47,137 - main - INFO - Performed one measurement:  event_id:5   substance:DMEM   transfer_volume:100.0
+2023-03-04 16:47:47,137 - main - INFO - Result: {'DMEM_100.0ul': {'weight': [103100.0, 103400.0, 109200.0], 'volume': [103100.0, 103400.0, 109200.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:48:07,573 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 16:48:16,652 - main.pipetter.Pipetter - INFO - Weight of aliquot: 58700.0 mg
+2023-03-04 16:48:16,652 - main.pipetter.Pipetter - INFO - Volume of aliquot: 58700.0 ul
+2023-03-04 16:48:36,567 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 16:48:45,677 - main.pipetter.Pipetter - INFO - Weight of aliquot: 53400.0 mg
+2023-03-04 16:48:45,678 - main.pipetter.Pipetter - INFO - Volume of aliquot: 53400.0 ul
+2023-03-04 16:49:05,459 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 16:49:14,553 - main.pipetter.Pipetter - INFO - Weight of aliquot: 55100.0 mg
+2023-03-04 16:49:14,553 - main.pipetter.Pipetter - INFO - Volume of aliquot: 55100.0 ul
+2023-03-04 16:49:15,566 - main - INFO - Performed one measurement:  event_id:4   substance:DMEM   transfer_volume:50.0
+2023-03-04 16:49:15,566 - main - INFO - Result: {'DMEM_50.0ul': {'weight': [58700.0, 53400.0, 55100.0], 'volume': [58700.0, 53400.0, 55100.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:49:35,843 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-04 16:49:44,939 - main.pipetter.Pipetter - INFO - Weight of aliquot: 30000.0 mg
+2023-03-04 16:49:44,939 - main.pipetter.Pipetter - INFO - Volume of aliquot: 30000.0 ul
+2023-03-04 16:50:04,649 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-04 16:50:13,740 - main.pipetter.Pipetter - INFO - Weight of aliquot: 26900.0 mg
+2023-03-04 16:50:13,740 - main.pipetter.Pipetter - INFO - Volume of aliquot: 26900.0 ul
+2023-03-04 16:50:33,471 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-04 16:50:42,574 - main.pipetter.Pipetter - INFO - Weight of aliquot: 26500.0 mg
+2023-03-04 16:50:42,574 - main.pipetter.Pipetter - INFO - Volume of aliquot: 26500.0 ul
+2023-03-04 16:50:43,587 - main - INFO - Performed one measurement:  event_id:3   substance:DMEM   transfer_volume:25.0
+2023-03-04 16:50:43,587 - main - INFO - Result: {'DMEM_25.0ul': {'weight': [30000.0, 26900.0, 26500.0], 'volume': [30000.0, 26900.0, 26500.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:50:57,818 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-04 16:50:57,835 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-04 16:54:01,528 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 16:54:10,611 - main - INFO - zeus is loaded as: zm
+2023-03-04 16:54:10,611 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-04 16:54:13,628 - main - INFO - gantry is loaded as: gt
+2023-03-04 16:54:13,628 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 16:54:19,296 - main - INFO - gantry is homed
+2023-03-04 16:54:19,448 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-04 16:54:21,461 - main - INFO - pipetter is loaded as: pt
+2023-03-04 16:54:21,461 - main.planner - INFO - Substance: PBS        is added to: plate_id_4_container_0
+2023-03-04 16:54:21,461 - main.planner - INFO - Substance: DMEM       is added to: plate_id_4_container_1
+2023-03-04 16:54:21,461 - main.planner - INFO - Substance: BSA_8192uM is added to: plate_id_7_container_0
+2023-03-04 16:54:21,461 - main.planner - INFO - Substance: BSA_4096uM is added to: plate_id_7_container_1
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_2048uM is added to: plate_id_7_container_2
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_1024uM is added to: plate_id_7_container_3
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_512uM  is added to: plate_id_7_container_4
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_256uM  is added to: plate_id_7_container_5
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_128uM  is added to: plate_id_7_container_6
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_64uM   is added to: plate_id_7_container_7
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: BSA_32uM   is added to: plate_id_7_container_8
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_8192uM  is added to: plate_id_7_container_9
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_4096uM  is added to: plate_id_7_container_10
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_2048uM  is added to: plate_id_7_container_11
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_1024uM  is added to: plate_id_7_container_12
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_512uM   is added to: plate_id_7_container_13
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_256uM   is added to: plate_id_7_container_14
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_128uM   is added to: plate_id_7_container_15
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_64uM    is added to: plate_id_7_container_16
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: LZ_32uM    is added to: plate_id_7_container_17
+2023-03-04 16:54:21,463 - main.planner - INFO - Substance: NPs        is added to: plate_id_7_container_18
+2023-03-04 16:54:21,463 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-04 16:54:21,463 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 16:54:21,971 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-04 16:54:21,972 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_04_16_54.json
+2023-03-04 16:54:21,973 - main - INFO - All events are generated to dataframes from excel here: protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 16:54:21,974 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-04 16:54:21,974 - main - INFO - All event objects are generated from dataframes.
+2023-03-04 16:54:56,522 - main - INFO - The tip is changed to : 300ul
+2023-03-04 16:55:17,152 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:55:26,238 - main.pipetter.Pipetter - INFO - Weight of aliquot: 304400.0 mg
+2023-03-04 16:55:26,238 - main.pipetter.Pipetter - INFO - Volume of aliquot: 304400.0 ul
+2023-03-04 16:55:47,389 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:55:56,483 - main.pipetter.Pipetter - INFO - Weight of aliquot: 312300.0 mg
+2023-03-04 16:55:56,483 - main.pipetter.Pipetter - INFO - Volume of aliquot: 312300.0 ul
+2023-03-04 16:56:17,610 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 16:56:26,709 - main.pipetter.Pipetter - INFO - Weight of aliquot: 307300.0 mg
+2023-03-04 16:56:26,709 - main.pipetter.Pipetter - INFO - Volume of aliquot: 307300.0 ul
+2023-03-04 16:56:27,722 - main - INFO - Performed one measurement:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 16:56:27,722 - main - INFO - Result: {'DMEM_300.0ul': {'weight': [304400.0, 312300.0, 307300.0], 'volume': [304400.0, 312300.0, 307300.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:56:49,014 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 16:56:58,108 - main.pipetter.Pipetter - INFO - Weight of aliquot: 203300.0 mg
+2023-03-04 16:56:58,108 - main.pipetter.Pipetter - INFO - Volume of aliquot: 203300.0 ul
+2023-03-04 16:57:18,927 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 16:57:28,020 - main.pipetter.Pipetter - INFO - Weight of aliquot: 204200.0 mg
+2023-03-04 16:57:28,020 - main.pipetter.Pipetter - INFO - Volume of aliquot: 204200.0 ul
+2023-03-04 16:57:48,836 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 16:57:57,932 - main.pipetter.Pipetter - INFO - Weight of aliquot: 204300.0 mg
+2023-03-04 16:57:57,932 - main.pipetter.Pipetter - INFO - Volume of aliquot: 204300.0 ul
+2023-03-04 16:57:58,945 - main - INFO - Performed one measurement:  event_id:6   substance:DMEM   transfer_volume:200.0
+2023-03-04 16:57:58,945 - main - INFO - Result: {'DMEM_200.0ul': {'weight': [203300.0, 204200.0, 204300.0], 'volume': [203300.0, 204200.0, 204300.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:58:19,900 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 16:58:28,996 - main.pipetter.Pipetter - INFO - Weight of aliquot: 103300.0 mg
+2023-03-04 16:58:28,996 - main.pipetter.Pipetter - INFO - Volume of aliquot: 103300.0 ul
+2023-03-04 16:58:49,486 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 16:58:58,581 - main.pipetter.Pipetter - INFO - Weight of aliquot: 97800.0 mg
+2023-03-04 16:58:58,581 - main.pipetter.Pipetter - INFO - Volume of aliquot: 97800.0 ul
+2023-03-04 16:59:19,048 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 16:59:28,143 - main.pipetter.Pipetter - INFO - Weight of aliquot: 101100.0 mg
+2023-03-04 16:59:28,143 - main.pipetter.Pipetter - INFO - Volume of aliquot: 101100.0 ul
+2023-03-04 16:59:29,156 - main - INFO - Performed one measurement:  event_id:5   substance:DMEM   transfer_volume:100.0
+2023-03-04 16:59:29,156 - main - INFO - Result: {'DMEM_100.0ul': {'weight': [103300.0, 97800.0, 101100.0], 'volume': [103300.0, 97800.0, 101100.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 16:59:49,885 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 16:59:58,961 - main.pipetter.Pipetter - INFO - Weight of aliquot: 49700.0 mg
+2023-03-04 16:59:58,961 - main.pipetter.Pipetter - INFO - Volume of aliquot: 49700.0 ul
+2023-03-04 17:00:19,198 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 17:00:28,293 - main.pipetter.Pipetter - INFO - Weight of aliquot: 49600.0 mg
+2023-03-04 17:00:28,293 - main.pipetter.Pipetter - INFO - Volume of aliquot: 49600.0 ul
+2023-03-04 17:00:48,488 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 17:00:57,597 - main.pipetter.Pipetter - INFO - Weight of aliquot: 52700.0 mg
+2023-03-04 17:00:57,597 - main.pipetter.Pipetter - INFO - Volume of aliquot: 52700.0 ul
+2023-03-04 17:00:58,601 - main - INFO - Performed one measurement:  event_id:4   substance:DMEM   transfer_volume:50.0
+2023-03-04 17:00:58,601 - main - INFO - Result: {'DMEM_50.0ul': {'weight': [49700.0, 49600.0, 52700.0], 'volume': [49700.0, 49600.0, 52700.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 17:01:19,344 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-04 17:01:28,424 - main.pipetter.Pipetter - INFO - Weight of aliquot: 24900.0 mg
+2023-03-04 17:01:28,424 - main.pipetter.Pipetter - INFO - Volume of aliquot: 24900.0 ul
+2023-03-04 17:01:48,577 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-04 17:01:57,680 - main.pipetter.Pipetter - INFO - Weight of aliquot: 24400.0 mg
+2023-03-04 17:01:57,680 - main.pipetter.Pipetter - INFO - Volume of aliquot: 24400.0 ul
+2023-03-04 17:02:17,923 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-04 17:02:27,027 - main.pipetter.Pipetter - INFO - Weight of aliquot: 21500.0 mg
+2023-03-04 17:02:27,027 - main.pipetter.Pipetter - INFO - Volume of aliquot: 21500.0 ul
+2023-03-04 17:02:28,040 - main - INFO - Performed one measurement:  event_id:3   substance:DMEM   transfer_volume:25.0
+2023-03-04 17:02:28,040 - main - INFO - Result: {'DMEM_25.0ul': {'weight': [24900.0, 24400.0, 21500.0], 'volume': [24900.0, 24400.0, 21500.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 17:02:48,614 - main.pipetter.Pipetter - INFO - Aspiration volume: 10.0ul Dispensing volume: 10.0ul
+2023-03-04 17:02:57,694 - main.pipetter.Pipetter - INFO - Weight of aliquot: 5200.0 mg
+2023-03-04 17:02:57,694 - main.pipetter.Pipetter - INFO - Volume of aliquot: 5200.0 ul
+2023-03-04 17:03:17,755 - main.pipetter.Pipetter - INFO - Aspiration volume: 10.0ul Dispensing volume: 10.0ul
+2023-03-04 17:03:26,860 - main.pipetter.Pipetter - INFO - Weight of aliquot: 9600.0 mg
+2023-03-04 17:03:26,860 - main.pipetter.Pipetter - INFO - Volume of aliquot: 9600.0 ul
+2023-03-04 17:03:46,893 - main.pipetter.Pipetter - INFO - Aspiration volume: 10.0ul Dispensing volume: 10.0ul
+2023-03-04 17:03:55,997 - main.pipetter.Pipetter - INFO - Weight of aliquot: 8200.0 mg
+2023-03-04 17:03:55,997 - main.pipetter.Pipetter - INFO - Volume of aliquot: 8200.0 ul
+2023-03-04 17:03:57,007 - main - INFO - Performed one measurement:  event_id:2   substance:DMEM   transfer_volume:10.0
+2023-03-04 17:03:57,007 - main - INFO - Result: {'DMEM_10.0ul': {'weight': [5200.0, 9600.0, 8200.0], 'volume': [5200.0, 9600.0, 8200.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 17:04:17,557 - main.pipetter.Pipetter - INFO - Aspiration volume: 5.0ul Dispensing volume: 5.0ul
+2023-03-04 17:04:26,662 - main.pipetter.Pipetter - INFO - Weight of aliquot: 1600.0 mg
+2023-03-04 17:04:26,662 - main.pipetter.Pipetter - INFO - Volume of aliquot: 1600.0 ul
+2023-03-04 17:04:46,725 - main.pipetter.Pipetter - INFO - Aspiration volume: 5.0ul Dispensing volume: 5.0ul
+2023-03-04 17:04:55,825 - main.pipetter.Pipetter - INFO - Weight of aliquot: -1000.0 mg
+2023-03-04 17:04:55,825 - main.pipetter.Pipetter - INFO - Volume of aliquot: -1000.0 ul
+2023-03-04 17:05:15,931 - main.pipetter.Pipetter - INFO - Aspiration volume: 5.0ul Dispensing volume: 5.0ul
+2023-03-04 17:05:25,029 - main.pipetter.Pipetter - INFO - Weight of aliquot: 2300.0 mg
+2023-03-04 17:05:25,029 - main.pipetter.Pipetter - INFO - Volume of aliquot: 2300.0 ul
+2023-03-04 17:05:26,031 - main - INFO - Performed one measurement:  event_id:1   substance:DMEM   transfer_volume:5.0
+2023-03-04 17:05:26,031 - main - INFO - Result: {'DMEM_5.0ul': {'weight': [1600.0, -1000.0, 2300.0], 'volume': [1600.0, -1000.0, 2300.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 17:05:46,662 - main.pipetter.Pipetter - INFO - Aspiration volume: 1.0ul Dispensing volume: 1.0ul
+2023-03-04 17:05:55,754 - main.pipetter.Pipetter - INFO - Weight of aliquot: -2000.0 mg
+2023-03-04 17:05:55,754 - main.pipetter.Pipetter - INFO - Volume of aliquot: -2000.0 ul
+2023-03-04 17:06:15,885 - main.pipetter.Pipetter - INFO - Aspiration volume: 1.0ul Dispensing volume: 1.0ul
+2023-03-04 17:06:24,979 - main.pipetter.Pipetter - INFO - Weight of aliquot: -700.0 mg
+2023-03-04 17:06:24,979 - main.pipetter.Pipetter - INFO - Volume of aliquot: -700.0 ul
+2023-03-04 17:06:45,084 - main.pipetter.Pipetter - INFO - Aspiration volume: 1.0ul Dispensing volume: 1.0ul
+2023-03-04 17:06:54,175 - main.pipetter.Pipetter - INFO - Weight of aliquot: 3100.0 mg
+2023-03-04 17:06:54,175 - main.pipetter.Pipetter - INFO - Volume of aliquot: 3100.0 ul
+2023-03-04 17:06:55,180 - main - INFO - Performed one measurement:  event_id:0   substance:DMEM   transfer_volume:1.0
+2023-03-04 17:06:55,180 - main - INFO - Result: {'DMEM_1.0ul': {'weight': [-2000.0, -700.0, 3100.0], 'volume': [-2000.0, -700.0, 3100.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 22:07:11,208 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-04 22:07:20,294 - main - INFO - zeus is loaded as: zm
+2023-03-04 22:07:20,294 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-04 22:07:23,299 - main - INFO - gantry is loaded as: gt
+2023-03-04 22:07:23,299 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-04 22:07:31,616 - main - INFO - gantry is homed
+2023-03-04 22:07:31,767 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-04 22:07:33,769 - main - INFO - pipetter is loaded as: pt
+2023-03-04 22:07:33,769 - main.planner - INFO - Substance: PBS        is added to: plate_id_4_container_0
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: DMEM       is added to: plate_id_4_container_1
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_8192uM is added to: plate_id_7_container_0
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_4096uM is added to: plate_id_7_container_1
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_2048uM is added to: plate_id_7_container_2
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_1024uM is added to: plate_id_7_container_3
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_512uM  is added to: plate_id_7_container_4
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_256uM  is added to: plate_id_7_container_5
+2023-03-04 22:07:33,770 - main.planner - INFO - Substance: BSA_128uM  is added to: plate_id_7_container_6
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: BSA_64uM   is added to: plate_id_7_container_7
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: BSA_32uM   is added to: plate_id_7_container_8
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_8192uM  is added to: plate_id_7_container_9
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_4096uM  is added to: plate_id_7_container_10
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_2048uM  is added to: plate_id_7_container_11
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_1024uM  is added to: plate_id_7_container_12
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_512uM   is added to: plate_id_7_container_13
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_256uM   is added to: plate_id_7_container_14
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_128uM   is added to: plate_id_7_container_15
+2023-03-04 22:07:33,771 - main.planner - INFO - Substance: LZ_64uM    is added to: plate_id_7_container_16
+2023-03-04 22:07:33,772 - main.planner - INFO - Substance: LZ_32uM    is added to: plate_id_7_container_17
+2023-03-04 22:07:33,772 - main.planner - INFO - Substance: NPs        is added to: plate_id_7_container_18
+2023-03-04 22:07:33,772 - main - INFO - All substances are loaded to the corresponding containers.
+2023-03-04 22:07:33,772 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 22:07:34,285 - main.planner - INFO - event_dataframe is generated with 8 events.
+2023-03-04 22:07:34,287 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_04_22_07.json
+2023-03-04 22:07:34,287 - main - INFO - All events are generated to dataframes from excel here: protein_screen\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx
+2023-03-04 22:07:34,289 - main.planner - INFO - Event_list is generated with 8 events.
+2023-03-04 22:07:34,289 - main - INFO - All event objects are generated from dataframes.
+2023-03-04 22:07:41,211 - main - INFO - The tip is changed to : 300ul
+2023-03-04 22:08:11,625 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 22:08:30,495 - main.pipetter.Pipetter - INFO - Weight of aliquot: 301900.0 mg
+2023-03-04 22:08:30,495 - main.pipetter.Pipetter - INFO - Volume of aliquot: 301900.0 ul
+2023-03-04 22:09:01,429 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 22:09:20,302 - main.pipetter.Pipetter - INFO - Weight of aliquot: 306200.0 mg
+2023-03-04 22:09:20,302 - main.pipetter.Pipetter - INFO - Volume of aliquot: 306200.0 ul
+2023-03-04 22:09:51,208 - main.pipetter.Pipetter - INFO - Aspiration volume: 300.0ul Dispensing volume: 300.0ul
+2023-03-04 22:10:10,089 - main.pipetter.Pipetter - INFO - Weight of aliquot: 298300.0 mg
+2023-03-04 22:10:10,089 - main.pipetter.Pipetter - INFO - Volume of aliquot: 298300.0 ul
+2023-03-04 22:10:11,102 - main - INFO - Performed one measurement:  event_id:7   substance:DMEM   transfer_volume:300.0
+2023-03-04 22:10:11,102 - main - INFO - Result: {'DMEM_300.0ul': {'weight': [301900.0, 306200.0, 298300.0], 'volume': [301900.0, 306200.0, 298300.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 22:10:42,074 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 22:11:00,944 - main.pipetter.Pipetter - INFO - Weight of aliquot: 202700.0 mg
+2023-03-04 22:11:00,944 - main.pipetter.Pipetter - INFO - Volume of aliquot: 202700.0 ul
+2023-03-04 22:11:31,528 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 22:11:50,416 - main.pipetter.Pipetter - INFO - Weight of aliquot: 201500.0 mg
+2023-03-04 22:11:50,416 - main.pipetter.Pipetter - INFO - Volume of aliquot: 201500.0 ul
+2023-03-04 22:12:21,003 - main.pipetter.Pipetter - INFO - Aspiration volume: 200.0ul Dispensing volume: 200.0ul
+2023-03-04 22:12:39,871 - main.pipetter.Pipetter - INFO - Weight of aliquot: 204400.0 mg
+2023-03-04 22:12:39,871 - main.pipetter.Pipetter - INFO - Volume of aliquot: 204400.0 ul
+2023-03-04 22:12:40,881 - main - INFO - Performed one measurement:  event_id:6   substance:DMEM   transfer_volume:200.0
+2023-03-04 22:12:40,881 - main - INFO - Result: {'DMEM_200.0ul': {'weight': [202700.0, 201500.0, 204400.0], 'volume': [202700.0, 201500.0, 204400.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 22:13:11,538 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 22:13:30,417 - main.pipetter.Pipetter - INFO - Weight of aliquot: 100900.0 mg
+2023-03-04 22:13:30,417 - main.pipetter.Pipetter - INFO - Volume of aliquot: 100900.0 ul
+2023-03-04 22:14:00,570 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 22:14:19,434 - main.pipetter.Pipetter - INFO - Weight of aliquot: 98100.0 mg
+2023-03-04 22:14:19,434 - main.pipetter.Pipetter - INFO - Volume of aliquot: 98100.0 ul
+2023-03-04 22:14:49,673 - main.pipetter.Pipetter - INFO - Aspiration volume: 100.0ul Dispensing volume: 100.0ul
+2023-03-04 22:15:08,531 - main.pipetter.Pipetter - INFO - Weight of aliquot: 100800.0 mg
+2023-03-04 22:15:08,531 - main.pipetter.Pipetter - INFO - Volume of aliquot: 100800.0 ul
+2023-03-04 22:15:09,531 - main - INFO - Performed one measurement:  event_id:5   substance:DMEM   transfer_volume:100.0
+2023-03-04 22:15:09,531 - main - INFO - Result: {'DMEM_100.0ul': {'weight': [100900.0, 98100.0, 100800.0], 'volume': [100900.0, 98100.0, 100800.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 22:15:40,083 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 22:15:58,962 - main.pipetter.Pipetter - INFO - Weight of aliquot: 51400.0 mg
+2023-03-04 22:15:58,962 - main.pipetter.Pipetter - INFO - Volume of aliquot: 51400.0 ul
+2023-03-04 22:16:29,013 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 22:16:47,888 - main.pipetter.Pipetter - INFO - Weight of aliquot: 31500.0 mg
+2023-03-04 22:16:47,888 - main.pipetter.Pipetter - INFO - Volume of aliquot: 31500.0 ul
+2023-03-04 22:17:18,027 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-04 22:17:36,903 - main.pipetter.Pipetter - INFO - Weight of aliquot: 49500.0 mg
+2023-03-04 22:17:36,903 - main.pipetter.Pipetter - INFO - Volume of aliquot: 49500.0 ul
+2023-03-04 22:17:37,914 - main - INFO - Performed one measurement:  event_id:4   substance:DMEM   transfer_volume:50.0
+2023-03-04 22:17:37,914 - main - INFO - Result: {'DMEM_50.0ul': {'weight': [51400.0, 31500.0, 49500.0], 'volume': [51400.0, 31500.0, 49500.0], 'liquid_class_index': [1, 1, 1], 'tip_type': ['300ul', '300ul', '300ul']}}
+2023-03-04 22:18:08,357 - main.pipetter.Pipetter - INFO - Aspiration volume: 25.0ul Dispensing volume: 25.0ul
+2023-03-05 21:28:10,832 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-05 21:28:25,417 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-05 21:30:37,313 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
