@@ -19,7 +19,7 @@ class Pipetter():
     def __init__(self, zeus, gantry):
         self.zeus = zeus
         self.gantry = gantry
-        self.balance = serial.Serial(port='COM7',
+        self.balance = serial.Serial(port='COM4',
                                      baudrate=19200,
                                      stopbits=serial.STOPBITS_ONE,
                                      parity=serial.PARITY_NONE,
@@ -305,7 +305,8 @@ def main():
     zm = zeus.ZeusModule(id=1)
     time.sleep(5)
     gt = gantry.Gantry(zeus=zm)
-    # gt.home_xy()
+    time.sleep(2)
+    gt.home_xy()
     time.sleep(5)
     pt = Pipetter(zeus=zm, gantry=gt)
 
@@ -313,4 +314,7 @@ def main():
 
 
 if __name__ == '__main__':
+    import zeus
+    import gantry
+    import breadboard as brb
     zm, gt, pt = main()

@@ -5,6 +5,9 @@ module_logger = logging.getLogger('main.gantry')
 import serial
 import numpy as np
 import time
+import importlib
+
+import breadboard as brb
 
 class Gantry():
 
@@ -19,8 +22,8 @@ class Gantry():
 
     def __init__(self,
                  zeus: object, # pass the zeus module to gantry, this is for checking traverse height,
-                 max_x: int = -810,
-                 max_y: int = -357,
+                 max_x: int = -820,
+                 max_y: int = -360,
                  horiz_speed: int = 200*60,# horizontal speed in mm / min
                  xy_offset: tuple = (4, 0),# offsets in x and y, negative to right, closer; positive, to left, further
                  trash_xy: tuple = (-500, -70),

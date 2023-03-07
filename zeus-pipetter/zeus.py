@@ -1745,4 +1745,14 @@ if __name__ == '__main__':
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.tube_1500ul)
 
+    # load deck parameters
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
+    time.sleep(1)
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
+    time.sleep(1)
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
+    time.sleep(1)
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
+    time.sleep(1)
+
     # lc = ZeusLiquidClass(zm = zm)
