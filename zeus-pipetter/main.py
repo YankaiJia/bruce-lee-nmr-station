@@ -49,7 +49,6 @@ logger = setup_logger()
 import time
 import importlib
 import zeus
-import gantry
 import pipetter
 import planner as pln
 import breadboard as brb
@@ -61,7 +60,7 @@ def initiate_hardware():
     logger.info("zeus is loaded as: zm")
 
     # initiate gantry
-    gt = gantry.Gantry(zeus=zm)
+    gt = pipetter.Gantry(zeus=zm)
     time.sleep(3)
     logger.info("gantry is loaded as: gt")
     # gt.configure_grbl() # This only need to be done once.
@@ -97,19 +96,20 @@ zm, gt, pt = initiate_hardware()
 # specify_tip_and_liquidClassIndex_for_calibration()
 
 
-# # do_calibration
+# do_calibration
 # weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
 #                                                    calibration_event_list=calibration_event_list)
 
 
 # event_dataframe_bio, event_list_bio = \
 #     pln.generate_event_object(logger=logger,
-#                               txt_path_for_substance='protein_screen\\20230301_ BSA_LZ_Robot_Yankai_settings.txt',
-#                               excel_to_generate_dataframe='protein_screen\\20230301_ BSA_LZ_Robot_Yankai.xlsx',
-#                               sheet_name='80MUAb_10_13', usecols='C:W',
+#                               txt_path_for_substance='protein_screen\\03072023_Plate_reader_UvVis_Yankai_test.txt',
+#                               excel_to_generate_dataframe='protein_screen\\03072023_Plate_reader_UvVis_Yankai_test_supplementary.xlsx',
+#                               sheet_name='Treated_Yankai', usecols='C:G',
 #                               is_pipeting_to_balance=False, is_for_bio=True)
 
-# pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list_bio)
+# pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list_bio[:114])
+# pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list_bio[:114])
 
 # new_event_list = [event for i, event in enumerate(event_list_bio) if i % 5 == 0]
 
@@ -124,6 +124,22 @@ zm, gt, pt = initiate_hardware()
 #                               is_pipeting_to_balance=False, is_for_bio=False)
 
 # pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list)
+
+event_dataframe_chem, event_list_chem = \
+    pln.generate_event_object(logger=logger,
+                              txt_path_for_substance='NPs\\nps_03082023.txt',
+                              excel_to_generate_dataframe='NPs\\reaction_template_for_robot_test_for_ethanol.xlsx',
+                              sheet_name='reactions', usecols='H',
+                              is_pipeting_to_balance=False, is_for_bio=False)
+
+for event in event_list_chem:
+    # if event.substance_name == 'Substance_E':
+    #     event.asp_liquidSurface = 1700
+    #     event.asp_lldsearchPosition = 1700
+    #     event.asp_lldSearchPosition = 1700
+    event.asp_liquidClassTableIndex = 43
+
+# pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list_chem)
 
 
 # def cloud_logging_test():
@@ -142,4 +158,12 @@ zm, gt, pt = initiate_hardware()
 # #     for key, value in result.items():
 # #         avg.append(sum(value['weight'])/len(value['weight']))
 #
-#
+# for event in event_list_bio:
+#     print(f'LiquidIndex: {event.asp_liquidClassTableIndex}, '
+#           f'asp_vol: {event.aspirationVolume}, '
+#           f'tiptype: {event.tip_type},'
+#           f'substance: {event.substance_name}')
+
+event_list_chem[0].source_container.container_id
+
+aa = [id(container) for container in  brb.plate_list[0].containers]

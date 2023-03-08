@@ -13,7 +13,6 @@ import zeus
 
 
 
-import gantry
 
 import time
 import numpy as np
@@ -364,9 +363,9 @@ def load_new_tip_tack(rack_reload ):
 
     return tip_rack
 ## run this ONLY when changing new tip rack.
-# load_new_tip_tack(rack_reload = '300ul')
-# load_new_tip_tack(rack_reload = '1000ul')
-# load_new_tip_tack(rack_reload = '50ul')
+# load_new_tip_rack(rack_reload = '300ul')
+# load_new_tip_rack(rack_reload = '1000ul')
+# load_new_tip_rack(rack_reload = '50ul')
 
 
 # Zeus

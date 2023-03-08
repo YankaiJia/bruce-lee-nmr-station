@@ -10,7 +10,7 @@ import pandas as pd
 from pprint import pprint
 import breadboard as brb
 
-source_substance_containers: list = []
+
 
 class EventInterpreter:
     '''This class is used to interpret the MS excel file to a list of pipetting df.
@@ -105,42 +105,6 @@ class EventInterpreter:
                     event_id += 1
 
 
-# add substance to containers
-def add_one_substance_to_stock_containers(line_str: str):
-    """
-    line example: DMF plate_4_container_2 20ml, DMF_empty, 0.944
-    """
-    substance_name, source_container_name, stock_volume, substance_solvent, substance_density = line_str.split()
-    # print([substance_name,source_container_name, stock_volume])
-    stock_volume_int = int(float(stock_volume[:-2]) * 1000)  # ml converting to ul
-
-    # source_container_name exp: 'plate_4_container_2'
-    plate_id = int(re.findall(r'\d+', source_container_name)[0])  # extract the first number using regex as plate_id
-    container_id = int(
-        re.findall(r'\d+', source_container_name)[-1])  # extract the last number using regex as container_id
-
-    brb.plate_list[plate_id].add_substance_to_container(substance_name=substance_name,
-                                                        container_id=container_id,
-                                                        liquid_volume=stock_volume_int,
-                                                        solvent=substance_solvent,
-                                                        substance_density=substance_density)
-    module_logger.info(f'Substance: {substance_name:<10} is added to: plate_id_{plate_id}_container_{container_id}')
-    # return exp {'DMF': {'plate_id': 4, 'container_id': 2}}
-    substance_container = {substance_name: {'plate_id': plate_id, 'container_id': container_id}}
-
-    return substance_container
-
-
-def add_all_substance_to_stock_containers(txt_path: str):
-    global source_substance_containers
-    with open(txt_path) as file:
-        lines_without_header = file.readlines()[1:]
-        for this_line in lines_without_header:
-            # print(this_line)
-            one_substance = add_one_substance_to_stock_containers(this_line)
-            source_substance_containers.append(one_substance)
-    return source_substance_containers
-
 
 class TransferEventConstructor:
 
@@ -226,7 +190,7 @@ class TransferEventConstructor:
         """
         # print(substance_name)
         if source_containers is None:
-            source_containers = source_substance_containers  # global variable, mutable object (list),
+            source_containers = brb.source_substance_containers  # global variable, mutable object (list),
             # so it should not be used directly as a default argument
         for this_substance in source_containers:  # iterate through keys
             # print(this_substance)
@@ -348,7 +312,7 @@ def generate_event_object(logger, txt_path_for_substance: str, excel_to_generate
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False):
     # load containers for source substances
-    source_substance_containers = add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
+    source_substance_containers = brb.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
     logger.info("All substances are loaded to the corresponding containers.")
 
     # generate event dataframes from excel
@@ -434,6 +398,9 @@ def run_events_chem(zm, pt, logger, event_list):
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
         pt.transfer_liquid(event_list[event_index])
+
+        # if event_list[event_index].substance_name != 'Substance_F':
+        #     pt.change_tip(event_list[event_index].tip_type)
 
         time.sleep(0.05)
         logger.info(f"Performed one event: {event_list[event_index].event_label}")

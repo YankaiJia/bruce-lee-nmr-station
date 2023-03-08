@@ -19,10 +19,20 @@ from dataclasses import dataclass
 import numpy as np
 import copy
 import json
+import re
 
-floor_z = 2210
+floor_z = 2220
 ZeusTraversePosition = 880
 balance_traverse_height = ZeusTraversePosition
+
+bottom_z_of_vial_2ml = 2200
+bottom_z_of_well_bio = 2190
+bottom_z_of_bottle_20ml = 2175
+bottom_z_of_jar_100ml = 2120
+bottom_z_of_tube_1500ul = 2190
+bottom_z_of_balance_cuvette = 1930
+
+source_substance_containers: list = []
 
 @dataclass
 class Deck:
@@ -34,8 +44,8 @@ class Deck:
 
 deckgeom_300ul = Deck(index=0,
                       endTraversePosition=ZeusTraversePosition,
-                      beginningofTipPickingPosition=1650,
-                      positionofTipDepositProcess=1650+287)
+                      beginningofTipPickingPosition=1500,
+                      positionofTipDepositProcess=1650)
 
 deckgeom_1000ul = Deck(index=1,
                        endTraversePosition=ZeusTraversePosition,
@@ -49,8 +59,8 @@ deckgeom_balance = Deck(index=2,
 
 deckgeom_50ul = Deck(index=3,
                      endTraversePosition=ZeusTraversePosition,
-                     beginningofTipPickingPosition=1530,
-                     positionofTipDepositProcess=1817)  # this is the same as 300ul tips
+                     beginningofTipPickingPosition=1500,
+                     positionofTipDepositProcess=1650)  # this is the same as 300ul tips
 
 
 @dataclass
@@ -95,11 +105,11 @@ class Container:
 vial_2ml = Container(
     name='vial_2ml',
     containerGeometryTableIndex=0,
-    container_shape = 'cylindrical',
+    container_shape="cylindrical",
     diameter=98,
     bottomHeight=0,
     bottomSection=10000,
-    bottomPosition=2191,
+    bottomPosition=bottom_z_of_vial_2ml,
     immersionDepth=10,
     leavingHeight=20,
     jetHeight=130,
@@ -126,7 +136,7 @@ well_bio = Container(
     diameter=68,
     bottomHeight=0,
     bottomSection=10000,
-    bottomPosition=2180,
+    bottomPosition=bottom_z_of_well_bio,
     immersionDepth=20,
     leavingHeight=20,
     jetHeight=60,
@@ -154,7 +164,7 @@ bottle_20ml = Container(
     diameter=255,
     bottomHeight=0,
     bottomSection=10000,
-    bottomPosition=2165,
+    bottomPosition=bottom_z_of_bottle_20ml,
     immersionDepth=10,
     leavingHeight=30,
     jetHeight=130,
@@ -181,7 +191,7 @@ jar_100ml = Container(
     diameter=520,  # ID of tube
     bottomHeight=0,
     bottomSection=10000,
-    bottomPosition=2070,
+    bottomPosition=bottom_z_of_jar_100ml,
     immersionDepth=40,
     leavingHeight=40,
     jetHeight=130,
@@ -208,7 +218,7 @@ tube_1500ul = Container(
     diameter=88,
     bottomHeight=195,
     bottomSection=0,
-    bottomPosition=2175,
+    bottomPosition=bottom_z_of_tube_1500ul,
     immersionDepth=20,
     leavingHeight=20,
     jetHeight=80,
@@ -235,7 +245,7 @@ balance_cuvette = Container(
     diameter=400,  # ID of tube
     bottomHeight=0,
     bottomSection=10000,
-    bottomPosition=1590,
+    bottomPosition=bottom_z_of_balance_cuvette,
     immersionDepth=20,
     leavingHeight=20,
     jetHeight=100,
@@ -249,7 +259,7 @@ balance_cuvette = Container(
     top_z=70,
     safety_margin_for_lldsearch_position=40,
     solvent='water',
-    xy=(-810, -200),  # coordinate
+    xy=(-820, -240),  # coordinate
     substance='water',
     substance_density= 1.0,
     container_id='balance_cuvette'
@@ -453,7 +463,7 @@ def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomrigh
     return plate
 
 
-def load_new_tip_tack(rack_reload):
+def load_new_tip_rack(rack_reload):
     # tip_rack = {}
     with open('data/tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
@@ -483,13 +493,29 @@ def load_new_tip_tack(rack_reload):
                     'substance': 'None'
                     },
            }
+    if rack_reload == '50ul':
+        x_gap_50ul = 99
+        y_gap_50ul = 62.5
+        xy_topleft_50ul = (-29, -20)
+        tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
+                                       Nwells=(8, 12),
+                                       topleft=(xy_topleft_50ul[0], xy_topleft_50ul[1]),
+                                       topright=(xy_topleft_50ul[0]-x_gap_50ul, xy_topleft_50ul[1]),
+                                       bottomleft=(xy_topleft_50ul[0], xy_topleft_50ul[1] -  y_gap_50ul),
+                                       bottomright=(xy_topleft_50ul[0]-x_gap_50ul, xy_topleft_50ul[1]-  y_gap_50ul)
+                                       )
+
     if rack_reload == '300ul':
+        x_gap_300ul = 99
+        y_gap_300ul = 62.5
+        xy_topleft_300ul = (-155, -22)
         tip_rack['300ul'] = create_deck(template_well=tip['300ul'],
                                         Nwells=(8, 12),
-                                        topleft=(-158.5, -44.5),
-                                        topright=(-257.5, -44.5),
-                                        bottomleft=(-158.5, -107),
-                                        bottomright=(-257.5, -107))
+                                        topleft=(xy_topleft_300ul[0], xy_topleft_300ul[1]),
+                                        topright=(xy_topleft_300ul[0]-x_gap_300ul, xy_topleft_300ul[1]),
+                                        bottomleft=(xy_topleft_300ul[0], xy_topleft_300ul[1] -  y_gap_300ul),
+                                        bottomright=(xy_topleft_300ul[0]-x_gap_300ul, xy_topleft_300ul[1]-  y_gap_300ul)
+                                        )
     if rack_reload == '1000ul':
         x_gap_1000ul = 99.5
         y_gap_1000ul = 62.5
@@ -501,30 +527,68 @@ def load_new_tip_tack(rack_reload):
                                          bottomleft=(xy_topleft_1000ul[0], xy_topleft_1000ul[1]-y_gap_1000ul),
                                          bottomright=(xy_topleft_1000ul[0] - x_gap_1000ul, xy_topleft_1000ul[1] - y_gap_1000ul))
 
-    if rack_reload == '50ul':
-        tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
-                                       Nwells=(8, 12),
-                                       topleft=(-33.5, -44.5),
-                                       topright=(-132.5, -44.5),
-                                       bottomleft=(-33.5, -107),
-                                       bottomright=(-132.5, -107))
-
     with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
     return tip_rack
+
+with open('data/tip_rack.json') as json_file:
+    tip_rack = json.load(json_file)
+
+tip_rack_50ul = tip_rack['50ul']
+tip_rack_300ul = tip_rack['300ul']
+tip_rack_1000ul = tip_rack['1000ul']
+
+
+# add substance to containers
+def add_one_substance_to_stock_containers(line_str: str):
+    """
+    line example: DMF plate_4_container_2 20ml, DMF_empty, 0.944
+    """
+    substance_name, source_container_name, stock_volume, substance_solvent, substance_density = line_str.split()
+    # print([substance_name,source_container_name, stock_volume])
+    stock_volume_int = int(float(stock_volume[:-2]) * 1000)  # ml converting to ul
+
+    # source_container_name exp: 'plate_4_container_2'
+    plate_id = int(re.findall(r'\d+', source_container_name)[0])  # extract the first number using regex as plate_id
+    container_id = int(
+        re.findall(r'\d+', source_container_name)[-1])  # extract the last number using regex as container_id
+
+    plate_list[plate_id].add_substance_to_container(substance_name=substance_name,
+                                                        container_id=container_id,
+                                                        liquid_volume=stock_volume_int,
+                                                        solvent=substance_solvent,
+                                                        substance_density=substance_density)
+    module_logger.info(f'Substance: {substance_name:<10} is added to: plate_id_{plate_id}_container_{container_id}')
+    # return exp {'DMF': {'plate_id': 4, 'container_id': 2}}
+    substance_container = {substance_name: {'plate_id': plate_id, 'container_id': container_id}}
+
+    return substance_container
+
+
+def add_all_substance_to_stock_containers(txt_path: str):
+    global source_substance_containers
+    with open(txt_path) as file:
+        lines_without_header = file.readlines()[1:]
+        for this_line in lines_without_header:
+            # print(this_line)
+            one_substance = add_one_substance_to_stock_containers(this_line)
+            source_substance_containers.append(one_substance)
+    return source_substance_containers
 
 def main():
 
     print("This is main.")
 
     # run this ONLY when changing new tip rack.
-    load_new_tip_tack(rack_reload = '300ul')
+    load_new_tip_rack(rack_reload ='300ul')
     module_logger.info('New tip rack: 300ul is loaded.')
-    load_new_tip_tack(rack_reload = '1000ul')
+    load_new_tip_rack(rack_reload ='1000ul')
     module_logger.info('New tip rack: 1000ul is loaded.')
-    load_new_tip_tack(rack_reload = '50ul')
+    load_new_tip_rack(rack_reload ='50ul')
     module_logger.info('New tip rack: 50ul is loaded.')
+
+
 
 
 

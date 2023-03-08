@@ -1667,21 +1667,25 @@ class ZeusModule:
         lc_param = LiquidClass(**para1)
         self.setLiquidClassParameters(lc_param)
         time.sleep(0.5)
+        print('Liquid class parameters set')
 
         ## write calibration curve
         # aspiration
         para2 = self.liquid_class_table_para['calibration']['aspiration'][str(liquid_index).zfill(2)]
-        ## There is a firmware malfuction here. Instead of send the string: GGid0001gg21ck + parameters. You should remove
-        ## gg21 from the string and send this:GGid0001ck + parameters. But before send this, you should do this:
-        ## zm.sendCommand('GHid0001gh21') and zm.sendCommand('RAid0000ragh'). Yaroslav figured this out. There was a lot of frustration
-        ## before this was figured out.
+        """
+        There is a firmware malfunction here. Instead of send the string: GGid0001gg21ck + parameters. You should remove
+        gg21 from the string and send this:GGid0001ck + parameters. But before send this, you should do this:
+        zm.sendCommand('GHid0001gh21') and zm.sendCommand('RAid0000ragh'). Yaroslav figured this out. There was a lot of frustration
+        before this was figured out.
+        """
         self.sendCommand('GGid0001gg' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.sendCommand('RAid0000ragg')
-        time.sleep(0.5)
+        time.sleep(2)
         para2_new = para2[:8] + para2[12:]
         self.sendCommand(para2_new)
-        time.sleep(0.5)
+        time.sleep(2)
+        print('Calibration for asp curve set')
         # dispensing
         para3 = self.liquid_class_table_para['calibration']['dispensing'][str(liquid_index).zfill(2)]
         self.sendCommand('GHid0001gh' + str(liquid_index).zfill(2))
@@ -1691,6 +1695,8 @@ class ZeusModule:
         para3_new = para3[:8] + para3[12:]
         self.sendCommand(para3_new)
         time.sleep(0.5)
+        print('Calibration for disp curve set')
+
         #
         # set_liquid_class_to_zeus(liquid_index = 21)
         # set_liquid_class_to_zeus(liquid_index = 22)
@@ -1699,28 +1705,40 @@ class ZeusModule:
         para4 = self.liquid_class_table_para['qpm']['aspiration'][str(liquid_index).zfill(2)]
         self.sendCommand(para4)
         time.sleep(0.5)
+        print('qpm for asp curve set')
+
         # dispensing
         para5 = self.liquid_class_table_para['qpm']['dispensing'][str(liquid_index).zfill(2)]
         self.sendCommand(para5)
         time.sleep(0.5)
+        print('qpm for disp curve set')
+
 
     def request_parameters_from_zeus(self, liquid_index):
 
         # liquid parameters
         self.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        print(f"liquid parameters: {self.r.received_msg}")
 
         # calibrations
         self.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        print(f"calibration_asp {self.r.received_msg}")
+
         self.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        print(f"calibration_disp {self.r.received_msg}")
+
 
         # qpm
         self.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        print(f"qpm_asp {self.r.received_msg}")
+
         self.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        print(f"qpm_asp {self.r.received_msg}")
 
     # set_liquid_class_to_zeus( liquid_index =23 )
 
