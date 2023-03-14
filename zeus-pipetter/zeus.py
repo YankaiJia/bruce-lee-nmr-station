@@ -1719,26 +1719,26 @@ class ZeusModule:
         # liquid parameters
         self.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
         time.sleep(0.5)
-        print(f"liquid parameters: {self.r.received_msg}")
+        self.logger.info(f"liquid parameters: {self.r.received_msg}")
 
         # calibrations
         self.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
         time.sleep(0.5)
-        print(f"calibration_asp {self.r.received_msg}")
+        self.logger.info(f"calibration_asp {self.r.received_msg}")
 
         self.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
         time.sleep(0.5)
-        print(f"calibration_disp {self.r.received_msg}")
+        self.logger.info(f"calibration_disp {self.r.received_msg}")
 
 
         # qpm
         self.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
         time.sleep(0.5)
-        print(f"qpm_asp {self.r.received_msg}")
+        self.logger.info(f"qpm_asp {self.r.received_msg}")
 
         self.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
         time.sleep(0.5)
-        print(f"qpm_asp {self.r.received_msg}")
+        self.logger.info(f"qpm_asp {self.r.received_msg}")
 
     # set_liquid_class_to_zeus( liquid_index =23 )
 
@@ -1763,14 +1763,14 @@ if __name__ == '__main__':
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.tube_1500ul)
 
-    # load deck parameters
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
-    time.sleep(1)
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
-    time.sleep(1)
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
-    time.sleep(1)
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
-    time.sleep(1)
+    # # load deck parameters
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
+    # time.sleep(1)
 
     # lc = ZeusLiquidClass(zm = zm)

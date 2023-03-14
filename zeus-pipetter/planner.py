@@ -1,4 +1,5 @@
 import logging
+
 module_logger = logging.getLogger('main.planner')
 
 import time
@@ -11,11 +12,10 @@ from pprint import pprint
 import breadboard as brb
 
 
-
 class EventInterpreter:
-    '''This class is used to interpret the MS excel file to a list of pipetting df.
+    '''This class is used to interpret the MS Excel file to a list of pipetting df.
     **How to use:
-        1, upon calling __init__, the MS excel file will be read into a
+        1, upon calling __init__, the MS Excel file will be read into a
     pandas dataframe called self.reaction_df. Also, an empty dataframe called self.pd_output
     will be created.
         2, call add_events_to_df() to add events to self.pd_output.
@@ -105,10 +105,9 @@ class EventInterpreter:
                     event_id += 1
 
 
-
 class TransferEventConstructor:
 
-    def __init__(self, event_dataframe, pipeting_to_balance=False):
+    def __init__(self, event_dataframe: pd.DataFrame, pipeting_to_balance: bool = False):
 
         self.substance_name: str = event_dataframe['substance']
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
@@ -150,7 +149,7 @@ class TransferEventConstructor:
                                         mode=self.source_container.solvent.split('_')[-1],
                                         tip_type=self.tip_type)
 
-        # print(f'asp_liquidClassTableIndex: {self.asp_liquidClassTableIndex}')
+        print(f'asp_liquidClassTableIndex: {self.asp_liquidClassTableIndex}')
         self.asp_liquidSurface: int = self.get_liquid_surface(self.source_container)
         # print(f'asp_liquidSurface: {self.asp_liquidSurface}')
         self.asp_lldSearchPosition: int = self.asp_liquidSurface - 50
@@ -237,9 +236,9 @@ class TransferEventConstructor:
         solvent_para = {solvent, mode, tip_type}  # define a set of paras
         for liquid_class, index in liquid_class_dict.items():
             solvent_para_here = set(liquid_class.split('_'))
+            # print(f'solvent_para_here: {solvent_para_here}')
+            # print(f'solvent_para: {solvent_para}')
             if solvent_para.issubset(solvent_para_here):
-                # print(f'solvent_para_here: {solvent_para_here}')
-                # print(f'solvent_para: {solvent_para}')
                 return index
 
     def choose_tip_type(self, transfer_volume: int):
@@ -268,35 +267,45 @@ class TransferEventConstructor:
         return round(container.bottomPosition - liquid_height)
 
 
-def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_name: str, usecols: str, is_for_bio: bool):
+def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_name: str, usecols: str, is_for_bio: bool) -> pd.DataFrame:
     # generate empty dataframes
     event_dataframes = EventInterpreter(dataframe_filename=dataframe_filename,
-                                                sheet_name=sheet_name,
-                                                usecols=usecols,
-                                                is_for_bio=is_for_bio)
+                                        sheet_name=sheet_name,
+                                        usecols=usecols,
+                                        is_for_bio=is_for_bio)
 
     # add all events to the dataframe
     event_dataframes.add_events_to_df()
 
     module_logger.info(f'event_dataframe is generated with {len(event_dataframes.pd_output.index)} events.')
-    event_dataframes.pd_output.to_json(f'event_dataframes\\event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
-                                       orient='records', lines=True)
+    event_dataframes.pd_output.to_json(
+        f'event_dataframes\\event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
+        orient='records', lines=True)
     module_logger.info(f'event_dataframe is saved as event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json')
 
     return event_dataframes.pd_output
 
 
-def generate_event_list(event_dataframe, pipeting_to_balance=False):
-    event_list = []
+def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool = False) -> list:
+    """
+    IMPORTANT: The source and destination containers in the event_list are not copied, but referenced to the brb.plate_list.
+    So, change the liquid_volume in the event_list will also change the nliquid_volume in the brb.plate_list, and vice versa.
+    You can check their by the following example code:
+    >> id(event_list[0].source_container) == id(brb.plate_list[x].containers[y]) # x, y correspond to the brb container index.
+    True
+    >> id(event_list[0].destination_container) == id(brb.plate_list[x].containers[y])
+    True
+    """
 
+    event_list = []
     for i in range(len(event_dataframe.index)):
         # print(i)
         event = TransferEventConstructor(event_dataframe=event_dataframe.iloc[i],
                                          pipeting_to_balance=pipeting_to_balance)
         # print(event.source_container.container_id, event.destination_container.container_id)
         # print(f'event_substance: {event.substance_name}')
-
-        event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
+        # event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
+        event_list.append(event)
 
         # volume update
         event.source_container.liquid_volume = event.source_container.liquid_volume - event.aspirationVolume
@@ -308,9 +317,9 @@ def generate_event_list(event_dataframe, pipeting_to_balance=False):
     return event_list
 
 
-def generate_event_object(logger, txt_path_for_substance: str, excel_to_generate_dataframe: str,
+def generate_event_object(logger: object, txt_path_for_substance: str, excel_to_generate_dataframe: str,
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
-                          is_for_bio: bool = False):
+                          is_for_bio: bool = False) -> tuple:
     # load containers for source substances
     source_substance_containers = brb.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
     logger.info("All substances are loaded to the corresponding containers.")
@@ -330,7 +339,7 @@ def generate_event_object(logger, txt_path_for_substance: str, excel_to_generate
     return event_dataframe, event_list
 
 
-def do_calibration_on_events(zm, pt, logger, calibration_event_list):
+def do_calibration_on_events(zm: object, pt: object, logger: object, calibration_event_list: list[object]) -> list:
     '''This function is used to calibrate the pipetting of substances.'''
     results_for_calibration = []
     if zm.tip_on_zeus:
@@ -345,7 +354,7 @@ def do_calibration_on_events(zm, pt, logger, calibration_event_list):
             time.sleep(0.5)
 
         result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index],
-                                                            n_times=3)
+                                                            n_times=2)
         results_for_calibration.append(result)
 
         time.sleep(1)
@@ -362,7 +371,7 @@ def do_calibration_on_events(zm, pt, logger, calibration_event_list):
     return results_for_calibration
 
 
-def run_events_bio(zm, pt, logger, event_list):
+def run_events_bio(zm: object, pt: object, logger: object, event_list: list[object]) -> None:
     if zm.tip_on_zeus:
         pt.discard_tip()
 
@@ -386,7 +395,7 @@ def run_events_bio(zm, pt, logger, event_list):
     pt.discard_tip()
 
 
-def run_events_chem(zm, pt, logger, event_list):
+def run_events_chem(zm: object, pt: object, logger: object, event_list: list[object]) -> None:
     if zm.tip_on_zeus:
         pt.discard_tip()
 
@@ -412,8 +421,6 @@ def run_events_chem(zm, pt, logger, event_list):
         time.sleep(0.5)
     pt.discard_tip()
 
-def main():
-    print("This is the main function of the module.")
 
 if __name__ == "__main__":
-    main()
+    print('You are runing the module: ', __name__)

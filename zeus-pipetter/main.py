@@ -76,29 +76,37 @@ def initiate_hardware():
     return zm, gt, pt
 
 zm, gt, pt = initiate_hardware()
+
+# generate_calibration_event_list
+calibration_event_dataframe, calibration_event_list = \
+    pln.generate_event_object(logger=logger,
+                              txt_path_for_substance='calibration_for_pipetting\\pipetting_calibration_settings_ALL.txt',
+                              excel_to_generate_dataframe='calibration_for_pipetting\\pipetting_calibration_substances_ALL.xlsx',
+                              sheet_name='Solvents', usecols='E',
+                              is_pipeting_to_balance=True, is_for_bio=False)
+# time.sleep(1)
+calibration_event_list = calibration_event_list[::-1] # reverse the list
+
+# specify tip and liquidClassIndex for calibration
+def specify_tip_and_liquidClassIndex_for_calibration():
+    for event in calibration_event_list:
+        event.tip_type = '300ul'
+        event.asp_liquidClassTableIndex = 22
+        event.disp_liquidClassTableIndex = 22
 #
-# # generate_calibration_event_list
-# calibration_event_dataframe, calibration_event_list = \
-#     pln.generate_event_object(logger=logger,
-#                               txt_path_for_substance='protein_screen\\20230301_BSA_LZ_Robot_Yankai_settings.txt',
-#                               excel_to_generate_dataframe='protein_screen\\20230301_BSA_LZ_Robot_Yankai_calib_DMEM.xlsx',
-#                               sheet_name='80MUAb_10_13', usecols='D',
-#                               is_pipeting_to_balance=True, is_for_bio=False)
-# # time.sleep(2)
-# calibration_event_list = calibration_event_list[::-1] # reverse the list
-# #
-# def specify_tip_and_liquidClassIndex_for_calibration():
-#     for event in calibration_event_list:
-#         event.tip_type = '300ul'
-#         event.asp_liquidClassTableIndex = 31
-#         event.disp_liquidClassTableIndex = 31
+specify_tip_and_liquidClassIndex_for_calibration()
+
+# calibration_event_list[0].aspirationVolume = 150
+# calibration_event_list[0].dispensingVolume = 150
 #
-# specify_tip_and_liquidClassIndex_for_calibration()
+# calibration_event_list[0].aspirationVolume = 170
+# calibration_event_list[1].dispensingVolume = 170
+
 
 
 # do_calibration
-# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-#                                                    calibration_event_list=calibration_event_list)
+weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+                                                   calibration_event_list= calibration_event_list[1:])
 
 
 # event_dataframe_bio, event_list_bio = \
@@ -125,19 +133,21 @@ zm, gt, pt = initiate_hardware()
 
 # pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list)
 
-event_dataframe_chem, event_list_chem = \
-    pln.generate_event_object(logger=logger,
-                              txt_path_for_substance='NPs\\nps_03082023.txt',
-                              excel_to_generate_dataframe='NPs\\reaction_template_for_robot_test_for_ethanol.xlsx',
-                              sheet_name='reactions', usecols='H',
-                              is_pipeting_to_balance=False, is_for_bio=False)
-
-for event in event_list_chem:
-    # if event.substance_name == 'Substance_E':
-    #     event.asp_liquidSurface = 1700
-    #     event.asp_lldsearchPosition = 1700
-    #     event.asp_lldSearchPosition = 1700
-    event.asp_liquidClassTableIndex = 43
+# event_dataframe_chem, event_list_chem = \
+#     pln.generate_event_object(logger=logger,
+#                               txt_path_for_substance='NPs\\nps_03082023.txt',
+#                               excel_to_generate_dataframe='NPs\\reaction_template_for_robot_test_for_ethanol.xlsx',
+#                               sheet_name='reactions', usecols='H',
+#                               is_pipeting_to_balance=False, is_for_bio=False)
+#
+# for event in event_list_chem:
+#     # if event.substance_name == 'Substance_E':
+#     #     event.asp_liquidSurface = 1700
+#     #     event.asp_lldsearchPosition = 1700
+#     #     event.asp_lldSearchPosition = 1700
+#     event.asp_liquidClassTableIndex = 1
+#     event.aspirationVolume = 300
+#     event.dispensingVolume = 300
 
 # pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list_chem)
 
@@ -149,10 +159,10 @@ for event in event_list_chem:
 #         i += 1
 #         time.sleep(10)
 #
-# # with open(f'calibration_for_pipetting/weights_for_calibration_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
-# #           'w', encoding='utf-8') as f:
-# #     json.dump(weighing_result, f, ensure_ascii=False, indent=4)
-#
+with open(f'calibration_for_pipetting/weights_for_calibration_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
+          'w', encoding='utf-8') as f:
+    json.dump(weighing_result, f, ensure_ascii=False)
+
 # # avg = []
 # # for result in weighing_result:
 # #     for key, value in result.items():
@@ -164,6 +174,6 @@ for event in event_list_chem:
 #           f'tiptype: {event.tip_type},'
 #           f'substance: {event.substance_name}')
 
-event_list_chem[0].source_container.container_id
+# event_list_chem[0].source_container.container_id
 
-aa = [id(container) for container in  brb.plate_list[0].containers]
+

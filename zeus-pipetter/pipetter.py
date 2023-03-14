@@ -14,6 +14,7 @@ import time
 import numpy as np
 import serial
 import importlib
+import re
 
 
 import breadboard as brb
@@ -229,7 +230,7 @@ class Pipetter():
 
 
     def pick_tip(self, tip_type: str):
-        global tip_on_zeus
+
         with open('data/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
@@ -275,15 +276,15 @@ class Pipetter():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
-    def draw_liquid(self, transfer_event, n_retries=3):
+    def draw_liquid(self, transfer_event: object, n_retries=3) -> None:
 
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.source_container.xy)
 
         for retry in range(n_retries):
             try:
-                # print(f'Aspiration volume: {int(round(transfer_event.aspirationVolume * 10))}')
-                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)),
+                print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
+                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)), # volume in 0.1 ul
                                      containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
                                      deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
                                      liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
@@ -311,7 +312,7 @@ class Pipetter():
         self.logger.info(f'Tried {n_retries} but zeus error is still there')
         raise Exception
 
-    def dispense_liquid(self, transfer_event):
+    def dispense_liquid(self, transfer_event: object) -> None:
 
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.destination_container.xy)
@@ -337,7 +338,10 @@ class Pipetter():
         # wait_until_zeus_reaches_traverse_height()
         self.zeus.wait_until_zeus_responds_with_string('GDid')
 
-    def transfer_liquid(self, transfer_event, max_volume=300):
+    def transfer_liquid(self, transfer_event: object, max_volume: int=None):
+
+        if max_volume is None:
+            max_volume = int(transfer_event.tip_type[:-2])
 
         # check if container is full.
         # if transfer_event.destination_container.liquid_volume > transfer_event.destination_container.volume_max:
@@ -346,12 +350,17 @@ class Pipetter():
 
         # if it exceeds max_volume, then do several pipettings
         N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
+        print(f'N_max_vol_pipettings: {N_max_vol_pipettings}')
 
         for i in range(N_max_vol_pipettings):
+            print(f'Pipetting {i+1} of {N_max_vol_pipettings}')
             _split_event_1 = copy.deepcopy(transfer_event)
-            _split_event_1.aspirationVolume = max_volume
-            _split_event_1.dispensingVolume = max_volume
+            _split_event_1.aspirationVolume = max_volume # volume in ul
+            _split_event_1.dispensingVolume = max_volume # volume in ul
+            print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
+            print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
             self.draw_liquid(_split_event_1)
+            liquid_surface_height = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_1)
 
         volume_of_last_pipetting = transfer_event.aspirationVolume % max_volume
@@ -360,10 +369,19 @@ class Pipetter():
             _split_event_2.aspirationVolume = volume_of_last_pipetting
             _split_event_2.dispensingVolume = volume_of_last_pipetting
             self.draw_liquid(_split_event_2)
+            liquid_surface_height = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_2)
 
         self.logger.info(f'Aspiration volume: {transfer_event.aspirationVolume}ul '
                          f'Dispensing volume: {transfer_event.dispensingVolume}ul')
+
+    def detect_liquid_surface(self) -> int:
+        self.zeus.sendCommand('GNid0001')
+        time.sleep(0.25)
+        liquid_surface_height_detected = re.findall('[0-9]+', self.zeus.r.received_msg)[1]
+
+        self.logger.info(f'liquid_surface_height_detected: {liquid_surface_height_detected}')
+        return int(liquid_surface_height_detected)
 
     def send_command_to_balance(self, command, read_all=True, verbose=False):
 
@@ -470,7 +488,7 @@ class Pipetter():
         print(f'weight_after: {weight_after} g')
 
         pipetting_weight = round((weight_after - weight_before) * 1000, 6)  # mg
-        pipetting_volume = pipetting_weight / transfer_event.source_container.substance_density
+        pipetting_volume = round(pipetting_weight / transfer_event.source_container.substance_density, 2)
         self.logger.info(f'Weight of aliquot: {pipetting_weight} mg')
         self.logger.info(f'Volume of aliquot: {pipetting_volume} ul')
         return pipetting_weight, pipetting_volume
