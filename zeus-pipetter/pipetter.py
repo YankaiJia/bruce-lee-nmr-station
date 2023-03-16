@@ -360,7 +360,7 @@ class Pipetter():
             print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
             print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
             self.draw_liquid(_split_event_1)
-            liquid_surface_height = self.detect_liquid_surface()
+            liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_1)
 
         volume_of_last_pipetting = transfer_event.aspirationVolume % max_volume
@@ -369,11 +369,13 @@ class Pipetter():
             _split_event_2.aspirationVolume = volume_of_last_pipetting
             _split_event_2.dispensingVolume = volume_of_last_pipetting
             self.draw_liquid(_split_event_2)
-            liquid_surface_height = self.detect_liquid_surface()
+            liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_2)
 
         self.logger.info(f'Aspiration volume: {transfer_event.aspirationVolume}ul '
                          f'Dispensing volume: {transfer_event.dispensingVolume}ul')
+
+        return liquid_surface_height_from_zeus
 
     def detect_liquid_surface(self) -> int:
         self.zeus.sendCommand('GNid0001')
@@ -480,6 +482,7 @@ class Pipetter():
         self.open_balance_door()
         print('Waiting for liquid transfer...')
         self.transfer_liquid(transfer_event=transfer_event)
+
         time.sleep(0.5)
         self.gantry.move_to_idle_position()
         self.close_balance_door()

@@ -65,6 +65,25 @@ Result: the volume has small error (~1%) at high volume, but the error is large 
 Next: redo the calibration at low volume.
 """
 
+"""
+with the following parameters where "01000 02000 02000 02000" is used, the interpolation is correct. That means with this parameter,
+whatever volume I pipette between 100ul and 200ul, the pipetter will try to pipette 200ul.
+calibration_asp GEid0001gg22ck00100 00067 00200 00165 00300 00262 00500 00462 00750 00709 01000 02000 02000 02000 03000 02942
+"""
+## with the following parameters the precision is good.
+# this is the result: [10.7, 20.38, 32.64, 50.7, 75.75, 100.85, 200.39, 299.67]
+parameters_used = """
+2023-03-15 01:09:09,555 - main.zeus.ZeusModule - INFO - liquid parameters: GMid0001lq22uu0 0 05000 0050 00050 00250 0200 010 0 3 3 0 0 05000 00000 000 00050 040 0200 010 0032573 00
+2023-03-15 01:09:10,089 - main.zeus.ZeusModule - INFO - calibration_asp GEid0001gg22ck00090 00100 00185 00200 00280 00300 00470 00500 00715 00750 00960 01000 01955 02000 03000 03050 00
+2023-03-15 01:09:10,634 - main.zeus.ZeusModule - INFO - calibration_disp GIid0001gh22cl00090 00100 00185 00200 00280 00300 00470 00500 00715 00750 00960 01000 01955 02000 03000 03050 00
+2023-03-15 01:09:11,178 - main.zeus.ZeusModule - INFO - qpm_asp GSid0001gv22vv0100 0000 0015 0 0100 0000 0015 0 0100 0000 0015 1 0100 0000 0015 1 0100 0000 0015 1 0100 0005 0015 1 0100 0005 0015 1 0100 0005 0015 1 0000 0000 0000j誮
+2023-03-15 01:09:11,710 - main.zeus.ZeusModule - INFO - qpm_asp GWid0001gp22ww0257 0000 1 0303 0000 1 0365 0000 1 0395 0000 1 0509 0000 1 0703 0000 1 0887 0000 1 0973 0000 1 0000 0000
+"""
+
+
+
+
+
 LiquidClassIndex_precalib_24 = """
 liquid parameters: GMid0001lq24uu0 0 05000 0020 00030 00300 0200 010 0 3 3 0 0 05000 00000 000 00030 040 0200 010 0032567 00
 calibration_asp GEid0001gg24ck00030 00030 00040 00040 00050 00050 00080 00080 00100 00100 00200 00200 00300 00300 00500 00500 00
@@ -109,11 +128,7 @@ dmf_1000ul_avg = [9.88, 19.6, 49.44, 98.32, 197.36, 496.15, 743.31, 987.6]
 dmf_1000ul_std = [0.17, 0.35, 0.35, 1.02, 1.58, 0.6, 0.79, 1.62]
 
 
-"""
-with the following parameters where "01000 02000 02000 02000" is used, the interpolation is correct. That means with this parameter,
-whatever volume I pipette between 100ul and 200ul, the pipetter will try to pipette 200ul.
-calibration_asp GEid0001gg22ck00100 00067 00200 00165 00300 00262 00500 00462 00750 00709 01000 02000 02000 02000 03000 02942
-"""
+
 
 
 

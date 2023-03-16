@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, Any
 
 module_logger = logging.getLogger('main.planner')
 
@@ -354,7 +355,7 @@ def do_calibration_on_events(zm: object, pt: object, logger: object, calibration
             time.sleep(0.5)
 
         result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index],
-                                                            n_times=2)
+                                                            n_times=1)
         results_for_calibration.append(result)
 
         time.sleep(1)
@@ -372,6 +373,8 @@ def do_calibration_on_events(zm: object, pt: object, logger: object, calibration
 
 
 def run_events_bio(zm: object, pt: object, logger: object, event_list: list[object]) -> None:
+    liquid_surface_height_from_zeus = {}
+
     if zm.tip_on_zeus:
         pt.discard_tip()
 
@@ -382,7 +385,12 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
-        pt.transfer_liquid(event_list[event_index])
+        liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] = \
+            liquid_surface_height_from_zeus_here
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + 'volume'] = \
+            (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
+            * event_list[event_index].source_container.area / 10000
 
         time.sleep(0.5)
         logger.info(f"Performed one event: {event_list[event_index].event_label}")
@@ -394,8 +402,12 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
         time.sleep(0.5)
     pt.discard_tip()
 
+    return liquid_surface_height_from_zeus
 
-def run_events_chem(zm: object, pt: object, logger: object, event_list: list[object]) -> None:
+def run_events_chem(zm: object, pt: object, logger: object, event_list: list[object]) -> dict[Any, Any]:
+
+    liquid_surface_height_from_zeus = {}
+
     if zm.tip_on_zeus:
         pt.discard_tip()
 
@@ -406,7 +418,12 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list: list[obj
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
-        pt.transfer_liquid(event_list[event_index])
+        liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] =  \
+            liquid_surface_height_from_zeus_here
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + 'volume'] = \
+            (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
+            *event_list[event_index].source_container.area /10000
 
         # if event_list[event_index].substance_name != 'Substance_F':
         #     pt.change_tip(event_list[event_index].tip_type)
@@ -420,6 +437,8 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list: list[obj
                 pt.change_tip(event_list[event_index + 1].tip_type)
         time.sleep(0.5)
     pt.discard_tip()
+
+    return liquid_surface_height_from_zeus
 
 
 if __name__ == "__main__":
