@@ -12549,3 +12549,71 @@
 2023-03-16 00:53:44,516 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
 2023-03-16 00:53:44,578 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
 2023-03-16 00:53:54,492 - main.zeus.ZeusModule - ERROR - No tip picked up or no tip present.
+2023-03-17 21:24:07,902 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-17 21:24:16,978 - main - INFO - zeus is loaded as: zm
+2023-03-17 21:24:16,978 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-17 21:24:19,986 - main - INFO - gantry is loaded as: gt
+2023-03-17 21:24:19,986 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-17 21:24:26,567 - main - INFO - gantry is homed
+2023-03-17 21:24:26,718 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-17 21:24:28,723 - main - INFO - pipetter is loaded as: pt
+2023-03-17 21:24:34,945 - main.zeus.ZeusModule - ERROR - No tip picked up or no tip present.
+2023-03-17 21:24:35,040 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-17 21:25:04,474 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-17 21:25:13,566 - main - INFO - zeus is loaded as: zm
+2023-03-17 21:25:13,566 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-17 21:25:16,577 - main - INFO - gantry is loaded as: gt
+2023-03-17 21:25:16,577 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-17 21:25:23,146 - main - INFO - gantry is homed
+2023-03-17 21:25:23,297 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-17 21:25:25,310 - main - INFO - pipetter is loaded as: pt
+2023-03-17 21:25:32,173 - main - INFO - The tip is changed to : 300ul
+2023-03-17 21:25:42,026 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1979
+2023-03-17 21:25:45,997 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:25:46,057 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:26:08,203 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2086
+2023-03-17 21:26:12,170 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:26:12,229 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:26:28,151 - main.zeus.ZeusModule - ERROR - Liquid level not detected.
+2023-03-17 21:26:28,153 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-17 21:26:29,706 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-17 21:27:18,597 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-17 21:27:18,597 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-17 21:27:27,048 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-17 21:27:36,119 - main - INFO - zeus is loaded as: zm
+2023-03-17 21:27:36,119 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-17 21:27:39,135 - main - INFO - gantry is loaded as: gt
+2023-03-17 21:27:39,135 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-17 21:27:44,808 - main - INFO - gantry is homed
+2023-03-17 21:27:44,959 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-17 21:27:46,973 - main - INFO - pipetter is loaded as: pt
+2023-03-17 21:27:53,941 - main - INFO - The tip is changed to : 300ul
+2023-03-17 21:28:03,857 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1978
+2023-03-17 21:28:07,826 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:28:07,886 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:28:29,926 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2086
+2023-03-17 21:28:33,901 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:28:33,962 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:28:54,687 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1890
+2023-03-17 21:28:58,660 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:28:58,720 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:29:02,872 - main - INFO - liquid_surface_heights: {'Substance_A_height': 1978, 'Substance_Avolume': 10.060789999999999, 'Substance_B_height': 2086, 'Substance_Bvolume': 4.545229999999999, 'Substance_C_height': 1890, 'Substance_Cvolume': 14.55495}
+2023-03-17 21:32:33,942 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-17 21:32:43,016 - main - INFO - zeus is loaded as: zm
+2023-03-17 21:32:43,016 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-17 21:32:46,028 - main - INFO - gantry is loaded as: gt
+2023-03-17 21:32:46,028 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-17 21:32:54,351 - main - INFO - gantry is homed
+2023-03-17 21:32:54,503 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-17 21:32:56,503 - main - INFO - pipetter is loaded as: pt
+2023-03-17 21:33:03,540 - main - INFO - The tip is changed to : 300ul
+2023-03-17 21:33:13,539 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1979
+2023-03-17 21:33:17,514 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:33:17,574 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:33:39,726 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2086
+2023-03-17 21:33:43,689 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:33:43,750 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:34:04,568 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1891
+2023-03-17 21:34:08,543 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-17 21:34:08,603 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-17 21:34:12,764 - main - INFO - liquid_surface_heights: {'Substance_A_height': 1979, 'Substance_A_volume': 10.0, 'Substance_B_height': 2086, 'Substance_B_volume': 4.5, 'Substance_C_height': 1891, 'Substance_C_volume': 14.5}

@@ -421,9 +421,9 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list: list[obj
         liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
         liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] =  \
             liquid_surface_height_from_zeus_here
-        liquid_surface_height_from_zeus[event_list[event_index].substance_name + 'volume'] = \
-            (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
+        volume_here = (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
             *event_list[event_index].source_container.area /10000
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_volume'] = round(volume_here, 1)
 
         # if event_list[event_index].substance_name != 'Substance_F':
         #     pt.change_tip(event_list[event_index].tip_type)

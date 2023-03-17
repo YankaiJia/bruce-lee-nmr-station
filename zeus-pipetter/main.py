@@ -8,9 +8,6 @@ workflow:
 
 import logging
 
-from typing import List
-
-
 def setup_logger():
     # better logging format in console
     class CustomFormatter(logging.Formatter):
@@ -57,6 +54,9 @@ logger = setup_logger()
 
 import copy, time, pickle, re, importlib, json
 from datetime import datetime
+from typing import List
+from openpyxl import Workbook
+from openpyxl import load_workbook
 
 import zeus
 import pipetter
@@ -88,10 +88,11 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 
 zm, gt, pt = initiate_hardware()
 
-# TODO 1: refactor this function so than all parameters will be impotred from one Excel file.
 # TODO 2: add a function to save all the event info to dataframe and save info for every plate.
+path_for_reaction = 'NPs\\2023_03_15-reaction_template_for_robot_Yankai.xlsx'
+wb = load_workbook(path_for_reaction)
 
-def generate_event_list_for_surface_detection(path_for_stock_solution: str = 'NPs/nps_03152023.txt') -> List[object]:
+def generate_event_list_for_surface_detection(path_for_stock_solution: str = path_for_reaction, wb_excel = wb) -> List[object]:
     event_list_surface_detection = []
     stock_solution_list = []
 
@@ -109,11 +110,17 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = 'NP
             substance_name, source_container_name, *remaining = this_line.split()
             stock_solution_list.append([substance_name, source_container_name])
 
+    # get [substance_name, source_container_name ]  from rows in the Excel file
+
+    for row in ws.iter_rows(min_row=2, max_col=2, values_only=True):
+        stock_solution_list.append(row)
+
+
     # generate one event for each stock solution
     for solution in stock_solution_list:
         event_temp = copy.deepcopy(event_for_surface_detection)  # deepcopy to avoid changing the original object
-        plate_id = re.findall(r'\d+', solution[1])[0]
-        container_id = re.findall(r'\d+', solution[1])[1]
+        plate_id = re.findall(r'\d+', solution[1])[0] # get the first number in the string
+        container_id = re.findall(r'\d+', solution[1])[1] # get the second number in the string
         event_temp.substance_name = solution[0]
         event_temp.source_container = copy.deepcopy(brb.plate_list[int(plate_id)].containers[int(container_id)])
         event_temp.destination_container = copy.deepcopy(event_temp.source_container)
@@ -133,9 +140,43 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = 'NP
 event_list_surface_detection = generate_event_list_for_surface_detection()
 
 # run detection events and get liquid surface heights
-liquid_surface_heights = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                              event_list=event_list_surface_detection)
-logger.info(f"liquid_surface_heights: {liquid_surface_heights}")
+logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
+
+def update_excel_with_liquid_surface_heights(path_for_reaction: str = path_for_reaction,
+                                             liquid_info_in_stock: dict = liquid_info_in_stock):
+    liquid_surface_heights_in_stock = {k[:-7]: v for k, v in liquid_info_in_stock.items() if 'height' in k}
+
+    wb = load_workbook(filename=path_for_reaction)
+    sheet = wb[[x for x in wb.sheetnames if 'Stock_solutions' in x][0]]
+
+    for i in sheet.iter_rows(min_row=2, min_col=2, max_col=2):
+        substance_name = i[0].value
+        if substance_name in liquid_surface_heights_in_stock.keys():
+            sheet[f'G{i[0].row}'] = liquid_surface_heights_in_stock[substance_name]
+
+            logger.info(f'Stock solution {substance_name} has been updated with liquid surface height: '
+                        f'{liquid_surface_heights_in_stock[substance_name]}')
+
+    wb.save(path_for_reaction)
+
+
+update_excel_with_liquid_surface_heights(liquid_info_in_stock=liquid_info_in_stock)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # calibration_event_dataframe, calibration_event_list = \
 #     pln.generate_event_object(logger=logger,
 #                               txt_path_for_substance='calibration_for_pipetting\\pipetting_calibration_settings_ALL.txt',
