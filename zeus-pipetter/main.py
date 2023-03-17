@@ -88,6 +88,8 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 
 zm, gt, pt = initiate_hardware()
 
+# TODO 1: refactor this function so than all parameters will be impotred from one Excel file.
+# TODO 2: add a function to save all the event info to dataframe and save info for every plate.
 
 def generate_event_list_for_surface_detection(path_for_stock_solution: str = 'NPs/nps_03152023.txt') -> List[object]:
     event_list_surface_detection = []
