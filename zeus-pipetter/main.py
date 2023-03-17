@@ -1,15 +1,17 @@
 """
 workflow:
 1. initiate hardware
-2. generate event list for surface detection
+2. generate event list for detecting surface height of stock solutions
 3. run events for surface detection, get liquid surface heights and write to excel
 4. generate event list for pipetting
-
 """
 
 import logging
-def setup_logger():
 
+from typing import List
+
+
+def setup_logger():
     # better logging format in console
     class CustomFormatter(logging.Formatter):
         grey = "\x1b[38;20m"
@@ -49,6 +51,8 @@ def setup_logger():
     logger.addHandler(fh)
     logger.addHandler(ch)
     return logger
+
+
 logger = setup_logger()
 
 import copy, time, pickle, re, importlib, json
@@ -59,7 +63,8 @@ import pipetter
 import planner as pln
 import breadboard as brb
 
-def initiate_hardware():
+
+def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
     zm = zeus.ZeusModule(id=1)
     time.sleep(3)
@@ -83,7 +88,8 @@ def initiate_hardware():
 
 zm, gt, pt = initiate_hardware()
 
-def generate_event_list_for_surface_detection(path_for_stock_solution: str='NPs/nps_03152023.txt') -> list[object]:
+
+def generate_event_list_for_surface_detection(path_for_stock_solution: str = 'NPs/nps_03152023.txt') -> List[object]:
     event_list_surface_detection = []
     stock_solution_list = []
 
@@ -103,15 +109,15 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str='NPs/
 
     # generate one event for each stock solution
     for solution in stock_solution_list:
-        event_temp = copy.deepcopy(event_for_surface_detection) # deepcopy to avoid changing the original object
-        plate_id =  re.findall(r'\d+', solution[1])[0]
+        event_temp = copy.deepcopy(event_for_surface_detection)  # deepcopy to avoid changing the original object
+        plate_id = re.findall(r'\d+', solution[1])[0]
         container_id = re.findall(r'\d+', solution[1])[1]
         event_temp.substance_name = solution[0]
         event_temp.source_container = copy.deepcopy(brb.plate_list[int(plate_id)].containers[int(container_id)])
         event_temp.destination_container = copy.deepcopy(event_temp.source_container)
-        event_temp.asp_lld = 1 # liquidClassTableIndex =13, so pLLD will be used.
+        event_temp.asp_lld = 1  # liquidClassTableIndex =13, so pLLD will be used.
         event_temp.disp_lld = 0
-        event_temp.asp_liquidClassTableIndex = 13 # use pLLD for surface detection
+        event_temp.asp_liquidClassTableIndex = 13  # use pLLD for surface detection
         event_temp.disp_liquidClassTableIndex = 13
         event_temp.asp_liquidSurface = 1750
         event_temp.asp_lldSearchPosition = 1800
@@ -127,7 +133,6 @@ event_list_surface_detection = generate_event_list_for_surface_detection()
 # run detection events and get liquid surface heights
 liquid_surface_heights = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                              event_list=event_list_surface_detection)
-
 
 # calibration_event_dataframe, calibration_event_list = \
 #     pln.generate_event_object(logger=logger,
