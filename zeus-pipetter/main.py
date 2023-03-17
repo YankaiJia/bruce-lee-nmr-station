@@ -133,7 +133,7 @@ event_list_surface_detection = generate_event_list_for_surface_detection()
 # run detection events and get liquid surface heights
 liquid_surface_heights = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                              event_list=event_list_surface_detection)
-
+logger.info(f"liquid_surface_heights: {liquid_surface_heights}")
 # calibration_event_dataframe, calibration_event_list = \
 #     pln.generate_event_object(logger=logger,
 #                               txt_path_for_substance='calibration_for_pipetting\\pipetting_calibration_settings_ALL.txt',
