@@ -100,6 +100,7 @@ class Container:
 
     substance: str = ' '
     substance_density: float = 1.0
+    liquid_surface_height = 0
 
 
 vial_2ml = Container(
@@ -377,13 +378,18 @@ class Plate:
     def add_substance_to_container(self,
                                    substance_name: str,
                                    container_id: int,
-                                   liquid_volume: int,
+                                   # liquid_volume: int, # calculate from liquid_surface_height not from user input
                                    solvent: str,
-                                   substance_density: float):
+                                   substance_density: float,
+                                   liquid_surface_height: int):
+        liquid_volume_in_container = (self.containers[container_id].bottomPosition - liquid_surface_height)/10 \
+                                     * self.containers[container_id].area / 1000 # in mL. 1 mm^3 is 1 ul.
         self.containers[container_id].substance = substance_name
-        self.containers[container_id].liquid_volume = liquid_volume
+        self.containers[container_id].liquid_surface_height = liquid_surface_height
+        self.containers[container_id].liquid_volume = round(liquid_volume_in_container, 1)
         self.containers[container_id].solvent = solvent
         self.containers[container_id].substance_density = float(substance_density)
+        self.logger.info(f'Container {container_id} is filled with {substance_name} in {solvent} solvent. ')
 
 
     def assign_container_id(self, plate_id: int):
@@ -538,43 +544,6 @@ with open('data/tip_rack.json') as json_file:
 tip_rack_50ul = tip_rack['50ul']
 tip_rack_300ul = tip_rack['300ul']
 tip_rack_1000ul = tip_rack['1000ul']
-
-
-# add substance to containers
-def add_one_substance_to_stock_containers(line_str: str):
-    """
-    line example: DMF plate_4_container_2 20ml, DMF_empty, 0.944
-    """
-    substance_name, source_container_name, stock_volume, substance_solvent, substance_density = line_str.split()
-    # print([substance_name,source_container_name, stock_volume])
-    stock_volume_int = int(float(stock_volume[:-2]) * 1000)  # ml converting to ul
-
-    # source_container_name exp: 'plate_4_container_2'
-    plate_id = int(re.findall(r'\d+', source_container_name)[0])  # extract the first number using regex as plate_id
-    container_id = int(
-        re.findall(r'\d+', source_container_name)[-1])  # extract the last number using regex as container_id
-
-    plate_list[plate_id].add_substance_to_container(substance_name=substance_name,
-                                                        container_id=container_id,
-                                                        liquid_volume=stock_volume_int,
-                                                        solvent=substance_solvent,
-                                                        substance_density=substance_density)
-    module_logger.info(f'Substance: {substance_name:<10} is added to: plate_id_{plate_id}_container_{container_id}')
-    # return exp {'DMF': {'plate_id': 4, 'container_id': 2}}
-    substance_container = {substance_name: {'plate_id': plate_id, 'container_id': container_id}}
-
-    return substance_container
-
-
-def add_all_substance_to_stock_containers(txt_path: str):
-    global source_substance_containers
-    with open(txt_path) as file:
-        lines_without_header = file.readlines()[1:]
-        for this_line in lines_without_header:
-            # print(this_line)
-            one_substance = add_one_substance_to_stock_containers(this_line)
-            source_substance_containers.append(one_substance)
-    return source_substance_containers
 
 def main():
 

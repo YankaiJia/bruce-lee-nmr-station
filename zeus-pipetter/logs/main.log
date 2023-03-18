@@ -12617,3 +12617,186 @@
 2023-03-17 21:34:08,543 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
 2023-03-17 21:34:08,603 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
 2023-03-17 21:34:12,764 - main - INFO - liquid_surface_heights: {'Substance_A_height': 1979, 'Substance_A_volume': 10.0, 'Substance_B_height': 2086, 'Substance_B_volume': 4.5, 'Substance_C_height': 1891, 'Substance_C_volume': 14.5}
+2023-03-18 20:05:17,268 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 20:05:26,345 - main - INFO - zeus is loaded as: zm
+2023-03-18 20:05:26,345 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 20:05:29,354 - main - INFO - gantry is loaded as: gt
+2023-03-18 20:05:29,354 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 20:05:37,675 - main - INFO - gantry is homed
+2023-03-18 20:05:37,827 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 20:05:39,832 - main - INFO - pipetter is loaded as: pt
+2023-03-18 20:12:23,736 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 20:12:32,814 - main - INFO - zeus is loaded as: zm
+2023-03-18 20:12:32,814 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 20:12:35,831 - main - INFO - gantry is loaded as: gt
+2023-03-18 20:12:35,831 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 20:12:39,872 - main - INFO - gantry is homed
+2023-03-18 20:12:40,023 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 20:12:42,036 - main - INFO - pipetter is loaded as: pt
+2023-03-18 20:13:51,626 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 20:14:00,710 - main - INFO - zeus is loaded as: zm
+2023-03-18 20:14:00,710 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 20:14:03,723 - main - INFO - gantry is loaded as: gt
+2023-03-18 20:14:03,723 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 20:14:07,771 - main - INFO - gantry is homed
+2023-03-18 20:14:07,921 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 20:14:09,925 - main - INFO - pipetter is loaded as: pt
+2023-03-18 20:35:28,966 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 20:35:38,048 - main - INFO - zeus is loaded as: zm
+2023-03-18 20:35:38,048 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 20:35:41,063 - main - INFO - gantry is loaded as: gt
+2023-03-18 20:35:41,063 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 20:35:45,109 - main - INFO - gantry is homed
+2023-03-18 20:35:45,260 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 20:35:47,273 - main - INFO - pipetter is loaded as: pt
+2023-03-18 20:35:54,415 - main - INFO - The tip is changed to : 300ul
+2023-03-18 20:36:04,485 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1986
+2023-03-18 20:36:08,456 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 20:36:08,517 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 20:36:30,677 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2091
+2023-03-18 20:36:34,647 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 20:36:34,708 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 20:36:55,316 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1898
+2023-03-18 20:36:59,288 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 20:36:59,348 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 20:37:21,233 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2083
+2023-03-18 20:37:25,209 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 20:37:25,270 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 20:37:47,397 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2114
+2023-03-18 20:37:51,370 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 20:37:51,431 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 20:38:12,674 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1961
+2023-03-18 20:38:16,644 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 20:38:16,705 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 20:38:20,939 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3, 'Br-Biph-Otf_height': 1898, 'Br-Biph-Otf_volume': 14.1, 'acetylbromobenzene_height': 2083, 'acetylbromobenzene_volume': 4.7, 'Phenylboronic_acid_height': 2114, 'Phenylboronic_acid_volume': 3.1, 'potassium_carbonate_height': 1961, 'potassium_carbonate_volume': 10.9}
+2023-03-18 22:41:38,702 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 22:41:47,794 - main - INFO - zeus is loaded as: zm
+2023-03-18 22:41:47,794 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 22:41:50,804 - main - INFO - gantry is loaded as: gt
+2023-03-18 22:41:50,804 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 22:41:59,113 - main - INFO - gantry is homed
+2023-03-18 22:41:59,263 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 22:42:01,275 - main - INFO - pipetter is loaded as: pt
+2023-03-18 22:43:15,218 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1979, None], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2086, None], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1891, None], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 0, None], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 0, None], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 0, None]]
+2023-03-18 22:43:22,184 - main - INFO - The tip is changed to : 300ul
+2023-03-18 22:43:32,055 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1987
+2023-03-18 22:43:36,018 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 22:43:36,079 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 22:43:58,210 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2092
+2023-03-18 22:44:02,174 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 22:44:02,234 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 22:44:22,869 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1900
+2023-03-18 22:44:26,837 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 22:44:26,897 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 22:44:48,707 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2084
+2023-03-18 22:44:52,684 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 22:44:52,745 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 22:45:14,831 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2114
+2023-03-18 22:45:18,795 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 22:45:18,856 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 22:45:40,127 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1962
+2023-03-18 22:45:44,099 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 22:45:44,160 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 22:45:48,435 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 1987, 'p-BrPhOTf_volume': 9.6, 'm-BrPhOTf_height': 2092, 'm-BrPhOTf_volume': 4.2, 'Br-Biph-Otf_height': 1900, 'Br-Biph-Otf_volume': 14.0, 'acetylbromobenzene_height': 2084, 'acetylbromobenzene_volume': 4.6, 'Phenylboronic_acid_height': 2114, 'Phenylboronic_acid_volume': 3.1, 'potassium_carbonate_height': 1962, 'potassium_carbonate_volume': 10.9}
+2023-03-18 22:45:48,471 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1979, None], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2086, None], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1891, None], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 0, None], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 0, None], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 0, None]]
+2023-03-18 22:55:33,750 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 1987
+2023-03-18 22:55:33,751 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2092
+2023-03-18 22:55:33,751 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1900
+2023-03-18 22:55:33,751 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2084
+2023-03-18 22:55:33,751 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2114
+2023-03-18 22:55:33,751 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1962
+2023-03-18 22:57:12,537 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1987, None], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2092, None], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1900, None], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, None], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2114, None], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1962, None]]
+2023-03-18 22:58:50,984 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1987, None], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2092, None], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1900, None], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, None], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2114, None], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1962, None]]
+2023-03-18 23:29:59,834 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-18 23:35:17,851 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-18 23:37:44,078 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 23:37:53,160 - main - INFO - zeus is loaded as: zm
+2023-03-18 23:37:53,160 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 23:37:56,166 - main - INFO - gantry is loaded as: gt
+2023-03-18 23:37:56,166 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 23:38:04,485 - main - INFO - gantry is homed
+2023-03-18 23:38:04,637 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 23:38:06,648 - main - INFO - pipetter is loaded as: pt
+2023-03-18 23:43:09,037 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:43:47,834 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:43:52,390 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:44:05,086 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:44:25,369 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:45:04,668 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:45:19,771 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:48:10,194 - main - INFO - Excel file for reactions is selected: None
+2023-03-18 23:48:26,538 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-18 23:48:26,553 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 0, None], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 0, None], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 0, None], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 0, None], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 0, None], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 0, None]]
+2023-03-18 23:48:33,662 - main - INFO - The tip is changed to : 300ul
+2023-03-18 23:48:43,735 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1987
+2023-03-18 23:48:47,694 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:48:47,756 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:49:09,841 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2092
+2023-03-18 23:49:13,805 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:49:13,866 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:49:34,573 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1899
+2023-03-18 23:49:38,543 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:49:38,605 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:50:00,475 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2085
+2023-03-18 23:50:04,446 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:50:04,506 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:50:20,351 - main.zeus.ZeusModule - ERROR - Liquid level not detected.
+2023-03-18 23:50:20,450 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-18 23:50:22,003 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-18 23:51:30,647 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-18 23:51:30,660 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 0, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 0, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 0, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 0, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 0, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 0, 'empty']]
+2023-03-18 23:52:04,953 - main - INFO - The tip is changed to : 300ul
+2023-03-18 23:52:14,851 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1987
+2023-03-18 23:52:18,825 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:52:18,886 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:52:40,960 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2092
+2023-03-18 23:52:44,932 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:52:44,992 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:53:05,695 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1899
+2023-03-18 23:53:09,659 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:53:09,721 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:53:31,547 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2081
+2023-03-18 23:53:35,514 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:53:35,575 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:53:57,271 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2040
+2023-03-18 23:54:01,242 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:54:01,303 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:54:11,400 - main.zeus.ZeusModule - ERROR - No tip picked up or no tip present.
+2023-03-18 23:54:11,499 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-18 23:58:39,629 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-18 23:58:48,711 - main - INFO - zeus is loaded as: zm
+2023-03-18 23:58:48,711 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-18 23:58:51,715 - main - INFO - gantry is loaded as: gt
+2023-03-18 23:58:51,715 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-18 23:58:57,691 - main - INFO - gantry is homed
+2023-03-18 23:58:57,843 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-18 23:58:59,850 - main - INFO - pipetter is loaded as: pt
+2023-03-18 23:59:09,008 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-18 23:59:09,022 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 0, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 0, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 0, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 0, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 0, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 0, 'empty']]
+2023-03-18 23:59:15,903 - main - INFO - The tip is changed to : 300ul
+2023-03-18 23:59:25,717 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1987
+2023-03-18 23:59:29,679 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:59:29,739 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-18 23:59:51,861 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2092
+2023-03-18 23:59:55,826 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-18 23:59:55,886 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 00:00:16,665 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1899
+2023-03-19 00:00:20,648 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 00:00:20,708 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 00:00:42,691 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2081
+2023-03-19 00:00:46,657 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 00:00:46,717 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 00:01:08,350 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2041
+2023-03-19 00:01:12,312 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 00:01:12,373 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 00:01:33,631 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1962
+2023-03-19 00:01:37,596 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 00:01:37,657 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 00:01:41,908 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 1987, 'p-BrPhOTf_volume': 9.6, 'm-BrPhOTf_height': 2092, 'm-BrPhOTf_volume': 4.2, 'Br-Biph-Otf_height': 1899, 'Br-Biph-Otf_volume': 14.1, 'acetylbromobenzene_height': 2081, 'acetylbromobenzene_volume': 4.8, 'Phenylboronic_acid_height': 2041, 'Phenylboronic_acid_volume': 6.8, 'potassium_carbonate_height': 1962, 'potassium_carbonate_volume': 10.9}
+2023-03-19 00:01:41,918 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 1987
+2023-03-19 00:01:41,918 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2092
+2023-03-19 00:01:41,918 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1899
+2023-03-19 00:01:41,918 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2081
+2023-03-19 00:01:41,918 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2041
+2023-03-19 00:01:41,918 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1962
+2023-03-19 00:01:41,949 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1987, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2092, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1899, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2081, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2041, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1962, 'empty']]

@@ -321,6 +321,7 @@ def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool
 def generate_event_object(logger: object, txt_path_for_substance: str, excel_to_generate_dataframe: str,
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False) -> tuple:
+
     # load containers for source substances
     source_substance_containers = brb.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
     logger.info("All substances are loaded to the corresponding containers.")
