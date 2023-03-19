@@ -276,7 +276,7 @@ class Pipetter():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
-    def draw_liquid(self, transfer_event: object, n_retries=3) -> None:
+    def draw_liquid(self, transfer_event: object, n_retries=3) -> bool:
 
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.source_container.xy)
@@ -298,6 +298,7 @@ class Pipetter():
                 time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True
+
             except ZeusError:
                 if self.zeus.zeus_error_code(self.zeus.r.received_msg) == '81':
                     # Empty tube detected during aspiration

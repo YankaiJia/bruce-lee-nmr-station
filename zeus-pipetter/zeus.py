@@ -17,7 +17,7 @@ import pprint
 
 DEBUG = 0
 INFO = 0
-WARNING = 1
+WARNING = 0
 ERROR = 1
 # KICK_MASK = 0x0400
 KICK_MASK = 0b10000000000
@@ -639,8 +639,8 @@ class ZeusModule:
 
     def __init__(self, id=None, tip_on_zeus='', init_module=True, auto_response=True):
         # colorama.init()
-        self.logger = logging.getLogger("main.zeus.ZeusModule")
         init()
+        self.logger = logging.getLogger("main.zeus.ZeusModule")
         self.id = id
         self.tip_on_zeus = tip_on_zeus
         self.auto_response = auto_response
@@ -1213,28 +1213,28 @@ class ZeusModule:
 
         elif cmd == 'ZI':
             if ec in {'00', '30', '35', '36', '40', '60', '62'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GZ':
             if ec in {'00', '31', '32', '35', '36', '40', '61', '62', '64'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GT':
             if ec in {'00', '31', '32', '35', '36', '40', '51', '52', '61', '62', '65', '75', '76'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GU':
             if ec in {'00', '30', '31', '32', '35', '36', '40', '51', '52', '61', '62', '65', '69', '75', '77'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1251,6 +1251,13 @@ class ZeusModule:
         elif cmd == 'GD':
             if ec in {'00', '30', '31', '32', '35', '36', '38', '40', '51', '52', '54', '55', '57', '61', '62', '63',
                       '65', '66', '67', '68', '70', '72', '74', '75', '83', '84', '85'}:
+                # self.logger.error(self.errorTable[ec])
+                return self.errorTable[ec]
+            else:
+                return defaultError
+        elif cmd == 'GD':
+            if ec in {'00', '30', '31', '32', '35', '36', '38', '40', '51', '52', '54', '55', '57', '61', '62', '63',
+                      '65', '66', '67', '68', '70', '72', '74', '75', '83', '84', '85'}:
                 self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
@@ -1261,129 +1268,130 @@ class ZeusModule:
                       '67', '68', '70', '72', '74', '85'}:
                 self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
+
             else:
                 return defaultError
 
         elif cmd == 'AB':
             if ec in {'00', '30'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
         elif cmd == 'AW':
             if ec in {'00', '30'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
         elif cmd == 'XA':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GK':
             if ec in {'00', '30', '31', '32', '35', '51', '52', '54'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GC':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GO':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GB':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GR':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GL':
             if ec in {'00', '20', '30', '31', '32', '39'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GM':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GQ':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GS':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GV':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GW':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GG':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GE':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GH':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GI':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1439,7 +1447,7 @@ class ZeusModule:
             # zm.getAbsoluteZPosition()
             # time.sleep(0.6)
             if self.zeus_had_error(self.r.received_msg):
-                print('Zeus responded with error message. Aborting all operations.')
+                # print('Zeus responded with error message. Aborting all operations.')
                 self.logger.error('Zeus responded with error message. Aborting all operations.')
                 time.sleep(1)
                 self.move_z(ZeusModule.ZeusTraversePosition)

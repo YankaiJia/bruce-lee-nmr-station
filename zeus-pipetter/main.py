@@ -90,6 +90,7 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 
 zm, gt, pt = initiate_hardware()
 
+
 # specify Excel path for reactions and stock solutions
 def load_excel_path_by_pysimplegui():
     sg.theme('BrightColors')  # Add a touch of color
@@ -184,19 +185,21 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
 event_list_surface_detection = generate_event_list_for_surface_detection()
 
 
-# run detection events and get liquid surface heights
-# liquid_info_in_stock example:
-# {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
-liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+## run detection events and get liquid surface heights
+## liquid_info_in_stock example:
+## {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
+liquid_info_in_stock, *rest = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                            event_list=event_list_surface_detection)
 
 logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
 
+# liquid_info_in_stock = liquid_info_in_stock[0]
 
-# This update will rely on the exact naming and order of the file header, so keep them the same as the template.
-def update_excel_with_liquid_surface_heights(path_for_reaction: str = path_for_reactions,
+## This update will rely on the exact naming and order of the file header, so keep them the same as the template.
+def update_excel_with_liquid_heights_and_volume(path_for_reaction: str = path_for_reactions,
                                              liquid_info_in_stock: dict = liquid_info_in_stock):
     liquid_surface_heights_in_stock = {k[:-7]: v for k, v in liquid_info_in_stock.items() if 'height' in k}
+    liquid_volume_in_stock = {k[:-7]: v for k, v in liquid_info_in_stock.items() if 'volume' in k}
 
     wb = load_workbook(filename=path_for_reaction)
     sheet = wb[[x for x in wb.sheetnames if 'Stock_solutions' in x][0]]
@@ -205,17 +208,17 @@ def update_excel_with_liquid_surface_heights(path_for_reaction: str = path_for_r
         substance_name = i[0].value
         if substance_name in liquid_surface_heights_in_stock.keys():
             sheet[f'G{i[0].row}'] = liquid_surface_heights_in_stock[substance_name]
+            sheet[f'I{i[0].row}'] = liquid_volume_in_stock[substance_name]
 
             logger.info(f'Stock solution {substance_name} has been updated with liquid surface height: '
                         f'{liquid_surface_heights_in_stock[substance_name]}')
 
     wb.save(path_for_reaction)
 
+update_excel_with_liquid_heights_and_volume(liquid_info_in_stock=liquid_info_in_stock)
 
-update_excel_with_liquid_surface_heights(liquid_info_in_stock=liquid_info_in_stock)
-
-
-def add_stock_solutions_to_containers(reaction_excel_path: str):
+# TODO: add a function to update the Excel file with the liquid surface heights and volumes
+def add_stock_solutions_to_brb_containers(reaction_excel_path: str):
 
     # this loading should be done after the liquid surface heights are updated in the Excel file
     stock_solution_list = load_stock_solutions_from_excel(reaction_excel_path)
@@ -231,8 +234,8 @@ def add_stock_solutions_to_containers(reaction_excel_path: str):
         substance_index = solution[1]
         substance_solvent = solution[3]
         substance_density = solution[4]
-        liquid_volume_from_user = solution[5]
         liquid_surface_height = solution[6]
+
 
         brb.plate_list[plate_id].add_substance_to_container(substance_name=substance_name,
                                                         container_id=container_id,
@@ -244,25 +247,28 @@ def add_stock_solutions_to_containers(reaction_excel_path: str):
 
     return brb.source_substance_containers
 
-add_stock_solutions_to_containers(reaction_excel_path=path_for_reactions)
+add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 
 
-# TODO: make this work for only excel as input
-# TODO: think about updating the stock solutions when they run out.
-# TODO: move staff relating to IO to dropbox
-# # multicomponent reactions
-# event_dataframe_chem, event_list_chem = \
-#     pln.generate_event_object(logger=logger,
-#                               txt_path_for_substance='multicomponent_reaction_input\\reaction_settings.txt',
-#                               excel_to_generate_dataframe='multicomponent_reaction_input\\'
-#                                                           'composition_input_20230110RF029_adj.xlsx',
-#                               sheet_name='0314', usecols='B:F',
-#                               is_pipeting_to_balance=False, is_for_bio=False)
+# multicomponent reactions
+event_dataframe_chem, event_list_chem = \
+    pln.generate_event_object(logger=logger,
+                              excel_to_generate_dataframe= path_for_reactions,
+                              sheet_name='Reactions_0315', usecols='B:G',
+                              is_pipeting_to_balance=False, is_for_bio=False)
+
+liquid_surface, event_crashed = pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list_chem)
+
 #
-# pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list_chem)
+
+# TODO: think about updating the stock solutions when they run out.
 
 
 
+
+# TODO: update volume after surface detection
+# TODO: move staff relating to IO to dropbox
+# TODO: learn database
 
 
 

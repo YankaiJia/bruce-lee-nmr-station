@@ -383,7 +383,7 @@ class Plate:
                                    substance_density: float,
                                    liquid_surface_height: int):
         liquid_volume_in_container = (self.containers[container_id].bottomPosition - liquid_surface_height)/10 \
-                                     * self.containers[container_id].area / 1000 # in mL. 1 mm^3 is 1 ul.
+                                     * self.containers[container_id].area # in ul. 1 mm^3 is 1 ul.
         self.containers[container_id].substance = substance_name
         self.containers[container_id].liquid_surface_height = liquid_surface_height
         self.containers[container_id].liquid_volume = round(liquid_volume_in_container, 1)
@@ -550,12 +550,12 @@ def main():
     print("This is main.")
 
     # run this ONLY when changing new tip rack.
-    load_new_tip_rack(rack_reload ='300ul')
-    module_logger.info('New tip rack: 300ul is loaded.')
-    load_new_tip_rack(rack_reload ='1000ul')
-    module_logger.info('New tip rack: 1000ul is loaded.')
-    load_new_tip_rack(rack_reload ='50ul')
-    module_logger.info('New tip rack: 50ul is loaded.')
+    # load_new_tip_rack(rack_reload ='300ul')
+    # module_logger.info('New tip rack: 300ul is loaded.')
+    # load_new_tip_rack(rack_reload ='1000ul')
+    # module_logger.info('New tip rack: 1000ul is loaded.')
+    # load_new_tip_rack(rack_reload ='50ul')
+    # module_logger.info('New tip rack: 50ul is loaded.')
 
 
 

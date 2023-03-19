@@ -38,9 +38,11 @@ class EventInterpreter:
         self.reaction_df = pd.read_excel(io=self.dataframe_filename,
                                          sheet_name=self.sheet_name,
                                          usecols=self.usecols)
+
         self.pd_output = pd.DataFrame(columns=['reaction_id',
                                                'event_id',
                                                'plate_number',
+                                               'plate_number_barcode',
                                                'plate_id_on_breadboard',
                                                'container_id',
                                                'substance',
@@ -69,8 +71,7 @@ class EventInterpreter:
         for plate_id in plate_list:
             # print(plate_id)
             df_here = self.reaction_df.copy()
-            dataframes_for_this_plate = df_here[plate_id * self.containers_per_plate: (
-                                                                                              plate_id + 1) * self.containers_per_plate]
+            dataframes_for_this_plate = df_here[plate_id * self.containers_per_plate: (plate_id + 1) * self.containers_per_plate]
             # print(this_plate)
             for enum, substance in enumerate(dataframes_for_this_plate.columns):
                 # print(this_plate[0].columns)
@@ -79,8 +80,7 @@ class EventInterpreter:
                     if transfer_volume < 0.5 or math.isnan(transfer_volume):
                         continue
                     plate_id_on_breadboard = plate_id % 3  # The breadboard has 3 plates for chemical reactions using
-                    # 2_mL vials, so the plate_id_on_breadboard is the remainder
-                    # of plate_id divided by 3
+                    # 2_mL vials, so the plate_id_on_breadboard is the remainder of plate_id divided by 3
                     if self.is_for_bio:
                         plate_id_on_breadboard = 3  # for bio, the 96 wells are only on plate_id = 3
                     dict_here = {
@@ -89,7 +89,9 @@ class EventInterpreter:
                         # reaction_id is the index of reactions, this is also the index of the MS excel file
                         "reaction_id": reaction_id,
                         # plate_number is the index of the plate indicated by the barcode on the physical plate
-                        "plate_number": plate_id % self.containers_per_plate,
+                        "plate_number": plate_id,
+                        # plate bar code
+                        'plate_number_barcode': str(plate_id).zfill(2),
                         # this is the index of the plate on the breadboard
                         'plate_id_on_breadboard': plate_id_on_breadboard,
                         # container_id is the index of the container on the plate
@@ -97,7 +99,7 @@ class EventInterpreter:
                         # what substance is going to be pipetted in this event
                         'substance': substance,
                         # how much volume is going to be pipetted in this event
-                        'transfer_volume': transfer_volume,
+                        'transfer_volume': transfer_volume
                     }
                     # self.volume_update(volume = transfer_volume, source_container = source_container, destination_container = destination_container)
                     # print(_dict)
@@ -113,7 +115,8 @@ class TransferEventConstructor:
         self.substance_name: str = event_dataframe['substance']
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
                                 'substance:' + str(event_dataframe['substance']) + '   ' + \
-                                'transfer_volume:' + str(event_dataframe['transfer_volume'])
+                                'transfer_volume:' + str(event_dataframe['transfer_volume'])+\
+                                'plate_number_barcode:' + str(event_dataframe['plate_number_barcode'])
 
         # print(f'solvent: {solvent}')
         # print(event_dataframe['substance'])
@@ -150,7 +153,7 @@ class TransferEventConstructor:
                                         mode=self.source_container.solvent.split('_')[-1],
                                         tip_type=self.tip_type)
 
-        print(f'asp_liquidClassTableIndex: {self.asp_liquidClassTableIndex}')
+        # print(f'asp_liquidClassTableIndex: {self.asp_liquidClassTableIndex}')
         self.asp_liquidSurface: int = self.get_liquid_surface(self.source_container)
         # print(f'asp_liquidSurface: {self.asp_liquidSurface}')
         self.asp_lldSearchPosition: int = self.asp_liquidSurface - 50
@@ -172,7 +175,7 @@ class TransferEventConstructor:
 
         # default values
         self.asp_qpm: int = 1
-        self.asp_lld: int = 1
+        self.asp_lld: int = 0
         self.disp_lld: int = 0
         self.asp_mixVolume: int = 0
         self.asp_mixFlowRate: int = 0
@@ -189,18 +192,18 @@ class TransferEventConstructor:
         {'DMF': {'plate_id': 4, 'container_id': 2}, 'amine': {'plate_id': 7, 'container_id': 15}}
         """
         # print(substance_name)
-        if source_containers is None:
-            source_containers = brb.source_substance_containers  # global variable, mutable object (list),
+        source_containers = brb.source_substance_containers  # global variable, mutable object (list),
             # so it should not be used directly as a default argument
-        for this_substance in source_containers:  # iterate through keys
+        for container in source_containers:  # iterate through keys
             # print(this_substance)
             # print(substance_name)
             # print(list(this_substance.keys())[0])
-            if substance_name == list(this_substance.keys())[0]:
-                plate_id = this_substance[substance_name]['plate_id']
-                container_id = this_substance[substance_name]['container_id']
-                # print(f'substance is found in container: brb.plate_list[{plate_id}].containers[{container_id}]')
-                return brb.plate_list[plate_id].containers[container_id]
+            if substance_name == container.substance:
+                return container
+                # plate_id = this_substance[substance_name]['plate_id']
+                # container_id = this_substance[substance_name]['container_id']
+                # # print(f'substance is found in container: brb.plate_list[{plate_id}].containers[{container_id}]')
+                # return brb.plate_list[plate_id].containers[container_id]
 
         print(f'Subtance:: {substance_name} is not found in the stock container!')
 
@@ -265,6 +268,7 @@ class TransferEventConstructor:
                 liquid_height = 17 * 10 + ((container.liquid_volume - 500) / container.area) * 10
         else:
             print('Container shape is not defined!')
+
         return round(container.bottomPosition - liquid_height)
 
 
@@ -290,7 +294,7 @@ def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_nam
 def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool = False) -> list:
     """
     IMPORTANT: The source and destination containers in the event_list are not copied, but referenced to the brb.plate_list.
-    So, change the liquid_volume in the event_list will also change the nliquid_volume in the brb.plate_list, and vice versa.
+    So, change the liquid_volume in the event_list will also change the liquid_volume in the brb.plate_list, and vice versa.
     You can check their by the following example code:
     >> id(event_list[0].source_container) == id(brb.plate_list[x].containers[y]) # x, y correspond to the brb container index.
     True
@@ -318,24 +322,25 @@ def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool
     return event_list
 
 
-def generate_event_object(logger: object, txt_path_for_substance: str, excel_to_generate_dataframe: str,
+def generate_event_object(logger: object, excel_to_generate_dataframe: str,
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False) -> tuple:
 
     # load containers for source substances
-    source_substance_containers = brb.add_all_substance_to_stock_containers(txt_path=txt_path_for_substance)
-    logger.info("All substances are loaded to the corresponding containers.")
+    source_substance_containers = brb.source_substance_containers
 
     # generate event dataframes from excel
     event_dataframe = \
         interprete_events_from_excel_to_dataframe(dataframe_filename=excel_to_generate_dataframe,
                                                   sheet_name=sheet_name,
                                                   usecols=usecols, is_for_bio=is_for_bio)
+
     logger.info(f"All events are generated to dataframes from excel here: {excel_to_generate_dataframe}")
 
     # generate event list
     event_list = generate_event_list(event_dataframe=event_dataframe,
                                      pipeting_to_balance=is_pipeting_to_balance)
+
     logger.info("All event objects are generated from dataframes.")
 
     return event_dataframe, event_list
@@ -387,6 +392,7 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
         liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+
         liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] = \
             liquid_surface_height_from_zeus_here
         liquid_surface_height_from_zeus[event_list[event_index].substance_name + 'volume'] = \
@@ -405,9 +411,10 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
 
     return liquid_surface_height_from_zeus
 
-def run_events_chem(zm: object, pt: object, logger: object, event_list: list[object]) -> dict[Any, Any]:
+def run_events_chem(zm: object, pt: object, logger: object, event_list: list[object]) :
 
     liquid_surface_height_from_zeus = {}
+    event_crashed = None
 
     if zm.tip_on_zeus:
         pt.discard_tip()
@@ -419,11 +426,26 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list: list[obj
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
-        liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+        try:
+            liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+
+
+        except Exception as e:
+            logger.error(f'Error in transfer liquid.\n '
+                         f'\t\t\t\t\t\tConsider adding more liquid to source container: '
+                         f'{event_list[event_index].source_container.container_id}\n'
+                         f'\t\t\t\t\t\tNext, proceed with: {event_list[event_index].event_label}')
+            # last_event_performed: example ' event_id:0   substance:Substance_A   transfer_volume:250'
+            event_crashed = event_list[event_index].event_label
+            pt.discard_tip()
+            raise e
+
         liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] =  \
             liquid_surface_height_from_zeus_here
+
         volume_here = (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
-            *event_list[event_index].source_container.area /10000
+            *event_list[event_index].source_container.area /10 # in uL
+
         liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_volume'] = round(volume_here, 1)
 
         # if event_list[event_index].substance_name != 'Substance_F':
@@ -439,7 +461,7 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list: list[obj
         time.sleep(0.5)
     pt.discard_tip()
 
-    return liquid_surface_height_from_zeus
+    return liquid_surface_height_from_zeus, event_crashed
 
 
 if __name__ == "__main__":

@@ -12800,3 +12800,387 @@
 2023-03-19 00:01:41,918 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2041
 2023-03-19 00:01:41,918 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1962
 2023-03-19 00:01:41,949 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1987, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2092, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1899, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2081, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2041, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1962, 'empty']]
+2023-03-19 12:24:27,323 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:24:27,530 - main.planner - INFO - event_dataframe is generated with 162 events.
+2023-03-19 12:24:27,534 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_12_24.json
+2023-03-19 12:24:27,535 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:25:20,042 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:25:20,207 - main.planner - INFO - event_dataframe is generated with 162 events.
+2023-03-19 12:25:20,208 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_12_25.json
+2023-03-19 12:25:20,208 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:29:13,647 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:29:13,672 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1987, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2092, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1899, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2081, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2041, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1962, 'empty']]
+2023-03-19 12:29:20,946 - main - INFO - The tip is changed to : 300ul
+2023-03-19 12:29:30,949 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1992
+2023-03-19 12:29:34,925 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 12:29:34,986 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 12:29:57,235 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2095
+2023-03-19 12:30:01,205 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 12:30:01,266 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 12:30:22,051 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1905
+2023-03-19 12:30:26,009 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 12:30:26,069 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 12:30:47,842 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2084
+2023-03-19 12:30:51,824 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 12:30:51,884 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 12:31:13,590 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2044
+2023-03-19 12:31:17,559 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 12:31:17,620 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 12:31:38,926 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1966
+2023-03-19 12:31:42,894 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 12:31:42,955 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 12:31:47,205 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 1992, 'p-BrPhOTf_volume': 9.3, 'm-BrPhOTf_height': 2095, 'm-BrPhOTf_volume': 4.1, 'Br-Biph-Otf_height': 1905, 'Br-Biph-Otf_volume': 13.8, 'acetylbromobenzene_height': 2084, 'acetylbromobenzene_volume': 4.6, 'Phenylboronic_acid_height': 2044, 'Phenylboronic_acid_volume': 6.7, 'potassium_carbonate_height': 1966, 'potassium_carbonate_volume': 10.7}
+2023-03-19 12:31:47,218 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 1992
+2023-03-19 12:31:47,219 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2095
+2023-03-19 12:31:47,219 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1905
+2023-03-19 12:31:47,219 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2084
+2023-03-19 12:31:47,219 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2044
+2023-03-19 12:31:47,219 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1966
+2023-03-19 12:31:47,260 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 12:31:47,260 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:31:47,879 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 12:31:47,881 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_12_31.json
+2023-03-19 12:31:47,881 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:46:31,687 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 12:46:31,688 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:46:32,279 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 12:46:32,281 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_12_46.json
+2023-03-19 12:46:32,281 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:47:30,621 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 12:48:34,451 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 12:48:43,514 - main - INFO - zeus is loaded as: zm
+2023-03-19 12:48:43,514 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 12:48:46,530 - main - INFO - gantry is loaded as: gt
+2023-03-19 12:48:46,530 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 12:48:54,851 - main - INFO - gantry is homed
+2023-03-19 12:48:55,004 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 12:48:57,010 - main - INFO - pipetter is loaded as: pt
+2023-03-19 12:50:33,196 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:50:33,217 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 12:50:33,231 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 12:50:33,232 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:50:34,039 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 12:50:34,042 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_12_50.json
+2023-03-19 12:50:34,042 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:52:53,275 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 12:53:02,370 - main - INFO - zeus is loaded as: zm
+2023-03-19 12:53:02,370 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 12:53:05,379 - main - INFO - gantry is loaded as: gt
+2023-03-19 12:53:05,379 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 12:53:09,425 - main - INFO - gantry is homed
+2023-03-19 12:53:09,576 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 12:53:11,591 - main - INFO - pipetter is loaded as: pt
+2023-03-19 12:53:19,726 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:53:19,747 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 12:53:19,764 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 12:53:19,764 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 12:53:20,552 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 12:53:20,556 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_12_53.json
+2023-03-19 12:53:20,556 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:19:31,608 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 13:19:40,703 - main - INFO - zeus is loaded as: zm
+2023-03-19 13:19:40,703 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 13:19:43,722 - main - INFO - gantry is loaded as: gt
+2023-03-19 13:19:43,722 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 13:19:47,758 - main - INFO - gantry is homed
+2023-03-19 13:19:47,908 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 13:19:49,921 - main - INFO - pipetter is loaded as: pt
+2023-03-19 13:19:58,237 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:19:58,257 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:19:58,272 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:19:58,272 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:19:58,930 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:19:58,933 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_19.json
+2023-03-19 13:19:58,933 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:22:27,411 - main - INFO - Excel file for reactions is selected: None
+2023-03-19 13:22:48,822 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:22:48,874 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:22:48,920 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:22:48,920 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:22:50,480 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:22:50,484 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_22.json
+2023-03-19 13:22:50,484 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:27:13,784 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:27:13,831 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:27:13,873 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:27:13,873 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:27:15,445 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:27:15,448 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_27.json
+2023-03-19 13:27:15,448 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:28:54,147 - main - INFO - Excel file for reactions is selected: 
+2023-03-19 13:29:13,178 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:29:13,201 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:29:13,214 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:29:13,214 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:29:13,866 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:29:13,870 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_29.json
+2023-03-19 13:29:13,870 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:29:45,832 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:29:45,881 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:29:45,923 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:29:45,924 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:29:47,715 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:29:47,718 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_29.json
+2023-03-19 13:29:47,718 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:32:47,586 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:32:47,609 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:32:47,625 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:32:47,626 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:32:48,252 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:32:48,255 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_32.json
+2023-03-19 13:32:48,255 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:34:27,187 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:34:27,237 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:34:27,280 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:34:27,280 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:41:34,870 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:41:34,916 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:41:34,956 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:41:34,956 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:43:07,257 - main - INFO - Excel file for reactions is selected: None
+2023-03-19 13:43:13,099 - main - INFO - Excel file for reactions is selected: 
+2023-03-19 13:43:23,909 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:43:23,930 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:43:23,944 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:43:23,944 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:43:24,584 - main.planner - INFO - event_dataframe is generated with 648 events.
+2023-03-19 13:43:24,588 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_43.json
+2023-03-19 13:43:24,588 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:43:24,708 - main.planner - INFO - Event_list is generated with 648 events.
+2023-03-19 13:43:24,708 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 13:45:02,601 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:45:02,630 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:45:02,649 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:45:02,650 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:45:04,167 - main.planner - INFO - event_dataframe is generated with 1620 events.
+2023-03-19 13:45:04,171 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_45.json
+2023-03-19 13:45:04,171 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:45:04,309 - main.planner - INFO - Event_list is generated with 1620 events.
+2023-03-19 13:45:04,309 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 13:46:14,914 - main - INFO - Excel file for reactions is selected: 
+2023-03-19 13:46:33,883 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:46:33,934 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:46:33,976 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 13:46:33,976 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:46:38,424 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 13:46:38,432 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_13_46.json
+2023-03-19 13:46:38,433 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 13:46:38,821 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 13:46:38,821 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 20:22:11,093 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 20:22:20,171 - main - INFO - zeus is loaded as: zm
+2023-03-19 20:22:20,171 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 20:22:23,175 - main - INFO - gantry is loaded as: gt
+2023-03-19 20:22:23,175 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 20:22:27,216 - main - INFO - gantry is homed
+2023-03-19 20:22:27,368 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 20:22:29,381 - main - INFO - pipetter is loaded as: pt
+2023-03-19 20:22:35,826 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:22:35,878 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:22:35,921 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:22:35,921 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:22:40,349 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 20:22:40,358 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_20_22.json
+2023-03-19 20:22:40,358 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:22:40,733 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 20:22:40,733 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 20:22:47,581 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:22:50,659 - main.zeus.ZeusModule - ERROR - Liquid level not detected.
+2023-03-19 20:22:50,843 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:22:52,396 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:22:53,961 - main - ERROR - Error in transfer liquid: 
+2023-03-19 20:25:53,082 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 20:26:02,165 - main - INFO - zeus is loaded as: zm
+2023-03-19 20:26:02,165 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 20:26:05,179 - main - INFO - gantry is loaded as: gt
+2023-03-19 20:26:05,179 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 20:26:13,500 - main - INFO - gantry is homed
+2023-03-19 20:26:13,652 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 20:26:15,667 - main - INFO - pipetter is loaded as: pt
+2023-03-19 20:26:27,573 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:26:27,628 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:26:27,673 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:26:27,673 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:26:34,548 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 20:26:34,557 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_20_26.json
+2023-03-19 20:26:34,557 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:26:34,994 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 20:26:34,994 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 20:26:41,892 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:26:44,989 - main.zeus.ZeusModule - ERROR - Liquid level not detected.
+2023-03-19 20:26:45,186 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:26:46,743 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:26:48,297 - main - ERROR - Error in transfer liquid: 
+2023-03-19 20:33:58,067 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 20:34:07,150 - main - INFO - zeus is loaded as: zm
+2023-03-19 20:34:07,150 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 20:34:10,168 - main - INFO - gantry is loaded as: gt
+2023-03-19 20:34:10,168 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 20:34:15,414 - main - INFO - gantry is homed
+2023-03-19 20:34:15,562 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 20:34:17,566 - main - INFO - pipetter is loaded as: pt
+2023-03-19 20:34:23,935 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:34:23,988 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:34:24,032 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:34:24,032 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:34:29,015 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 20:34:29,023 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_20_34.json
+2023-03-19 20:34:29,023 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:34:29,363 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 20:34:29,363 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 20:34:36,296 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:34:39,425 - main.zeus.ZeusModule - ERROR - Liquid level not detected.
+2023-03-19 20:34:39,607 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:34:41,167 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:34:42,724 - main - ERROR - Error in transfer liquid: 
+2023-03-19 20:37:58,944 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 20:38:08,035 - main - INFO - zeus is loaded as: zm
+2023-03-19 20:38:08,035 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 20:38:11,053 - main - INFO - gantry is loaded as: gt
+2023-03-19 20:38:11,053 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 20:38:16,295 - main - INFO - gantry is homed
+2023-03-19 20:38:16,443 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 20:38:18,456 - main - INFO - pipetter is loaded as: pt
+2023-03-19 20:38:26,305 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:38:26,357 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:38:26,401 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 20:38:26,401 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:38:31,333 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 20:38:31,342 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_20_38.json
+2023-03-19 20:38:31,342 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 20:38:31,672 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 20:38:31,673 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 20:38:38,634 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:38:41,980 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:38:43,534 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:38:45,084 - main - ERROR - Error in transfer liquid: 
+2023-03-19 20:49:53,986 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:49:57,343 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:49:58,898 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:50:00,448 - main - ERROR - Error in transfer liquid: . Event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00 is to continue next.
+2023-03-19 20:57:43,182 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:57:46,562 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:57:48,115 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:57:49,669 - main - ERROR - Error in transfer liquid.
+ Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-19 20:59:05,872 - main - INFO - The tip is changed to : 300ul
+2023-03-19 20:59:09,297 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:59:10,849 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-19 20:59:12,401 - main - ERROR - Error in transfer liquid.
+ 				Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+				Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-19 21:20:53,528 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 21:21:02,612 - main - INFO - zeus is loaded as: zm
+2023-03-19 21:21:02,612 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 21:21:05,627 - main - INFO - gantry is loaded as: gt
+2023-03-19 21:21:05,627 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 21:21:13,941 - main - INFO - gantry is homed
+2023-03-19 21:21:14,093 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 21:21:16,105 - main - INFO - pipetter is loaded as: pt
+2023-03-19 21:21:23,462 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 21:21:23,523 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 1992, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2095, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1905, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2084, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2044, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1966, 'empty']]
+2023-03-19 21:21:30,605 - main - INFO - The tip is changed to : 300ul
+2023-03-19 21:21:40,844 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2017
+2023-03-19 21:21:44,822 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 21:21:44,883 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 21:22:07,056 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2097
+2023-03-19 21:22:11,035 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 21:22:11,096 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 21:22:31,851 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1908
+2023-03-19 21:22:35,829 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 21:22:35,889 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 21:22:57,677 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2087
+2023-03-19 21:23:01,653 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 21:23:01,712 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 21:23:23,307 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2045
+2023-03-19 21:23:27,280 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 21:23:27,341 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 21:23:48,733 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1970
+2023-03-19 21:23:52,703 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 21:23:52,763 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 21:23:56,908 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 2017, 'p-BrPhOTf_volume': 8.1, 'm-BrPhOTf_height': 2097, 'm-BrPhOTf_volume': 4.0, 'Br-Biph-Otf_height': 1908, 'Br-Biph-Otf_volume': 13.6, 'acetylbromobenzene_height': 2087, 'acetylbromobenzene_volume': 4.5, 'Phenylboronic_acid_height': 2045, 'Phenylboronic_acid_volume': 6.6, 'potassium_carbonate_height': 1970, 'potassium_carbonate_volume': 10.5}
+2023-03-19 21:23:56,948 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 2017
+2023-03-19 21:23:56,948 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2097
+2023-03-19 21:23:56,948 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1908
+2023-03-19 21:23:56,948 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2087
+2023-03-19 21:23:56,948 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2045
+2023-03-19 21:23:56,948 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1970
+2023-03-19 21:25:05,154 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 2017
+2023-03-19 21:25:05,154 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2097
+2023-03-19 21:25:05,155 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1908
+2023-03-19 21:25:05,155 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2087
+2023-03-19 21:25:05,155 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2045
+2023-03-19 21:25:05,155 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1970
+2023-03-19 22:04:12,776 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-19 22:05:13,759 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-19 22:23:32,752 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-19 22:23:41,838 - main - INFO - zeus is loaded as: zm
+2023-03-19 22:23:41,838 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-19 22:23:44,847 - main - INFO - gantry is loaded as: gt
+2023-03-19 22:23:44,847 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-19 22:23:53,154 - main - INFO - gantry is homed
+2023-03-19 22:23:53,304 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-19 22:23:55,308 - main - INFO - pipetter is loaded as: pt
+2023-03-19 22:24:01,291 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:24:01,345 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-19 22:24:08,267 - main - INFO - The tip is changed to : 300ul
+2023-03-19 22:24:18,359 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2017
+2023-03-19 22:24:22,326 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 22:24:22,387 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 22:24:44,602 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2097
+2023-03-19 22:24:48,579 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 22:24:48,639 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 22:25:09,343 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1908
+2023-03-19 22:25:13,297 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 22:25:13,358 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 22:25:35,163 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2087
+2023-03-19 22:25:39,136 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 22:25:39,196 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 22:26:00,860 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2045
+2023-03-19 22:26:04,820 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 22:26:04,881 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 22:26:26,170 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1970
+2023-03-19 22:26:30,148 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-19 22:26:30,208 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-19 22:26:34,368 - main - INFO - liquid_surface_heights: ({'p-BrPhOTf_height': 2017, 'p-BrPhOTf_volume': 8069.1, 'm-BrPhOTf_height': 2097, 'm-BrPhOTf_volume': 3983.5, 'Br-Biph-Otf_height': 1908, 'Br-Biph-Otf_volume': 13635.7, 'acetylbromobenzene_height': 2087, 'acetylbromobenzene_volume': 4494.2, 'Phenylboronic_acid_height': 2045, 'Phenylboronic_acid_volume': 6639.1, 'potassium_carbonate_height': 1970, 'potassium_carbonate_volume': 10469.4}, None)
+2023-03-19 22:32:33,683 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 2017
+2023-03-19 22:32:33,683 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2097
+2023-03-19 22:32:33,683 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1908
+2023-03-19 22:32:33,683 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2087
+2023-03-19 22:32:33,684 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2045
+2023-03-19 22:32:33,684 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1970
+2023-03-19 22:32:41,758 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 2017
+2023-03-19 22:32:41,758 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2097
+2023-03-19 22:32:41,758 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1908
+2023-03-19 22:32:41,759 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2087
+2023-03-19 22:32:41,759 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2045
+2023-03-19 22:32:41,759 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1970
+2023-03-19 22:33:18,608 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-19 22:34:00,059 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:34:04,417 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 22:34:04,426 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_22_34.json
+2023-03-19 22:34:04,426 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:34:04,780 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 22:34:04,780 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 22:35:16,976 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:35:21,244 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 22:35:21,252 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_22_35.json
+2023-03-19 22:35:21,252 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:35:21,613 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 22:35:21,613 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 22:37:38,725 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:37:42,956 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 22:37:42,965 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_22_37.json
+2023-03-19 22:37:42,965 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:37:43,316 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-19 22:37:43,316 - main - INFO - All event objects are generated from dataframes.
+2023-03-19 22:38:21,642 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:38:25,993 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 22:38:26,004 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_22_38.json
+2023-03-19 22:38:26,004 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:38:39,726 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:38:43,947 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-19 22:38:43,953 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_22_38.json
+2023-03-19 22:38:43,954 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-19 22:39:21,439 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
