@@ -4,22 +4,220 @@ The pipetter module combines gantry and zeus, and deals with actions including p
 dispense_liquid, transfer_liquid and so on.
 
 """
-import copy
-import json
-import time
-
-import serial
 import logging
 
 pipetter_logger = logging.getLogger('main.pipetter')
 
+import copy
+import json
+import time
+import numpy as np
+import serial
+import importlib
+import re
+
+
+import breadboard as brb
+
+
+class Gantry():
+
+    """
+    The xy gantry moves with Zeus on it.
+
+    Gantry() take zeus object as argument, which is used to request position of Z drive.
+    Only when the Z drive position is in safe traverse height will the gantry be able to move.
+    """
+
+    xy_position = ((0, 0)) # this is to store the gantry position after every move.
+
+    def __init__(self,
+                 zeus: object, # pass the zeus module to gantry, this is for checking traverse height,
+                 max_x: int = -820,
+                 max_y: int = -360,
+                 horiz_speed: int = 200*60,# horizontal speed in mm / min
+                 xy_offset: tuple = (4, 0),# offsets in x and y, negative to right, closer; positive, to left, further
+                 zeus_traverse_position: int = 880,
+                 trash_xy: tuple = (-500, -70),
+                 idle_xy: tuple = (-500, -220),
+
+                 ):
+        self.logger = logging.getLogger('main.gantry.Gantry')
+        self.logger.info('gantry is initiating...')
+        self.serial = serial.Serial('COM6', 115200, timeout=0.2)
+        self.horiz_speed = horiz_speed # horizontal speed in mm/min
+        self.xy_offset = xy_offset
+        self.max_x = max_x
+        self.max_y = max_y
+
+        self.trash_xy = trash_xy
+        self.idle_xy = idle_xy
+
+        self.zm = zeus
+        self.zeus_traverse_position = zeus_traverse_position
+        # self.home_xy()
+
+    def send_to_xy_stage(self, command, wait_for_ok=True, verbose=False, read_all=False,
+                         ensure_traverse_height=True) -> None:
+        ser = self.serial
+        ser.write(str.encode(command + '\r\n'))
+        # ser.write(str.encode(command))
+        if verbose:
+            print('SENT: {0}'.format(command))
+        # time.sleep(1)
+
+        if wait_for_ok:
+            if verbose:
+                print('Waiting for ok...')
+            while True:
+                line = ser.readline()
+                if b'Alarm' in line:
+                    print('GRBL ALARM: GRBL wend into alarm. Overrode it with $X.')
+                    self.send_to_xy_stage(ser, '$X')
+                    break
+                if verbose:
+                    print(line)
+                if b'ok' in line:
+                    break
+
+        if read_all:
+            if verbose:
+                print('Reading all...')
+            while True:
+                line = ser.readline()
+                if verbose:
+                    print(line)
+                if line == b'':
+                    break
+
+    def configure_grbl(self) -> None:
+        with open("grbl_source_code\\grbl_settings.txt", 'r') as grbl_config_file:
+            for line in grbl_config_file:
+               self.send_to_xy_stage(command = line.split('    (')[0], read_all= True, verbose= True)
+        print("XY stage configured!")
+
+    def xy_pos(self) -> None:
+        self.send_to_xy_stage(command= '?', read_all= True, verbose= False)
+
+    def time_that_xy_motion_takes(self, dx: int, dy: int, acceleration=2000, max_speed=333.33333):
+
+        travel_times = []
+        for distance in [abs(dx), abs(dy)]:
+            halfdistance = distance / 2
+            # constant acceleration scenario
+            constant_acceleration_halftime = np.sqrt(halfdistance * 2 / acceleration)
+            speed_at_midpoint = constant_acceleration_halftime * acceleration
+            if speed_at_midpoint <= max_speed:
+                time_here = constant_acceleration_halftime * 2
+            else:
+                # this means that the stage reaches max speed before midpoint and then
+                #   continues at his max speed
+                constant_acceleration_halftime = max_speed / acceleration
+                dist_traveled_at_constant_acceleration = acceleration * (constant_acceleration_halftime ** 2) / 2
+                distance_traveled_at_constant_speed = halfdistance - dist_traveled_at_constant_acceleration
+                const_speed_halftime = distance_traveled_at_constant_speed / max_speed
+                time_here = 2 * (constant_acceleration_halftime + const_speed_halftime)
+            travel_times.append(time_here)
+        # print(max(travel_times))
+        return max(travel_times)
+
+    def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
+                use_time_estimate=True) -> None:
+        if xy[0] < self.max_x or xy[0] > 0:
+            self.logger.error(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
+            return
+        if xy[1] < self.max_y or xy[1] > 0:
+            self.logger.error(f'XY STAGE ERROR: target Y is beyond the limit ({self.max_y}, 0). Motion aborted.')
+            return
+        # avoid collision with the balance
+        if xy[0] < -760 and (xy[1] > -200 or xy[1] < -250):
+            self.logger.error('XY STAGE ERROR: gantry is going to collide with the balance. Motion aborted.')
+            return
+
+        # if move from inside the balance to outside, or vice verse, move to the idle position first
+        if (self.xy_position[0] < -760 and xy[1] > -200) or\
+                (self. xy_position[1] > -200 and xy[0] < -760 ):
+            self.send_to_xy_stage(
+                command='G0 X{0:.3f} Y{1:.3f}'.format(self.idle_xy[0], self.idle_xy[1]),
+                read_all=False, ensure_traverse_height=ensure_traverse_height)
+
+        zeus_at_traverse_height = self.zm.pos <= self.zeus_traverse_position
+        if ensure_traverse_height and not zeus_at_traverse_height:
+            print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.zm.pos}.\n'
+                  f'Motion aborted!')
+            return
+
+        # if np.linalg.norm(np.array((x, y))) <= R:
+        self.send_to_xy_stage(command= 'G0 X{0:.3f} Y{1:.3f}'.format(xy[0] + self.xy_offset[0], xy[1] + self.xy_offset[1]),
+                         read_all=False, ensure_traverse_height=ensure_traverse_height)
+        if block_until_motion_is_completed:
+            if use_time_estimate:
+                time.sleep(self.time_that_xy_motion_takes(dx=xy[0] - self.xy_position[0],
+                                                     dy=xy[1] - self.xy_position[1]))
+            else:
+                t0 = time.time()
+                time.sleep(0.1)
+                finished_moving = False
+                for i in range(100):
+                    if finished_moving:
+                        break
+                    if verbose:
+                        print(f'Status read {i}')
+                    self.serial.write(str.encode('?' + '\r\n'))
+                    while True:
+                        line = self.serial.readline()
+                        if verbose:
+                            print(line)
+                        if b'Idle' in line:
+                            finished_moving = True
+                        if line == b'':
+                            break
+                # print(f'{time.time() - t0}')
+                if verbose:
+                    print('Finished moving xy stage')
+        self.xy_position = xy
+
+    def home_xy(self, ensure_traverse_height=True) -> None:
+        self.logger.info('The gantry is homing...')
+        self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,
+                              ensure_traverse_height=ensure_traverse_height)
+        self.xy_pos()
+
+    def kill_alarm(self) -> None:
+        self.send_to_xy_stage("$X", read_all= True, verbose= True)
+
+    def close_gantry(self)-> None:
+        time.sleep(2)
+        self.serial.close()
+
+    def view_grbl_settings(self)-> None:
+        self.send_to_xy_stage('$$', read_all=True, verbose=True)
+        self.xy_pos()
+
+    def move_through_wells(self, plate: object, dwell_time=0.1, ensure_traverse_height=True):
+        for container in plate.containers:
+            print(f'This is well index: {container}')
+            self.move_xy(container.xy, ensure_traverse_height=ensure_traverse_height)
+            time.sleep(dwell_time)
+
+    def move_to_trash_bin(self, ensure_traverse_height=True):
+        self.move_xy(self.trash_xy, ensure_traverse_height=ensure_traverse_height)
+
+    def move_to_idle_position(self, ensure_traverse_height=True):
+        self.move_xy(self.idle_xy, ensure_traverse_height=ensure_traverse_height)
+
 
 class Pipetter():
 
-    def __init__(self, zeus, gantry):
+
+    def __init__(self,
+                 zeus: object,
+                 gantry: object,
+
+                 ):
         self.zeus = zeus
         self.gantry = gantry
-        self.balance = serial.Serial(port='COM7',
+        self.balance = serial.Serial(port='COM4',
                                      baudrate=19200,
                                      stopbits=serial.STOPBITS_ONE,
                                      parity=serial.PARITY_NONE,
@@ -28,8 +226,11 @@ class Pipetter():
         self.logger = logging.getLogger('main.pipetter.Pipetter')
         self.logger.info('creating an instance of Pepetter')
 
+
+
+
     def pick_tip(self, tip_type: str):
-        global tip_on_zeus
+
         with open('data/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
@@ -75,15 +276,15 @@ class Pipetter():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
-    def draw_liquid(self, transfer_event, n_retries=3):
+    def draw_liquid(self, transfer_event: object, n_retries=3) -> bool:
 
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.source_container.xy)
 
         for retry in range(n_retries):
             try:
-                # print(f'Aspiration volume: {int(round(transfer_event.aspirationVolume * 10))}')
-                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)),
+                print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
+                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)), # volume in 0.1 ul
                                      containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
                                      deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
                                      liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
@@ -97,6 +298,7 @@ class Pipetter():
                 time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True
+
             except ZeusError:
                 if self.zeus.zeus_error_code(self.zeus.r.received_msg) == '81':
                     # Empty tube detected during aspiration
@@ -111,7 +313,7 @@ class Pipetter():
         self.logger.info(f'Tried {n_retries} but zeus error is still there')
         raise Exception
 
-    def dispense_liquid(self, transfer_event):
+    def dispense_liquid(self, transfer_event: object) -> None:
 
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.destination_container.xy)
@@ -137,7 +339,10 @@ class Pipetter():
         # wait_until_zeus_reaches_traverse_height()
         self.zeus.wait_until_zeus_responds_with_string('GDid')
 
-    def transfer_liquid(self, transfer_event, max_volume=300):
+    def transfer_liquid(self, transfer_event: object, max_volume: int=None):
+
+        if max_volume is None:
+            max_volume = int(transfer_event.tip_type[:-2])
 
         # check if container is full.
         # if transfer_event.destination_container.liquid_volume > transfer_event.destination_container.volume_max:
@@ -146,12 +351,17 @@ class Pipetter():
 
         # if it exceeds max_volume, then do several pipettings
         N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
+        print(f'N_max_vol_pipettings: {N_max_vol_pipettings}')
 
         for i in range(N_max_vol_pipettings):
+            print(f'Pipetting {i+1} of {N_max_vol_pipettings}')
             _split_event_1 = copy.deepcopy(transfer_event)
-            _split_event_1.aspirationVolume = max_volume
-            _split_event_1.dispensingVolume = max_volume
+            _split_event_1.aspirationVolume = max_volume # volume in ul
+            _split_event_1.dispensingVolume = max_volume # volume in ul
+            print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
+            print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
             self.draw_liquid(_split_event_1)
+            liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_1)
 
         volume_of_last_pipetting = transfer_event.aspirationVolume % max_volume
@@ -160,10 +370,21 @@ class Pipetter():
             _split_event_2.aspirationVolume = volume_of_last_pipetting
             _split_event_2.dispensingVolume = volume_of_last_pipetting
             self.draw_liquid(_split_event_2)
+            liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_2)
 
         self.logger.info(f'Aspiration volume: {transfer_event.aspirationVolume}ul '
                          f'Dispensing volume: {transfer_event.dispensingVolume}ul')
+
+        return liquid_surface_height_from_zeus
+
+    def detect_liquid_surface(self) -> int:
+        self.zeus.sendCommand('GNid0001')
+        time.sleep(0.25)
+        liquid_surface_height_detected = re.findall('[0-9]+', self.zeus.r.received_msg)[1]
+
+        self.logger.info(f'liquid_surface_height_detected: {liquid_surface_height_detected}')
+        return int(liquid_surface_height_detected)
 
     def send_command_to_balance(self, command, read_all=True, verbose=False):
 
@@ -239,12 +460,12 @@ class Pipetter():
     def close_balance_door(self):
         self.send_command_to_balance('WS 0')
 
-    def move_to_balance(self, xy: tuple):
+    def move_to_balance(self, xy: tuple = brb.balance_cuvette.xy):
         self.open_balance_door()
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.gantry.move_xy(xy)
 
-    def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5) -> tuple[float, float]:
+    def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5):
         global xy_position
         global weighted_values
         # print(f'xy_position: {xy_position}')
@@ -262,15 +483,16 @@ class Pipetter():
         self.open_balance_door()
         print('Waiting for liquid transfer...')
         self.transfer_liquid(transfer_event=transfer_event)
+
         time.sleep(0.5)
-        self.gantry.move_to_idle()
+        self.gantry.move_to_idle_position()
         self.close_balance_door()
         time.sleep(timedelay)
         weight_after = self.balance_value()
         print(f'weight_after: {weight_after} g')
 
         pipetting_weight = round((weight_after - weight_before) * 1000, 6)  # mg
-        pipetting_volume = pipetting_weight / transfer_event.source_container.substance_density
+        pipetting_volume = round(pipetting_weight / transfer_event.source_container.substance_density, 2)
         self.logger.info(f'Weight of aliquot: {pipetting_weight} mg')
         self.logger.info(f'Volume of aliquot: {pipetting_volume} ul')
         return pipetting_weight, pipetting_volume
@@ -298,19 +520,16 @@ class ZeusError(Exception):
     pass
 
 
-def main():
+if __name__ == '__main__':
     import zeus
-    import gantry
     import breadboard as brb
+
     zm = zeus.ZeusModule(id=1)
     time.sleep(5)
-    gt = gantry.Gantry(zeus=zm)
-    # gt.home_xy()
+
+    gt = Gantry(zeus=zm)
+    time.sleep(2)
+    gt.home_xy()
     time.sleep(5)
+
     pt = Pipetter(zeus=zm, gantry=gt)
-
-    return zm, gt, pt
-
-
-if __name__ == '__main__':
-    zm, gt, pt = main()

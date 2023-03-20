@@ -1,6 +1,0 @@
-substance, container, volume, solvent, density
-Isocyano plate_4_container0 1.5ml water_empty 1.0
-amine plate_4_container1 1.5ml water_empty 1.0
-aldehyde plate_4_container2 1.5ml water_empty 1.0
-pTSA plate_4_container3 1.5ml water_empty 1.0
-DMF plate_4_container4 1.5ml water_empty 1.0

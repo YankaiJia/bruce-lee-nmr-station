@@ -17,7 +17,7 @@ import pprint
 
 DEBUG = 0
 INFO = 0
-WARNING = 1
+WARNING = 0
 ERROR = 1
 # KICK_MASK = 0x0400
 KICK_MASK = 0b10000000000
@@ -639,8 +639,8 @@ class ZeusModule:
 
     def __init__(self, id=None, tip_on_zeus='', init_module=True, auto_response=True):
         # colorama.init()
-        self.logger = logging.getLogger("main.zeus.ZeusModule")
         init()
+        self.logger = logging.getLogger("main.zeus.ZeusModule")
         self.id = id
         self.tip_on_zeus = tip_on_zeus
         self.auto_response = auto_response
@@ -1213,28 +1213,28 @@ class ZeusModule:
 
         elif cmd == 'ZI':
             if ec in {'00', '30', '35', '36', '40', '60', '62'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GZ':
             if ec in {'00', '31', '32', '35', '36', '40', '61', '62', '64'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GT':
             if ec in {'00', '31', '32', '35', '36', '40', '51', '52', '61', '62', '65', '75', '76'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GU':
             if ec in {'00', '30', '31', '32', '35', '36', '40', '51', '52', '61', '62', '65', '69', '75', '77'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1251,6 +1251,13 @@ class ZeusModule:
         elif cmd == 'GD':
             if ec in {'00', '30', '31', '32', '35', '36', '38', '40', '51', '52', '54', '55', '57', '61', '62', '63',
                       '65', '66', '67', '68', '70', '72', '74', '75', '83', '84', '85'}:
+                # self.logger.error(self.errorTable[ec])
+                return self.errorTable[ec]
+            else:
+                return defaultError
+        elif cmd == 'GD':
+            if ec in {'00', '30', '31', '32', '35', '36', '38', '40', '51', '52', '54', '55', '57', '61', '62', '63',
+                      '65', '66', '67', '68', '70', '72', '74', '75', '83', '84', '85'}:
                 self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
@@ -1261,129 +1268,130 @@ class ZeusModule:
                       '67', '68', '70', '72', '74', '85'}:
                 self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
+
             else:
                 return defaultError
 
         elif cmd == 'AB':
             if ec in {'00', '30'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
         elif cmd == 'AW':
             if ec in {'00', '30'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
         elif cmd == 'XA':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GK':
             if ec in {'00', '30', '31', '32', '35', '51', '52', '54'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GC':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GO':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GB':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GR':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GL':
             if ec in {'00', '20', '30', '31', '32', '39'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GM':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GQ':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GS':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GV':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GW':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GG':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GE':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GH':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
 
         elif cmd == 'GI':
             if ec in {'00', '20', '30', '31', '32'}:
-                self.logger.error(self.errorTable[ec])
+                # self.logger.error(self.errorTable[ec])
                 return self.errorTable[ec]
             else:
                 return defaultError
@@ -1439,7 +1447,7 @@ class ZeusModule:
             # zm.getAbsoluteZPosition()
             # time.sleep(0.6)
             if self.zeus_had_error(self.r.received_msg):
-                print('Zeus responded with error message. Aborting all operations.')
+                # print('Zeus responded with error message. Aborting all operations.')
                 self.logger.error('Zeus responded with error message. Aborting all operations.')
                 time.sleep(1)
                 self.move_z(ZeusModule.ZeusTraversePosition)
@@ -1667,21 +1675,25 @@ class ZeusModule:
         lc_param = LiquidClass(**para1)
         self.setLiquidClassParameters(lc_param)
         time.sleep(0.5)
+        print('Liquid class parameters set')
 
         ## write calibration curve
         # aspiration
         para2 = self.liquid_class_table_para['calibration']['aspiration'][str(liquid_index).zfill(2)]
-        ## There is a firmware malfuction here. Instead of send the string: GGid0001gg21ck + parameters. You should remove
-        ## gg21 from the string and send this:GGid0001ck + parameters. But before send this, you should do this:
-        ## zm.sendCommand('GHid0001gh21') and zm.sendCommand('RAid0000ragh'). Yaroslav figured this out. There was a lot of frustration
-        ## before this was figured out.
+        """
+        There is a firmware malfunction here. Instead of send the string: GGid0001gg21ck + parameters. You should remove
+        gg21 from the string and send this:GGid0001ck + parameters. But before send this, you should do this:
+        zm.sendCommand('GHid0001gh21') and zm.sendCommand('RAid0000ragh'). Yaroslav figured this out. There was a lot of frustration
+        before this was figured out.
+        """
         self.sendCommand('GGid0001gg' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.sendCommand('RAid0000ragg')
-        time.sleep(0.5)
+        time.sleep(2)
         para2_new = para2[:8] + para2[12:]
         self.sendCommand(para2_new)
-        time.sleep(0.5)
+        time.sleep(2)
+        print('Calibration for asp curve set')
         # dispensing
         para3 = self.liquid_class_table_para['calibration']['dispensing'][str(liquid_index).zfill(2)]
         self.sendCommand('GHid0001gh' + str(liquid_index).zfill(2))
@@ -1691,6 +1703,8 @@ class ZeusModule:
         para3_new = para3[:8] + para3[12:]
         self.sendCommand(para3_new)
         time.sleep(0.5)
+        print('Calibration for disp curve set')
+
         #
         # set_liquid_class_to_zeus(liquid_index = 21)
         # set_liquid_class_to_zeus(liquid_index = 22)
@@ -1699,28 +1713,40 @@ class ZeusModule:
         para4 = self.liquid_class_table_para['qpm']['aspiration'][str(liquid_index).zfill(2)]
         self.sendCommand(para4)
         time.sleep(0.5)
+        print('qpm for asp curve set')
+
         # dispensing
         para5 = self.liquid_class_table_para['qpm']['dispensing'][str(liquid_index).zfill(2)]
         self.sendCommand(para5)
         time.sleep(0.5)
+        print('qpm for disp curve set')
+
 
     def request_parameters_from_zeus(self, liquid_index):
 
         # liquid parameters
         self.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        self.logger.info(f"liquid parameters: {self.r.received_msg}")
 
         # calibrations
         self.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        self.logger.info(f"calibration_asp {self.r.received_msg}")
+
         self.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        self.logger.info(f"calibration_disp {self.r.received_msg}")
+
 
         # qpm
         self.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        self.logger.info(f"qpm_asp {self.r.received_msg}")
+
         self.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
         time.sleep(0.5)
+        self.logger.info(f"qpm_asp {self.r.received_msg}")
 
     # set_liquid_class_to_zeus( liquid_index =23 )
 
@@ -1744,5 +1770,15 @@ if __name__ == '__main__':
     # zm.setContainerGeometryParameters(brb.jar_100ml)
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.tube_1500ul)
+
+    # # load deck parameters
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
+    # time.sleep(1)
 
     # lc = ZeusLiquidClass(zm = zm)

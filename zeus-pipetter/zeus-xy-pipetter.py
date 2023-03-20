@@ -13,7 +13,6 @@ import zeus
 
 
 
-import gantry
 
 import time
 import numpy as np
