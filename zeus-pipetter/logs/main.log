@@ -13184,3 +13184,360 @@ Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate
 2023-03-19 22:38:43,953 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_19_22_38.json
 2023-03-19 22:38:43,954 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
 2023-03-19 22:39:21,439 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-20 13:09:01,033 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 13:09:10,104 - main - INFO - zeus is loaded as: zm
+2023-03-20 13:09:10,104 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 13:09:13,120 - main - INFO - gantry is loaded as: gt
+2023-03-20 13:09:13,120 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 13:09:21,434 - main - INFO - gantry is homed
+2023-03-20 13:09:21,584 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 13:09:23,593 - main - INFO - pipetter is loaded as: pt
+2023-03-20 13:10:37,252 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:10:37,318 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-20 13:10:44,384 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:12:16,139 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 13:12:25,222 - main - INFO - zeus is loaded as: zm
+2023-03-20 13:12:25,222 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 13:12:28,233 - main - INFO - gantry is loaded as: gt
+2023-03-20 13:12:28,233 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 13:12:34,197 - main - INFO - gantry is homed
+2023-03-20 13:12:34,349 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 13:12:36,359 - main - INFO - pipetter is loaded as: pt
+2023-03-20 13:12:50,764 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:12:50,817 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2017, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2097, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1908, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2087, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2045, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1970, 'empty']]
+2023-03-20 13:12:57,902 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:13:08,163 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2021
+2023-03-20 13:13:12,130 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 13:13:12,191 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 13:13:34,328 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2099
+2023-03-20 13:13:38,299 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 13:13:38,360 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 13:13:59,172 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1914
+2023-03-20 13:14:03,147 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 13:14:03,207 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 13:14:25,107 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2091
+2023-03-20 13:14:29,067 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 13:14:29,128 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 13:14:50,705 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2049
+2023-03-20 13:14:54,681 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 13:14:54,741 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 13:15:16,139 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1975
+2023-03-20 13:15:20,122 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 13:15:20,182 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 13:15:24,428 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 2021, 'p-BrPhOTf_volume': 7864.8, 'm-BrPhOTf_height': 2099, 'm-BrPhOTf_volume': 3881.3, 'Br-Biph-Otf_height': 1914, 'Br-Biph-Otf_volume': 13329.3, 'acetylbromobenzene_height': 2091, 'acetylbromobenzene_volume': 4289.9, 'Phenylboronic_acid_height': 2049, 'Phenylboronic_acid_volume': 6434.8, 'potassium_carbonate_height': 1975, 'potassium_carbonate_volume': 10214.0}
+2023-03-20 13:15:24,475 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 2021
+2023-03-20 13:15:24,475 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 2099
+2023-03-20 13:15:24,475 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 1914
+2023-03-20 13:15:24,475 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2091
+2023-03-20 13:15:24,475 - main - INFO - Stock solution Phenylboronic_acid has been updated with liquid surface height: 2049
+2023-03-20 13:15:24,476 - main - INFO - Stock solution potassium_carbonate has been updated with liquid surface height: 1975
+2023-03-20 13:15:24,613 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2021, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2099, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1914, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2091, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2049, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1975, 'empty']]
+2023-03-20 13:15:24,614 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:15:28,920 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-20 13:15:28,928 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_20_13_15.json
+2023-03-20 13:15:28,928 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:15:29,259 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-20 13:15:29,259 - main - INFO - All event objects are generated from dataframes.
+2023-03-20 13:15:36,650 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:15:43,986 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 13:15:49,144 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:15:49,205 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:15:56,903 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 13:16:02,042 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:16:02,103 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:16:09,818 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 13:34:11,821 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:34:19,175 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 13:34:24,312 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:34:24,374 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:34:31,956 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 13:34:37,109 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:34:37,170 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:34:44,868 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 13:34:50,018 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:34:50,079 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:34:57,680 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2560
+2023-03-20 13:35:02,947 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:35:03,007 - main - INFO - Performed one event:  event_id:3   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:35:45,534 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:35:51,639 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 13:35:51,671 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 13:35:53,223 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:36:21,027 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:36:27,158 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 13:36:27,184 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 13:36:28,750 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:37:00,247 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:37:07,681 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 13:37:12,822 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:37:12,883 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:37:20,585 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 13:37:25,729 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:37:25,789 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:37:33,492 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 13:37:38,746 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:37:38,807 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:37:46,496 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2560
+2023-03-20 13:37:51,653 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:37:51,715 - main - INFO - Performed one event:  event_id:3   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:37:59,419 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2565
+2023-03-20 13:38:04,675 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:38:04,735 - main - INFO - Performed one event:  event_id:4   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:38:12,428 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2569
+2023-03-20 13:38:17,565 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:38:17,624 - main - INFO - Performed one event:  event_id:5   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:38:25,324 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2574
+2023-03-20 13:40:25,318 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 13:40:34,392 - main - INFO - zeus is loaded as: zm
+2023-03-20 13:40:34,392 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 13:40:37,397 - main - INFO - gantry is loaded as: gt
+2023-03-20 13:40:37,397 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 13:40:43,807 - main - INFO - gantry is homed
+2023-03-20 13:40:43,958 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 13:40:45,965 - main - INFO - pipetter is loaded as: pt
+2023-03-20 13:40:53,266 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:40:53,319 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2021, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2099, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1914, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2091, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2049, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1975, 'empty']]
+2023-03-20 13:40:54,381 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2021, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2099, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1914, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2091, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2049, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1975, 'empty']]
+2023-03-20 13:40:54,381 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:40:58,761 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-20 13:40:58,770 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_20_13_40.json
+2023-03-20 13:40:58,770 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 13:40:59,098 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-20 13:40:59,098 - main - INFO - All event objects are generated from dataframes.
+2023-03-20 13:41:07,172 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:41:14,639 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 13:41:19,786 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:41:19,847 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:41:27,440 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 13:41:32,581 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:41:32,642 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:41:40,230 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 13:41:45,379 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:41:45,441 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:43:37,048 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:43:44,541 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 13:43:49,680 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:43:49,742 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:43:57,438 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 13:44:02,582 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:44:02,642 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:44:10,336 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 13:44:15,474 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:44:15,534 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:44:57,641 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:45:03,885 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 13:45:03,906 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 13:45:05,456 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:45:19,104 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:45:25,427 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 13:45:25,499 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 13:45:27,060 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:45:57,286 - main - INFO - The tip is changed to : 300ul
+2023-03-20 13:46:04,856 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 13:46:10,013 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:46:10,074 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:46:17,675 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 13:46:22,819 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:46:22,880 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:46:30,560 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 13:46:35,806 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:46:35,867 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:46:43,466 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2560
+2023-03-20 13:46:48,720 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 13:46:48,781 - main - INFO - Performed one event:  event_id:3   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 13:46:55,135 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 13:46:55,151 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 13:46:56,699 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:4   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:26:25,338 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 16:26:34,431 - main - INFO - zeus is loaded as: zm
+2023-03-20 16:26:34,431 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 16:26:37,444 - main - INFO - gantry is loaded as: gt
+2023-03-20 16:26:37,444 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 16:26:45,755 - main - INFO - gantry is homed
+2023-03-20 16:26:45,904 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 16:26:47,914 - main - INFO - pipetter is loaded as: pt
+2023-03-20 16:27:00,938 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 16:27:00,998 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2021, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2099, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1914, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2091, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2049, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1975, 'empty']]
+2023-03-20 16:27:02,055 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_4_container0', 'ethanol', 0.789, 4.5, 2021, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_4_container1', 'ethanol', 0.789, 4.5, 2099, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_4_container2', 'ethanol', 0.789, 4.5, 1914, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_4_container3', 'ethanol', 0.789, 4.5, 2091, 'empty'], ['Phenylboronic_acid', 'Substance_E', ' plate_4_container4', 'ethanol', 0.789, 9, 2049, 'empty'], ['potassium_carbonate', 'Substance_f', ' plate_4_container5', 'water', 1, 20, 1975, 'empty']]
+2023-03-20 16:27:02,055 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 16:27:06,377 - main.planner - INFO - event_dataframe is generated with 4536 events.
+2023-03-20 16:27:06,385 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_20_16_27.json
+2023-03-20 16:27:06,385 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_15-reaction_template_for_robot_Yankai.xlsx
+2023-03-20 16:27:06,710 - main.planner - INFO - Event_list is generated with 4536 events.
+2023-03-20 16:27:06,710 - main - INFO - All event objects are generated from dataframes.
+2023-03-20 16:27:14,618 - main - INFO - The tip is changed to : 300ul
+2023-03-20 16:27:21,864 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 16:27:27,100 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:27:27,162 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:27:34,853 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 16:27:39,984 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:27:40,046 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:27:47,729 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 16:27:52,866 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:27:52,927 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:28:00,507 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2560
+2023-03-20 16:28:05,640 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:28:05,701 - main - INFO - Performed one event:  event_id:3   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:28:13,273 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2565
+2023-03-20 16:28:18,414 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:28:18,475 - main - INFO - Performed one event:  event_id:4   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:28:26,073 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2569
+2023-03-20 16:28:31,222 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:28:31,283 - main - INFO - Performed one event:  event_id:5   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:28:38,980 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2574
+2023-03-20 16:28:44,224 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:28:44,285 - main - INFO - Performed one event:  event_id:6   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:28:51,870 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2579
+2023-03-20 16:28:57,014 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:28:57,075 - main - INFO - Performed one event:  event_id:7   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:29:04,676 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2584
+2023-03-20 16:29:09,873 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:29:09,933 - main - INFO - Performed one event:  event_id:8   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:29:17,681 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2589
+2023-03-20 16:29:22,855 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:29:22,915 - main - INFO - Performed one event:  event_id:9   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:29:30,660 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2594
+2023-03-20 16:29:35,840 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:29:35,900 - main - INFO - Performed one event:  event_id:10   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:29:43,641 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2599
+2023-03-20 16:29:48,828 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:29:48,890 - main - INFO - Performed one event:  event_id:11   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:29:56,640 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2604
+2023-03-20 16:30:01,923 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:30:01,983 - main - INFO - Performed one event:  event_id:12   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:30:09,726 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2609
+2023-03-20 16:30:15,008 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:30:15,068 - main - INFO - Performed one event:  event_id:13   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:34:17,214 - main - INFO - The tip is changed to : 300ul
+2023-03-20 16:34:23,242 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 16:34:23,247 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 16:34:24,796 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:34:50,317 - main - INFO - The tip is changed to : 300ul
+2023-03-20 16:34:57,646 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2545
+2023-03-20 16:35:02,788 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:35:02,849 - main - INFO - Performed one event:  event_id:0   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:35:10,443 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2550
+2023-03-20 16:35:15,586 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:35:15,647 - main - INFO - Performed one event:  event_id:1   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:35:23,356 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2555
+2023-03-20 16:35:28,501 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:35:28,561 - main - INFO - Performed one event:  event_id:2   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:35:36,143 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2560
+2023-03-20 16:35:41,279 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:35:41,339 - main - INFO - Performed one event:  event_id:3   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:35:49,031 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2565
+2023-03-20 16:35:54,167 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:35:54,227 - main - INFO - Performed one event:  event_id:4   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:36:01,926 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2569
+2023-03-20 16:36:07,068 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:36:07,129 - main - INFO - Performed one event:  event_id:5   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:36:14,714 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2574
+2023-03-20 16:36:19,843 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:36:19,903 - main - INFO - Performed one event:  event_id:6   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:36:27,581 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2579
+2023-03-20 16:36:32,728 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:36:32,788 - main - INFO - Performed one event:  event_id:7   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:36:40,400 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2584
+2023-03-20 16:36:45,579 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:36:45,640 - main - INFO - Performed one event:  event_id:8   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:36:53,380 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2589
+2023-03-20 16:36:58,569 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:36:58,631 - main - INFO - Performed one event:  event_id:9   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:37:06,360 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2594
+2023-03-20 16:37:11,532 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:37:11,593 - main - INFO - Performed one event:  event_id:10   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:37:19,310 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2599
+2023-03-20 16:37:24,485 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:37:24,547 - main - INFO - Performed one event:  event_id:11   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:37:32,197 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2604
+2023-03-20 16:37:37,379 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-20 16:37:37,440 - main - INFO - Performed one event:  event_id:12   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:37:43,875 - main.zeus.ZeusModule - ERROR - Empty tube detected during aspiration.
+2023-03-20 16:37:43,937 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 16:37:45,495 - main - ERROR - Error in transfer liquid.
+ 						Consider adding more liquid to source container: brb.plate_list[4].containers[0]
+						Next, proceed with:  event_id:13   substance:p-BrPhOTf   transfer_volume:250plate_number_barcode:00
+2023-03-20 16:45:04,638 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 16:45:27,896 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 16:45:36,981 - main - INFO - zeus is loaded as: zm
+2023-03-20 16:45:36,981 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 16:45:39,999 - main - INFO - gantry is loaded as: gt
+2023-03-20 16:45:39,999 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 16:45:48,308 - main - INFO - gantry is homed
+2023-03-20 16:45:48,459 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 16:45:50,465 - main - INFO - pipetter is loaded as: pt
+2023-03-20 16:47:36,563 - main - INFO - Excel file for reactions is selected: None
+2023-03-20 16:53:31,565 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 16:53:40,657 - main - INFO - zeus is loaded as: zm
+2023-03-20 16:53:40,657 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 16:53:43,670 - main - INFO - gantry is loaded as: gt
+2023-03-20 16:53:43,670 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 16:53:47,710 - main - INFO - gantry is homed
+2023-03-20 16:53:47,860 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 16:53:49,862 - main - INFO - pipetter is loaded as: pt
+2023-03-20 16:54:00,357 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/outVRF038202303201421_first_100.xlsx
+2023-03-20 16:54:00,375 - main - INFO - stock solutions are loaded from Excel file: [['ald001', 'Substance_A', ' plate_4_container0', 'DMF', 0.944, 0, 0, 'empty'], ['ptsa', 'Substance_B', ' plate_4_container1', 'DMF', 0.944, 0, 0, 'empty'], ['am001', 'Substance_C', ' plate_4_container2', 'DMF', 0.944, 0, 0, 'empty'], ['ic001', 'Substance_D', ' plate_4_container3', 'DMF', 0.944, 0, 0, 'empty'], ['ptsa_dil_x_5', 'Substance_E', ' plate_4_container4', 'DMF', 0.944, 0, 0, 'empty'], ['ptsa_dil_x_25', 'Substance_F', ' plate_4_container5', 'DMF', 0.944, 0, 0, 'empty'], ['DMF', 'Substance_G', ' plate_4_container5', 'DMF', 0.944, 0, 0, 'empty']]
+2023-03-20 16:54:08,353 - main - INFO - The tip is changed to : 300ul
+2023-03-20 16:54:18,275 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1979
+2023-03-20 16:54:22,255 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:54:22,315 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:54:44,492 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2101
+2023-03-20 16:54:48,467 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:54:48,529 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:55:09,408 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1915
+2023-03-20 16:55:13,382 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:55:13,442 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:55:35,240 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2093
+2023-03-20 16:55:39,195 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:55:39,255 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:56:00,916 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2049
+2023-03-20 16:56:04,869 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:56:04,930 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:56:26,274 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1977
+2023-03-20 16:56:30,249 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:56:30,309 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:56:51,657 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1977
+2023-03-20 16:56:55,632 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-20 16:56:55,692 - main - INFO - Performed one event:  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-20 16:56:59,927 - main - INFO - liquid_surface_heights: {'ald001_height': 1979, 'ald001_volume': 10009.7, 'ptsa_height': 2101, 'ptsa_volume': 3779.2, 'am001_height': 1915, 'am001_volume': 13278.2, 'ic001_height': 2093, 'ic001_volume': 4187.7, 'ptsa_dil_x_5_height': 2049, 'ptsa_dil_x_5_volume': 6434.8, 'ptsa_dil_x_25_height': 1977, 'ptsa_dil_x_25_volume': 10111.9, 'DMF_height': 1977, 'DMF_volume': 10111.9}
+2023-03-20 16:57:00,944 - main - INFO - Stock solution ald001 has been updated with liquid surface height: 1979
+2023-03-20 16:57:00,944 - main - INFO - Stock solution ptsa has been updated with liquid surface height: 2101
+2023-03-20 16:57:00,944 - main - INFO - Stock solution am001 has been updated with liquid surface height: 1915
+2023-03-20 16:57:00,944 - main - INFO - Stock solution ic001 has been updated with liquid surface height: 2093
+2023-03-20 16:57:00,944 - main - INFO - Stock solution ptsa_dil_x_5 has been updated with liquid surface height: 2049
+2023-03-20 16:57:00,944 - main - INFO - Stock solution ptsa_dil_x_25 has been updated with liquid surface height: 1977
+2023-03-20 16:57:00,945 - main - INFO - Stock solution DMF has been updated with liquid surface height: 1977
+2023-03-20 16:57:01,984 - main - INFO - stock solutions are loaded from Excel file: [['ald001', 'Substance_A', ' plate_4_container0', 'DMF', 0.944, 0, 1979, 'empty'], ['ptsa', 'Substance_B', ' plate_4_container1', 'DMF', 0.944, 0, 2101, 'empty'], ['am001', 'Substance_C', ' plate_4_container2', 'DMF', 0.944, 0, 1915, 'empty'], ['ic001', 'Substance_D', ' plate_4_container3', 'DMF', 0.944, 0, 2093, 'empty'], ['ptsa_dil_x_5', 'Substance_E', ' plate_4_container4', 'DMF', 0.944, 0, 2049, 'empty'], ['ptsa_dil_x_25', 'Substance_F', ' plate_4_container5', 'DMF', 0.944, 0, 1977, 'empty'], ['DMF', 'Substance_G', ' plate_4_container5', 'DMF', 0.944, 0, 1977, 'empty']]
+2023-03-20 16:57:01,984 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/outVRF038202303201421_first_100.xlsx
+2023-03-20 17:01:35,097 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/outVRF038202303201421_first_100.xlsx
+2023-03-20 17:01:35,385 - main.planner - INFO - event_dataframe is generated with 270 events.
+2023-03-20 17:01:35,387 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_20_17_01.json
+2023-03-20 17:01:35,387 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/outVRF038202303201421_first_100.xlsx
+2023-03-20 17:04:09,325 - main - INFO - stock solutions are loaded from Excel file: [['ald001', 'Substance_A', ' plate_4_container0', 'DMF', 0.944, 0, 1979, 'empty'], ['ptsa', 'Substance_B', ' plate_4_container1', 'DMF', 0.944, 0, 2101, 'empty'], ['am001', 'Substance_C', ' plate_4_container2', 'DMF', 0.944, 0, 1915, 'empty'], ['ic001', 'Substance_D', ' plate_4_container3', 'DMF', 0.944, 0, 2093, 'empty'], ['ptsa_dil_x_5', 'Substance_E', ' plate_4_container4', 'DMF', 0.944, 0, 2049, 'empty'], ['ptsa_dil_x_25', 'Substance_F', ' plate_4_container5', 'DMF', 0.944, 0, 1977, 'empty'], ['DMF', 'Substance_G', ' plate_4_container6', 'DMF', 0.944, 0, 1977, 'empty']]
+2023-03-20 17:06:08,615 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/outVRF038202303201421_first_100.xlsx
+2023-03-20 17:06:08,881 - main.planner - INFO - event_dataframe is generated with 270 events.
+2023-03-20 17:06:08,882 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_20_17_06.json
+2023-03-20 17:06:08,882 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/outVRF038202303201421_first_100.xlsx
+2023-03-20 17:06:08,903 - main.planner - INFO - Event_list is generated with 270 events.
+2023-03-20 17:06:08,903 - main - INFO - All event objects are generated from dataframes.
+2023-03-20 17:06:38,426 - main.zeus.ZeusModule - ERROR - Zeus responded with error message. Aborting all operations.
+2023-03-20 17:40:04,153 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-20 17:40:13,251 - main - INFO - zeus is loaded as: zm
+2023-03-20 17:40:13,251 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-20 17:40:16,262 - main - INFO - gantry is loaded as: gt
+2023-03-20 17:40:16,262 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-20 17:40:20,658 - main - INFO - gantry is homed
+2023-03-20 17:40:20,805 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-20 17:40:22,818 - main - INFO - pipetter is loaded as: pt

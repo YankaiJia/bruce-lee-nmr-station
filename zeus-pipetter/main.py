@@ -59,6 +59,8 @@ from typing import List
 from openpyxl import Workbook
 from openpyxl import load_workbook
 import PySimpleGUI as sg
+import pandas as pd
+# import arrow
 
 import zeus
 import pipetter
@@ -89,6 +91,7 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
     return zm, gt, pt
 
 zm, gt, pt = initiate_hardware()
+time.sleep(1)
 
 
 # specify Excel path for reactions and stock solutions
@@ -184,14 +187,18 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
 
 event_list_surface_detection = generate_event_list_for_surface_detection()
 
+time.sleep(1)
+
 
 ## run detection events and get liquid surface heights
 ## liquid_info_in_stock example:
 ## {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
-liquid_info_in_stock, *rest = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                            event_list=event_list_surface_detection)
 
 logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
+
+time.sleep(1)
 
 # liquid_info_in_stock = liquid_info_in_stock[0]
 
@@ -216,6 +223,8 @@ def update_excel_with_liquid_heights_and_volume(path_for_reaction: str = path_fo
     wb.save(path_for_reaction)
 
 update_excel_with_liquid_heights_and_volume(liquid_info_in_stock=liquid_info_in_stock)
+
+time.sleep(1)
 
 # TODO: add a function to update the Excel file with the liquid surface heights and volumes
 def add_stock_solutions_to_brb_containers(reaction_excel_path: str):
@@ -254,12 +263,25 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, event_list_chem = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe= path_for_reactions,
-                              sheet_name='Reactions_0315', usecols='B:G',
+                              sheet_name='Reactions_0320', usecols='B:H',
                               is_pipeting_to_balance=False, is_for_bio=False)
+time.sleep(1)
 
-liquid_surface, event_crashed = pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list_chem)
 
-#
+with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
+    pickle.dump(event_list_chem, f)
+
+# TODO: check which tip type to use. calibrate both 50 and 300 ul tips.
+pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+                    event_list_path='multicomponent_reaction\\event_list_chem.pickle')
+
+
+event_list_path = 'multicomponent_reaction\\event_list_chem.pickle'
+with open(event_list_path, 'rb') as f:
+    event_list = pickle.load(f)
+
+
+# TODO: after conduction of one event, the timestamp is updated
 
 # TODO: think about updating the stock solutions when they run out.
 
