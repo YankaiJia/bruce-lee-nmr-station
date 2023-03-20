@@ -549,13 +549,13 @@ def main():
 
     print("This is main.")
 
-    # run this ONLY when changing new tip rack.
-    # load_new_tip_rack(rack_reload ='300ul')
-    # module_logger.info('New tip rack: 300ul is loaded.')
-    # load_new_tip_rack(rack_reload ='1000ul')
-    # module_logger.info('New tip rack: 1000ul is loaded.')
-    # load_new_tip_rack(rack_reload ='50ul')
-    # module_logger.info('New tip rack: 50ul is loaded.')
+    ##run this ONLY when changing new tip rack.
+    load_new_tip_rack(rack_reload ='300ul')
+    module_logger.info('New tip rack: 300ul is loaded.')
+    load_new_tip_rack(rack_reload ='1000ul')
+    module_logger.info('New tip rack: 1000ul is loaded.')
+    load_new_tip_rack(rack_reload ='50ul')
+    module_logger.info('New tip rack: 50ul is loaded.')
 
 
 

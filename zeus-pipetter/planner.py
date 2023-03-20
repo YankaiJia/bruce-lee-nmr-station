@@ -416,11 +416,24 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
 
     return liquid_surface_height_from_zeus
 
-def run_events_chem(zm: object, pt: object, logger: object, event_list_path = None, event_list = None) -> None:
+def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
+                    event_list_path = None, event_list = None) -> None:
 
     if event_list_path is not None:
         with open(event_list_path, 'rb') as f:
             event_list = pickle.load(f)
+
+    ## adjust lc index
+    for event in event_list:
+        if event.aspirationVolume <= 50:
+            event.asp_liquidClassTableIndex = 24
+            event.disp_liquidClassTableIndex = 24
+            event.tip_type = '50ul'
+        else:
+            event.asp_liquidClassTableIndex = 22
+            event.disp_liquidClassTableIndex = 22
+            event.tip_type = '300ul'
+
 
     if event_list is not None:
         event_list = event_list
@@ -431,14 +444,15 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list_path = No
         pt.discard_tip()
 
 
-    for event_index in range(len(event_list)):
+    for event_index in range(start_event_id, len(event_list)):
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
         event_start_time = time.time() # UTC time
         event_start_time_datetime = datetime.fromtimestamp(event_start_time)
-        event_list[event_index].event_start_time = (str(event_start_time), str(event_start_time_datetime))
+        event_list[event_index].event_start_time_utc = event_start_time
+        event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
         try:
             liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
 
@@ -457,7 +471,8 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list_path = No
 
         event_finish_time = time.time() # UTC time
         event_finish_time_datetime = datetime.fromtimestamp(event_finish_time)
-        event_list[event_index].event_finish_time = (str(event_finish_time), str(event_finish_time_datetime))
+        event_list[event_index].event_finish_time = event_finish_time
+        event_list[event_index].event_finish_time_datetime = str(event_finish_time_datetime)
         event_list[event_index].is_event_conducted = True
 
 
@@ -478,10 +493,12 @@ def run_events_chem(zm: object, pt: object, logger: object, event_list_path = No
                 pt.change_tip(event_list[event_index + 1].tip_type)
         time.sleep(0.5)
 
+        with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
+            pickle.dump(event_list, f)
+
     pt.discard_tip()
 
-    with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
-        pickle.dump(event_list, f)
+
 
     return liquid_surface_height_from_zeus
 
