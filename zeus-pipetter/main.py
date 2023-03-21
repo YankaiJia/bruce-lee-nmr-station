@@ -67,6 +67,7 @@ import pipetter
 import planner as pln
 import breadboard as brb
 
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
@@ -90,12 +91,12 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 
     return zm, gt, pt
 
-
+## initiate hardware
 zm, gt, pt = initiate_hardware()
 time.sleep(1)
 
-
-# # specify Excel path for reactions and stock solutions
+#
+# # use GUI to specify Excel path for reactions and stock solutions
 # def load_excel_path_by_pysimplegui():
 #     sg.theme('BrightColors')  # Add a touch of color
 #     working_directory = os.getcwd()
@@ -118,7 +119,6 @@ time.sleep(1)
 #     window.close()
 #     logger.info(f"Excel file for reactions is selected: {values['-FILE_PATH-']}")
 #     return values['-FILE_PATH-']
-#
 #
 # path_for_reactions = load_excel_path_by_pysimplegui()
 #
@@ -184,15 +184,16 @@ time.sleep(1)
 #
 #     return event_list_surface_detection
 #
-#
 # event_list_surface_detection = generate_event_list_for_surface_detection()
+#
 #
 # time.sleep(1)
 #
 # ## run detection events and get liquid surface heights
-# ## liquid_info_in_stock example:
-# ## {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
+# # liquid_info_in_stock example:
+# # {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
 # liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+#                                            start_event_id=0,
 #                                            event_list=event_list_surface_detection)
 #
 # logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
@@ -200,7 +201,6 @@ time.sleep(1)
 # time.sleep(1)
 #
 #
-# # liquid_info_in_stock = liquid_info_in_stock[0]
 #
 # ## This update will rely on the exact naming and order of the file header, so keep them the same as the template.
 # def update_excel_with_liquid_heights_and_volume(path_for_reaction: str,
@@ -222,13 +222,11 @@ time.sleep(1)
 #
 #     wb.save(path_for_reaction)
 #
-#
 # update_excel_with_liquid_heights_and_volume(path_for_reaction = path_for_reactions, liquid_info_in_stock=liquid_info_in_stock)
 #
 # time.sleep(1)
 #
 #
-# # TODO: add a function to update the Excel file with the liquid surface heights and volumes
 # def add_stock_solutions_to_brb_containers(reaction_excel_path: str):
 #     # this loading should be done after the liquid surface heights are updated in the Excel file
 #     stock_solution_list = load_stock_solutions_from_excel(reaction_excel_path)
@@ -258,148 +256,35 @@ time.sleep(1)
 #
 # add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 #
-# # multicomponent reactions
+#
+# # generate event list for multicomponent reactions
 # event_dataframe_chem, event_list_chem = \
 #     pln.generate_event_object(logger=logger,
 #                               excel_to_generate_dataframe=path_for_reactions,
 #                               sheet_name='Reactions_0320', usecols='B:H',
 #                               is_pipeting_to_balance=False, is_for_bio=False)
 # time.sleep(1)
+#
+#
+# # save the event list in pickle file and later load from this file
+# with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
+#     pickle.dump(event_list_chem, f)
+#
+# # update planner.py when necessary
+# importlib.reload(pln)
+
+# do multicomponent reactions
+pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+                    event_list_path='multicomponent_reaction\\event_list_chem.pickle',
+                    start_event_id= 405)
+
 
 # with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
 #     pickle.dump(event_list_chem, f)
-
-
-# importlib.reload(pln)
-
-# TODO: check which tip type to use. calibrate both 50 and 300 ul tips.
-pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    event_list_path='multicomponent_reaction\\event_list_chem.pickle',
-                    start_event_id=0)
-
-
-event_list_path = 'multicomponent_reaction\\event_list_chem.pickle'
-with open(event_list_path, 'rb') as f:
-    event_list = pickle.load(f)
-
-# TODO: after conduction of one event, the timestamp is updated
-
-# TODO: think about updating the stock solutions when they run out.
-
-
-# TODO: update volume after surface detection
-# TODO: move staff relating to IO to dropbox
-# TODO: learn database
-
-
-# calibration_event_dataframe, calibration_event_list = \
-#     pln.generate_event_object(logger=logger,
-#                               txt_path_for_substance='calibration_for_pipetting\\pipetting_calibration_settings_ALL.txt',
-#                               excel_to_generate_dataframe='calibration_for_pipetting\\pipetting_calibration_substances_ALL.xlsx',
-#                               sheet_name='Solvents', usecols='E',
-#                               is_pipeting_to_balance=True, is_for_bio=False)
 #
 #
+# with open('multicomponent_reaction\\event_list_chem.pickle', 'rb') as f:
+#     new  = pickle.load(f)
 #
-# for event in event_list_surface_detection:
-#     # print(event.aspirationVolume)
-#
-#     event.source_container = brb.plate_list[4].containers[7]
-#     event.destination_container = brb.plate_list[4].containers[7]
-# # # generate_calibration_event_list
-# # calibration_event_dataframe, calibration_event_list = \
-# #     pln.generate_event_object(logger=logger,
-# #                               txt_path_for_substance='calibration_for_pipetting\\pipetting_calibration_settings_ALL.txt',
-# #                               excel_to_generate_dataframe='calibration_for_pipetting\\pipetting_calibration_substances_ALL.xlsx',
-# #                               sheet_name='Solvents', usecols='E',
-# #                               is_pipeting_to_balance=True, is_for_bio=False)
-# # # time.sleep(1)
-# # calibration_event_list = calibration_event_list[::-1] # reverse the list
-# #
-# # # specify tip and liquidClassIndex for calibration
-# # def specify_tip_and_liquidClassIndex_for_calibration():
-# #     for event in calibration_event_list:
-# #         event.tip_type = '300ul'
-# #         event.asp_liquidClassTableIndex = 22
-# #         event.disp_liquidClassTableIndex = 22
-# #
-# # specify_tip_and_liquidClassIndex_for_calibration()
-# #
-# # #
-# # # do_calibration
-# # weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-# #                                                    calibration_event_list= calibration_event_list)
-# #
-#
-# # event_dataframe_bio, event_list_bio = \
-# #     pln.generate_event_object(logger=logger,
-# #                               txt_path_for_substance='protein_screen\\03072023_Plate_reader_UvVis_Yankai_test.txt',
-# #                               excel_to_generate_dataframe='protein_screen\\03072023_Plate_reader_UvVis_Yankai_test.xlsx',
-# #                               sheet_name='Treated_Yankai', usecols='C:G',
-# #                               is_pipeting_to_balance=False, is_for_bio=True)
-# #
-# # pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=event_list_bio[93:])
-#
-# # new_event_list = [event for i, event in enumerate(event_list_bio) if i % 5 == 0]
-#
-# # pln.run_events_bio(zm=zm, pt=pt, logger=logger, event_list=new_event_list)
-# #
-#
-#
-
-
-# # # for event in event_list_chem:
-# #
-# #     event.asp_liquidClassTableIndex = 22
-# #     event.disp_liquidClassTableIndex = 22
-# #     event.tip_type = '300ul'
-#
-#
-# event_dataframe_chem, event_list_chem = \
-#     pln.generate_event_object(logger=logger,
-#                               txt_path_for_substance='NPs\\nps_03082023.txt',
-#                               excel_to_generate_dataframe='NPs\\2023_03_15-reaction_template_for_robot_Yankai.xlsx',
-#                               sheet_name='0315', usecols='B:G',
-#                               is_pipeting_to_balance=False, is_for_bio=False)
-# #
-# for event in event_list_chem:
-#     # print(event.aspirationVolume)
-#     event.asp_lld = 1
-#     event.disp_lld = 0
-#     event.source_container = brb.plate_list[4].containers[7]
-#     event.destination_container = brb.plate_list[4].containers[7]
-#     event.disp_liquidSurface = 1800
-#
-#     # print(event.asp_liquidSurface)
-# #     event.asp_liquidClassTableIndex = 1
-# #     event.aspirationVolume = 300
-# #     event.dispensingVolume = 300
-#
-# # pln.run_events_chem(zm=zm, pt=pt, logger=logger, event_list=event_list_chem)
-#
-#
-# # def cloud_logging_test():
-# #     i = 0
-# #     while True:
-# #         logger.info(f"{i * 10} minutes passed")
-# #         i += 1
-# #         time.sleep(10)
-# #
-# # with open(f'calibration_for_pipetting/weights_for_calibration_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
-# #           'w', encoding='utf-8') as f:
-# #     json.dump(weighing_result, f, ensure_ascii=False)
-#
-# # # avg = []
-# # # for result in weighing_result:
-# # #     for key, value in result.items():
-# # #         avg.append(sum(value['weight'])/len(value['weight']))
-# #
-# # for event in event_list_bio:
-# #     print(f'LiquidIndex: {event.asp_liquidClassTableIndex}, '
-# #           f'asp_vol: {event.aspirationVolume}, '
-# #           f'tiptype: {event.tip_type},'
-# #           f'substance: {event.substance_name}')
-#
-# # event_list_chem[0].source_container.container_id
-#
-#
+# with open(event_list_path, 'rb') as f:
+#     event_list = pickle.load(f)

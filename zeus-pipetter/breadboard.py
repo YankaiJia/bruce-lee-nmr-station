@@ -295,7 +295,7 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
 
 x_length_vial_2ml = 103 # this is the gap between two edge vials in mm
 y_length_vial_2ml = 65
-xy_topleft_vial_2ml_plate0 = (-7 + 2, -255 + 21)
+xy_topleft_vial_2ml_plate0 = (-3, -233)
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1]),
                                                              topright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1]),
@@ -502,7 +502,7 @@ def load_new_tip_rack(rack_reload):
     if rack_reload == '50ul':
         x_gap_50ul = 99
         y_gap_50ul = 62.5
-        xy_topleft_50ul = (-29, -20)
+        xy_topleft_50ul = (-30, -21)
         tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
                                        Nwells=(8, 12),
                                        topleft=(xy_topleft_50ul[0], xy_topleft_50ul[1]),
@@ -525,7 +525,7 @@ def load_new_tip_rack(rack_reload):
     if rack_reload == '1000ul':
         x_gap_1000ul = 99.5
         y_gap_1000ul = 62.5
-        xy_topleft_1000ul = (-296.5 + 6 - 2.5, -32.5 + 20 + 2)
+        xy_topleft_1000ul = (-293, -9)
         tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
                                          Nwells=(8, 12),
                                          topleft=(xy_topleft_1000ul[0], xy_topleft_1000ul[1]),

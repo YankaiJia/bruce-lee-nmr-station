@@ -72,7 +72,8 @@ class EventInterpreter:
         for plate_id in plate_list:
             # print(plate_id)
             df_here = self.reaction_df.copy()
-            dataframes_for_this_plate = df_here[plate_id * self.containers_per_plate: (plate_id + 1) * self.containers_per_plate]
+            dataframes_for_this_plate = df_here[plate_id * self.containers_per_plate: (
+                                                                                                  plate_id + 1) * self.containers_per_plate]
             # print(this_plate)
             for enum, substance in enumerate(dataframes_for_this_plate.columns):
                 # print(this_plate[0].columns)
@@ -116,7 +117,7 @@ class TransferEventConstructor:
         self.substance_name: str = event_dataframe['substance']
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
                                 'substance:' + str(event_dataframe['substance']) + '   ' + \
-                                'transfer_volume:' + str(event_dataframe['transfer_volume'])+\
+                                'transfer_volume:' + str(event_dataframe['transfer_volume']) + \
                                 'plate_number_barcode:' + str(event_dataframe['plate_number_barcode'])
 
         # print(f'solvent: {solvent}')
@@ -188,8 +189,8 @@ class TransferEventConstructor:
 
         # event conducting status
         self.is_event_conducted: bool = False
-        self.event_start_time: str = None   # time: (UTC time, local time)
-        self.event_finish_time: str = None   # time: (UTC time, local time)
+        self.event_start_time: str = None  # time: (UTC time, local time)
+        self.event_finish_time: str = None  # time: (UTC time, local time)
 
     def get_source_container(self, substance_name: str, source_containers=None):
 
@@ -199,7 +200,7 @@ class TransferEventConstructor:
         """
         # print(substance_name)
         source_containers = brb.source_substance_containers  # global variable, mutable object (list),
-            # so it should not be used directly as a default argument
+        # so it should not be used directly as a default argument
         for container in source_containers:  # iterate through keys
             # print(this_substance)
             # print(substance_name)
@@ -277,7 +278,9 @@ class TransferEventConstructor:
 
         return round(container.bottomPosition - liquid_height)
 
-def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_name: str, usecols: str, is_for_bio: bool) -> pd.DataFrame:
+
+def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_name: str, usecols: str,
+                                              is_for_bio: bool) -> pd.DataFrame:
     # generate empty dataframes
     event_dataframes = EventInterpreter(dataframe_filename=dataframe_filename,
                                         sheet_name=sheet_name,
@@ -330,7 +333,6 @@ def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool
 def generate_event_object(logger: object, excel_to_generate_dataframe: str,
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False) -> tuple:
-
     # load containers for source substances
     source_substance_containers = brb.source_substance_containers
 
@@ -416,14 +418,16 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
 
     return liquid_surface_height_from_zeus
 
-def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
-                    event_list_path = None, event_list = None) -> None:
 
+def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
+                    event_list_path=None, event_list=None, change_tip_after_every_pipetting: bool = False) -> dict[Any, Any]:
+
+    # for event list either specify a path or a list. Only speficify one of them.
     if event_list_path is not None:
         with open(event_list_path, 'rb') as f:
             event_list = pickle.load(f)
 
-    ## adjust lc index
+    ## adjust lc index ## this is for 0320_run
     for event in event_list:
         if event.aspirationVolume <= 50:
             event.asp_liquidClassTableIndex = 24
@@ -434,22 +438,18 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
             event.disp_liquidClassTableIndex = 22
             event.tip_type = '300ul'
 
-
-    if event_list is not None:
-        event_list = event_list
-
     liquid_surface_height_from_zeus = {}
 
     if zm.tip_on_zeus:
         pt.discard_tip()
 
-
     for event_index in range(start_event_id, len(event_list)):
+
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
-
-        event_start_time = time.time() # UTC time
+        # record start time
+        event_start_time = time.time()  # UTC time
         event_start_time_datetime = datetime.fromtimestamp(event_start_time)
         event_list[event_index].event_start_time_utc = event_start_time
         event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
@@ -460,48 +460,50 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
             logger.error(f'Error in transfer liquid.\n '
                          f'\t\t\t\t\t\tConsider adding more liquid to source container: '
                          f'{event_list[event_index].source_container.container_id}\n'
-                         f'\t\t\t\t\t\tNext, proceed with: {event_list[event_index].event_label}')
+                         f'\t\t\t\t\t\tNext, proceed with: event_number{event_index+1}, {event_list[event_index].event_label}')
 
-            with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
+            with open(f'multicomponent_reaction\\event_list_chem_id_{event_index}.pickle', 'wb') as f:
                 pickle.dump(event_list, f)
 
             pt.discard_tip()
 
             return liquid_surface_height_from_zeus
 
-        event_finish_time = time.time() # UTC time
+        # record finish time
+        event_finish_time = time.time()  # UTC time
         event_finish_time_datetime = datetime.fromtimestamp(event_finish_time)
         event_list[event_index].event_finish_time = event_finish_time
         event_list[event_index].event_finish_time_datetime = str(event_finish_time_datetime)
         event_list[event_index].is_event_conducted = True
 
-
-        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] =  \
+        # calculate volume and liquid height
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] = \
             liquid_surface_height_from_zeus_here
-
         volume_here = (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
-            *event_list[event_index].source_container.area /10 # in uL
+                      * event_list[event_index].source_container.area / 10  # in uL
         liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_volume'] = round(volume_here, 1)
 
-
         time.sleep(0.05)
-        logger.info(f"Performed one event: {event_list[event_index].event_label}")
+        logger.info(f"Performed one event: event_number {event_index}, "
+                    f"{event_list[event_index].event_label}")
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
             if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
                 pt.change_tip(event_list[event_index + 1].tip_type)
+
         time.sleep(0.5)
 
         with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
             pickle.dump(event_list, f)
 
+        if change_tip_after_every_pipetting:
+            pt.discard_tip()
+            time.sleep(0.5)
+
     pt.discard_tip()
 
-
-
     return liquid_surface_height_from_zeus
-
 
 
 if __name__ == "__main__":

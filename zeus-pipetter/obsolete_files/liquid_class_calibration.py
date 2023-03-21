@@ -28,7 +28,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('logs\\main.log')
+    fh = logging.FileHandler('../logs/main.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -89,7 +89,7 @@ time.sleep(1)
 # calibration for 50ul tips.
 calibration_event_dataframe, calibration_event_list = \
     pln.generate_event_object(logger=logger,
-                              txt_path_for_substance='calibration_for_pipetting\\pipetting_calibration_settings_ALL.txt',
+                              txt_path_for_substance='../calibration_for_pipetting/pipetting_calibration_settings_ALL.txt',
                               excel_to_generate_dataframe='calibration_for_pipetting\\pipetting_calibration_substances_ALL.xlsx',
                               sheet_name='Solvents', usecols='F',
                               is_pipeting_to_balance=True, is_for_bio=False)
