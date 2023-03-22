@@ -70,8 +70,8 @@ volume_added_to_old_vial = 1000
 volume_transfered_from_old_to_new_vial = 15
 volume_added_to_new_vial = 485
 
-event_list_dilution_old_to_new = []
 event_list_dilute_old_vial = []
+event_list_dilution_old_to_new = []
 event_list_dilute_new_vial = []
 
 def generate_dilution_event(source_container: object = None,
@@ -80,7 +80,7 @@ def generate_dilution_event(source_container: object = None,
                             asp_liquid_surface: int = 0,
                             disp_liquid_surface: int = 0):
     # load template event
-    with open('multicomponent_reaction\\dilution_template.pickle', 'rb') as f:
+    with open('multicomponent_reaction\\template\\dilution_template.pickle', 'rb') as f:
         event_template = pickle.load(f)
     # always creat a copy of the template event
     event = copy.deepcopy(event_template)

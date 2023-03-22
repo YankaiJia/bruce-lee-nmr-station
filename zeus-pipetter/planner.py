@@ -117,7 +117,7 @@ class TransferEventConstructor:
         self.substance_name: str = event_dataframe['substance']
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
                                 'substance:' + str(event_dataframe['substance']) + '   ' + \
-                                'transfer_volume:' + str(event_dataframe['transfer_volume']) + \
+                                'transfer_volume:' + str(event_dataframe['transfer_volume']) + " " +\
                                 'plate_number_barcode:' + str(event_dataframe['plate_number_barcode'])
 
         # print(f'solvent: {solvent}')
@@ -449,7 +449,7 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
         # record start time
-        event_start_time = time.time()  # UTC time
+        event_start_time = int(time.time())  # unix time
         event_start_time_datetime = datetime.fromtimestamp(event_start_time)
         event_list[event_index].event_start_time_utc = event_start_time
         event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
@@ -470,7 +470,7 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
             return liquid_surface_height_from_zeus
 
         # record finish time
-        event_finish_time = time.time()  # UTC time
+        event_finish_time = int(time.time())  # UTC time
         event_finish_time_datetime = datetime.fromtimestamp(event_finish_time)
         event_list[event_index].event_finish_time = event_finish_time
         event_list[event_index].event_finish_time_datetime = str(event_finish_time_datetime)

@@ -293,27 +293,36 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
 
     return coordinates
 
-
+#
 x_length_vial_2ml = 103 # this is the gap between two edge vials in mm
 y_length_vial_2ml = 65
-xy_topleft_vial_2ml_plate0 = (-3, -233)
+# xy_topleft_vial_2ml_plate0 = (-3, -233)
+# plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
+#                                                              topleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1]),
+#                                                              topright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1]),
+#                                                              bottomleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1] - y_length_vial_2ml),
+#                                                              bottomright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1] - y_length_vial_2ml))
+
+
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1]),
-                                                             topright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1]),
-                                                             bottomleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1] - y_length_vial_2ml),
-                                                             bottomright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1] - y_length_vial_2ml))
-xy_topleft_vial_2ml_plate1 = (-157 + 2, -256 + 22.5)
+                                                             topleft=(-3.5, -232.5),
+                                                             topright=(-108, -232),
+                                                             bottomleft=(-3.0, -298.0),
+                                                             bottomright=(-107.5, -297))
+
+# xy_topleft_vial_2ml_plate1 = (-157 + 2, -256 + 22.5)
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(xy_topleft_vial_2ml_plate1[0], xy_topleft_vial_2ml_plate1[1]),
-                                                             topright=(xy_topleft_vial_2ml_plate1[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate1[1]),
-                                                             bottomleft=(xy_topleft_vial_2ml_plate1[0], xy_topleft_vial_2ml_plate1[1] - y_length_vial_2ml + 1), # +1 offset 20230306_yankai
-                                                             bottomright=(xy_topleft_vial_2ml_plate1[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate1[1] - y_length_vial_2ml + 1))
-xy_topleft_vial_2ml_plate2 = (-303.5, -232)
+                                                             topleft=(-154, -233),
+                                                             topright= (-258.5, -232),
+                                                             bottomleft=(-153.5, -298),
+                                                             bottomright=(-258.0, -297.5))
+# xy_topleft_vial_2ml_plate2 = (-303.5, -232)
+
 plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(xy_topleft_vial_2ml_plate2[0], xy_topleft_vial_2ml_plate2[1]),
-                                                             topright=(xy_topleft_vial_2ml_plate2[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate2[1]),
-                                                             bottomleft=(xy_topleft_vial_2ml_plate2[0], xy_topleft_vial_2ml_plate2[1] - y_length_vial_2ml),
-                                                             bottomright=(xy_topleft_vial_2ml_plate2[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate2[1] - y_length_vial_2ml))
+                                                             topleft=(-303.5, -232),
+                                                             topright=(-408.5, -232.0),
+                                                             bottomleft=(-303.5, -298),
+                                                             bottomright=(-408.5, -297.0))
 x_length_well_bio = 99
 y_length_well_bio = 63
 xy_topleft_well_bio_plate3 = (-453.5, -233)
@@ -550,13 +559,13 @@ def main():
 
     print("This is main.")
 
-    ##run this ONLY when changing new tip rack.
-    load_new_tip_rack(rack_reload ='300ul')
-    module_logger.info('New tip rack: 300ul is loaded.')
-    load_new_tip_rack(rack_reload ='1000ul')
-    module_logger.info('New tip rack: 1000ul is loaded.')
-    load_new_tip_rack(rack_reload ='50ul')
-    module_logger.info('New tip rack: 50ul is loaded.')
+    # ##run this ONLY when changing new tip rack.
+    # load_new_tip_rack(rack_reload ='300ul')
+    # module_logger.info('New tip rack: 300ul is loaded.')
+    # load_new_tip_rack(rack_reload ='1000ul')
+    # module_logger.info('New tip rack: 1000ul is loaded.')
+    # load_new_tip_rack(rack_reload ='50ul')
+    # module_logger.info('New tip rack: 50ul is loaded.')
 
 
 
