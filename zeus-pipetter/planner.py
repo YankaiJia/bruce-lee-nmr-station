@@ -533,12 +533,12 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
             print(f'Error in transfer liquid.\n '
                   f'\t\t\t\t\t\tConsider adding more liquid to source container: '
                   f'{event_list[event_index].source_container.container_id}\n'
-                  f'\t\t\t\t\t\tNext, proceed with: event_number{event_index+1}, {event_list[event_index].event_label}')
+                  f'\t\t\t\t\t\tNext, proceed with: {event_list[event_index].event_label}')
 
             with open(f'multicomponent_reaction\\event_list_chem_id_{event_index}.pickle', 'wb') as f:
                 pickle.dump(event_list, f)
 
-            pt.discard_tip()
+            pt.discard_tip() # discard the tip to trash bin if there is an error
             raise e # raise the error to stop the program
 
         time.sleep(0.05)

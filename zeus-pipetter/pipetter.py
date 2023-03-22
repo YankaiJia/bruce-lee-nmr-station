@@ -276,7 +276,7 @@ class Pipetter():
 
     def change_tip(self, tip_rack):
         self.zeus.getTipPresenceStatus()
-        time.sleep(1)
+        time.sleep(0.5)
         if self.zeus.getTipPresenceStatus():
             self.discard_tip()
         self.pick_tip(tip_rack)
