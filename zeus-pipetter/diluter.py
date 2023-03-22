@@ -17,27 +17,34 @@ import pipetter
 import planner as pln
 import breadboard as brb
 
+
+## TODO 2023-03-21:
+# 1. module_logger is not working;
+# 2. dispensing height is not adjustable, no idea what is wrong.
+# 3. coordinates need to be further optimized.
+
+
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
     zm = zeus.ZeusModule(id=1)
     time.sleep(3)
-    logger.info("zeus is loaded as: zm")
+    module_logger.info("zeus is loaded as: zm")
 
     # initiate gantry
     gt = pipetter.Gantry(zeus=zm)
     time.sleep(3)
-    logger.info("gantry is loaded as: gt")
+    module_logger.info("gantry is loaded as: gt")
     # gt.configure_grbl() # This only need to be done once.
     gt.home_xy()
     if gt.xy_position == (0, 0):
-        logger.info("gantry is homed")
+        module_logger.info("gantry is homed")
 
     # initiate pipetter
     pt = pipetter.Pipetter(zeus=zm, gantry=gt)
     time.sleep(2)
-    logger.info("pipetter is loaded as: pt")
+    module_logger.info("pipetter is loaded as: pt")
 
     return zm, gt, pt
 
@@ -45,15 +52,31 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 zm, gt, pt = initiate_hardware()
 time.sleep(1)
 
-# do_dilution()
+## note: sometimes the arduino port fails to initiate, restart the computer to fix it.
+## better way need to be found.
+
 ##  generate_dilution_events()
 # step1: dilution original reactions, adding volume: 1400ul
 # step2: transfer liquid from original reaction to new vial, transfer volume: 20ul
 # step3: dilution new vial, adding volume: 480ul
 
+# volume setting versions:
+# 1. 200ul, 1600ul, 22.5ul, 477.5ul
+# 2. 200ul, 1400ul, 20ul, 480ul
+# 3. 200ul, 1000ul, 15ul, 485ul ## this one is now used, 2023-03-22 14:23
+
+# specify volumes for dilution
+volume_added_to_old_vial = 1000
+volume_transfered_from_old_to_new_vial = 15
+volume_added_to_new_vial = 485
+
+event_list_dilution_old_to_new = []
+event_list_dilute_old_vial = []
+event_list_dilute_new_vial = []
+
 def generate_dilution_event(source_container: object = None,
                             destination_container: object = None,
-                            volume: float = 1.1,
+                            volume: float = 0,
                             asp_liquid_surface: int = 0,
                             disp_liquid_surface: int = 0):
     # load template event
@@ -68,14 +91,17 @@ def generate_dilution_event(source_container: object = None,
     event.dispensingVolume = volume
     event.event_label = f'transfer from {source_container.container_id} to {destination_container.container_id}'
 
+    print(f'volume: {volume}')
     if volume <= 50:
         event.tip_type = '50ul'
         event.asp_liquidClassTableIndex = 24
         event.disp_liquidClassTableIndex = 24
+
     elif volume <= 300 and volume > 50:
         event.tip_type = '300ul'
         event.asp_liquidClassTableIndex = 22
         event.disp_liquidClassTableIndex = 22
+
     else:
         event.tip_type = '1000ul'
         event.asp_liquidClassTableIndex = 23
@@ -90,72 +116,79 @@ def generate_dilution_event(source_container: object = None,
 
     return event
 
+
 # step1: dilution original reactions, adding volume: 1400ul
-event_list_dilute_old_vial = []
+
 def dilute_old_vial(): # diluting volume 1400ul
     global event_list_dilute_old_vial
 
+    # generate dilution events
     for i in [0, 18, 36]:
         for vial_index in range(i, i+9):
             source_container = copy.deepcopy(brb.plate_list[6].containers[0])
-            destination_container = copy.deepcopy(brb.plate_list[0].containers[vial_index])
+            destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
             event_temp = generate_dilution_event(source_container=source_container,
                                                 destination_container=destination_container,
-                                                volume=1400,
+                                                volume=volume_added_to_old_vial,
                                                 asp_liquid_surface = 1800,
                                                 disp_liquid_surface = 2100)
             event_list_dilute_old_vial.append(event_temp)
+    # time.sleep(2)
 
-    time.sleep(2)
-    pln.run_events_chem(zm=zm, pt=pt, logger=module_logger,
+    ## run dilution events
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger,
                         event_list= event_list_dilute_old_vial, start_event_id=0)
 
-dilute_old_vial()
+# dilute_old_vial()
 
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 20ul
-event_list_dilution_old_to_new = []
+
 def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
     global event_list_dilution_old_to_new
 
     for i in [0, 18, 36]:
         for vial_index in range(i, i + 9):
-            source_container = copy.deepcopy(brb.plate_list[0].containers[vial_index])
-            destination_container = copy.deepcopy(brb.plate_list[0].containers[vial_index+9])
+            source_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
+            destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index+9])
             event_temp = generate_dilution_event(source_container=source_container,
                                                  destination_container=destination_container,
-                                                 volume=22.5,
+                                                 volume=volume_transfered_from_old_to_new_vial,
                                                  asp_liquid_surface=1800,
                                                  disp_liquid_surface=2100)
             event_list_dilution_old_to_new.append(event_temp)
 
-    time.sleep(1)
-    pln.run_events_chem(zm=zm, pt=pt, logger=module_logger,
+    # time.sleep(1)
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger,
                         event_list=event_list_dilution_old_to_new, start_event_id=0,
                         change_tip_after_every_pipetting = True)
 
-transfer_liquid_from_old_vial_to_new()
+
+
 
 
 # step3: dilution new vial, adding volume: 480ul
-event_list_dilute_new_vial = []
+
 def dilute_new_vial(): # diluting volume 480ul
     global event_list_dilute_new_vial
 
     for i in [9, 27, 45]:
         for vial_index in range(i, i + 9):
             source_container = copy.deepcopy(brb.plate_list[6].containers[0])
-            destination_container = copy.deepcopy(brb.plate_list[0].containers[vial_index])
+            destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
             event_temp = generate_dilution_event(source_container=source_container,
                                                  destination_container=destination_container,
-                                                 volume=477.5,
+                                                 volume=volume_added_to_new_vial,
                                                  asp_liquid_surface=1800,
                                                  disp_liquid_surface=2100)
             event_list_dilute_new_vial.append(event_temp)
 
-    time.sleep(2)
-    pln.run_events_chem(zm=zm, pt=pt, logger=module_logger,
+    # time.sleep(2)
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger,
                         event_list=event_list_dilute_new_vial, start_event_id=0)
 
-dilute_new_vial()
+if __name__ == '__main__':
+    dilute_old_vial()
+    transfer_liquid_from_old_vial_to_new()
+    dilute_new_vial()
 

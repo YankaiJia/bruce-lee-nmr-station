@@ -237,6 +237,11 @@ class Pipetter():
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.zeus.wait_until_zeus_reaches_traverse_height()
 
+        # if the rack is empty then ask user to reload
+        if not any(item['exists'] for item in tip_rack[tip_type]['wells']):
+            input(f'ERROR: The tip rack is empty. Please reload the tip rack and hit enter.')
+            tip_rack = brb.load_new_tip_rack(rack_reload=tip_type)
+
         # In the rack, find the first tip that exists
         for item in tip_rack[tip_type]['wells']:
             if item['exists']:
@@ -334,6 +339,7 @@ class Pipetter():
                              mixVolume=transfer_event.disp_mixVolume,
                              mixFlowRate=transfer_event.disp_mixVolume,
                              mixCycles=transfer_event.disp_mixCycles)
+        print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
 
         time.sleep(1.5)
         # wait_until_zeus_reaches_traverse_height()
@@ -361,6 +367,7 @@ class Pipetter():
             print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
             print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
             self.draw_liquid(_split_event_1)
+            print(f'DEBUG: transfer_liquid()::disp_height: {transfer_event.disp_liquidSurface}')
             liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_1)
 

@@ -136,7 +136,7 @@ bb6 =  {'DMF_50ul_30.0ul': {'weight': [29.0, 27.82, 28.33, 27.49, 27.54, 27.28, 
 bb7 =  {'DMF_50ul_50.0ul': {'weight': [44.68, 46.61, 46.76, 46.45, 46.19, 46.33, 46.83, 46.78, 46.79, 46.9], 'volume': [47.33, 49.38, 49.53, 49.21, 48.93, 49.08, 49.61, 49.56, 49.57, 49.68], 'liquid_class_index': [24, 24, 24, 24, 24, 24, 24, 24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul', '50ul', '50ul', '50ul', '50ul', '50ul', '50ul', '50ul']}}
 
 dmf_50ul_0320= [bb0, bb1, bb2, bb3, bb4, bb5, bb6, bb7]
-cal_avg_and_std_of_volume(dmf_50ul)
+# cal_avg_and_std_of_volume(dmf_50ul)
 dmf_50ul_0320_avg = [7.63, 10.12, 11.94, 14.67, 19.16, 24.35, 29.6, 49.19]
 dmf_50ul_032_std = [0.42, 0.24, 0.39, 0.44, 0.35, 0.64, 0.55, 0.66]
 
@@ -163,8 +163,25 @@ dmf_50ul_032_std = [0.42, 0.24, 0.39, 0.44, 0.35, 0.64, 0.55, 0.66]
 ## this precision is used for pipetting on 2023-03-20
 
 
+# 2023-03-20 21:35:25,064 - main - INFO - Result:
+re0 = {'DMF_50ul_49.0ul': {'weight': [44.69, 46.66, 45.79], 'volume': [47.34, 49.43, 48.51], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:36:45,978 - main - INFO - Result:
+re1 = {'DMF_50ul_30.0ul': {'weight': [29.3, 28.71, 28.74], 'volume': [31.04, 30.41, 30.44], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:38:06,581 - main - INFO - Result:
+re2 = {'DMF_50ul_25.0ul': {'weight': [23.8, 23.87, 23.59], 'volume': [25.21, 25.29, 24.99], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:39:27,196 - main - INFO - Result:
+re3 = {'DMF_50ul_20.0ul': {'weight': [18.7, 18.83, 19.1], 'volume': [19.81, 19.95, 20.23], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:40:47,785 - main - INFO - Result:
+re4 = {'DMF_50ul_15.0ul': {'weight': [14.56, 14.37, 14.46], 'volume': [15.42, 15.22, 15.32], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:42:08,417 - main - INFO - Result:
+re5 = {'DMF_50ul_12.0ul': {'weight': [11.72, 11.57, 11.39], 'volume': [12.42, 12.26, 12.07], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:43:28,985 - main - INFO - Result:
+re6 = {'DMF_50ul_10.0ul': {'weight': [9.57, 9.65, 9.24], 'volume': [10.14, 10.22, 9.79], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
+# 2023-03-20 21:44:49,673 - main - INFO - Result:
+re7 = {'DMF_50ul_8.0ul': {'weight': [8.3, 7.1, 8.23], 'volume': [8.79, 7.52, 8.72], 'liquid_class_index': [24, 24, 24], 'tip_type': ['50ul', '50ul', '50ul']}}
 
-
+dmf_50ul_result_used = [re0, re1, re2, re3, re4, re5, re6, re7]
+cal_avg_and_std_of_volume(dmf_50ul_result_used)
 
 
 

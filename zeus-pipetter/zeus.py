@@ -951,6 +951,8 @@ class ZeusModule:
               'ma' + str(mixVolume).zfill(5) + \
               'mb' + str(mixFlowRate).zfill(5) + \
               'dn' + str(mixCycles).zfill(2)
+        print(f"DEBUG: zeus.dispensing():: The command sent to Zeus is : {cmd}")
+        print(f"DEBUG: zeus.dispensing():: liquidSurface is : {liquidSurface}")
         self.sendCommand(cmd)
 
     def switchOff(self):
