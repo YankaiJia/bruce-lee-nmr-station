@@ -154,7 +154,7 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
             event_temp = generate_dilution_event(source_container=source_container,
                                                  destination_container=destination_container,
                                                  volume=volume_transfered_from_old_to_new_vial,
-                                                 asp_liquid_surface=1800,
+                                                 asp_liquid_surface=1900,
                                                  disp_liquid_surface=2100)
             event_list_dilution_old_to_new.append(event_temp)
 
@@ -169,17 +169,20 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
 
 # step3: dilution new vial, adding volume: 480ul
 
-def dilute_new_vial(): # diluting volume 480ul
+def dilute_new_vial(skip_vials=[]): # diluting volume 480ul
     global event_list_dilute_new_vial
 
     for i in [9, 27, 45]:
         for vial_index in range(i, i + 9):
+            if vial_index in skip_vials:
+                print(f'skipping vial with index {vial_index}')
+                continue
             source_container = copy.deepcopy(brb.plate_list[6].containers[0])
             destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
             event_temp = generate_dilution_event(source_container=source_container,
                                                  destination_container=destination_container,
                                                  volume=volume_added_to_new_vial,
-                                                 asp_liquid_surface=1800,
+                                                 asp_liquid_surface=1900,
                                                  disp_liquid_surface=2100)
             event_list_dilute_new_vial.append(event_temp)
 
