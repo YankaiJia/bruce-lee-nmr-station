@@ -1,11 +1,39 @@
 import pickle, re, csv, os
+import PySimpleGUI as sg
 
 
-with open('multicomponent_reaction\\event_list_chem_backup_0322_first_half.pickle', 'rb') as f:
+
+# use GUI to specify Excel path
+def load_excel_path_by_pysimplegui():
+    sg.theme('BrightColors')  # Add a touch of color
+    working_directory = os.getcwd()
+    # All the stuff inside your window.
+    layout = [[sg.Text('Select Excel file for reactions')],
+              [sg.InputText(key="-FILE_PATH-"),
+               sg.FileBrowse(initial_folder=working_directory,
+                             file_types=(("Pickle Files", "*.pickle"), ("All Files", "*.*")))],
+              [sg.Submit(), sg.Cancel()]]
+
+    # Create the Window
+    window = sg.Window('Select Excel file for reactions',
+                       layout,
+                       size=(600, 200),
+                       font=('Helvetica', 14), )
+
+    # Event Loop to process "events" and get the "values" of the inputs
+    event, values = window.read()
+    # print(event, values[0])
+    window.close()
+    print(f"Excel file for reactions is selected: {values['-FILE_PATH-']}")
+    return values['-FILE_PATH-']
+
+# path_for_event_status_record = load_excel_path_by_pysimplegui()
+path_for_event_status_record = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\' \
+                               'zeus-pipetter\\multicomponent_reaction\\event_list_chem.pickle'
+
+with open(path_for_event_status_record, 'rb') as f:
     transfer_list = pickle.load(f)
 
-with open('multicomponent_reaction\\event_list_chem.pickle', 'rb') as f:
-    transfer_list_later = pickle.load(f)
 
 def split_by_plate(transfer_list):
     """A generator to divide a sequence into chunks of n units."""
@@ -23,54 +51,55 @@ def split_by_plate(transfer_list):
             index_start = index_finish + 1
         index += 1
 
-aa= list(split_by_plate(transfer_list))
-
-bb = list(split_by_plate(transfer_list_later))
-
-list_of_plate_barcode = ['16','17','19','22','23','34','18','20','21','03','09','11']
-
-transfer_list_all = transfer_list[:1094] + transfer_list_later[1094:]
-
-cc = list(split_by_plate(transfer_list_all))
+event_list_in_each_plate = list(split_by_plate(transfer_list))
 
 
-fields=['plate_code',
-        'experiment_name',
-        'start_time_unix',
-        'start_time_datetime',
-        'finish_time_unix',
-        'finish_time_datetime',
-        'pipetting_event_id',
-        'note']
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
-path = 'multicomp-reactions\\2023-03-20-run01\\pipetter_io\\run_info_0322_new.csv'
-with open(data_folder + path, 'a', newline='') as f:
-        f.write(', '.join(fields) + '\n')
+def save_cvs():
 
-for count, list_of_one_plate in enumerate(cc):
+    for list in event_list_in_each_plate:
+        for event in list:
+            if event.is_event_conducted:
+                print(event.event_label)
+                print(event.is_event_conducted)
+                print(event.event_start_time_datetime)
 
-    a = list_of_one_plate[0].event_label[-5:]
+    list_of_plate_barcode = ['3','6','9','10','11','16']
 
-    # get event id from string
-    starting_event_id = re.findall(r'\d+', list_of_one_plate[0].event_label)[0]
-    ending_event_id = re.findall(r'\d+', list_of_one_plate[-1].event_label)[0]
+    fields=['plate_code',
+            'experiment_name',
+            'start_time_unix',
+            'start_time_datetime',
+            'finish_time_unix',
+            'finish_time_datetime',
+            'pipetting_event_id',
+            'note']
+    path = 'C:\\Users\\Chemiluminescence\\OneDrive' \
+           '\\roborea\\zeus-pipetter\\multicomponent_reaction\\0323\\0323_record.csv'
 
-    ## string format: 'start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime'
-    start_finish_string = f'{list_of_plate_barcode[count]}, ' \
-                          f'multicomponent_0320, ' \
-                          f'{int(list_of_one_plate[0].event_start_time_utc)}, ' \
-                          f'{list_of_one_plate[0].event_start_time_datetime[:-7]}, ' \
-                          f'{int(list_of_one_plate[-1].event_finish_time)}, ' \
-                          f'{list_of_one_plate[-1].event_finish_time_datetime[:-7]}, ' \
-                          f"'{starting_event_id}-{ending_event_id}', \n"
-    print(start_finish_string)
-    print(count)
+    with open(path, 'a', newline='') as f:
+            f.write(', '.join(fields) + '\n')
 
-    with open(data_folder + path, 'a', newline='') as f:
-        f.write(start_finish_string)
+    for count, list_of_one_plate in enumerate(event_list_in_each_plate):
 
-    print(f'file {path} saved')
+        # a = list_of_one_plate[0].event_label[-5:]
 
+        # get event id from string
+        starting_event_id = re.findall(r'\d+', list_of_one_plate[0].event_label)[0]
+        ending_event_id = re.findall(r'\d+', list_of_one_plate[-1].event_label)[0]
 
-with open('multicomponent_reaction\\event_list_chem_0322_ALL_good.pickle', 'wb') as f:
-    pickle.dump(transfer_list_all, f)
+        ## string format: 'start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime'
+        start_finish_string = f'{list_of_plate_barcode[count]}, ' \
+                              f'multicomponent_0320, ' \
+                              f'{int(list_of_one_plate[0].event_start_time_utc)}, ' \
+                              f'{list_of_one_plate[0].event_start_time_datetime}, ' \
+                              f'{int(list_of_one_plate[-1].event_finish_time)}, ' \
+                              f'{list_of_one_plate[-1].event_finish_time_datetime}, ' \
+                              f"'{starting_event_id}-{ending_event_id}', \n"
+        print(f'Finished this plate: {start_finish_string}')
+
+        with open( path, 'a', newline='') as f:
+            f.write(start_finish_string)
+
+        print(f'file {path} saved')
+
+save_cvs()

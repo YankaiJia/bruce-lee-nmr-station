@@ -420,7 +420,8 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
 
 
 def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
-                    event_list_path=None, event_list=None, change_tip_after_every_pipetting: bool = False) -> dict[Any, Any]:
+                    event_list_path=None, event_list=None,
+                    change_tip_after_every_pipetting: bool = False) -> dict[Any, Any]:
 
     # for event list either specify a path or a list. Only speficify one of them.
     if event_list_path is not None:
@@ -462,7 +463,7 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
                          f'{event_list[event_index].source_container.container_id}\n'
                          f'\t\t\t\t\t\tNext, proceed with: event_number{event_index+1}, {event_list[event_index].event_label}')
 
-            with open(f'multicomponent_reaction\\event_list_chem_id_{event_index}.pickle', 'wb') as f:
+            with open(f'multicomponent_reaction\\event_list_chem_id_finished_at_{event_index-1}.pickle', 'wb') as f:
                 pickle.dump(event_list, f)
 
             pt.discard_tip()
