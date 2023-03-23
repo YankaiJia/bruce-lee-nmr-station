@@ -142,7 +142,7 @@ def dilute_old_vial(): # diluting volume 1400ul
 # dilute_old_vial()
 
 
-# step2: transfer liquid from original reaction to new vial, transfer volume: 20ul
+# step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
 
 def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
     global event_list_dilution_old_to_new
@@ -167,9 +167,9 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
 
 
 
-# step3: dilution new vial, adding volume: 480ul
+# step3: dilution new vial, adding volume: 485ul
 
-def dilute_new_vial(skip_vials=[]): # diluting volume 480ul
+def dilute_new_vial(skip_vials=[]): # diluting volume 485ul
     global event_list_dilute_new_vial
 
     for i in [9, 27, 45]:
