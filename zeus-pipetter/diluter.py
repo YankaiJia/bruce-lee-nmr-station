@@ -191,7 +191,7 @@ def dilute_new_vial(skip_vials=[]): # diluting volume 485ul
                         event_list=event_list_dilute_new_vial, start_event_id=0)
 
 if __name__ == '__main__':
-    dilute_old_vial()
-    transfer_liquid_from_old_vial_to_new()
+    # dilute_old_vial()
+    # transfer_liquid_from_old_vial_to_new()
     dilute_new_vial()
 

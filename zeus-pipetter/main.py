@@ -266,7 +266,7 @@ time.sleep(1)
 
 
 # save the event list in pickle file and later load from this file
-with open('multicomponent_reaction\\0323\\event_list_chem.pickle', 'wb') as f:
+with open('multicomponent_reaction\\0324\\event_list_chem.pickle', 'wb') as f:
     pickle.dump(event_list_chem, f)
 
 # update planner.py when necessary
@@ -274,19 +274,22 @@ with open('multicomponent_reaction\\0323\\event_list_chem.pickle', 'wb') as f:
 
 ## do multicomponent reactions
 pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    # event_list_path='multicomponent_reaction\\0323\\event_list_chem.pickle',
-                    event_list= event_list,
+                    event_list_path='multicomponent_reaction\\0324\\event_list_chem.pickle',
+                    # event_list= event_list,
                     start_event_id= 552 )
 
-event_list_path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\zeus-pipetter\\' \
-                  'multicomponent_reaction\\0323\\event_list_chem_0-551_events.pickle'
-with open(event_list_path, 'rb') as f:
-    event_list = pickle.load(f)
 
-for event in event_list:
-    print(event.is_event_conducted)
-    print(event.event_label)
+
+
+# event_list_path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\zeus-pipetter\\' \
+#                   'multicomponent_reaction\\0323\\event_list_chem_0-551_events.pickle'
+# with open(event_list_path, 'rb') as f:
+#     event_list = pickle.load(f)
 #
+# for event in event_list:
+#     print(event.is_event_conducted)
+#     print(event.event_label)
+# #
 # # step1: update the event list. compare the first event to check the starting liquid surface height
 # event_list_chem_later_later = copy.deepcopy(event_list_chem)
 # for event in event_list_chem_later_later:

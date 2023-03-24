@@ -23045,3 +23045,404 @@
 2023-03-23 23:41:09,058 - main - ERROR - Error in transfer liquid.
  						Consider adding more liquid to source container: brb.plate_list[5].containers[0]
 						Next, proceed with: event_number676,  event_id:675   substance:DMF   transfer_volume:104.482758620689 plate_number_barcode:05
+2023-03-24 17:49:16,753 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-24 17:49:25,831 - main - INFO - zeus is loaded as: zm
+2023-03-24 17:49:25,831 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-24 17:49:28,839 - main - INFO - gantry is loaded as: gt
+2023-03-24 17:49:28,839 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-24 17:49:37,154 - main - INFO - gantry is homed
+2023-03-24 17:49:37,305 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-24 17:49:39,309 - main - INFO - pipetter is loaded as: pt
+2023-03-24 17:49:56,215 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_23-reaction_template_for_robot.xlsx
+2023-03-24 17:49:56,232 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_1_container0', 'ethanol', 0.789, 2, 0, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_1_container1', 'ethanol', 0.789, 2, 0, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_1_container2', 'ethanol', 0.789, 2, 0, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_5_container0', 'ethanol', 0.789, 4, 0, 'empty'], ['Phenylboronic acid', 'Substance_E', ' plate_5_container1', 'ethanol', 0.789, 10, 0, 'empty'], ['potassium carbonate', 'Substance_F', ' plate_5_container2', 'water', 1, 20, 0, 'empty'], ['p-ClPhOTf', 'Substance_G', ' plate_1_container3', 'ethanol', 0.789, 1.5, 0, 'empty'], ['p-ClPhOTf1', 'Substance_J', ' plate_1_container4', 'ethanol', 0.789, 1.5, None, 'empty'], ['2,5-dibromopyridine', 'Substance_H', ' plate_1_container5', 'ethanol', 0.789, 2, 0, 'empty'], ['o-tolylboronic acid', 'Substance_I', ' plate_1_container6', 'ethanol', 0.789, 2, 0, 'empty']]
+2023-03-24 17:50:03,762 - main - INFO - The tip is changed to : 300ul
+2023-03-24 17:51:19,967 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-24 17:51:29,050 - main - INFO - zeus is loaded as: zm
+2023-03-24 17:51:29,050 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-24 17:51:32,069 - main - INFO - gantry is loaded as: gt
+2023-03-24 17:51:32,069 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-24 17:51:39,010 - main - INFO - gantry is homed
+2023-03-24 17:51:39,161 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-24 17:51:41,169 - main - INFO - pipetter is loaded as: pt
+2023-03-24 17:51:49,643 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_23-reaction_template_for_robot.xlsx
+2023-03-24 17:51:49,658 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_1_container0', 'ethanol', 0.789, 2, 0, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_1_container1', 'ethanol', 0.789, 2, 0, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_1_container2', 'ethanol', 0.789, 2, 0, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_5_container0', 'ethanol', 0.789, 4, 0, 'empty'], ['Phenylboronic acid', 'Substance_E', ' plate_5_container1', 'ethanol', 0.789, 10, 0, 'empty'], ['potassium carbonate', 'Substance_F', ' plate_5_container2', 'water', 1, 20, 0, 'empty'], ['p-ClPhOTf', 'Substance_G', ' plate_1_container3', 'ethanol', 0.789, 1.5, 0, 'empty'], ['p-ClPhOTf1', 'Substance_J', ' plate_1_container4', 'ethanol', 0.789, 1.5, None, 'empty'], ['2,5-dibromopyridine', 'Substance_H', ' plate_1_container5', 'ethanol', 0.789, 2, 0, 'empty'], ['o-tolylboronic acid', 'Substance_I', ' plate_1_container6', 'ethanol', 0.789, 2, 0, 'empty']]
+2023-03-24 17:51:57,194 - main - INFO - The tip is changed to : 300ul
+2023-03-24 17:52:04,504 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2003
+2023-03-24 17:52:08,042 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:52:08,102 - main - INFO - Performed one event: event_number 0,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:52:25,843 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1982
+2023-03-24 17:52:29,381 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:52:29,442 - main - INFO - Performed one event: event_number 1,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:52:47,365 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2004
+2023-03-24 17:52:50,913 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:52:50,974 - main - INFO - Performed one event: event_number 2,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:53:08,908 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2098
+2023-03-24 17:53:12,461 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:53:12,523 - main - INFO - Performed one event: event_number 3,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:53:29,970 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1972
+2023-03-24 17:53:33,515 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:53:33,576 - main - INFO - Performed one event: event_number 4,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:53:50,030 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1779
+2023-03-24 17:53:53,586 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:53:53,647 - main - INFO - Performed one event: event_number 5,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:54:11,597 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2014
+2023-03-24 17:54:15,146 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:54:15,208 - main - INFO - Performed one event: event_number 6,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:54:33,216 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2014
+2023-03-24 17:54:36,768 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:54:36,829 - main - INFO - Performed one event: event_number 7,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:54:54,740 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2020
+2023-03-24 17:54:58,287 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:54:58,348 - main - INFO - Performed one event: event_number 8,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:55:16,230 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2024
+2023-03-24 17:55:19,793 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 17:55:19,854 - main - INFO - Performed one event: event_number 9,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 17:55:23,410 - main - INFO - liquid_surface_heights: {'p-BrPhOTf_height': 2003, 'p-BrPhOTf_volume': 1491.3, 'm-BrPhOTf_height': 1982, 'm-BrPhOTf_volume': 1650.3, 'Br-Biph-Otf_height': 2004, 'Br-Biph-Otf_volume': 1483.7, 'acetylbromobenzene_height': 2098, 'acetylbromobenzene_volume': 3932.4, 'Phenylboronic acid_height': 1972, 'Phenylboronic acid_volume': 10367.2, 'potassium carbonate_height': 1779, 'potassium carbonate_volume': 20223.7, 'p-ClPhOTf_height': 2014, 'p-ClPhOTf_volume': 1408.0, 'p-ClPhOTf1_height': 2014, 'p-ClPhOTf1_volume': 1408.0, '2,5-dibromopyridine_height': 2020, '2,5-dibromopyridine_volume': 1362.6, 'o-tolylboronic acid_height': 2024, 'o-tolylboronic acid_volume': 1332.3}
+2023-03-24 17:55:24,422 - main - INFO - Stock solution p-BrPhOTf has been updated with liquid surface height: 2003
+2023-03-24 17:55:24,422 - main - INFO - Stock solution m-BrPhOTf has been updated with liquid surface height: 1982
+2023-03-24 17:55:24,422 - main - INFO - Stock solution Br-Biph-Otf has been updated with liquid surface height: 2004
+2023-03-24 17:55:24,422 - main - INFO - Stock solution acetylbromobenzene has been updated with liquid surface height: 2098
+2023-03-24 17:55:24,422 - main - INFO - Stock solution Phenylboronic acid has been updated with liquid surface height: 1972
+2023-03-24 17:55:24,422 - main - INFO - Stock solution potassium carbonate has been updated with liquid surface height: 1779
+2023-03-24 17:55:24,423 - main - INFO - Stock solution p-ClPhOTf has been updated with liquid surface height: 2014
+2023-03-24 17:55:24,423 - main - INFO - Stock solution p-ClPhOTf1 has been updated with liquid surface height: 2014
+2023-03-24 17:55:24,423 - main - INFO - Stock solution 2,5-dibromopyridine has been updated with liquid surface height: 2020
+2023-03-24 17:55:24,423 - main - INFO - Stock solution o-tolylboronic acid has been updated with liquid surface height: 2024
+2023-03-24 17:55:25,467 - main - INFO - stock solutions are loaded from Excel file: [['p-BrPhOTf', 'Substance_A', ' plate_1_container0', 'ethanol', 0.789, 2, 2003, 'empty'], ['m-BrPhOTf', 'Substance_B', ' plate_1_container1', 'ethanol', 0.789, 2, 1982, 'empty'], ['Br-Biph-Otf', 'Substance_C', ' plate_1_container2', 'ethanol', 0.789, 2, 2004, 'empty'], ['acetylbromobenzene', 'Substance_D', ' plate_5_container0', 'ethanol', 0.789, 4, 2098, 'empty'], ['Phenylboronic acid', 'Substance_E', ' plate_5_container1', 'ethanol', 0.789, 10, 1972, 'empty'], ['potassium carbonate', 'Substance_F', ' plate_5_container2', 'water', 1, 20, 1779, 'empty'], ['p-ClPhOTf', 'Substance_G', ' plate_1_container3', 'ethanol', 0.789, 1.5, 2014, 'empty'], ['p-ClPhOTf1', 'Substance_J', ' plate_1_container4', 'ethanol', 0.789, 1.5, 2014, 'empty'], ['2,5-dibromopyridine', 'Substance_H', ' plate_1_container5', 'ethanol', 0.789, 2, 2020, 'empty'], ['o-tolylboronic acid', 'Substance_I', ' plate_1_container6', 'ethanol', 0.789, 2, 2024, 'empty']]
+2023-03-24 17:55:25,467 - main - INFO - All stock solutions have been added to brb.plate_list
+2023-03-24 17:55:25,467 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_23-reaction_template_for_robot.xlsx
+2023-03-24 17:55:25,585 - main.planner - INFO - event_dataframe is generated with 96 events.
+2023-03-24 17:55:25,587 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_24_17_55.json
+2023-03-24 17:55:25,587 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/NPs/2023_03_23-reaction_template_for_robot.xlsx
+2023-03-24 17:55:25,595 - main.planner - INFO - Event_list is generated with 96 events.
+2023-03-24 17:55:25,595 - main - INFO - All event objects are generated from dataframes.
+2023-03-24 17:57:26,523 - main - INFO - The tip is changed to : 300ul
+2023-03-24 17:59:30,872 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-24 17:59:39,951 - main - INFO - zeus is loaded as: zm
+2023-03-24 17:59:39,951 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-24 17:59:42,964 - main - INFO - gantry is loaded as: gt
+2023-03-24 17:59:42,964 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-24 17:59:49,899 - main - INFO - gantry is homed
+2023-03-24 17:59:50,051 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-24 17:59:52,059 - main - INFO - pipetter is loaded as: pt
+2023-03-24 17:59:59,565 - main - INFO - The tip is changed to : 300ul
+2023-03-24 18:00:05,792 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2054
+2023-03-24 18:00:10,606 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:00:10,667 - main - INFO - Performed one event: event_number 0,  event_id:0   substance:p-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:00:17,494 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2087
+2023-03-24 18:00:22,270 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:00:22,330 - main - INFO - Performed one event: event_number 1,  event_id:1   substance:p-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:00:29,131 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2120
+2023-03-24 18:00:33,873 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:00:33,934 - main - INFO - Performed one event: event_number 2,  event_id:2   substance:p-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:00:40,697 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2154
+2023-03-24 18:00:45,404 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:00:45,465 - main - INFO - Performed one event: event_number 3,  event_id:3   substance:p-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:01:02,509 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2008
+2023-03-24 18:01:07,208 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:01:07,269 - main - INFO - Performed one event: event_number 4,  event_id:4   substance:m-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:01:13,878 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2041
+2023-03-24 18:01:18,549 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:01:18,609 - main - INFO - Performed one event: event_number 5,  event_id:5   substance:m-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:01:25,195 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2076
+2023-03-24 18:01:29,821 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:01:29,882 - main - INFO - Performed one event: event_number 6,  event_id:6   substance:m-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:01:36,418 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2110
+2023-03-24 18:01:41,008 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:01:41,069 - main - INFO - Performed one event: event_number 7,  event_id:7   substance:m-BrPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:01:57,919 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2027
+2023-03-24 18:02:02,499 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:02:02,560 - main - INFO - Performed one event: event_number 8,  event_id:8   substance:Br-Biph-Otf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:02:09,065 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2057
+2023-03-24 18:02:13,961 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:02:14,022 - main - INFO - Performed one event: event_number 9,  event_id:9   substance:Br-Biph-Otf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:02:20,841 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2090
+2023-03-24 18:02:25,711 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:02:25,772 - main - INFO - Performed one event: event_number 10,  event_id:10   substance:Br-Biph-Otf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:02:32,549 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2124
+2023-03-24 18:02:37,371 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:02:37,432 - main - INFO - Performed one event: event_number 11,  event_id:11   substance:Br-Biph-Otf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:02:54,444 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2103
+2023-03-24 18:02:59,174 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:02:59,236 - main - INFO - Performed one event: event_number 12,  event_id:12   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:03:05,985 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2108
+2023-03-24 18:03:10,670 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:03:10,731 - main - INFO - Performed one event: event_number 13,  event_id:13   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:03:17,440 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2113
+2023-03-24 18:03:22,089 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:03:22,151 - main - INFO - Performed one event: event_number 14,  event_id:14   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:03:28,823 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2118
+2023-03-24 18:03:33,473 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:03:33,535 - main - INFO - Performed one event: event_number 15,  event_id:15   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:03:40,214 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2123
+2023-03-24 18:03:45,010 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:03:45,071 - main - INFO - Performed one event: event_number 16,  event_id:16   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:03:51,899 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2128
+2023-03-24 18:03:56,651 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:03:56,713 - main - INFO - Performed one event: event_number 17,  event_id:17   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:04:03,508 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2133
+2023-03-24 18:04:08,227 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:04:08,287 - main - INFO - Performed one event: event_number 18,  event_id:18   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:04:15,038 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2138
+2023-03-24 18:04:19,767 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:04:19,828 - main - INFO - Performed one event: event_number 19,  event_id:19   substance:acetylbromobenzene   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:04:36,624 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1976
+2023-03-24 18:04:41,449 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:04:41,511 - main - INFO - Performed one event: event_number 20,  event_id:20   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:04:48,348 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1981
+2023-03-24 18:04:53,236 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:04:53,297 - main - INFO - Performed one event: event_number 21,  event_id:21   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:05:00,220 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1986
+2023-03-24 18:05:05,076 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:05:05,137 - main - INFO - Performed one event: event_number 22,  event_id:22   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:05:12,007 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1992
+2023-03-24 18:05:16,814 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:05:16,874 - main - INFO - Performed one event: event_number 23,  event_id:23   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:05:23,691 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1997
+2023-03-24 18:05:28,464 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:05:28,525 - main - INFO - Performed one event: event_number 24,  event_id:24   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:05:35,316 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2002
+2023-03-24 18:05:40,045 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:05:40,105 - main - INFO - Performed one event: event_number 25,  event_id:25   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:05:46,861 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2007
+2023-03-24 18:05:51,558 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:05:51,620 - main - INFO - Performed one event: event_number 26,  event_id:26   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:05:58,348 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2012
+2023-03-24 18:06:03,005 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:06:03,066 - main - INFO - Performed one event: event_number 27,  event_id:27   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:06:09,754 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2017
+2023-03-24 18:06:14,362 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:06:14,423 - main - INFO - Performed one event: event_number 28,  event_id:28   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:06:21,043 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2023
+2023-03-24 18:06:25,980 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:06:26,041 - main - INFO - Performed one event: event_number 29,  event_id:29   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:06:32,979 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2027
+2023-03-24 18:06:37,877 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:06:37,938 - main - INFO - Performed one event: event_number 30,  event_id:30   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:06:44,839 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2032
+2023-03-24 18:06:49,691 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:06:49,752 - main - INFO - Performed one event: event_number 31,  event_id:31   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:06:56,609 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2038
+2023-03-24 18:07:01,417 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:07:01,478 - main - INFO - Performed one event: event_number 32,  event_id:32   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:07:08,298 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2043
+2023-03-24 18:07:13,077 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:07:13,137 - main - INFO - Performed one event: event_number 33,  event_id:33   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:07:19,938 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2048
+2023-03-24 18:07:24,663 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:07:24,725 - main - INFO - Performed one event: event_number 34,  event_id:34   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:07:31,479 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2053
+2023-03-24 18:07:36,160 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:07:36,221 - main - INFO - Performed one event: event_number 35,  event_id:35   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:07:42,932 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2058
+2023-03-24 18:07:47,567 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:07:47,629 - main - INFO - Performed one event: event_number 36,  event_id:36   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:07:54,285 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2063
+2023-03-24 18:07:58,920 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:07:58,981 - main - INFO - Performed one event: event_number 37,  event_id:37   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:08:05,639 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2069
+2023-03-24 18:08:10,554 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:08:10,616 - main - INFO - Performed one event: event_number 38,  event_id:38   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:08:17,550 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2074
+2023-03-24 18:08:22,433 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:08:22,493 - main - INFO - Performed one event: event_number 39,  event_id:39   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:08:29,393 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2079
+2023-03-24 18:08:34,241 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:08:34,302 - main - INFO - Performed one event: event_number 40,  event_id:40   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:08:41,176 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2084
+2023-03-24 18:08:45,981 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:08:46,042 - main - INFO - Performed one event: event_number 41,  event_id:41   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:08:52,862 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2090
+2023-03-24 18:08:57,633 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:08:57,695 - main - INFO - Performed one event: event_number 42,  event_id:42   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:09:04,499 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2095
+2023-03-24 18:09:09,230 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:09:09,290 - main - INFO - Performed one event: event_number 43,  event_id:43   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:09:16,150 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2100
+2023-03-24 18:09:21,036 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:09:21,097 - main - INFO - Performed one event: event_number 44,  event_id:44   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:09:28,125 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2105
+2023-03-24 18:09:32,977 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:09:33,038 - main - INFO - Performed one event: event_number 45,  event_id:45   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:09:40,014 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2110
+2023-03-24 18:09:44,818 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:09:44,879 - main - INFO - Performed one event: event_number 46,  event_id:46   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:09:51,823 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2115
+2023-03-24 18:09:56,602 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:09:56,663 - main - INFO - Performed one event: event_number 47,  event_id:47   substance:Phenylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:10:13,447 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1783
+2023-03-24 18:10:24,797 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1793
+2023-03-24 18:10:29,705 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:10:29,766 - main - INFO - Performed one event: event_number 48,  event_id:48   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:10:36,779 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1802
+2023-03-24 18:10:48,127 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1808
+2023-03-24 18:10:52,989 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:10:53,049 - main - INFO - Performed one event: event_number 49,  event_id:49   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:11:00,051 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1815
+2023-03-24 18:11:11,315 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1819
+2023-03-24 18:11:16,139 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:11:16,200 - main - INFO - Performed one event: event_number 50,  event_id:50   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:11:23,158 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1824
+2023-03-24 18:11:34,444 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1826
+2023-03-24 18:11:39,224 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:11:39,285 - main - INFO - Performed one event: event_number 51,  event_id:51   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:11:46,213 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1831
+2023-03-24 18:11:57,396 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1833
+2023-03-24 18:12:02,121 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:12:02,182 - main - INFO - Performed one event: event_number 52,  event_id:52   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:12:09,049 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1837
+2023-03-24 18:12:20,181 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1840
+2023-03-24 18:12:24,877 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:12:24,938 - main - INFO - Performed one event: event_number 53,  event_id:53   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:12:31,775 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1846
+2023-03-24 18:12:42,861 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1850
+2023-03-24 18:12:47,533 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:12:47,594 - main - INFO - Performed one event: event_number 54,  event_id:54   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:12:54,382 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1856
+2023-03-24 18:13:05,369 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1860
+2023-03-24 18:13:09,989 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:13:10,052 - main - INFO - Performed one event: event_number 55,  event_id:55   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:13:16,812 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1866
+2023-03-24 18:13:27,712 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1871
+2023-03-24 18:13:32,270 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:13:32,332 - main - INFO - Performed one event: event_number 56,  event_id:56   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:13:39,040 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1877
+2023-03-24 18:13:50,548 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1881
+2023-03-24 18:13:55,444 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:13:55,506 - main - INFO - Performed one event: event_number 57,  event_id:57   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:14:02,541 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1887
+2023-03-24 18:14:13,976 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1891
+2023-03-24 18:14:18,817 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:14:18,878 - main - INFO - Performed one event: event_number 58,  event_id:58   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:14:25,945 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1897
+2023-03-24 18:14:37,312 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1902
+2023-03-24 18:14:42,146 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:14:42,207 - main - INFO - Performed one event: event_number 59,  event_id:59   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:14:49,244 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1907
+2023-03-24 18:15:00,537 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1912
+2023-03-24 18:15:05,311 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:15:05,372 - main - INFO - Performed one event: event_number 60,  event_id:60   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:15:12,377 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1918
+2023-03-24 18:15:23,592 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1922
+2023-03-24 18:15:28,324 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:15:28,385 - main - INFO - Performed one event: event_number 61,  event_id:61   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:15:35,367 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1928
+2023-03-24 18:15:46,500 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1932
+2023-03-24 18:15:51,207 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:15:51,267 - main - INFO - Performed one event: event_number 62,  event_id:62   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:15:58,194 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1938
+2023-03-24 18:16:09,211 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1942
+2023-03-24 18:16:13,864 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:16:13,925 - main - INFO - Performed one event: event_number 63,  event_id:63   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:16:20,825 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1948
+2023-03-24 18:16:31,781 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1952
+2023-03-24 18:16:36,394 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:16:36,456 - main - INFO - Performed one event: event_number 64,  event_id:64   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:16:43,297 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1958
+2023-03-24 18:16:54,175 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1962
+2023-03-24 18:16:58,740 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:16:58,800 - main - INFO - Performed one event: event_number 65,  event_id:65   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:17:05,601 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1968
+2023-03-24 18:17:17,097 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1972
+2023-03-24 18:17:21,971 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:17:22,031 - main - INFO - Performed one event: event_number 66,  event_id:66   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:17:29,158 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1979
+2023-03-24 18:17:40,579 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1983
+2023-03-24 18:17:45,421 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:17:45,482 - main - INFO - Performed one event: event_number 67,  event_id:67   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:17:52,562 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1989
+2023-03-24 18:18:03,935 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1993
+2023-03-24 18:18:08,754 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:18:08,815 - main - INFO - Performed one event: event_number 68,  event_id:68   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:18:15,885 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1999
+2023-03-24 18:18:27,278 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2003
+2023-03-24 18:18:32,048 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:18:32,109 - main - INFO - Performed one event: event_number 69,  event_id:69   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:18:39,101 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2010
+2023-03-24 18:18:50,327 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2014
+2023-03-24 18:18:55,079 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:18:55,139 - main - INFO - Performed one event: event_number 70,  event_id:70   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:19:02,127 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2020
+2023-03-24 18:19:13,348 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2024
+2023-03-24 18:19:18,045 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:19:18,105 - main - INFO - Performed one event: event_number 71,  event_id:71   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:19:25,132 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2030
+2023-03-24 18:19:36,295 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2035
+2023-03-24 18:19:40,945 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:19:41,005 - main - INFO - Performed one event: event_number 72,  event_id:72   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:19:48,000 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2040
+2023-03-24 18:19:59,070 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2044
+2023-03-24 18:20:03,684 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:20:03,745 - main - INFO - Performed one event: event_number 73,  event_id:73   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:20:10,704 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2051
+2023-03-24 18:20:21,716 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2055
+2023-03-24 18:20:26,295 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:20:26,355 - main - INFO - Performed one event: event_number 74,  event_id:74   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:20:33,291 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2061
+2023-03-24 18:20:44,921 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2065
+2023-03-24 18:20:49,820 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:20:49,881 - main - INFO - Performed one event: event_number 75,  event_id:75   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:20:57,129 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2070
+2023-03-24 18:21:08,709 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2075
+2023-03-24 18:21:13,565 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:21:13,626 - main - INFO - Performed one event: event_number 76,  event_id:76   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:21:20,832 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2081
+2023-03-24 18:21:32,329 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2085
+2023-03-24 18:21:37,149 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:21:37,211 - main - INFO - Performed one event: event_number 77,  event_id:77   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:21:44,387 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2091
+2023-03-24 18:21:55,801 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2095
+2023-03-24 18:22:00,593 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:22:00,655 - main - INFO - Performed one event: event_number 78,  event_id:78   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:22:07,782 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2101
+2023-03-24 18:22:19,110 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2105
+2023-03-24 18:22:23,868 - main.pipetter.Pipetter - INFO - Aspiration volume: 500ul Dispensing volume: 500ul
+2023-03-24 18:22:23,930 - main - INFO - Performed one event: event_number 79,  event_id:79   substance:potassium carbonate   transfer_volume:500 plate_number_barcode:00
+2023-03-24 18:22:40,898 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2038
+2023-03-24 18:22:45,465 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:22:45,527 - main - INFO - Performed one event: event_number 80,  event_id:80   substance:p-ClPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:22:52,117 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2071
+2023-03-24 18:22:56,740 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:22:56,801 - main - INFO - Performed one event: event_number 81,  event_id:81   substance:p-ClPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:23:03,327 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2105
+2023-03-24 18:23:08,173 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:23:08,234 - main - INFO - Performed one event: event_number 82,  event_id:82   substance:p-ClPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:23:15,098 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2139
+2023-03-24 18:23:19,888 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:23:19,950 - main - INFO - Performed one event: event_number 83,  event_id:83   substance:p-ClPhOTf   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:24:29,590 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2038
+2023-03-24 18:24:34,335 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:24:34,396 - main - INFO - Performed one event: event_number 84,  event_id:84   substance:p-ClPhOTf1   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:24:41,049 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2070
+2023-03-24 18:24:45,761 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:24:45,822 - main - INFO - Performed one event: event_number 85,  event_id:85   substance:p-ClPhOTf1   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:24:52,441 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2104
+2023-03-24 18:24:57,108 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:24:57,170 - main - INFO - Performed one event: event_number 86,  event_id:86   substance:p-ClPhOTf1   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:25:03,766 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2137
+2023-03-24 18:25:08,762 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:25:08,822 - main - INFO - Performed one event: event_number 87,  event_id:87   substance:p-ClPhOTf1   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:25:26,396 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2044
+2023-03-24 18:25:31,236 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:25:31,296 - main - INFO - Performed one event: event_number 88,  event_id:88   substance:2,5-dibromopyridine   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:25:38,143 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2076
+2023-03-24 18:25:42,941 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:25:43,002 - main - INFO - Performed one event: event_number 89,  event_id:89   substance:2,5-dibromopyridine   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:25:49,823 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2109
+2023-03-24 18:25:54,693 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:25:54,753 - main - INFO - Performed one event: event_number 90,  event_id:90   substance:2,5-dibromopyridine   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:26:01,517 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2143
+2023-03-24 18:26:06,338 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:26:06,399 - main - INFO - Performed one event: event_number 91,  event_id:91   substance:2,5-dibromopyridine   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:26:23,754 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2047
+2023-03-24 18:26:28,472 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:26:28,533 - main - INFO - Performed one event: event_number 92,  event_id:92   substance:o-tolylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:26:35,275 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2080
+2023-03-24 18:26:40,055 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:26:40,116 - main - INFO - Performed one event: event_number 93,  event_id:93   substance:o-tolylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:26:46,816 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2112
+2023-03-24 18:26:51,557 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:26:51,618 - main - INFO - Performed one event: event_number 94,  event_id:94   substance:o-tolylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 18:26:58,279 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2145
+2023-03-24 18:27:03,341 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
+2023-03-24 18:27:03,403 - main - INFO - Performed one event: event_number 95,  event_id:95   substance:o-tolylboronic acid   transfer_volume:250 plate_number_barcode:00

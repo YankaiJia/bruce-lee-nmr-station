@@ -97,7 +97,7 @@ def save_cvs():
                               f"'{starting_event_id}-{ending_event_id}', \n"
         print(f'Finished this plate: {start_finish_string}')
 
-        with open( path, 'a', newline='') as f:
+        with open(path, 'a', newline='') as f:
             f.write(start_finish_string)
 
         print(f'file {path} saved')
