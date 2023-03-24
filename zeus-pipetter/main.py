@@ -276,7 +276,7 @@ with open('multicomponent_reaction\\0324\\event_list_chem.pickle', 'wb') as f:
 pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                     event_list_path='multicomponent_reaction\\0324\\event_list_chem.pickle',
                     # event_list= event_list,
-                    start_event_id= 552 )
+                    start_event_id= 0 )
 
 
 

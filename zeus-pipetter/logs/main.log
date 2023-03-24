@@ -23446,3 +23446,469 @@
 2023-03-24 18:26:58,279 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2145
 2023-03-24 18:27:03,341 - main.pipetter.Pipetter - INFO - Aspiration volume: 250ul Dispensing volume: 250ul
 2023-03-24 18:27:03,403 - main - INFO - Performed one event: event_number 95,  event_id:95   substance:o-tolylboronic acid   transfer_volume:250 plate_number_barcode:00
+2023-03-24 21:27:16,598 - main.zeus.ZeusModule - INFO - ZeusModule 1 is initializing...
+2023-03-24 21:27:25,671 - main - INFO - zeus is loaded as: zm
+2023-03-24 21:27:25,671 - main.gantry.Gantry - INFO - gantry is initiating...
+2023-03-24 21:27:28,681 - main - INFO - gantry is loaded as: gt
+2023-03-24 21:27:28,681 - main.gantry.Gantry - INFO - The gantry is homing...
+2023-03-24 21:27:37,003 - main - INFO - gantry is homed
+2023-03-24 21:27:37,154 - main.pipetter.Pipetter - INFO - creating an instance of Pepetter
+2023-03-24 21:27:39,169 - main - INFO - pipetter is loaded as: pt
+2023-03-24 21:28:01,265 - main - INFO - Excel file for reactions is selected: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/0324/03_24_outVRF038202303201421.xlsx
+2023-03-24 21:28:01,280 - main - INFO - stock solutions are loaded from Excel file: [['DMF', 'Substance_A', ' plate_5_container0', 'DMF', 0.944, 0, 1962, 'empty'], ['ald001', 'Substance_B', ' plate_5_container1', 'DMF', 0.944, 0, 2077, 'empty'], ['ptsa', 'Substance_C', ' plate_5_container2', 'DMF', 0.944, 0, 2051, 'empty'], ['ptsa_dil_x_5', 'Substance_D', ' plate_5_container3', 'DMF', 0.944, 0, 2136, 'empty'], ['ptsa_dil_x_25', 'Substance_E', ' plate_5_container4', 'DMF', 0.944, 0, 2092, 'empty'], ['am001', 'Substance_F', ' plate_5_container5', 'DMF', 0.944, 0, 2033, 'empty'], ['ic001', 'Substance_G', ' plate_5_container6', 'DMF', 0.944, 0, 2061, 'empty']]
+2023-03-24 21:28:08,769 - main - INFO - The tip is changed to : 300ul
+2023-03-24 21:28:16,008 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1986
+2023-03-24 21:28:19,568 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:28:19,629 - main - INFO - Performed one event: event_number 0,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:28:37,931 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2105
+2023-03-24 21:28:41,488 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:28:41,549 - main - INFO - Performed one event: event_number 1,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:28:59,493 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2056
+2023-03-24 21:29:03,049 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:29:03,109 - main - INFO - Performed one event: event_number 2,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:29:21,409 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2146
+2023-03-24 21:29:24,960 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:29:25,022 - main - INFO - Performed one event: event_number 3,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:29:43,054 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2092
+2023-03-24 21:29:46,611 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:29:46,672 - main - INFO - Performed one event: event_number 4,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:30:04,727 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2045
+2023-03-24 21:30:08,275 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:30:08,338 - main - INFO - Performed one event: event_number 5,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:30:26,410 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2079
+2023-03-24 21:30:29,968 - main.pipetter.Pipetter - INFO - Aspiration volume: 100ul Dispensing volume: 250ul
+2023-03-24 21:30:30,030 - main - INFO - Performed one event: event_number 6,  event_id:0   substance:Substance_A   transfer_volume:250
+2023-03-24 21:30:33,624 - main - INFO - liquid_surface_heights: {'DMF_height': 1986, 'DMF_volume': 9652.2, 'ald001_height': 2105, 'ald001_volume': 3574.9, 'ptsa_height': 2056, 'ptsa_volume': 6077.3, 'ptsa_dil_x_5_height': 2146, 'ptsa_dil_x_5_volume': 1481.0, 'ptsa_dil_x_25_height': 2092, 'ptsa_dil_x_25_volume': 4238.8, 'am001_height': 2045, 'am001_volume': 6639.1, 'ic001_height': 2079, 'ic001_volume': 4902.7}
+2023-03-24 21:30:34,639 - main - INFO - Stock solution DMF has been updated with liquid surface height: 1986
+2023-03-24 21:30:34,639 - main - INFO - Stock solution ald001 has been updated with liquid surface height: 2105
+2023-03-24 21:30:34,639 - main - INFO - Stock solution ptsa has been updated with liquid surface height: 2056
+2023-03-24 21:30:34,639 - main - INFO - Stock solution ptsa_dil_x_5 has been updated with liquid surface height: 2146
+2023-03-24 21:30:34,639 - main - INFO - Stock solution ptsa_dil_x_25 has been updated with liquid surface height: 2092
+2023-03-24 21:30:34,639 - main - INFO - Stock solution am001 has been updated with liquid surface height: 2045
+2023-03-24 21:30:34,640 - main - INFO - Stock solution ic001 has been updated with liquid surface height: 2079
+2023-03-24 21:33:13,858 - main - INFO - Stock solution DMF has been updated with liquid surface height: 1986
+2023-03-24 21:33:13,858 - main - INFO - Stock solution ald001 has been updated with liquid surface height: 2105
+2023-03-24 21:33:13,858 - main - INFO - Stock solution ptsa has been updated with liquid surface height: 2056
+2023-03-24 21:33:13,859 - main - INFO - Stock solution ptsa_dil_x_5 has been updated with liquid surface height: 2146
+2023-03-24 21:33:13,859 - main - INFO - Stock solution ptsa_dil_x_25 has been updated with liquid surface height: 2092
+2023-03-24 21:33:13,859 - main - INFO - Stock solution am001 has been updated with liquid surface height: 2045
+2023-03-24 21:33:13,859 - main - INFO - Stock solution ic001 has been updated with liquid surface height: 2079
+2023-03-24 21:33:14,901 - main - INFO - stock solutions are loaded from Excel file: [['DMF', 'Substance_A', ' plate_5_container0', 'DMF', 0.944, 0, 1986, 'empty'], ['ald001', 'Substance_B', ' plate_5_container1', 'DMF', 0.944, 0, 2105, 'empty'], ['ptsa', 'Substance_C', ' plate_5_container2', 'DMF', 0.944, 0, 2056, 'empty'], ['ptsa_dil_x_5', 'Substance_D', ' plate_5_container3', 'DMF', 0.944, 0, 2146, 'empty'], ['ptsa_dil_x_25', 'Substance_E', ' plate_5_container4', 'DMF', 0.944, 0, 2092, 'empty'], ['am001', 'Substance_F', ' plate_5_container5', 'DMF', 0.944, 0, 2045, 'empty'], ['ic001', 'Substance_G', ' plate_5_container6', 'DMF', 0.944, 0, 2079, 'empty']]
+2023-03-24 21:33:14,901 - main - INFO - All stock solutions have been added to brb.plate_list
+2023-03-24 21:33:14,901 - main.planner.EventInterpreter - INFO - Interpretating dataframe_filename from C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/0324/03_24_outVRF038202303201421.xlsx
+2023-03-24 21:33:15,046 - main.planner - INFO - event_dataframe is generated with 135 events.
+2023-03-24 21:33:15,048 - main.planner - INFO - event_dataframe is saved as event_dataframe_2023_03_24_21_33.json
+2023-03-24 21:33:15,048 - main - INFO - All events are generated to dataframes from excel here: C:/Users/Chemiluminescence/OneDrive/roborea/zeus-pipetter/multicomponent_reaction/0324/03_24_outVRF038202303201421.xlsx
+2023-03-24 21:33:15,062 - main.planner - INFO - Event_list is generated with 135 events.
+2023-03-24 21:33:15,062 - main - INFO - All event objects are generated from dataframes.
+2023-03-24 21:33:22,753 - main - INFO - The tip is changed to : 300ul
+2023-03-24 21:33:28,701 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1989
+2023-03-24 21:33:33,202 - main.pipetter.Pipetter - INFO - Aspiration volume: 95.6482758620689ul Dispensing volume: 95.6482758620689ul
+2023-03-24 21:33:33,263 - main - INFO - Performed one event: event_number 0,  event_id:0   substance:DMF   transfer_volume:95.6482758620689 plate_number_barcode:00
+2023-03-24 21:33:39,798 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1990
+2023-03-24 21:33:44,267 - main.pipetter.Pipetter - INFO - Aspiration volume: 80.6482758620689ul Dispensing volume: 80.6482758620689ul
+2023-03-24 21:33:44,328 - main - INFO - Performed one event: event_number 1,  event_id:1   substance:DMF   transfer_volume:80.6482758620689 plate_number_barcode:00
+2023-03-24 21:33:50,707 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1992
+2023-03-24 21:33:55,026 - main.pipetter.Pipetter - INFO - Aspiration volume: 65.6482758620689ul Dispensing volume: 65.6482758620689ul
+2023-03-24 21:33:55,086 - main - INFO - Performed one event: event_number 2,  event_id:2   substance:DMF   transfer_volume:65.6482758620689 plate_number_barcode:00
+2023-03-24 21:34:01,544 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1994
+2023-03-24 21:34:05,932 - main.pipetter.Pipetter - INFO - Aspiration volume: 86.6482758620689ul Dispensing volume: 86.6482758620689ul
+2023-03-24 21:34:05,993 - main - INFO - Performed one event: event_number 3,  event_id:3   substance:DMF   transfer_volume:86.6482758620689 plate_number_barcode:00
+2023-03-24 21:34:12,400 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1995
+2023-03-24 21:34:16,630 - main.pipetter.Pipetter - INFO - Aspiration volume: 71.6482758620689ul Dispensing volume: 71.6482758620689ul
+2023-03-24 21:34:16,691 - main - INFO - Performed one event: event_number 4,  event_id:4   substance:DMF   transfer_volume:71.6482758620689 plate_number_barcode:00
+2023-03-24 21:34:22,951 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1996
+2023-03-24 21:34:27,163 - main.pipetter.Pipetter - INFO - Aspiration volume: 56.6482758620689ul Dispensing volume: 56.6482758620689ul
+2023-03-24 21:34:27,224 - main - INFO - Performed one event: event_number 5,  event_id:5   substance:DMF   transfer_volume:56.6482758620689 plate_number_barcode:00
+2023-03-24 21:34:33,583 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1998
+2023-03-24 21:34:37,855 - main.pipetter.Pipetter - INFO - Aspiration volume: 77.6482758620689ul Dispensing volume: 77.6482758620689ul
+2023-03-24 21:34:37,915 - main - INFO - Performed one event: event_number 6,  event_id:6   substance:DMF   transfer_volume:77.6482758620689 plate_number_barcode:00
+2023-03-24 21:34:44,103 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 1999
+2023-03-24 21:34:48,262 - main.pipetter.Pipetter - INFO - Aspiration volume: 62.6482758620689ul Dispensing volume: 62.6482758620689ul
+2023-03-24 21:34:48,322 - main - INFO - Performed one event: event_number 7,  event_id:7   substance:DMF   transfer_volume:62.6482758620689 plate_number_barcode:00
+2023-03-24 21:36:58,756 - main - INFO - The tip is changed to : 50ul
+2023-03-24 21:37:04,584 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2001
+2023-03-24 21:37:08,744 - main.pipetter.Pipetter - INFO - Aspiration volume: 47.6482758620689ul Dispensing volume: 47.6482758620689ul
+2023-03-24 21:37:08,804 - main - INFO - Performed one event: event_number 8,  event_id:8   substance:DMF   transfer_volume:47.6482758620689 plate_number_barcode:00
+2023-03-24 21:37:19,481 - main - INFO - The tip is changed to : 300ul
+2023-03-24 21:37:25,434 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2002
+2023-03-24 21:37:29,948 - main.pipetter.Pipetter - INFO - Aspiration volume: 94.3241379310344ul Dispensing volume: 94.3241379310344ul
+2023-03-24 21:37:30,007 - main - INFO - Performed one event: event_number 9,  event_id:9   substance:DMF   transfer_volume:94.3241379310344 plate_number_barcode:00
+2023-03-24 21:37:36,456 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2003
+2023-03-24 21:37:40,922 - main.pipetter.Pipetter - INFO - Aspiration volume: 79.3241379310344ul Dispensing volume: 79.3241379310344ul
+2023-03-24 21:37:40,981 - main - INFO - Performed one event: event_number 10,  event_id:10   substance:DMF   transfer_volume:79.3241379310344 plate_number_barcode:00
+2023-03-24 21:37:47,359 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2005
+2023-03-24 21:37:51,694 - main.pipetter.Pipetter - INFO - Aspiration volume: 64.3241379310345ul Dispensing volume: 64.3241379310345ul
+2023-03-24 21:37:51,755 - main - INFO - Performed one event: event_number 11,  event_id:11   substance:DMF   transfer_volume:64.3241379310345 plate_number_barcode:00
+2023-03-24 21:37:58,222 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2007
+2023-03-24 21:38:02,611 - main.pipetter.Pipetter - INFO - Aspiration volume: 85.3241379310344ul Dispensing volume: 85.3241379310344ul
+2023-03-24 21:38:02,672 - main - INFO - Performed one event: event_number 12,  event_id:12   substance:DMF   transfer_volume:85.3241379310344 plate_number_barcode:00
+2023-03-24 21:38:09,078 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2008
+2023-03-24 21:38:13,309 - main.pipetter.Pipetter - INFO - Aspiration volume: 70.3241379310345ul Dispensing volume: 70.3241379310345ul
+2023-03-24 21:38:13,369 - main - INFO - Performed one event: event_number 13,  event_id:13   substance:DMF   transfer_volume:70.3241379310345 plate_number_barcode:00
+2023-03-24 21:38:19,767 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2010
+2023-03-24 21:38:24,022 - main.pipetter.Pipetter - INFO - Aspiration volume: 55.3241379310345ul Dispensing volume: 55.3241379310345ul
+2023-03-24 21:38:24,084 - main - INFO - Performed one event: event_number 14,  event_id:14   substance:DMF   transfer_volume:55.3241379310345 plate_number_barcode:00
+2023-03-24 21:38:30,479 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2011
+2023-03-24 21:38:34,840 - main.pipetter.Pipetter - INFO - Aspiration volume: 76.3241379310344ul Dispensing volume: 76.3241379310344ul
+2023-03-24 21:38:34,901 - main - INFO - Performed one event: event_number 15,  event_id:15   substance:DMF   transfer_volume:76.3241379310344 plate_number_barcode:00
+2023-03-24 21:38:41,300 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2012
+2023-03-24 21:38:45,561 - main.pipetter.Pipetter - INFO - Aspiration volume: 61.3241379310345ul Dispensing volume: 61.3241379310345ul
+2023-03-24 21:38:45,621 - main - INFO - Performed one event: event_number 16,  event_id:16   substance:DMF   transfer_volume:61.3241379310345 plate_number_barcode:00
+2023-03-24 21:38:56,782 - main - INFO - The tip is changed to : 50ul
+2023-03-24 21:39:02,740 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2015
+2023-03-24 21:39:06,973 - main.pipetter.Pipetter - INFO - Aspiration volume: 46.3241379310345ul Dispensing volume: 46.3241379310345ul
+2023-03-24 21:39:07,034 - main - INFO - Performed one event: event_number 17,  event_id:17   substance:DMF   transfer_volume:46.3241379310345 plate_number_barcode:00
+2023-03-24 21:39:18,009 - main - INFO - The tip is changed to : 300ul
+2023-03-24 21:39:23,925 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2015
+2023-03-24 21:39:28,445 - main.pipetter.Pipetter - INFO - Aspiration volume: 93.0ul Dispensing volume: 93.0ul
+2023-03-24 21:39:28,506 - main - INFO - Performed one event: event_number 18,  event_id:18   substance:DMF   transfer_volume:93.0 plate_number_barcode:00
+2023-03-24 21:39:35,033 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2017
+2023-03-24 21:39:39,508 - main.pipetter.Pipetter - INFO - Aspiration volume: 78.0ul Dispensing volume: 78.0ul
+2023-03-24 21:39:39,569 - main - INFO - Performed one event: event_number 19,  event_id:19   substance:DMF   transfer_volume:78.0 plate_number_barcode:00
+2023-03-24 21:39:46,069 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2018
+2023-03-24 21:39:50,405 - main.pipetter.Pipetter - INFO - Aspiration volume: 63.0ul Dispensing volume: 63.0ul
+2023-03-24 21:39:50,466 - main - INFO - Performed one event: event_number 20,  event_id:20   substance:DMF   transfer_volume:63.0 plate_number_barcode:00
+2023-03-24 21:39:56,933 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2020
+2023-03-24 21:40:01,384 - main.pipetter.Pipetter - INFO - Aspiration volume: 84.0ul Dispensing volume: 84.0ul
+2023-03-24 21:40:01,444 - main - INFO - Performed one event: event_number 21,  event_id:21   substance:DMF   transfer_volume:84.0 plate_number_barcode:00
+2023-03-24 21:40:07,905 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2022
+2023-03-24 21:40:12,225 - main.pipetter.Pipetter - INFO - Aspiration volume: 69.0ul Dispensing volume: 69.0ul
+2023-03-24 21:40:12,286 - main - INFO - Performed one event: event_number 22,  event_id:22   substance:DMF   transfer_volume:69.0 plate_number_barcode:00
+2023-03-24 21:40:18,752 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2023
+2023-03-24 21:40:23,067 - main.pipetter.Pipetter - INFO - Aspiration volume: 54.0ul Dispensing volume: 54.0ul
+2023-03-24 21:40:23,128 - main - INFO - Performed one event: event_number 23,  event_id:23   substance:DMF   transfer_volume:54.0 plate_number_barcode:00
+2023-03-24 21:40:29,575 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2024
+2023-03-24 21:40:34,018 - main.pipetter.Pipetter - INFO - Aspiration volume: 75.0ul Dispensing volume: 75.0ul
+2023-03-24 21:40:34,079 - main - INFO - Performed one event: event_number 24,  event_id:24   substance:DMF   transfer_volume:75.0 plate_number_barcode:00
+2023-03-24 21:40:40,557 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2026
+2023-03-24 21:40:44,891 - main.pipetter.Pipetter - INFO - Aspiration volume: 60.0ul Dispensing volume: 60.0ul
+2023-03-24 21:40:44,952 - main - INFO - Performed one event: event_number 25,  event_id:25   substance:DMF   transfer_volume:60.0 plate_number_barcode:00
+2023-03-24 21:40:56,081 - main - INFO - The tip is changed to : 50ul
+2023-03-24 21:41:02,036 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2028
+2023-03-24 21:41:06,356 - main.pipetter.Pipetter - INFO - Aspiration volume: 45.0ul Dispensing volume: 45.0ul
+2023-03-24 21:41:06,416 - main - INFO - Performed one event: event_number 26,  event_id:26   substance:DMF   transfer_volume:45.0 plate_number_barcode:00
+2023-03-24 21:41:23,540 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2106
+2023-03-24 21:41:28,028 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:41:28,087 - main - INFO - Performed one event: event_number 27,  event_id:27   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:41:34,708 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2106
+2023-03-24 21:41:39,140 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:41:39,200 - main - INFO - Performed one event: event_number 28,  event_id:28   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:41:45,771 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2107
+2023-03-24 21:41:50,194 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:41:50,254 - main - INFO - Performed one event: event_number 29,  event_id:29   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:41:56,793 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2107
+2023-03-24 21:42:01,178 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:42:01,239 - main - INFO - Performed one event: event_number 30,  event_id:30   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:42:07,754 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2108
+2023-03-24 21:42:12,096 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:42:12,156 - main - INFO - Performed one event: event_number 31,  event_id:31   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:42:18,603 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2109
+2023-03-24 21:42:22,911 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:42:22,972 - main - INFO - Performed one event: event_number 32,  event_id:32   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:42:29,379 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2110
+2023-03-24 21:42:33,634 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:42:33,695 - main - INFO - Performed one event: event_number 33,  event_id:33   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:42:40,092 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2110
+2023-03-24 21:42:44,316 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:42:44,376 - main - INFO - Performed one event: event_number 34,  event_id:34   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:42:50,718 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2111
+2023-03-24 21:42:54,897 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:42:54,956 - main - INFO - Performed one event: event_number 35,  event_id:35   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:43:01,278 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2112
+2023-03-24 21:43:05,758 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:43:05,820 - main - INFO - Performed one event: event_number 36,  event_id:36   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:43:12,430 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2112
+2023-03-24 21:43:16,883 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:43:16,944 - main - INFO - Performed one event: event_number 37,  event_id:37   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:43:23,528 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2113
+2023-03-24 21:43:27,927 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:43:27,988 - main - INFO - Performed one event: event_number 38,  event_id:38   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:43:34,533 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2114
+2023-03-24 21:43:38,915 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:43:38,977 - main - INFO - Performed one event: event_number 39,  event_id:39   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:43:45,480 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2115
+2023-03-24 21:43:49,805 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:43:49,865 - main - INFO - Performed one event: event_number 40,  event_id:40   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:43:56,338 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2115
+2023-03-24 21:44:00,628 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:44:00,689 - main - INFO - Performed one event: event_number 41,  event_id:41   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:44:07,109 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2116
+2023-03-24 21:44:11,357 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:44:11,418 - main - INFO - Performed one event: event_number 42,  event_id:42   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:44:17,798 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2117
+2023-03-24 21:44:22,034 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:44:22,094 - main - INFO - Performed one event: event_number 43,  event_id:43   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:44:28,463 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2118
+2023-03-24 21:44:32,727 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:44:32,787 - main - INFO - Performed one event: event_number 44,  event_id:44   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:44:39,166 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2118
+2023-03-24 21:44:43,642 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:44:43,703 - main - INFO - Performed one event: event_number 45,  event_id:45   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:44:50,341 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2119
+2023-03-24 21:44:54,788 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:44:54,849 - main - INFO - Performed one event: event_number 46,  event_id:46   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:45:01,418 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2120
+2023-03-24 21:45:05,828 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:45:05,889 - main - INFO - Performed one event: event_number 47,  event_id:47   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:45:12,417 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2121
+2023-03-24 21:45:16,785 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:45:16,846 - main - INFO - Performed one event: event_number 48,  event_id:48   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:45:23,353 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2122
+2023-03-24 21:45:27,683 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:45:27,744 - main - INFO - Performed one event: event_number 49,  event_id:49   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:45:34,215 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2122
+2023-03-24 21:45:38,552 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:45:38,613 - main - INFO - Performed one event: event_number 50,  event_id:50   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:45:45,073 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2123
+2023-03-24 21:45:49,400 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:45:49,462 - main - INFO - Performed one event: event_number 51,  event_id:51   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:45:55,934 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2123
+2023-03-24 21:46:00,270 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:46:00,331 - main - INFO - Performed one event: event_number 52,  event_id:52   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:46:06,787 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2124
+2023-03-24 21:46:11,110 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:46:11,172 - main - INFO - Performed one event: event_number 53,  event_id:53   substance:ald001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:46:28,297 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2055
+2023-03-24 21:46:32,862 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:46:32,923 - main - INFO - Performed one event: event_number 54,  event_id:54   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:46:39,605 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2055
+2023-03-24 21:46:44,138 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:46:44,198 - main - INFO - Performed one event: event_number 55,  event_id:55   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:46:50,862 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2057
+2023-03-24 21:46:55,362 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:46:55,423 - main - INFO - Performed one event: event_number 56,  event_id:56   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:47:02,065 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2058
+2023-03-24 21:47:06,532 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:47:06,594 - main - INFO - Performed one event: event_number 57,  event_id:57   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:47:13,188 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2058
+2023-03-24 21:47:17,607 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:47:17,667 - main - INFO - Performed one event: event_number 58,  event_id:58   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:47:24,218 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2059
+2023-03-24 21:47:28,609 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:47:28,670 - main - INFO - Performed one event: event_number 59,  event_id:59   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:47:35,164 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2060
+2023-03-24 21:47:39,500 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:47:39,560 - main - INFO - Performed one event: event_number 60,  event_id:60   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:47:46,037 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2061
+2023-03-24 21:47:50,338 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:47:50,399 - main - INFO - Performed one event: event_number 61,  event_id:61   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:47:56,828 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2061
+2023-03-24 21:48:01,069 - main.pipetter.Pipetter - INFO - Aspiration volume: 37.351724137931ul Dispensing volume: 37.351724137931ul
+2023-03-24 21:48:01,130 - main - INFO - Performed one event: event_number 62,  event_id:62   substance:ptsa   transfer_volume:37.351724137931 plate_number_barcode:00
+2023-03-24 21:48:07,507 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2062
+2023-03-24 21:48:12,080 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:48:12,140 - main - INFO - Performed one event: event_number 63,  event_id:63   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:48:18,859 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2063
+2023-03-24 21:48:23,395 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:48:23,457 - main - INFO - Performed one event: event_number 64,  event_id:64   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:48:30,133 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2064
+2023-03-24 21:48:34,619 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:48:34,680 - main - INFO - Performed one event: event_number 65,  event_id:65   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:48:41,312 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2065
+2023-03-24 21:48:45,777 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:48:45,838 - main - INFO - Performed one event: event_number 66,  event_id:66   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:48:52,422 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2065
+2023-03-24 21:48:56,865 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:48:56,926 - main - INFO - Performed one event: event_number 67,  event_id:67   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:49:03,484 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2067
+2023-03-24 21:49:07,863 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:49:07,923 - main - INFO - Performed one event: event_number 68,  event_id:68   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:49:14,341 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2067
+2023-03-24 21:49:18,684 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:49:18,745 - main - INFO - Performed one event: event_number 69,  event_id:69   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:49:25,212 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2068
+2023-03-24 21:49:29,524 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:49:29,584 - main - INFO - Performed one event: event_number 70,  event_id:70   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:49:36,019 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2069
+2023-03-24 21:49:40,279 - main.pipetter.Pipetter - INFO - Aspiration volume: 38.6758620689655ul Dispensing volume: 38.6758620689655ul
+2023-03-24 21:49:40,340 - main - INFO - Performed one event: event_number 71,  event_id:71   substance:ptsa   transfer_volume:38.6758620689655 plate_number_barcode:00
+2023-03-24 21:49:46,728 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2070
+2023-03-24 21:49:51,305 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:49:51,367 - main - INFO - Performed one event: event_number 72,  event_id:72   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:49:57,999 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2071
+2023-03-24 21:50:02,529 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:50:02,589 - main - INFO - Performed one event: event_number 73,  event_id:73   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:50:09,254 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2071
+2023-03-24 21:50:13,742 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:50:13,803 - main - INFO - Performed one event: event_number 74,  event_id:74   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:50:20,443 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2072
+2023-03-24 21:50:24,888 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:50:24,947 - main - INFO - Performed one event: event_number 75,  event_id:75   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:50:31,535 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2073
+2023-03-24 21:50:35,929 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:50:35,989 - main - INFO - Performed one event: event_number 76,  event_id:76   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:50:42,553 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2074
+2023-03-24 21:50:46,940 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:50:47,000 - main - INFO - Performed one event: event_number 77,  event_id:77   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:50:53,522 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2075
+2023-03-24 21:50:57,887 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:50:57,947 - main - INFO - Performed one event: event_number 78,  event_id:78   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:51:04,425 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2076
+2023-03-24 21:51:08,753 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:51:08,813 - main - INFO - Performed one event: event_number 79,  event_id:79   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:51:15,290 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2076
+2023-03-24 21:51:19,631 - main.pipetter.Pipetter - INFO - Aspiration volume: 40.0ul Dispensing volume: 40.0ul
+2023-03-24 21:51:19,691 - main - INFO - Performed one event: event_number 80,  event_id:80   substance:ptsa   transfer_volume:40.0 plate_number_barcode:00
+2023-03-24 21:51:36,757 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2044
+2023-03-24 21:51:41,151 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:51:41,212 - main - INFO - Performed one event: event_number 81,  event_id:81   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:51:47,739 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2044
+2023-03-24 21:51:52,098 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:51:52,159 - main - INFO - Performed one event: event_number 82,  event_id:82   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:51:58,637 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2044
+2023-03-24 21:52:02,954 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:52:03,015 - main - INFO - Performed one event: event_number 83,  event_id:83   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:52:09,452 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2045
+2023-03-24 21:52:13,720 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:52:13,782 - main - INFO - Performed one event: event_number 84,  event_id:84   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:52:20,180 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2046
+2023-03-24 21:52:24,420 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:52:24,480 - main - INFO - Performed one event: event_number 85,  event_id:85   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:52:30,854 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2046
+2023-03-24 21:52:35,035 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:52:35,097 - main - INFO - Performed one event: event_number 86,  event_id:86   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:52:41,528 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2046
+2023-03-24 21:52:45,800 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:52:45,861 - main - INFO - Performed one event: event_number 87,  event_id:87   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:52:52,265 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2047
+2023-03-24 21:52:56,486 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:52:56,547 - main - INFO - Performed one event: event_number 88,  event_id:88   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:53:02,818 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2047
+2023-03-24 21:53:06,998 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:53:07,059 - main - INFO - Performed one event: event_number 89,  event_id:89   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:53:13,266 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2047
+2023-03-24 21:53:17,656 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:53:17,717 - main - INFO - Performed one event: event_number 90,  event_id:90   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:53:24,245 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2048
+2023-03-24 21:53:28,587 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:53:28,648 - main - INFO - Performed one event: event_number 91,  event_id:91   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:53:35,122 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2048
+2023-03-24 21:53:39,441 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:53:39,502 - main - INFO - Performed one event: event_number 92,  event_id:92   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:53:45,965 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2049
+2023-03-24 21:53:50,241 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:53:50,303 - main - INFO - Performed one event: event_number 93,  event_id:93   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:53:56,705 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2049
+2023-03-24 21:54:00,944 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:54:01,004 - main - INFO - Performed one event: event_number 94,  event_id:94   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:54:07,378 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2049
+2023-03-24 21:54:11,566 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:54:11,627 - main - INFO - Performed one event: event_number 95,  event_id:95   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:54:17,972 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2050
+2023-03-24 21:54:22,240 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:54:22,301 - main - INFO - Performed one event: event_number 96,  event_id:96   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:54:28,704 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2051
+2023-03-24 21:54:32,926 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:54:32,987 - main - INFO - Performed one event: event_number 97,  event_id:97   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:54:39,325 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2052
+2023-03-24 21:54:43,517 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:54:43,578 - main - INFO - Performed one event: event_number 98,  event_id:98   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:54:49,773 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2052
+2023-03-24 21:54:54,141 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:54:54,202 - main - INFO - Performed one event: event_number 99,  event_id:99   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:55:00,690 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2052
+2023-03-24 21:55:05,039 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:55:05,099 - main - INFO - Performed one event: event_number 100,  event_id:100   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:55:11,584 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2053
+2023-03-24 21:55:15,886 - main.pipetter.Pipetter - INFO - Aspiration volume: 12.0ul Dispensing volume: 12.0ul
+2023-03-24 21:55:15,946 - main - INFO - Performed one event: event_number 101,  event_id:101   substance:am001   transfer_volume:12.0 plate_number_barcode:00
+2023-03-24 21:55:22,387 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2053
+2023-03-24 21:55:26,651 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:55:26,712 - main - INFO - Performed one event: event_number 102,  event_id:102   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:55:33,113 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2054
+2023-03-24 21:55:37,346 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:55:37,406 - main - INFO - Performed one event: event_number 103,  event_id:103   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:55:43,770 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2054
+2023-03-24 21:55:47,959 - main.pipetter.Pipetter - INFO - Aspiration volume: 21.0ul Dispensing volume: 21.0ul
+2023-03-24 21:55:48,019 - main - INFO - Performed one event: event_number 104,  event_id:104   substance:am001   transfer_volume:21.0 plate_number_barcode:00
+2023-03-24 21:55:54,450 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2055
+2023-03-24 21:55:58,703 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:55:58,763 - main - INFO - Performed one event: event_number 105,  event_id:105   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:56:05,150 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2055
+2023-03-24 21:56:09,398 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:56:09,459 - main - INFO - Performed one event: event_number 106,  event_id:106   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:56:15,816 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2056
+2023-03-24 21:56:20,065 - main.pipetter.Pipetter - INFO - Aspiration volume: 30.0ul Dispensing volume: 30.0ul
+2023-03-24 21:56:20,125 - main - INFO - Performed one event: event_number 107,  event_id:107   substance:am001   transfer_volume:30.0 plate_number_barcode:00
+2023-03-24 21:56:37,127 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2078
+2023-03-24 21:56:41,606 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:56:41,666 - main - INFO - Performed one event: event_number 108,  event_id:108   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 21:56:48,359 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2079
+2023-03-24 21:56:52,902 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:56:52,962 - main - INFO - Performed one event: event_number 109,  event_id:109   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:56:59,621 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2080
+2023-03-24 21:57:04,122 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 21:57:04,183 - main - INFO - Performed one event: event_number 110,  event_id:110   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 21:57:10,712 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2080
+2023-03-24 21:57:15,065 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:57:15,126 - main - INFO - Performed one event: event_number 111,  event_id:111   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 21:57:21,715 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2081
+2023-03-24 21:57:26,136 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:57:26,197 - main - INFO - Performed one event: event_number 112,  event_id:112   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:57:32,736 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2082
+2023-03-24 21:57:37,116 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 21:57:37,177 - main - INFO - Performed one event: event_number 113,  event_id:113   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 21:57:43,593 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2083
+2023-03-24 21:57:47,831 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:57:47,892 - main - INFO - Performed one event: event_number 114,  event_id:114   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 21:57:54,363 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2083
+2023-03-24 21:57:58,681 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:57:58,741 - main - INFO - Performed one event: event_number 115,  event_id:115   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:58:05,190 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2085
+2023-03-24 21:58:09,463 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 21:58:09,524 - main - INFO - Performed one event: event_number 116,  event_id:116   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 21:58:15,805 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2085
+2023-03-24 21:58:20,273 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:58:20,332 - main - INFO - Performed one event: event_number 117,  event_id:117   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 21:58:27,038 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2085
+2023-03-24 21:58:31,580 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:58:31,641 - main - INFO - Performed one event: event_number 118,  event_id:118   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:58:38,313 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2087
+2023-03-24 21:58:42,813 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 21:58:42,874 - main - INFO - Performed one event: event_number 119,  event_id:119   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 21:58:49,405 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2087
+2023-03-24 21:58:53,752 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:58:53,812 - main - INFO - Performed one event: event_number 120,  event_id:120   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 21:59:00,410 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2088
+2023-03-24 21:59:04,827 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:59:04,887 - main - INFO - Performed one event: event_number 121,  event_id:121   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:59:11,447 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2089
+2023-03-24 21:59:15,815 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 21:59:15,876 - main - INFO - Performed one event: event_number 122,  event_id:122   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 21:59:22,287 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2090
+2023-03-24 21:59:26,512 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:59:26,573 - main - INFO - Performed one event: event_number 123,  event_id:123   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 21:59:33,073 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2090
+2023-03-24 21:59:37,386 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 21:59:37,447 - main - INFO - Performed one event: event_number 124,  event_id:124   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 21:59:43,875 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2091
+2023-03-24 21:59:48,136 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 21:59:48,198 - main - INFO - Performed one event: event_number 125,  event_id:125   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 21:59:54,488 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2092
+2023-03-24 21:59:58,953 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 21:59:59,014 - main - INFO - Performed one event: event_number 126,  event_id:126   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 22:00:05,709 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2093
+2023-03-24 22:00:10,235 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 22:00:10,296 - main - INFO - Performed one event: event_number 127,  event_id:127   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 22:00:16,966 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2094
+2023-03-24 22:00:21,464 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 22:00:21,526 - main - INFO - Performed one event: event_number 128,  event_id:128   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 22:00:28,045 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2094
+2023-03-24 22:00:32,395 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 22:00:32,455 - main - INFO - Performed one event: event_number 129,  event_id:129   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 22:00:38,977 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2095
+2023-03-24 22:00:43,383 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 22:00:43,444 - main - INFO - Performed one event: event_number 130,  event_id:130   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 22:00:49,979 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2095
+2023-03-24 22:00:54,349 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 22:00:54,409 - main - INFO - Performed one event: event_number 131,  event_id:131   substance:ic001   transfer_volume:50.0 plate_number_barcode:00
+2023-03-24 22:01:00,823 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2096
+2023-03-24 22:01:05,065 - main.pipetter.Pipetter - INFO - Aspiration volume: 20.0ul Dispensing volume: 20.0ul
+2023-03-24 22:01:05,125 - main - INFO - Performed one event: event_number 132,  event_id:132   substance:ic001   transfer_volume:20.0 plate_number_barcode:00
+2023-03-24 22:01:11,614 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2097
+2023-03-24 22:01:15,897 - main.pipetter.Pipetter - INFO - Aspiration volume: 35.0ul Dispensing volume: 35.0ul
+2023-03-24 22:01:15,958 - main - INFO - Performed one event: event_number 133,  event_id:133   substance:ic001   transfer_volume:35.0 plate_number_barcode:00
+2023-03-24 22:01:22,369 - main.pipetter.Pipetter - INFO - liquid_surface_height_detected: 2098
+2023-03-24 22:01:26,615 - main.pipetter.Pipetter - INFO - Aspiration volume: 50.0ul Dispensing volume: 50.0ul
+2023-03-24 22:01:26,676 - main - INFO - Performed one event: event_number 134,  event_id:134   substance:ic001   transfer_volume:50.0 plate_number_barcode:00

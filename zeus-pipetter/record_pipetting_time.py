@@ -27,13 +27,17 @@ def load_excel_path_by_pysimplegui():
     print(f"Excel file for reactions is selected: {values['-FILE_PATH-']}")
     return values['-FILE_PATH-']
 
-# path_for_event_status_record = load_excel_path_by_pysimplegui()
-path_for_event_status_record = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\' \
-                               'zeus-pipetter\\multicomponent_reaction\\event_list_chem.pickle'
+path_for_event_status_record = load_excel_path_by_pysimplegui()
+# path_for_event_status_record = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\' \
+#                                'zeus-pipetter\\multicomponent_reaction\\event_list_chem.pickle'
 
 with open(path_for_event_status_record, 'rb') as f:
     transfer_list = pickle.load(f)
 
+# for event in transfer_list:
+#     print(event.event_label)
+#     print(event.is_event_conducted)
+#     print(event.event_start_time_datetime)
 
 def split_by_plate(transfer_list):
     """A generator to divide a sequence into chunks of n units."""
@@ -53,6 +57,7 @@ def split_by_plate(transfer_list):
 
 event_list_in_each_plate = list(split_by_plate(transfer_list))
 
+# event_list_in_each_plate = [transfer_list]
 
 def save_cvs():
 
