@@ -1,5 +1,6 @@
 import logging
 import pickle
+import json
 from typing import Dict, Any
 
 module_logger = logging.getLogger('main.planner')
@@ -353,7 +354,8 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,
     return event_dataframe, event_list
 
 
-def do_calibration_on_events(zm: object, pt: object, logger: object, calibration_event_list: list[object]) -> list:
+def do_calibration_on_events(zm: object, pt: object, logger: object,
+                             calibration_event_list: list[object]) -> list:
     '''This function is used to calibrate the pipetting of substances.'''
     results_for_calibration = []
     if zm.tip_on_zeus:
@@ -368,7 +370,7 @@ def do_calibration_on_events(zm: object, pt: object, logger: object, calibration
             time.sleep(0.5)
 
         result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index],
-                                                            n_times=1)
+                                                            n_times=50)
         results_for_calibration.append(result)
 
         time.sleep(1)
@@ -380,7 +382,17 @@ def do_calibration_on_events(zm: object, pt: object, logger: object, calibration
                     calibration_event_list[event_index + 1].substance_name:
                 pt.discard_tip()
         time.sleep(0.5)
+
+        result_dict = {calibration_event_list[event_index].event_label: results_for_calibration}
+
+        # save result_dict to jason file
+        with open(f'calibration_for_pipetting\\calibration_results\\'
+                  f'calibration_results_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json', 'w') as f:
+            json.dump(result_dict, f, indent=4)
+
     pt.discard_tip()
+
+
 
     return results_for_calibration
 

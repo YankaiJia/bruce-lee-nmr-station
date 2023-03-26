@@ -258,25 +258,62 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 
 
 # generate event list NPs
-event_dataframe_chem, event_list_chem = \
+event_dataframe_chem, calibration_event_list = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0324', usecols='B:K',
-                              is_pipeting_to_balance=False, is_for_bio=False)
+                              sheet_name='Validation_0325', usecols='D',
+                              is_pipeting_to_balance=True, is_for_bio=False)
 time.sleep(1)
 
 
 # save the event list in pickle file and later load from this file
-with open('NPs\\event_list_chem.pickle', 'wb') as f:
-    pickle.dump(event_list_chem, f)
+with open('Calibration_for_pipetting'
+          '\\event_list_calib_300ul.pickle', 'wb') as f:
+    pickle.dump(calibration_event_list, f)
 
-## update planner.py when necessary
-importlib.reload(pln)
+event_list_path = 'Calibration_for_pipetting\\event_list_calib_300ul.pickle'
 
-## do multicomponent reactions
-pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    event_list_path='NPs\\event_list_chem.pickle',
-                    # event_list= event_list,
-                    start_event_id= 0 )
+with open(event_list_path, 'rb') as f:
+    calibration_event_list = pickle.load(f)
+
+#########################################################################
+# specify tip and liquidClassIndex and other staff for calibration
+def specify_tip_and_liquidClassIndex_for_calibration():
+    for event in calibration_event_list:
+        event.tip_type = '300ul'
+        event.asp_liquidClassTableIndex = 22
+        event.disp_liquidClassTableIndex = 22
+        event.disp_liquidSurface = 1600
+        event.disp_lldSearchPosition = 1600
+
+specify_tip_and_liquidClassIndex_for_calibration()
+#########################################################################
+
+# save the event list in pickle file and later load from this file
+with open('Calibration_for_pipetting'
+          '\\event_list_calib_adjust_300ul.pickle', 'wb') as f:
+    pickle.dump(calibration_event_list, f)
+
+event_list_path = 'Calibration_for_pipetting\\event_list_calib_adjust_300ul.pickle'
+
+with open(event_list_path, 'rb') as f:
+    calibration_event_list_adjust = pickle.load(f)
+
+calibration_event_list_adjust = calibration_event_list[::-1] # reverse the list. pipetting from large volume
+
+
+
+# do_calibration
+weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+                                                calibration_event_list= calibration_event_list_adjust)
+
+
+
+
+
+
+
+
+
 
 

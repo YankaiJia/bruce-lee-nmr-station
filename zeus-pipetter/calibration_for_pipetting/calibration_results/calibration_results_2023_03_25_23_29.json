@@ -1,0 +1,68 @@
+{
+    " event_id:3   substance:DMF_50ul   transfer_volume:15 plate_number_barcode:00": [
+        {
+            "DMF_50ul_8ul": {
+                "weight": [
+                    7.29
+                ],
+                "volume": [
+                    7.72
+                ],
+                "liquid_class_index": [
+                    24
+                ],
+                "tip_type": [
+                    "50ul"
+                ]
+            }
+        },
+        {
+            "DMF_50ul_10ul": {
+                "weight": [
+                    9.41
+                ],
+                "volume": [
+                    9.97
+                ],
+                "liquid_class_index": [
+                    24
+                ],
+                "tip_type": [
+                    "50ul"
+                ]
+            }
+        },
+        {
+            "DMF_50ul_12ul": {
+                "weight": [
+                    11.66
+                ],
+                "volume": [
+                    12.35
+                ],
+                "liquid_class_index": [
+                    24
+                ],
+                "tip_type": [
+                    "50ul"
+                ]
+            }
+        },
+        {
+            "DMF_50ul_15ul": {
+                "weight": [
+                    15.09
+                ],
+                "volume": [
+                    15.99
+                ],
+                "liquid_class_index": [
+                    24
+                ],
+                "tip_type": [
+                    "50ul"
+                ]
+            }
+        }
+    ]
+}
