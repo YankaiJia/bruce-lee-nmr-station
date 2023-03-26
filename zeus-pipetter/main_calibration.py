@@ -261,7 +261,7 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, calibration_event_list = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Validation_0325', usecols='D',
+                              sheet_name='Validation_0325', usecols='C:D',
                               is_pipeting_to_balance=True, is_for_bio=False)
 time.sleep(1)
 
@@ -280,11 +280,18 @@ with open(event_list_path, 'rb') as f:
 # specify tip and liquidClassIndex and other staff for calibration
 def specify_tip_and_liquidClassIndex_for_calibration():
     for event in calibration_event_list:
-        event.tip_type = '300ul'
-        event.asp_liquidClassTableIndex = 22
-        event.disp_liquidClassTableIndex = 22
-        event.disp_liquidSurface = 1600
-        event.disp_lldSearchPosition = 1600
+        if event.substance_name == 'DMF_300ul':
+            event.tip_type = '300ul'
+            event.asp_liquidClassTableIndex = 22
+            event.disp_liquidClassTableIndex = 22
+            event.disp_liquidSurface = 1600
+            event.disp_lldSearchPosition = 1600
+        elif event.substance_name == 'DMF_50ul':
+            event.tip_type = '30ul'
+            event.asp_liquidClassTableIndex = 24
+            event.disp_liquidClassTableIndex = 24
+            event.disp_liquidSurface = 1600
+            event.disp_lldSearchPosition = 1600
 
 specify_tip_and_liquidClassIndex_for_calibration()
 #########################################################################
@@ -301,14 +308,14 @@ with open(event_list_path, 'rb') as f:
 
 calibration_event_list_adjust = calibration_event_list[::-1] # reverse the list. pipetting from large volume
 
-
-
-# do_calibration
-weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-                                                calibration_event_list= calibration_event_list_adjust)
-
-
-
+#
+#
+# # do_calibration
+# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+#                                                 calibration_event_list= calibration_event_list_adjust)
+#
+#
+#
 
 
 
