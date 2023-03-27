@@ -305,23 +305,23 @@ y_length_vial_2ml = 65
 
 
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(-3.5, -232.5),
-                                                             topright=(-108, -232),
-                                                             bottomleft=(-3.0, -298.0),
-                                                             bottomright=(-107.5, -297))
+                                                             topleft=(-3, -232),
+                                                             topright=(-107, -231),
+                                                             bottomleft=(-3.0, -297.0),
+                                                             bottomright=(-107.5, -296))
 
 # xy_topleft_vial_2ml_plate1 = (-157 + 2, -256 + 22.5)
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(-154, -233),
-                                                             topright= (-258.5, -232),
-                                                             bottomleft=(-153.5, -298),
-                                                             bottomright=(-258.0, -297.5))
+                                                             topleft=(-153, -232),
+                                                             topright= (-257, -231),
+                                                             bottomleft=(-153.5, -296.5),
+                                                             bottomright=(-258.0, -297))
 # xy_topleft_vial_2ml_plate2 = (-303.5, -232)
 
 plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-303.5, -232),
                                                              topright=(-408.5, -232.0),
-                                                             bottomleft=(-303.5, -298),
+                                                             bottomleft=(-303.5, -296.5),
                                                              bottomright=(-408.5, -297.0))
 x_length_well_bio = 99
 y_length_well_bio = 63
@@ -510,27 +510,23 @@ def load_new_tip_rack(rack_reload):
                     },
            }
     if rack_reload == '50ul':
-        x_gap_50ul = 99
-        y_gap_50ul = 62.5
-        xy_topleft_50ul = (-30, -21)
+
         tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
                                        Nwells=(8, 12),
-                                       topleft=(xy_topleft_50ul[0], xy_topleft_50ul[1]),
-                                       topright=(xy_topleft_50ul[0]-x_gap_50ul, xy_topleft_50ul[1]),
-                                       bottomleft=(xy_topleft_50ul[0], xy_topleft_50ul[1] -  y_gap_50ul),
-                                       bottomright=(xy_topleft_50ul[0]-x_gap_50ul, xy_topleft_50ul[1]-  y_gap_50ul)
+                                       topleft=(-29, -21),
+                                       topright=(-128, -21),
+                                       bottomleft=(-29, -84),
+                                       bottomright=(-128.5, -83.5)
                                        )
 
     if rack_reload == '300ul':
-        x_gap_300ul = 99
-        y_gap_300ul = 62.5
-        xy_topleft_300ul = (-155, -22)
+
         tip_rack['300ul'] = create_deck(template_well=tip['300ul'],
                                         Nwells=(8, 12),
-                                        topleft=(xy_topleft_300ul[0], xy_topleft_300ul[1]),
-                                        topright=(xy_topleft_300ul[0]-x_gap_300ul, xy_topleft_300ul[1]),
-                                        bottomleft=(xy_topleft_300ul[0], xy_topleft_300ul[1] -  y_gap_300ul),
-                                        bottomright=(xy_topleft_300ul[0]-x_gap_300ul, xy_topleft_300ul[1]-  y_gap_300ul)
+                                        topleft=(-154.5, -21.5),
+                                        topright=(-253.5, -20.5),
+                                        bottomleft=(-154.5, -84.5),
+                                        bottomright=(-253.5, -83.5)
                                         )
     if rack_reload == '1000ul':
         x_gap_1000ul = 99.5
@@ -538,10 +534,11 @@ def load_new_tip_rack(rack_reload):
         xy_topleft_1000ul = (-293, -9)
         tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
                                          Nwells=(8, 12),
-                                         topleft=(xy_topleft_1000ul[0], xy_topleft_1000ul[1]),
-                                         topright=(xy_topleft_1000ul[0]-x_gap_1000ul, xy_topleft_1000ul[1]),
-                                         bottomleft=(xy_topleft_1000ul[0], xy_topleft_1000ul[1]-y_gap_1000ul),
-                                         bottomright=(xy_topleft_1000ul[0] - x_gap_1000ul, xy_topleft_1000ul[1] - y_gap_1000ul))
+                                         topleft=(-293.0, -9.0),
+                                         topright=(-392, -9.0),
+                                         bottomleft=(-292.5, -71.5),
+                                         bottomright=(-391.5, -71.5)
+                                         )
 
     with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
@@ -559,13 +556,13 @@ def main():
 
     print("This is main.")
 
-    # ##run this ONLY when changing new tip rack.
-    # load_new_tip_rack(rack_reload ='300ul')
-    # module_logger.info('New tip rack: 300ul is loaded.')
-    # load_new_tip_rack(rack_reload ='1000ul')
-    # module_logger.info('New tip rack: 1000ul is loaded.')
-    # load_new_tip_rack(rack_reload ='50ul')
-    # module_logger.info('New tip rack: 50ul is loaded.')
+    ##run this ONLY when changing new tip rack.
+    load_new_tip_rack(rack_reload ='300ul')
+    module_logger.info('New tip rack: 300ul is loaded.')
+    load_new_tip_rack(rack_reload ='1000ul')
+    module_logger.info('New tip rack: 1000ul is loaded.')
+    load_new_tip_rack(rack_reload ='50ul')
+    module_logger.info('New tip rack: 50ul is loaded.')
 
 
 

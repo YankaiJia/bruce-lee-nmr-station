@@ -287,7 +287,7 @@ def specify_tip_and_liquidClassIndex_for_calibration():
             event.disp_liquidSurface = 1600
             event.disp_lldSearchPosition = 1600
         elif event.substance_name == 'DMF_50ul':
-            event.tip_type = '30ul'
+            event.tip_type = '50ul'
             event.asp_liquidClassTableIndex = 24
             event.disp_liquidClassTableIndex = 24
             event.disp_liquidSurface = 1600
@@ -309,18 +309,23 @@ with open(event_list_path, 'rb') as f:
 calibration_event_list_adjust = calibration_event_list[::-1] # reverse the list. pipetting from large volume
 
 #
+
+# do_calibration
+weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+                                                calibration_event_list= calibration_event_list_adjust)
+
+
 #
-# # do_calibration
-# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-#                                                 calibration_event_list= calibration_event_list_adjust)
-#
-#
-#
+
+
+for i in [0, 11, -12, -1]:
+    gt.move_xy(brb.tip_rack_50ul['wells'][i]['xy'], ensure_traverse_height=False)
+    time.sleep(2)
 
 
 
-
-
-
-
-
+for i in range(10):
+    pt.pick_tip('300ul')
+    time.sleep(1)
+    pt.discard_tip()
+    time.sleep(1)

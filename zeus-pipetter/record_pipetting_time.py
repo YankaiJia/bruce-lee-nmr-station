@@ -57,6 +57,10 @@ def split_by_plate(transfer_list):
 
 event_list_in_each_plate = list(split_by_plate(transfer_list))
 
+len_of_event_list_in_each_plate = sum([len(event_list) for event_list in event_list_in_each_plate])
+print(f'len_of_event_list_in_each_plate: {len_of_event_list_in_each_plate}')
+event_list_in_each_plate = event_list_in_each_plate + [transfer_list[len_of_event_list_in_each_plate:]]
+
 # event_list_in_each_plate = [transfer_list]
 
 def save_cvs():
@@ -68,7 +72,7 @@ def save_cvs():
                 print(event.is_event_conducted)
                 print(event.event_start_time_datetime)
 
-    list_of_plate_barcode = ['3','6','9','10','11','16']
+    list_of_plate_barcode = ['6', '9', '10', '11', '16', '17', '18']
 
     fields=['plate_code',
             'experiment_name',
@@ -108,3 +112,16 @@ def save_cvs():
         print(f'file {path} saved')
 
 save_cvs()
+
+def convert_unix_time_to_datetime(unix_time):
+    import datetime
+    return datetime.datetime.fromtimestamp(unix_time).strftime('%Y-%m-%d %H:%M:%S')
+
+
+def convert_datetime_to_unix_time(datetime_string):
+    import datetime
+    return int(datetime.datetime.strptime(datetime_string, '%Y-%m-%d %H:%M:%S').timestamp())
+
+convert_unix_time_to_datetime(1679909368)
+
+convert_datetime_to_unix_time('2023-03-27 18:58:08,434')

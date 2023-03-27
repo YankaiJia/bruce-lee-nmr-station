@@ -1,7 +1,50 @@
 
 import logging
 
-module_logger = logging.getLogger('main.diluter')
+
+def setup_logger():
+    # better logging format in console
+    class CustomFormatter(logging.Formatter):
+        grey = "\x1b[38;20m"
+        yellow = "\x1b[33;20m"
+        red = "\x1b[31;20m"
+        bold_red = "\x1b[31;1m"
+        reset = "\x1b[0m"
+        format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
+        FORMATS = {
+            logging.DEBUG: grey + format + reset,
+            logging.INFO: yellow + format + reset,
+            logging.WARNING: yellow + format + reset,
+            logging.ERROR: red + format + reset,
+            logging.CRITICAL: bold_red + format + reset
+        }
+
+        def format(self, record):
+            log_fmt = self.FORMATS.get(record.levelno)
+            formatter = logging.Formatter(log_fmt)
+            return formatter.format(record)
+
+    # create logger with 'main'
+    logger = logging.getLogger('main')
+    logger.setLevel(logging.DEBUG)
+    # create file handler which logs even debug messages
+    fh = logging.FileHandler('logs\\main.log')
+    fh.setLevel(logging.INFO)
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(CustomFormatter())
+    # add the handlers to the logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+    return logger
+
+
+logger = setup_logger()
 
 
 import copy, time, pickle, re, importlib, json, os
@@ -30,21 +73,21 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
     # initiate zeus
     zm = zeus.ZeusModule(id=1)
     time.sleep(3)
-    module_logger.info("zeus is loaded as: zm")
+    logger.info("zeus is loaded as: zm")
 
     # initiate gantry
     gt = pipetter.Gantry(zeus=zm)
     time.sleep(3)
-    module_logger.info("gantry is loaded as: gt")
+    logger.info("gantry is loaded as: gt")
     # gt.configure_grbl() # This only need to be done once.
     gt.home_xy()
     if gt.xy_position == (0, 0):
-        module_logger.info("gantry is homed")
+        logger.info("gantry is homed")
 
     # initiate pipetter
     pt = pipetter.Pipetter(zeus=zm, gantry=gt)
     time.sleep(2)
-    module_logger.info("pipetter is loaded as: pt")
+    logger.info("pipetter is loaded as: pt")
 
     return zm, gt, pt
 
@@ -136,7 +179,7 @@ def dilute_old_vial(): # diluting volume 1400ul
     # time.sleep(2)
 
     ## run dilution events
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger,
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
                         event_list= event_list_dilute_old_vial, start_event_id=0)
 
 # dilute_old_vial()
@@ -159,7 +202,7 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
             event_list_dilution_old_to_new.append(event_temp)
 
     # time.sleep(1)
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger,
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
                         event_list=event_list_dilution_old_to_new, start_event_id=0,
                         change_tip_after_every_pipetting = True)
 
@@ -187,7 +230,7 @@ def dilute_new_vial(skip_vials=[]): # diluting volume 485ul
             event_list_dilute_new_vial.append(event_temp)
 
     # time.sleep(2)
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger,
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
                         event_list=event_list_dilute_new_vial, start_event_id=0)
 
 if __name__ == '__main__':
