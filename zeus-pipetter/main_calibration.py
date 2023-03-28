@@ -127,7 +127,7 @@ def load_stock_solutions_from_excel(path: str = path_for_reactions) -> list:
     wb_excel = load_workbook(path, data_only=True)
     ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
 
-    for row in tuple(ws.rows)[1:]:  # exclude the header
+    for row in tuple(ws.rows)[1:2]:  # exclude the header  ## only load the 1st row
         if row[0].value is not None:
             substance_name = row[0].value,
             index = row[1].value,
@@ -261,7 +261,7 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, calibration_event_list = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Validation_0325', usecols='C:D',
+                              sheet_name='Validation_0325', usecols='F',
                               is_pipeting_to_balance=True, is_for_bio=False)
 time.sleep(1)
 
@@ -278,8 +278,8 @@ with open(event_list_path, 'rb') as f:
 
 #########################################################################
 # specify tip and liquidClassIndex and other staff for calibration
-def specify_tip_and_liquidClassIndex_for_calibration():
-    for event in calibration_event_list:
+def specify_tip_and_liquidClassIndex_for_calibration(event_list: list = calibration_event_list):
+    for event in event_list:
         if event.substance_name == 'DMF_300ul':
             event.tip_type = '300ul'
             event.asp_liquidClassTableIndex = 22
@@ -292,40 +292,49 @@ def specify_tip_and_liquidClassIndex_for_calibration():
             event.disp_liquidClassTableIndex = 24
             event.disp_liquidSurface = 1600
             event.disp_lldSearchPosition = 1600
+        elif event.substance_name == 'DMF_1000ul':
+            event.tip_type = '1000ul'
+            event.asp_liquidClassTableIndex = 23
+            event.disp_liquidClassTableIndex = 23
+            event.disp_liquidSurface = 1600
+            event.disp_lldSearchPosition = 1600
 
-specify_tip_and_liquidClassIndex_for_calibration()
+    return event_list
+
+calibration_event_list_adjust = specify_tip_and_liquidClassIndex_for_calibration()
 #########################################################################
 
 # save the event list in pickle file and later load from this file
 with open('Calibration_for_pipetting'
           '\\event_list_calib_adjust_300ul.pickle', 'wb') as f:
-    pickle.dump(calibration_event_list, f)
+    pickle.dump(calibration_event_list_adjust, f)
 
 event_list_path = 'Calibration_for_pipetting\\event_list_calib_adjust_300ul.pickle'
 
 with open(event_list_path, 'rb') as f:
     calibration_event_list_adjust = pickle.load(f)
 
-calibration_event_list_adjust = calibration_event_list[::-1] # reverse the list. pipetting from large volume
+calibration_event_list_adjust = calibration_event_list_adjust[::-1] # reverse the list. pipetting from large volume
 
 #
 
 # do_calibration
 weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-                                                calibration_event_list= calibration_event_list_adjust)
+                                                calibration_event_list= calibration_event_list_adjust,
+                                               change_tip_after_every_pipetting= False)
 
 
 #
 
+#
+# for i in [0, 11, -12, -1]:
+#     gt.move_xy(brb.tip_rack_50ul['wells'][i]['xy'], ensure_traverse_height=False)
+#     time.sleep(2)
 
-for i in [0, 11, -12, -1]:
-    gt.move_xy(brb.tip_rack_50ul['wells'][i]['xy'], ensure_traverse_height=False)
-    time.sleep(2)
 
-
-
-for i in range(10):
-    pt.pick_tip('300ul')
-    time.sleep(1)
-    pt.discard_tip()
-    time.sleep(1)
+#
+# for i in range(10):
+#     pt.pick_tip('300ul')
+#     time.sleep(1)
+#     pt.discard_tip()
+#     time.sleep(1)

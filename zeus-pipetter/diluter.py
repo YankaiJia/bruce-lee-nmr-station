@@ -117,6 +117,8 @@ event_list_dilute_old_vial = []
 event_list_dilution_old_to_new = []
 event_list_dilute_new_vial = []
 
+event_list_transfer_to_54_vials = []
+
 def generate_dilution_event(source_container: object = None,
                             destination_container: object = None,
                             volume: float = 0,
@@ -161,7 +163,6 @@ def generate_dilution_event(source_container: object = None,
 
 
 # step1: dilution original reactions, adding volume: 1400ul
-
 def dilute_old_vial(): # diluting volume 1400ul
     global event_list_dilute_old_vial
 
@@ -182,11 +183,30 @@ def dilute_old_vial(): # diluting volume 1400ul
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
                         event_list= event_list_dilute_old_vial, start_event_id=0)
 
-# dilute_old_vial()
+
+## this is for transfering liquid from jar to 54 containers,
+# for testing spectrophotometer repeatability, 2021-03-22 14:23
+def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
+    global event_list_transfer_to_54_vials
+
+    # generate dilution events
+    for vial_index in range(54):
+            source_container = copy.deepcopy(brb.plate_list[6].containers[0])
+            destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
+            event_temp = generate_dilution_event(source_container=source_container,
+                                                destination_container=destination_container,
+                                                volume=volume_added_to_vial,
+                                                asp_liquid_surface = 1800,
+                                                disp_liquid_surface = 2100)
+            event_list_transfer_to_54_vials.append(event_temp)
+    # time.sleep(2)
+
+    ## run dilution events
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
+                        event_list= event_list_transfer_to_54_vials, start_event_id=0)
 
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
-
 def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
     global event_list_dilution_old_to_new
 
@@ -205,9 +225,6 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
                         event_list=event_list_dilution_old_to_new, start_event_id=0,
                         change_tip_after_every_pipetting = True)
-
-
-
 
 
 # step3: dilution new vial, adding volume: 485ul
@@ -234,7 +251,14 @@ def dilute_new_vial(skip_vials=[]): # diluting volume 485ul
                         event_list=event_list_dilute_new_vial, start_event_id=0)
 
 if __name__ == '__main__':
-    dilute_old_vial()
-    transfer_liquid_from_old_vial_to_new()
-    dilute_new_vial()
+    mins_to_wait = 0
+    print(f'Waiting for {mins_to_wait} minutes')
+    time.sleep(60*mins_to_wait)
 
+    print('Starting dilution')
+    # dilute_old_vial()
+    # transfer_liquid_from_old_vial_to_new()
+    # dilute_new_vial()
+
+# transfer one product to 54 vails
+    transfer_to_54_vials()
