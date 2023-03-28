@@ -36,7 +36,7 @@ def tail(f, lines):
     return b'\n'.join(all_read_text.splitlines()[-total_lines_wanted:])
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    with open('logs\\main.log', 'rb') as f:
+    with open('../logs/main.log', 'rb') as f:
         last_lines = tail(f, 10).decode()
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=last_lines)
