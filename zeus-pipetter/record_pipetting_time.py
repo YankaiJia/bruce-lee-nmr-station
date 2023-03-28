@@ -122,6 +122,18 @@ def convert_datetime_to_unix_time(datetime_string):
     import datetime
     return int(datetime.datetime.strptime(datetime_string, '%Y-%m-%d %H:%M:%S').timestamp())
 
-convert_unix_time_to_datetime(1679909368)
+# convert_unix_time_to_datetime(1679909368)
 
-convert_datetime_to_unix_time('2023-03-27 18:58:08,434')
+# convert_datetime_to_unix_time('2023-03-27 18:58:08,434')
+
+
+for num, event in enumerate(transfer_list):
+    # get numbers from string by regular expression
+    id = re.findall(r'\d+', event.destination_container.container_id)
+
+    print(num, event.event_label)
+    print(f'This pipetting is for reaction_id: {str(id[-1])}')
+
+    print('source container    :', event.source_container.container_id)
+    print('desination container:', event.destination_container.container_id)
+    print(' ')

@@ -355,7 +355,7 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,
 
 
 def do_calibration_on_events(zm: object, pt: object, logger: object,
-                             calibration_event_list: list[object]) -> list:
+                             calibration_event_list: list[object], change_tip_after_every_pipetting: bool) -> list:
     '''This function is used to calibrate the pipetting of substances.'''
     results_for_calibration = []
     if zm.tip_on_zeus:
@@ -370,7 +370,7 @@ def do_calibration_on_events(zm: object, pt: object, logger: object,
             time.sleep(0.5)
 
         result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index],
-                                                            n_times=50)
+                                                            n_times=30, change_tip_after_every_pipetting= change_tip_after_every_pipetting)
         results_for_calibration.append(result)
 
         time.sleep(1)
@@ -568,7 +568,7 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
 
         time.sleep(0.1)
 
-        with open(f'multicomponent_reaction\\event_list_chem_dilution_'
+        with open(f'multicomponent_reaction\\event_list_chem_dilution_\\pickle_output\\'
                   f'{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
             pickle.dump(event_list, f)
 

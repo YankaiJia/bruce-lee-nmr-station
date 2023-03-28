@@ -274,7 +274,7 @@ class Pipetter():
         self.zeus.tip_on_zeus = ''
         self.zeus.wait_until_zeus_responds_with_string('GUid')
 
-    def change_tip(self, tip_rack):
+    def change_tip(self, tip_rack: str):
         self.zeus.getTipPresenceStatus()
         time.sleep(0.5)
         if self.zeus.getTipPresenceStatus():
@@ -472,7 +472,7 @@ class Pipetter():
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.gantry.move_xy(xy)
 
-    def pipetting_to_balance_and_weight(self, transfer_event, timedelay=5):
+    def pipetting_to_balance_and_weight(self, transfer_event, timedelay= 5):
         global xy_position
         global weighted_values
         # print(f'xy_position: {xy_position}')
@@ -504,7 +504,8 @@ class Pipetter():
         self.logger.info(f'Volume of aliquot: {pipetting_volume} ul')
         return pipetting_weight, pipetting_volume
 
-    def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times=3):
+    def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times=3,
+                                                change_tip_after_every_pipetting:bool = False):
         print(f'this is transfer_event: {transfer_event}')
         dict_for_one_event = {}
         dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul'] = \
@@ -514,6 +515,10 @@ class Pipetter():
             print(f'this is n_times: {i}')
             print(transfer_event.event_label)
             weight, volume = self.pipetting_to_balance_and_weight(transfer_event=transfer_event)
+            if change_tip_after_every_pipetting:
+                self.change_tip(transfer_event.tip_type)
+                time.sleep(0.5)
+                print(f'Changed tip to {transfer_event.tip_type} after {i}th pipetting.')
             temp_dict['weight'].append(weight)
             temp_dict['volume'].append(volume)
             temp_dict['liquid_class_index'].append(transfer_event.asp_liquidClassTableIndex)
