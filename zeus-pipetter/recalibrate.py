@@ -8,11 +8,13 @@ import numpy as np
 import pandas as pd
 from scipy import interpolate
 import matplotlib.pyplot as plt
+import importlib
+calibration_data = importlib.import_module("calibration_data")
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 def recalibrate_from_old_string_and_new_measurements(current_calibration_curve_command_string,
-                                                     processed_measurement_files_list, do_plot=False):
+                                                     processed_measurement_files_list, tip_type, do_plot=False):
     """
     Recalibrate the pipette based on the current calibration curve command and new measurements.
 
@@ -25,6 +27,9 @@ def recalibrate_from_old_string_and_new_measurements(current_calibration_curve_c
         One or more paths to the processed measurement files (CSV, output of uncertainty_estimation.py method
         zeus_uncertainty_from_file)
 
+    tip_type: int or str
+        Examples are 50, 300, '50uL', '300uL'
+
     do_plot: bool
         Whether to plot the measurements and the resampled values
 
@@ -33,6 +38,10 @@ def recalibrate_from_old_string_and_new_measurements(current_calibration_curve_c
     new_command: str
         The new calibration curve command to be loaded in Zeus
     """
+    if type(tip_type) == str:
+        assert tip_type[-2:] == 'ul' or tip_type[-2:] == 'uL'
+        tip_type = int(tip_type[:-2])
+
     index_where_data_starts = current_calibration_curve_command_string.index('ck') + 2
     command_prefix = current_calibration_curve_command_string[:index_where_data_starts]
     curve_datapoints = current_calibration_curve_command_string[index_where_data_starts:].split(' ')[:16]
@@ -42,7 +51,15 @@ def recalibrate_from_old_string_and_new_measurements(current_calibration_curve_c
     # Load measurement data and resample it at points used as input to current calibration curve
     resampled_point_lists_from_all_files = []
     for filename in processed_measurement_files_list:
-        measurement_data = pd.read_csv(filename)
+        if filename.endswith('.json'):
+            # process this file into three-column csv first
+            _, __, ___ = \
+                calibration_data.zeus_uncertainty_from_file(filename, only_tip_type=tip_type, do_plot=False)
+            # this method will save it to the same folder with a different name, with suffix having tip type.
+            # So now we load from it into pandas dataframe:
+            measurement_data = pd.read_csv(filename.replace('.json', f'_processed_for_{tip_type}ul_tiptype.csv'))
+        elif filename.endswith('.csv'):
+            measurement_data = pd.read_csv(filename)
         # resample measurement means at curve input volumes
         measured_volumes_at_curve_input_volumes = interpolate.interp1d(measurement_data['target_volume'].values,
                                                                        measurement_data['measured_mean'].values,
@@ -65,13 +82,24 @@ def recalibrate_from_old_string_and_new_measurements(current_calibration_curve_c
 
 
 if __name__ == '__main__':
+    # print(recalibrate_from_old_string_and_new_measurements(
+    #     current_calibration_curve_command_string='GEid0001gg22ck00090 00100 00185 00200 00290 00300 00470 00500 00715 00750 00960 01000 01955 02000 03000 03050 00 ',
+    #     processed_measurement_files_list=[data_folder + \
+    #                                       'multicomp-reactions/2023-03-20-run01/pipetter_io/measured_volumes/' \
+    #                                       'calibration_results_2023_03_27_02_49_50ul_and_300ul_processed_for_300ul_tiptype.csv',
+    #                                       data_folder + \
+    #                                       'multicomp-reactions/2023-03-20-run01/pipetter_io/measured_volumes/' \
+    #                                       'calibration_results_2023_03_26_15_18_300ul_processed_for_300ul_tiptype.csv'
+    #                                       ],
+    #     tip_type=300))
+
     print(recalibrate_from_old_string_and_new_measurements(
         current_calibration_curve_command_string='GEid0001gg22ck00090 00100 00185 00200 00290 00300 00470 00500 00715 00750 00960 01000 01955 02000 03000 03050 00 ',
         processed_measurement_files_list=[data_folder + \
                                           'multicomp-reactions/2023-03-20-run01/pipetter_io/measured_volumes/' \
-                                          'calibration_results_2023_03_27_02_49_50ul_and_300ul_processed_for_300ul_tiptype.csv',
+                                          'calibration_results_2023_03_27_02_49_50ul_and_300ul.json',
                                           data_folder + \
                                           'multicomp-reactions/2023-03-20-run01/pipetter_io/measured_volumes/' \
-                                          'calibration_results_2023_03_26_15_18_300ul_processed_for_300ul_tiptype.csv'
-                                          ]
-    ))
+                                          'calibration_results_2023_03_26_15_18_300ul.json'
+                                          ],
+        tip_type=300))
