@@ -260,13 +260,13 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, event_list_chem = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0320', usecols='C:I',
+                              sheet_name='Reactions_0320', usecols='C:G',
                               is_pipeting_to_balance=False, is_for_bio=False)
 time.sleep(1)
 
 
 # save the event list in pickle file and later load from this file
-with open('multicomponent_reaction\\0324\\event_list_chem.pickle', 'wb') as f:
+with open('multicomponent_reaction\\0324\\event_list_chem_0327_27same.pickle', 'wb') as f:
     pickle.dump(event_list_chem, f)
 
 # update planner.py when necessary
@@ -274,7 +274,7 @@ with open('multicomponent_reaction\\0324\\event_list_chem.pickle', 'wb') as f:
 
 ## do multicomponent reactions
 pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    event_list_path='multicomponent_reaction\\0324\\event_list_chem.pickle',
+                    event_list_path='multicomponent_reaction\\0324\\event_list_chem_0327_27same.pickle',
                     # event_list= event_list,
                     start_event_id= 0 )
 

@@ -507,7 +507,7 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
 
         time.sleep(0.5)
 
-        with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
+        with open(f'multicomponent_reaction\\event_list_chem_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
             pickle.dump(event_list, f)
 
         if change_tip_after_every_pipetting:
@@ -555,10 +555,11 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
             raise e # raise the error to stop the program
 
         time.sleep(0.05)
-        logger.info(f"Performed one event: event_number {event_index}, "
+
+        logger.info(f"Performed one event for dilution: event_number {event_index}, "
                     f"{event_list[event_index].event_label}")
-        print(f"Performed one event: event_number {event_index}, "
-              f"{event_list[event_index].event_label}")
+        # print(f"Performed one event for dilution: event_number {event_index}, "
+        #       f"{event_list[event_index].event_label}")
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
@@ -567,7 +568,8 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
 
         time.sleep(0.1)
 
-        with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
+        with open(f'multicomponent_reaction\\event_list_chem_dilution_'
+                  f'{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
             pickle.dump(event_list, f)
 
         if change_tip_after_every_pipetting:
