@@ -163,12 +163,15 @@ def generate_dilution_event(source_container: object = None,
 
 
 # step1: dilution original reactions, adding volume: 1400ul
-def dilute_old_vial(): # diluting volume 1400ul
+def dilute_old_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volume 1400ul
     global event_list_dilute_old_vial
 
     # generate dilution events
-    for i in [0, 18, 36]:
+    for i in rows_to_dilute:
         for vial_index in range(i, i+9):
+            if vial_index in skip_vials:
+                print(f'skipping vial with index {vial_index}')
+                continue
             source_container = copy.deepcopy(brb.plate_list[6].containers[0])
             destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
             event_temp = generate_dilution_event(source_container=source_container,
@@ -207,10 +210,10 @@ def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
 
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
-def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
+def transfer_liquid_from_old_vial_to_new(rows_to_dilute=(0, 18, 36)): # transfer volume 20ul
     global event_list_dilution_old_to_new
 
-    for i in [0, 18, 36]:
+    for i in rows_to_dilute:
         for vial_index in range(i, i + 9):
             source_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
             destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index+9])
@@ -229,10 +232,10 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
 
 # step3: dilution new vial, adding volume: 485ul
 
-def dilute_new_vial(skip_vials=[]): # diluting volume 485ul
+def dilute_new_vial(skip_vials=(), rows_to_dilute=(9, 27, 45)): # diluting volume 485ul
     global event_list_dilute_new_vial
 
-    for i in [9, 27, 45]:
+    for i in [x + 9 for x in rows_to_dilute]:
         for vial_index in range(i, i + 9):
             if vial_index in skip_vials:
                 print(f'skipping vial with index {vial_index}')
@@ -256,9 +259,10 @@ if __name__ == '__main__':
     time.sleep(60*mins_to_wait)
 
     print('Starting dilution')
-    # dilute_old_vial()
-    # transfer_liquid_from_old_vial_to_new()
-    # dilute_new_vial()
+    rows_to_dilute = tuple([0])
+    dilute_old_vial(rows_to_dilute=rows_to_dilute, skip_vials=[0])
+    transfer_liquid_from_old_vial_to_new(rows_to_dilute=rows_to_dilute)
+    dilute_new_vial(rows_to_dilute=rows_to_dilute)
 
 # transfer one product to 54 vails
-    transfer_to_54_vials()
+#     transfer_to_54_vials()

@@ -355,7 +355,9 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,
 
 
 def do_calibration_on_events(zm: object, pt: object, logger: object,
-                             calibration_event_list: list[object], change_tip_after_every_pipetting: bool) -> list:
+                             calibration_event_list: list[object],
+                             change_tip_after_every_pipetting: bool,
+                             repeat_n_times: int) -> list:
     '''This function is used to calibrate the pipetting of substances.'''
     results_for_calibration = []
     if zm.tip_on_zeus:
@@ -370,7 +372,7 @@ def do_calibration_on_events(zm: object, pt: object, logger: object,
             time.sleep(0.5)
 
         result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index],
-                                                            n_times=30, change_tip_after_every_pipetting= change_tip_after_every_pipetting)
+                                                            n_times=repeat_n_times, change_tip_after_every_pipetting= change_tip_after_every_pipetting)
         results_for_calibration.append(result)
 
         time.sleep(1)
@@ -387,7 +389,7 @@ def do_calibration_on_events(zm: object, pt: object, logger: object,
 
         # save result_dict to jason file
         with open(f'calibration_for_pipetting\\calibration_results\\'
-                  f'calibration_results_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json', 'w') as f:
+                  f'calibration_results_{datetime.now().strftime("%m_%d_%H_%M")}_1000ul_tips.json', 'w') as f:
             json.dump(result_dict, f, indent=4)
 
     pt.discard_tip()
@@ -440,16 +442,16 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
         with open(event_list_path, 'rb') as f:
             event_list = pickle.load(f)
 
-    ## adjust lc index ## this is for 0320_run
-    for event in event_list:
-        if event.aspirationVolume <= 50:
-            event.asp_liquidClassTableIndex = 24
-            event.disp_liquidClassTableIndex = 24
-            event.tip_type = '50ul'
-        else:
-            event.asp_liquidClassTableIndex = 22
-            event.disp_liquidClassTableIndex = 22
-            event.tip_type = '300ul'
+    # ## adjust lc index ## this is for 0320_run
+    # for event in event_list:
+    #     if event.aspirationVolume <= 50:
+    #         event.asp_liquidClassTableIndex = 24
+    #         event.disp_liquidClassTableIndex = 24
+    #         event.tip_type = '50ul'
+    #     else:
+    #         event.asp_liquidClassTableIndex = 22
+    #         event.disp_liquidClassTableIndex = 22
+    #         event.tip_type = '300ul'
 
     liquid_surface_height_from_zeus = {}
 

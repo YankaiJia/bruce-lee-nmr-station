@@ -178,7 +178,8 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
         event_temp.asp_liquidSurface = 1600
         event_temp.asp_lldSearchPosition = 1600
         event_temp.disp_liquidSurface = 1600
-        event_temp.aspirationVolume = 100
+        event_temp.aspirationVolume = 200
+        event_temp.dispensingVolume = 200
         event_list_surface_detection.append(event_temp)
 
     return event_list_surface_detection
@@ -321,20 +322,14 @@ calibration_event_list_adjust = calibration_event_list_adjust[::-1] # reverse th
 # do_calibration
 weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
                                                 calibration_event_list= calibration_event_list_adjust,
-                                               change_tip_after_every_pipetting= False)
-
-
-#
-
-#
-# for i in [0, 11, -12, -1]:
-#     gt.move_xy(brb.tip_rack_50ul['wells'][i]['xy'], ensure_traverse_height=False)
-#     time.sleep(2)
-
+                                               change_tip_after_every_pipetting= False,
+                                               repeat_n_times= 30)
+# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+#                                                 calibration_event_list= calibration_event_list_adjust,
+#                                                change_tip_after_every_pipetting= False)
+# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+#                                                 calibration_event_list= calibration_event_list_adjust,
+#                                                change_tip_after_every_pipetting= False)
 
 #
-# for i in range(10):
-#     pt.pick_tip('300ul')
-#     time.sleep(1)
-#     pt.discard_tip()
-#     time.sleep(1)
+
