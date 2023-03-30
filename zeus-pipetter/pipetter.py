@@ -300,6 +300,7 @@ class Pipetter():
                                      mixVolume=transfer_event.asp_mixVolume,
                                      mixFlowRate=transfer_event.asp_mixFlowRate,
                                      mixCycles=transfer_event.asp_mixCycles)
+                # TODO: Replace this sleep with a proper check. Why do you even need a sleep if next function is zeus.wait_until...???
                 time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True

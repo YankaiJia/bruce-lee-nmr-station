@@ -130,3 +130,13 @@ plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_u
 plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
 6, multicomponent_0320, 1679917462, 2023-03-27 20:44:22, 1679918973, 2023-03-27 21:09:33, '0-134', 
 plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
+plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
+6, multicomponent_0320, 1680096716, 2023-03-29 22:31:56, 1680098246, 2023-03-29 22:57:26, '0-134', 
+9, multicomponent_0320, 1680098267, 2023-03-29 22:57:47, 1680099766, 2023-03-29 23:22:46, '135-269', 
+10, multicomponent_0320, 1680099787, 2023-03-29 23:23:07, 1680101342, 2023-03-29 23:49:02, '270-404', 
+plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
+6, multicomponent_0320, 1680077022, 2023-03-29 17:03:42, 1680078612, 2023-03-29 17:30:12, '0-134', 
+plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
+6, multicomponent_0320, 1680079281, 2023-03-29 17:41:21, 1680080827, 2023-03-29 18:07:07, '0-134', 
+plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
+6, multicomponent_0320, 1680102216, 2023-03-30 00:03:36, 1680103788, 2023-03-30 00:29:48, '0-134', 

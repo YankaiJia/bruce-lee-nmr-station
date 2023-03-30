@@ -432,26 +432,42 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
 
     return liquid_surface_height_from_zeus
 
+def prewet_new_tip( zm: object, pt: object, logger: object, pipetting_event: object ):
+
+    event_adjusted = copy.deepcopy(pipetting_event)
+
+    max_volume = int(re.findall(r'\d+', zm.tip_on_zeus)[0])
+    event_adjusted.aspirationVolume = max_volume
+    event_adjusted.destination_container = event_adjusted.source_container
+    event_adjusted.disp_liquidSurface = 1650
+
+    logger.info(f'Prewetting tip with {max_volume}ul of {event_adjusted.substance_name}')
+    pt.transfer_liquid(event_adjusted)
+    logger.info('Prewet done! Continue with pipetting...')
+
+
+
 
 def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
                     event_list_path=None, event_list=None,
-                    change_tip_after_every_pipetting: bool = False) -> dict[Any, Any]:
+                    change_tip_after_every_pipetting: bool = False,
+                    prewet_tip: bool = True) -> dict[Any, Any]:
 
     # for event list either specify a path or a list. Only speficify one of them.
     if event_list_path is not None:
         with open(event_list_path, 'rb') as f:
             event_list = pickle.load(f)
 
-    # ## adjust lc index ## this is for 0320_run
-    # for event in event_list:
-    #     if event.aspirationVolume <= 50:
-    #         event.asp_liquidClassTableIndex = 24
-    #         event.disp_liquidClassTableIndex = 24
-    #         event.tip_type = '50ul'
-    #     else:
-    #         event.asp_liquidClassTableIndex = 22
-    #         event.disp_liquidClassTableIndex = 22
-    #         event.tip_type = '300ul'
+    ## adjust lc index ## this is for 0320_run
+    for event in event_list:
+        if event.aspirationVolume <= 50:
+            event.asp_liquidClassTableIndex = 24
+            event.disp_liquidClassTableIndex = 24
+            event.tip_type = '50ul'
+        else:
+            event.asp_liquidClassTableIndex = 22
+            event.disp_liquidClassTableIndex = 22
+            event.tip_type = '300ul'
 
     liquid_surface_height_from_zeus = {}
 
@@ -463,6 +479,11 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
+            # do prewet every time a new tip is taken
+            time.sleep(0.5)
+            if prewet_tip:
+                prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=event_list[event_index])
+
         # record start time
         event_start_time = int(time.time())  # unix time
         event_start_time_datetime = datetime.fromtimestamp(event_start_time)
@@ -505,7 +526,8 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
             if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
-                pt.change_tip(event_list[event_index + 1].tip_type)
+                # pt.change_tip(event_list[event_index + 1].tip_type)
+                pt.discard_tip()
 
         time.sleep(0.5)
 

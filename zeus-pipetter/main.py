@@ -67,6 +67,7 @@ import planner as pln
 import breadboard as brb
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+# data_folder  = 'C:/Users/Chemiluminescence/Dropbox/robochem/data/'
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
@@ -193,7 +194,8 @@ time.sleep(1)
 # {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
 liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                            start_event_id=0,
-                                           event_list=event_list_surface_detection)
+                                           event_list=event_list_surface_detection,
+                                           prewet_tip=False)
 
 logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
 
@@ -260,13 +262,15 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, event_list_chem = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0320', usecols='C:G',
+                              sheet_name='Reactions_0329', usecols='C:G',
                               is_pipeting_to_balance=False, is_for_bio=False)
 time.sleep(1)
 
 
 # save the event list in pickle file and later load from this file
-with open('multicomponent_reaction\\0324\\event_list_chem_0327_27same.pickle', 'wb') as f:
+pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
+pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
+with open(pickle_file, 'wb') as f:
     pickle.dump(event_list_chem, f)
 
 # update planner.py when necessary
@@ -274,9 +278,10 @@ with open('multicomponent_reaction\\0324\\event_list_chem_0327_27same.pickle', '
 
 ## do multicomponent reactions
 pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    event_list_path='multicomponent_reaction\\0324\\event_list_chem_0327_27same.pickle',
+                    event_list_path=pickle_file,
                     # event_list= event_list,
-                    start_event_id= 0 )
+                    start_event_id= 0,
+                    prewet_tip = True)
 
 
 
