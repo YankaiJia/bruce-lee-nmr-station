@@ -232,9 +232,9 @@ def transfer_liquid_from_old_vial_to_new(rows_to_dilute=(0, 18, 36)): # transfer
 
 # step3: dilution new vial, adding volume: 485ul
 
-def dilute_new_vial(skip_vials=(), rows_to_dilute=(9, 27, 45)): # diluting volume 485ul
+def dilute_new_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volume 485ul
     global event_list_dilute_new_vial
-
+    # TODO: These two added nines in two difference places of these loops are confusing. Logic here should be more transparent.
     for i in [x + 9 for x in rows_to_dilute]:
         for vial_index in range(i, i + 9):
             if vial_index in skip_vials:
@@ -259,10 +259,9 @@ if __name__ == '__main__':
     time.sleep(60*mins_to_wait)
 
     print('Starting dilution')
-    rows_to_dilute = tuple([0])
-    dilute_old_vial(rows_to_dilute=rows_to_dilute, skip_vials=[0])
-    transfer_liquid_from_old_vial_to_new(rows_to_dilute=rows_to_dilute)
-    dilute_new_vial(rows_to_dilute=rows_to_dilute)
+    # dilute_old_vial()
+    # transfer_liquid_from_old_vial_to_new()
+    dilute_new_vial()
 
 # transfer one product to 54 vails
 #     transfer_to_54_vials()
