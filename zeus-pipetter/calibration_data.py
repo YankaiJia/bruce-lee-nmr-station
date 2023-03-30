@@ -45,8 +45,9 @@ def zeus_uncertainty_from_file(tfile, only_tip_type, do_plot=True):
         if tip_type != only_tip_type:
             continue
         measured_volumes = entry[the_only_key]['volume']
-        # Yankai implored to remove the first point because if the weighting problem/artifact
-        measured_volumes = measured_volumes[:-1]
+        # Yankai implored to remove the first point because if the wetting problem/artifact
+        # measured_volumes = measured_volumes[:-1]
+        measured_volumes = measured_volumes[1:]
         statistical_data.append([target_volume, np.mean(measured_volumes), np.std(measured_volumes)])
         diffs.extend([[target_volume, x - target_volume] for x in measured_volumes])
     statistical_data = np.array(statistical_data)
@@ -90,6 +91,9 @@ def cal_avg_and_std_of_volume(dicts):
             std_here.append(round(std,2))
     print(f'avg: {avg_here}, std: {std_here}')
     return avg_here, std_here
+
+
+
 
 LiquidClassIndex_precalib_22 = """
 liquid parameters: GMid0001lq22uu0 0 05000 0050 00050 00250 0200 010 0 3 3 0 0 05000 00000 000 00050 040 0200 010 0032567 00
@@ -315,20 +319,4 @@ dmf_1000ul_std = [0.17, 0.35, 0.35, 1.02, 1.58, 0.6, 0.79, 1.62]
 
 
 print(1)
-
-
-# # round the volume to 2 decimal places
-# def round_volume_to_2_decimals(dicts):
-#     for dict in dicts:
-#         for key, value in dict.items():
-#
-#             value['volume'] = [round(x, 2) for x in value['volume']]
-#
-#     return dicts
-#
-# d = round_volume_to_2_decimals(dicts)
-#
-# # save d to a json file
-# with open('data.json', 'w') as f:
-#     json.dump(d, f)
 
