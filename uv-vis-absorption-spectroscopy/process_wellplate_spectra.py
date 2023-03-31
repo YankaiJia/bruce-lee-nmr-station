@@ -9,6 +9,8 @@ from scipy.optimize import curve_fit
 
 plt.ioff()
 
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
 
 def create_folder_unless_it_exists(path):
     if not os.path.exists(path):
@@ -484,7 +486,7 @@ class SpectraProcessor:
 
 
 if __name__ == '__main__':
-    data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
     experiment_name = 'multicomp-reactions/2023-01-18-run01/'
