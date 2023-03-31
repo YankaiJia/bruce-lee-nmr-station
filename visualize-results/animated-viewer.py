@@ -1,5 +1,3 @@
-from numpy import arange, pi, cos, sin
-
 from traits.api import HasTraits, Range, Instance, \
         on_trait_change
 from traitsui.api import View, Item, Group
@@ -7,10 +5,7 @@ from mayavi.core.api import PipelineBase
 from mayavi.core.ui.api import MayaviScene, SceneEditor, \
                 MlabSceneModel
 from tvtk.tools import visual
-import pandas as pd
 from scipy.interpolate import Rbf
-import numpy as np
-import os
 from visualize_results import *
 
 def Arrow_From_A_to_B(x1, y1, z1, x2, y2, z2):
