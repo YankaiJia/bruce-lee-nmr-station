@@ -1,14 +1,14 @@
-import pandas as pd
+# The goal of this script is to construct a linear model of the background spectrum of the CRAIC microspectrometer
+# when it is measuring the solutes in 500 uL of DMF in the 2mL glass vials. To this end, we will use the
+# 2023-03-25_14-33-50__plate0000003__- folder, which contains 27 spectra of 500 uL of DMF in the 2mL glass vials.
+# Then, we will perform principal component analysis on the background spectra, and save the two first principal
+# components for later use in a linear model of the background spectra.
+
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from scipy.signal import savgol_filter
 from sklearn.decomposition import PCA as pca
-from sklearn.preprocessing import StandardScaler
-from sklearn import svm
-from sklearn.cluster import KMeans
 import os
-import importlib
 from process_wellplate_spectra import SpectraProcessor
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
@@ -31,11 +31,11 @@ for calibrant_shortname in calibrant_shortnames:
     calibrants.append(dict_here.copy())
 bkg_spectrum = calibrants[0]['bkg_spectrum']
 
-# load all background spectra
+# Load all background spectra
 spectra = sp.load_all_spectra(craic_folder + '2023-03-27_20-06-51__plate0000003__pure-dmf-bkg-check/')
 cut_from = 110
 
-# Principal component analysis
+# Principal component analysis of the background spectra
 nc = 2
 pca1 = pca(n_components=nc)
 nfeat1 = [spectrum[cut_from:, 1] - bkg_spectrum[cut_from:, 1] for spectrum in spectra]
@@ -49,15 +49,17 @@ colors = ['C0', 'C1', 'C2']
 for i in range(nc):
     plt.plot(spectra[0][cut_from:, 0], sv[:, i], label=f'PC {i+1}', color=colors[i], alpha=0.3)
 
-# Smooth the components, plot and save
+# Smooth the components and plot them
 for i in range(nc):
     smoothed_component = savgol_filter(sv[:, i], polyorder=1, window_length=71)
     plt.plot(spectra[0][cut_from:, 0], smoothed_component, linestyle='--', label=f'smoothed PC {i+1}', color=colors[i])
     for_saving = np.zeros_like(bkg_spectrum[:, 1])
     for_saving[cut_from:] = smoothed_component
-    # np.save(data_folder + f'multicomp-reactions/2023-03-20-run01/microspectrometer_data/background_model/component_{i}.npy',
-    #         for_saving)
 plt.title('PCA of background spectra')
 plt.xlabel('Wavelength, nm')
 plt.ylabel('Absorbance units,\nspectra are shifted to be around zero')
 plt.show()
+
+# Save the components
+np.save(data_folder + f'multicomp-reactions/2023-03-20-run01/microspectrometer_data/background_model/component_{i}.npy',
+        for_saving)
