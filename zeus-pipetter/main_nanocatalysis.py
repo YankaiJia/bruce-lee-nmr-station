@@ -68,6 +68,8 @@ import breadboard as brb
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
+# TODO: need to make bottom search work.
+
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
     zm = zeus.ZeusModule(id=1)
