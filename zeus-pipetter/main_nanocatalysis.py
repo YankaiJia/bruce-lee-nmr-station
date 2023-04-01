@@ -36,7 +36,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('logs\\main.log')
+    fh = logging.FileHandler('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\main.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
