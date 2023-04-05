@@ -55,7 +55,7 @@ def split_by_plate(transfer_list):
             index_start = index_finish + 1
         index += 1
 
-event_list_in_each_plate = list(split_by_plate(transfer_list))
+event_list_in_each_plate = list(split_by_plate(transfer_list[270:]))
 
 len_of_event_list_in_each_plate = sum([len(event_list) for event_list in event_list_in_each_plate])
 print(f'len_of_event_list_in_each_plate: {len_of_event_list_in_each_plate}')
@@ -72,7 +72,7 @@ def save_cvs():
                 print(event.is_event_conducted)
                 print(event.event_start_time_datetime)
 
-    list_of_plate_barcode = ['6', '9', '10', '11', '16', '17', '18']
+    list_of_plate_barcode = ['21', '22']
 
     fields=['plate_code',
             'experiment_name',
@@ -81,12 +81,19 @@ def save_cvs():
             'finish_time_unix',
             'finish_time_datetime',
             'pipetting_event_id',
+            'reaction_id',
+            'excel_path',
             'note']
-    path = 'C:\\Users\\Chemiluminescence\\OneDrive' \
-           '\\roborea\\zeus-pipetter\\multicomponent_reaction\\0323\\0323_record.csv'
+    # path = 'C:\\Users\\Chemiluminescence\\OneDrive' \
+    #        '\\roborea\\zeus-pipetter\\multicomponent_reaction\\0323\\0323_record.csv'
+
+    path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\' \
+            'zeus-pipetter\\multicomponent_reaction\\csvs\\event_status_record.csv'
 
     with open(path, 'a', newline='') as f:
             f.write(', '.join(fields) + '\n')
+
+    print(path)
 
     for count, list_of_one_plate in enumerate(event_list_in_each_plate):
 
@@ -124,16 +131,17 @@ def convert_datetime_to_unix_time(datetime_string):
 
 # convert_unix_time_to_datetime(1679909368)
 
-# convert_datetime_to_unix_time('2023-03-27 18:58:08,434')
+convert_datetime_to_unix_time('2023-04-03 23:42:49')
+# 2023-04-03 23:42:49
 
+def print_info():
+    for num, event in enumerate(transfer_list):
+        # get numbers from string by regular expression
+        id = re.findall(r'\d+', event.destination_container.container_id)
 
-for num, event in enumerate(transfer_list):
-    # get numbers from string by regular expression
-    id = re.findall(r'\d+', event.destination_container.container_id)
+        print(num, event.event_label)
+        print(f'This pipetting is for reaction_id: {str(id[-1])}')
 
-    print(num, event.event_label)
-    print(f'This pipetting is for reaction_id: {str(id[-1])}')
-
-    print('source container    :', event.source_container.container_id)
-    print('desination container:', event.destination_container.container_id)
-    print(' ')
+        print('source container    :', event.source_container.container_id)
+        print('desination container:', event.destination_container.container_id)
+        print(' ')

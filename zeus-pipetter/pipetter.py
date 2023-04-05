@@ -213,7 +213,6 @@ class Pipetter():
     def __init__(self,
                  zeus: object,
                  gantry: object,
-
                  ):
         self.zeus = zeus
         self.gantry = gantry
@@ -275,9 +274,7 @@ class Pipetter():
         self.zeus.wait_until_zeus_responds_with_string('GUid')
 
     def change_tip(self, tip_rack: str):
-        self.zeus.getTipPresenceStatus()
-        time.sleep(0.5)
-        if self.zeus.getTipPresenceStatus():
+        if self.zeus.tip_on_zeus != '':
             self.discard_tip()
         self.pick_tip(tip_rack)
 
@@ -528,6 +525,10 @@ class Pipetter():
         print(dict_for_one_event)
         return dict_for_one_event
 
+    def close_ports_and_zeus(self):
+        self.balance.close()
+        self.gantry.serial.close()
+        self.zeus.switchOff()
 
 class ZeusError(Exception):
     pass

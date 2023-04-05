@@ -140,3 +140,5 @@ plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_u
 6, multicomponent_0320, 1680079281, 2023-03-29 17:41:21, 1680080827, 2023-03-29 18:07:07, '0-134', 
 plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, note
 6, multicomponent_0320, 1680102216, 2023-03-30 00:03:36, 1680103788, 2023-03-30 00:29:48, '0-134', 
+plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, reaction_id, excel_path, note
+6, multicomponent_0320, 1680514051, 2023-04-03 18:27:31, 1680515591, 2023-04-03 18:53:11, '0-134', 

@@ -177,9 +177,10 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
         event_temp.asp_liquidClassTableIndex = 13  # use pLLD for surface detection
         event_temp.disp_liquidClassTableIndex = 13
         event_temp.asp_liquidSurface = 1600
-        event_temp.asp_lldSearchPosition = 1600
-        event_temp.disp_liquidSurface = 1600
-        event_temp.aspirationVolume = 100
+        event_temp.asp_lldSearchPosition = 1700
+        event_temp.disp_liquidSurface = 1800
+        event_temp.aspirationVolume = 50
+        event_temp.tip_type = '50ul'
         event_list_surface_detection.append(event_temp)
 
     return event_list_surface_detection
@@ -275,13 +276,13 @@ with open(pickle_file, 'wb') as f:
 
 # update planner.py when necessary
 # importlib.reload(pln)
-
-## do multicomponent reactions
-pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    event_list_path=pickle_file,
-                    # event_list= event_list,
-                    start_event_id= 0,
-                    prewet_tip = True)
+#
+# ## do multicomponent reactions
+# pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+#                     event_list_path=pickle_file,
+#                     # event_list= event_list,
+#                     start_event_id= 0,
+#                     prewet_tip = False)
 
 
 

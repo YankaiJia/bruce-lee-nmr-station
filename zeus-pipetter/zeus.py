@@ -15,8 +15,8 @@ import matplotlib.colors as mcolors
 import sys
 import pprint
 
-DEBUG = 0
-INFO = 0
+DEBUG = 1
+INFO = 1
 WARNING = 1
 ERROR = 1
 # KICK_MASK = 0x0400
@@ -433,7 +433,10 @@ class remoteFrameListener(can.Listener):
     def on_message_received(self, msg):
         printMSG(
             "debug", f'Received message: arbitration id = {msg.arbitration_id:X}')
-
+        printMSG(
+            "debug", f'Received message = {msg}')
+        printMSG(
+            "debug", f'Received message data = {msg.data}')
         # REMOTE FRAME ACTION
         if (msg.is_remote_frame == True):
             #  if((msg.arbitration_id == 0x0000) or (msg.arbitration_id == 0x0020)):
@@ -666,6 +669,7 @@ class ZeusModule:
         self.logger.info(f"ZeusModule {self.id} is initializing...")
 
         if init_module:
+            self.getFirmwareVersion()
             self.initZDrive()
             printMSG("debug", 'sleeping before initDosingDrive')
             sleep(3)

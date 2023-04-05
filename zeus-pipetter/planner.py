@@ -543,6 +543,92 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
     return liquid_surface_height_from_zeus
 
 
+def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: int,
+                    event_list_path=None, event_list=None,
+                    change_tip_after_every_pipetting: bool = False,
+                    prewet_tip: bool = True) -> dict[Any, Any]:
+
+    # for event list either specify a path or a list. Only speficify one of them.
+    if event_list_path is not None:
+        with open(event_list_path, 'rb') as f:
+            event_list = pickle.load(f)
+
+    liquid_surface_height_from_zeus = {}
+
+    if zm.tip_on_zeus:
+        pt.discard_tip()
+
+    for event in event_list:
+        event.asp_lld = 1
+
+    for event_index in range(start_event_id, len(event_list)):
+
+        if zm.tip_on_zeus != event_list[event_index].tip_type:
+            pt.change_tip(event_list[event_index].tip_type)
+            logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
+            # do prewet every time a new tip is taken
+            time.sleep(0.5)
+            if prewet_tip:
+                prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=event_list[event_index])
+
+        # record start time
+        event_start_time = int(time.time())  # unix time
+        event_start_time_datetime = datetime.fromtimestamp(event_start_time)
+        event_list[event_index].event_start_time_utc = event_start_time
+        event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
+        try:
+            liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+
+        except Exception as e:
+            logger.error(f'Error in transfer liquid.\n '
+                         f'\t\t\t\t\t\tConsider adding more liquid to source container: '
+                         f'{event_list[event_index].source_container.container_id}\n'
+                         f'\t\t\t\t\t\tNext, proceed with: event_number{event_index+1}, {event_list[event_index].event_label}')
+
+            with open(f'multicomponent_reaction\\event_list_chem_id_finished_at_{event_index-1}.pickle', 'wb') as f:
+                pickle.dump(event_list, f)
+
+            pt.discard_tip()
+
+            return liquid_surface_height_from_zeus
+
+        # record finish time
+        event_finish_time = int(time.time())  # UTC time
+        event_finish_time_datetime = datetime.fromtimestamp(event_finish_time)
+        event_list[event_index].event_finish_time = event_finish_time
+        event_list[event_index].event_finish_time_datetime = str(event_finish_time_datetime)
+        event_list[event_index].is_event_conducted = True
+
+        # calculate volume and liquid height
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] = \
+            liquid_surface_height_from_zeus_here
+        volume_here = (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
+                      * event_list[event_index].source_container.area / 10  # in uL
+        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_volume'] = round(volume_here, 1)
+
+        time.sleep(0.05)
+        logger.info(f"Performed one event: event_number {event_index}, "
+                    f"{event_list[event_index].event_label}")
+
+        # check tip type and change tip if needed
+        if event_index != len(event_list) - 1:  # check if this is the last event.
+            if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
+                # pt.change_tip(event_list[event_index + 1].tip_type)
+                pt.discard_tip()
+
+        time.sleep(0.5)
+
+        with open(f'multicomponent_reaction\\event_list_chem_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
+            pickle.dump(event_list, f)
+
+        if change_tip_after_every_pipetting:
+            pt.discard_tip()
+            time.sleep(0.5)
+
+    pt.discard_tip()
+
+    return liquid_surface_height_from_zeus
+
 
 def run_events_chem_dilution(zm: object, pt: object, logger: object,
                              start_event_id: int, event_list_path=None, event_list=None,
