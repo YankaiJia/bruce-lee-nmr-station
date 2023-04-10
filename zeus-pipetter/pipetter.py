@@ -537,13 +537,13 @@ class ZeusError(Exception):
 if __name__ == '__main__':
     import zeus
     import breadboard as brb
-
-    zm = zeus.ZeusModule(id=1)
+    #
+    zm = zeus.ZeusModule(id = 1)
     time.sleep(5)
-
+    #
     gt = Gantry(zeus=zm)
     time.sleep(2)
     gt.home_xy()
     time.sleep(5)
-
+    #
     pt = Pipetter(zeus=zm, gantry=gt)

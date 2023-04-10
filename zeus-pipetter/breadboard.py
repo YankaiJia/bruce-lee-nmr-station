@@ -25,7 +25,7 @@ floor_z = 2220
 ZeusTraversePosition = 880
 balance_traverse_height = ZeusTraversePosition
 
-bottom_z_of_vial_2ml = 2200
+bottom_z_of_vial_2ml = 2210
 bottom_z_of_well_bio = 2190
 bottom_z_of_bottle_20ml = 2175
 bottom_z_of_jar_100ml = 2120
@@ -108,14 +108,14 @@ vial_2ml = Container(
     containerGeometryTableIndex=0,
     container_shape="cylindrical",
     # diameter = 98, ## old value 20230322
-    diameter= 118,  ## new value, 20230322
+    diameter= 118, ## new value, 20230322
     bottomHeight=0,
     bottomSection=10000,
     bottomPosition=bottom_z_of_vial_2ml,
-    immersionDepth=10,
-    leavingHeight=20,
+    immersionDepth=5,
+    leavingHeight= 20,
     jetHeight=130,
-    startOfHeightBottomSearch=30,
+    startOfHeightBottomSearch=0,
     dispenseHeightAfterBottomSearch=80,
 
     liquid_volume=0,
@@ -570,4 +570,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    print(1)
+    # main()

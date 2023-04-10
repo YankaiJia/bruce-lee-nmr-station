@@ -15,8 +15,8 @@ import matplotlib.colors as mcolors
 import sys
 import pprint
 
-DEBUG = 1
-INFO = 1
+DEBUG = 0
+INFO = 0
 WARNING = 1
 ERROR = 1
 # KICK_MASK = 0x0400
@@ -433,10 +433,6 @@ class remoteFrameListener(can.Listener):
     def on_message_received(self, msg):
         printMSG(
             "debug", f'Received message: arbitration id = {msg.arbitration_id:X}')
-        printMSG(
-            "debug", f'Received message = {msg}')
-        printMSG(
-            "debug", f'Received message data = {msg.data}')
         # REMOTE FRAME ACTION
         if (msg.is_remote_frame == True):
             #  if((msg.arbitration_id == 0x0000) or (msg.arbitration_id == 0x0020)):
@@ -489,14 +485,14 @@ class remoteFrameListener(can.Listener):
                     self.parent.sendRemoteFrame(8)
             else:
                 self.msg_complete_flag = 1
-                printMSG(
-                    "debug", "Assembled message {}".format(self.received_msg))
+                # printMSG(
+                #     "debug", "Assembled message {}".format(self.received_msg))
                 #  if self.parent.auto_response:
                 #  self.parent.sendRemoteFrame(8)
 
                 # I'm really not sure whether the kick flag should be reset here
                 self.setKickFlag(0)
-                printMSG("debug", 'Kick flag is set to 0.')
+                # printMSG("debug", 'Kick flag is set to 0.')
 
                 ret = self.parent.parseErrors(self.received_msg)
                 if (ret != "NONE"):
@@ -541,8 +537,8 @@ class remoteFrameListener(can.Listener):
     def msg_is_last(self, msg):
         size = len(msg.data)
         if (size > 0):
-            #  printMSG(
-            #  "warning", "control byte length = {}".format(len(msg.data)))
+            printMSG(
+             "warning", "control byte length = {}".format(len(msg.data)))
             control_byte = msg.data[(len(msg.data) - 1)]
             if ((control_byte & EOM_MASK) > 0):
                 return 1
@@ -669,7 +665,7 @@ class ZeusModule:
         self.logger.info(f"ZeusModule {self.id} is initializing...")
 
         if init_module:
-            self.getFirmwareVersion()
+            # self.getFirmwareVersion()
             self.initZDrive()
             printMSG("debug", 'sleeping before initDosingDrive')
             sleep(3)
@@ -733,7 +729,7 @@ class ZeusModule:
             arbitration_id=self.assembleIdentifier('kick'), data=0)
         printMSG("info",
                  "ZeusModule, {}: sending kick frame...".format(self.id))
-        #  print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
+        print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
         while (n < self.transmission_retries):
             try:
                 self.CANBus.send(msg)
@@ -1767,7 +1763,7 @@ if __name__ == '__main__':
 
     # load container parameters
     zm = ZeusModule(id = 1)
-    # zm.setContainerGeometryParameters(brb.vial_2ml)
+    zm.setContainerGeometryParameters(brb.vial_2ml)
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.well_bio)
     # time.sleep(2)

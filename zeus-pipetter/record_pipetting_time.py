@@ -55,7 +55,7 @@ def split_by_plate(transfer_list):
             index_start = index_finish + 1
         index += 1
 
-event_list_in_each_plate = list(split_by_plate(transfer_list[270:]))
+event_list_in_each_plate = list(split_by_plate(transfer_list))
 
 len_of_event_list_in_each_plate = sum([len(event_list) for event_list in event_list_in_each_plate])
 print(f'len_of_event_list_in_each_plate: {len_of_event_list_in_each_plate}')
@@ -72,7 +72,7 @@ def save_cvs():
                 print(event.is_event_conducted)
                 print(event.event_start_time_datetime)
 
-    list_of_plate_barcode = ['21', '22']
+    list_of_plate_barcode = ['6', '9', '11']
 
     fields=['plate_code',
             'experiment_name',
@@ -105,7 +105,7 @@ def save_cvs():
 
         ## string format: 'start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime'
         start_finish_string = f'{list_of_plate_barcode[count]}, ' \
-                              f'multicomponent_0320, ' \
+                              f'simple_reaction_2023_04_07_run01, ' \
                               f'{int(list_of_one_plate[0].event_start_time_utc)}, ' \
                               f'{list_of_one_plate[0].event_start_time_datetime}, ' \
                               f'{int(list_of_one_plate[-1].event_finish_time)}, ' \

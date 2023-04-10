@@ -464,10 +464,14 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
             event.asp_liquidClassTableIndex = 24
             event.disp_liquidClassTableIndex = 24
             event.tip_type = '50ul'
-        else:
+        elif event.aspirationVolume <=300:
             event.asp_liquidClassTableIndex = 22
             event.disp_liquidClassTableIndex = 22
             event.tip_type = '300ul'
+        else:
+            event.asp_liquidClassTableIndex = 23
+            event.disp_liquidClassTableIndex = 23
+            event.tip_type = '1000ul'
 
     liquid_surface_height_from_zeus = {}
 
@@ -557,9 +561,9 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
 
     if zm.tip_on_zeus:
         pt.discard_tip()
-
-    for event in event_list:
-        event.asp_lld = 1
+    #
+    # for event in event_list:
+    #     event.asp_lld = 1
 
     for event_index in range(start_event_id, len(event_list)):
 
@@ -618,8 +622,8 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
 
         time.sleep(0.5)
 
-        with open(f'multicomponent_reaction\\event_list_chem_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
-            pickle.dump(event_list, f)
+        # with open(f'multicomponent_reaction\\event_list_chem_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
+        #     pickle.dump(event_list, f)
 
         if change_tip_after_every_pipetting:
             pt.discard_tip()

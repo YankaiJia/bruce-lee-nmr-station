@@ -264,7 +264,7 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, event_list_chem = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0404', usecols='B:K',
+                              sheet_name='Reactions_0404', usecols='B:I',
                               is_pipeting_to_balance=False, is_for_bio=False)
 time.sleep(1)
 
@@ -277,10 +277,15 @@ with open(path_for_pickle_event_list, 'wb') as f:
 # update planner.py when necessary
 # importlib.reload(pln)
 
-## do multicomponent reactions
+for i in event_list_chem:
+    print(i.event_label)
+    # i.asp_lld = 0
+    print(i.asp_lld)
+
+# ## do multicomponent reactions
 pln.run_events_chem_nps(zm=zm, pt=pt, logger=logger,
                     # event_list_path= path_for_pickle_event_list,
-                    change_tip_after_every_pipetting = True,
+                    change_tip_after_every_pipetting = False,
                     event_list= event_list_chem,
                     start_event_id= 0,
                     prewet_tip = False)
