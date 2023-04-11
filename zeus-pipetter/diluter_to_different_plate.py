@@ -254,10 +254,12 @@ if __name__ == '__main__':
     print(f'Waiting for {mins_to_wait} minutes')
     time.sleep(60*mins_to_wait)
 
+    t0 = time.time()
     print('Starting dilution')
     # dilute_old_vial()
-    transfer_liquid_from_old_vial_to_new()
+    # transfer_liquid_from_old_vial_to_new()
     dilute_new_vial()
+    print(f'Time elapsed: {(time.time()-t0)/60:.1f} minutes')
 
 # transfer one product to 54 vails
 #     transfer_to_54_vials()
