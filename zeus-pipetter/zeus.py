@@ -16,7 +16,7 @@ import sys
 import pprint
 
 DEBUG = 0
-INFO = 0
+INFO = 1
 WARNING = 1
 ERROR = 1
 # KICK_MASK = 0x0400
@@ -439,7 +439,7 @@ class remoteFrameListener(can.Listener):
             #  return
             if (self.getRemoteFlag() == 0):
                 self.setRemoteFlag(1)
-                printMSG("info", "Received remote frame with ID = {}, DLC = {}.".format(
+                printMSG("debug", "Received remote frame with ID = {}, DLC = {}.".format(
                     self.parseMsgID(msg.arbitration_id, "s"), msg.dlc))
                 #  print(Fore.BLUE + "{}".format(msg) + Style.RESET_ALL)
             return
@@ -460,7 +460,7 @@ class remoteFrameListener(can.Listener):
                 return
             if (self.getKickFlag() == 0):
                 self.setKickFlag(1)
-                printMSG("info", "Received Kick.")
+                printMSG("debug", "Received Kick.")
                 #  print(Fore.BLUE + "{}".format(msg) + Style.RESET_ALL)
                 if self.parent.auto_response:
                     self.parent.sendRemoteFrame(1)
@@ -495,7 +495,8 @@ class remoteFrameListener(can.Listener):
                 # printMSG("debug", 'Kick flag is set to 0.')
 
                 ret = self.parent.parseErrors(self.received_msg)
-                if (ret != "NONE"):
+                # TODO: Figure out why sometimes it's "NONE" (capitals) and sometimes "None" and unify the format
+                if (str(ret) != "None") and (str(ret) != "NONE"):
                     printMSG("error", "{}".format(ret))
                     return ret
 
@@ -538,7 +539,7 @@ class remoteFrameListener(can.Listener):
         size = len(msg.data)
         if (size > 0):
             printMSG(
-             "warning", "control byte length = {}".format(len(msg.data)))
+             "debug", "control byte length = {}".format(len(msg.data)))
             control_byte = msg.data[(len(msg.data) - 1)]
             if ((control_byte & EOM_MASK) > 0):
                 return 1
@@ -699,7 +700,7 @@ class ZeusModule:
             arbitration_id=0x0020)
         msg.dlc = dlc
         printMSG(
-            "info", "ZeusModule {}: sending remote frame with dlc = {}...".format(self.id, msg.dlc))
+            "debug", "ZeusModule {}: sending remote frame with dlc = {}...".format(self.id, msg.dlc))
         # print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
         try:
             self.CANBus.send(msg)
@@ -727,9 +728,9 @@ class ZeusModule:
         msg = can.Message(
             is_extended_id=False,
             arbitration_id=self.assembleIdentifier('kick'), data=0)
-        printMSG("info",
+        printMSG("debug",
                  "ZeusModule, {}: sending kick frame...".format(self.id))
-        print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
+        # print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
         while (n < self.transmission_retries):
             try:
                 self.CANBus.send(msg)
@@ -768,7 +769,7 @@ class ZeusModule:
     def sendDataObject(self, i, cmd_len, data):
         byte = 0
         printMSG(
-            "info", "ZeusModule {}: sending data frame {} of {}...".format(self.id, i + 1, cmd_len))
+            "debug", "ZeusModule {}: sending data frame {} of {}...".format(self.id, i + 1, cmd_len))
         printMSG('debug', "Outstring = {}".format(data))
         printMSG(
             # "debug", "data pre append = {}".format(data.encode('hex')))
@@ -821,8 +822,10 @@ class ZeusModule:
         data = list(split_by_n(cmd, 7))
         # print(f'The split list sent is : {data}')
         cmd_len = len(data)
+        # printMSG(
+        #     "debug", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
         printMSG(
-            "info", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
+            "debug", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
 
         # Send kick frame and wait for remote response
         self.sendKickFrame()
@@ -1187,7 +1190,7 @@ class ZeusModule:
         if errorString == "":
             return "NONE"
 
-        printMSG("warning", "ErrorString = {}".format(errorString))
+        printMSG("info", "Message from Zeus: {}".format(errorString))
 
         #  else:
         # print(Fore.MAGENTA + "DEBUG: Received error string '{}' with
