@@ -1,6 +1,7 @@
 import logging
 import pickle
 import json
+import winsound
 from typing import Dict, Any
 
 module_logger = logging.getLogger('main.planner')
@@ -118,8 +119,8 @@ class TransferEventConstructor:
         self.substance_name: str = event_dataframe['substance']
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
                                 'substance:' + str(event_dataframe['substance']) + '   ' + \
-                                'transfer_volume:' + str(event_dataframe['transfer_volume']) + " " +\
-                                'plate_number_barcode:' + str(event_dataframe['plate_number_barcode'])
+                                'transfer_volume:' + str(event_dataframe['transfer_volume'])
+                                # + " " + 'plate_number_barcode:' + str(event_dataframe['plate_number_barcode'])
 
         # print(f'solvent: {solvent}')
         # print(event_dataframe['substance'])
@@ -448,12 +449,19 @@ def prewet_new_tip( zm: object, pt: object, logger: object, pipetting_event: obj
 
 
 
+def beep():
+
+    duration = 600  # milliseconds
+    freq = 1000  # Hz
+    # time.sleep(0.2)
+    winsound.Beep(freq, duration)
+
 def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
                     event_list_path=None, event_list=None,
                     change_tip_after_every_pipetting: bool = False,
                     prewet_tip: bool = True) -> dict[Any, Any]:
 
-    # for event list either specify a path or a list. Only speficify one of them.
+    # for event list, specify either a path or a list. Only speficify one of them.
     if event_list_path is not None:
         with open(event_list_path, 'rb') as f:
             event_list = pickle.load(f)
@@ -475,35 +483,34 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
 
     liquid_surface_height_from_zeus = {}
 
-    if zm.tip_on_zeus:
+    if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
         pt.discard_tip()
 
-    for event_index in range(start_event_id, len(event_list)):
+    for event_index in tqdm(range(start_event_id, len(event_list))):
 
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
-            # do prewet every time a new tip is taken
             time.sleep(0.5)
+
+            # do prewet every time a new tip is taken
             if prewet_tip:
                 prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=event_list[event_index])
 
         # record start time
-        event_start_time = int(time.time())  # unix time
+        event_start_time = int(time.time())  # get unix time stamp
         event_start_time_datetime = datetime.fromtimestamp(event_start_time)
         event_list[event_index].event_start_time_utc = event_start_time
         event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
+
         try:
             liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+            beep()
 
         except Exception as e:
             logger.error(f'Error in transfer liquid.\n '
-                         f'\t\t\t\t\t\tConsider adding more liquid to source container: '
-                         f'{event_list[event_index].source_container.container_id}\n'
-                         f'\t\t\t\t\t\tNext, proceed with: event_number{event_index+1}, {event_list[event_index].event_label}')
-
-            with open(f'multicomponent_reaction\\event_list_chem_id_finished_at_{event_index-1}.pickle', 'wb') as f:
-                pickle.dump(event_list, f)
+                         f'\t\t\t\t\t\tConsider adding more liquid to source container: {event_list[event_index].source_container.container_id}\n'
+                         f'\t\t\t\t\t\tNext, proceed with: event_number{event_index}, {event_list[event_index].event_label}')
 
             pt.discard_tip()
 
@@ -527,17 +534,19 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
         logger.info(f"Performed one event: event_number {event_index}, "
                     f"{event_list[event_index].event_label}")
 
-        # check tip type and change tip if needed
+        # save this event to local pickle file
+        pickle_folder  = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\pickle_files\\'
+        with open(pickle_folder + f'event_id_{event_index}_substrate_{event_list[event_index].substance_name}'
+                                  f'_time_{datetime.now().strftime("%m_%d_%H_%M_%S")}.pickle', 'wb') as f:
+            pickle.dump(event_list[event_index], f)
+
+        # check tip when the next event is different substance
         if event_index != len(event_list) - 1:  # check if this is the last event.
             if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
                 # pt.change_tip(event_list[event_index + 1].tip_type)
                 pt.discard_tip()
-
         time.sleep(0.5)
-
-        with open(f'multicomponent_reaction\\event_list_chem_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
-            pickle.dump(event_list, f)
-
+        #  change tip after every pipetting if specified
         if change_tip_after_every_pipetting:
             pt.discard_tip()
             time.sleep(0.5)
@@ -648,13 +657,13 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
         pt.discard_tip()
 
     for event_index in range(start_event_id, len(event_list)):
-
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
 
         try:
             pt.transfer_liquid(event_list[event_index])
+            beep()
 
         except Exception as e:
             print(f'Error in transfer liquid.\n '
