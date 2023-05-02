@@ -209,3 +209,20 @@ plt.xlabel('Vial ID')
 plt.ylabel('Product concentration in mol/L')
 plt.legend()
 plt.show()
+
+x = [concentrations_identical_capped_in_oven/(0.0249922896339447/0.21741)*100,
+     concentrations_identical/(0.02295312069974119/0.212)*100]
+df = pd.DataFrame(x, index=[f'Repeated experimental condition, N=27, yield (21.7 ± 1.2)%',
+                            f'Repeated measurements of same crude, N=54, yield (21.2 ± 0.4)%'])
+figbox = plt.figure(69, figsize=(10,1.6))
+bp = df.T.boxplot(vert=False, patch_artist=True, widths=(0.6, 0.6), return_type='dict')
+for median in bp['medians']:
+    median.set_color('C1')
+    median.set_linewidth(5)
+for box in bp['boxes']:
+    box.set_facecolor('C0')
+    box.set_alpha(0.5)
+plt.xlabel('Yield, %')
+# plt.subplots_adjust(left=0.25)
+plt.tight_layout()
+plt.show()
