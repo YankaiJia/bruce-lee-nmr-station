@@ -6,6 +6,13 @@ from scipy.interpolate import splev, splrep
 from savitzky_golay_werrors import savgol_filter_werror
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
+
+def simpleaxis(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
 def filter_layouts(array, threshold, verbose=True):
     """
     Points that are further away from the previous and next point than the threshold
@@ -59,7 +66,7 @@ def round_to_nearest(df_new, df_reference, column_names):
     df_reference: pd.DataFrame
         The dataframe with the reference values.
 
-    column_names
+    column_names: list of str
         Only these columns will be changed in the new dataframe. Columns of same names are compared between
         the dataframes.
 
@@ -108,7 +115,7 @@ def join_data_from_runs(run_names, round_on_columns=('ic001', 'am001', 'ald001',
     return df_result
 
 
-def make_spline(xs, ys, yerr, layout_threshold=4, more_error_savgol=0.4, more_error_spline=0.2,
+def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more_error_spline=0.2,
                 spline_smoothing_factor=6, do_plot=False):
     """
     Filts spline to the data. Intended for plots of yield across all the catalyst values for specific
@@ -150,6 +157,9 @@ def make_spline(xs, ys, yerr, layout_threshold=4, more_error_savgol=0.4, more_er
         tck: tuple
             The spline parameters. See the scipy.interpolate.splrep function.
     """
+    permurations_that_sort_xs = xs.argsort()
+    xs = xs[permurations_that_sort_xs]
+    ys = ys[permurations_that_sort_xs]
     ys = filter_layouts(ys, threshold=layout_threshold)
     ys_sg = savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
     if do_plot:
@@ -161,7 +171,8 @@ def make_spline(xs, ys, yerr, layout_threshold=4, more_error_savgol=0.4, more_er
 def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=None, color=None,
                                          column_names=('ic001', 'am001', 'ald001'),
                                          catalyst_name='ptsa', column_to_plot='yield', relative_std=0.146,
-                                         withspline=True):
+                                         withspline=True, factor=1, spline_color='black', plot_points=True,
+                                         plot_savgol=True, spline_alpha=0.3, spline_linewidth=5):
     """
     Plots data across the catalyst range for a specific combination of non-catalyst substrate concentrations
     (and perhaps other parameters) defined by the indices in lists if unique values of the parameters.
@@ -218,16 +229,17 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
     if label is None:
         label = f'{column_names}: {param_values_by_index}'
 
-    if color is None:
-        plt.errorbar(xs, ys, yerr=yerr, linestyle='None', marker='o', capsize=3, label=label, alpha=0.5)
-    else:
-        plt.errorbar(xs, ys, yerr=yerr, linestyle='None', marker='o', capsize=3, label=label, alpha=0.5, color=color)
+    if plot_points:
+        if color is None:
+            plt.errorbar(xs, ys, yerr=yerr, linestyle='None', marker='o', capsize=3, label=label, alpha=0.5)
+        else:
+            plt.errorbar(xs, ys, yerr=yerr, linestyle='None', marker='o', capsize=3, label=label, alpha=0.5, color=color)
 
     if withspline:
-        tck = make_spline(xs, ys, yerr, do_plot=True)
+        tck = make_spline(xs, ys, yerr, do_plot=plot_savgol, spline_smoothing_factor=4)
         xs_new = np.linspace(np.min(xs), np.max(xs), 100)
-        ys_new = splev(xs_new, tck)
-        plt.plot(xs_new, ys_new, color='black', linewidth=5, alpha=0.3)
+        ys_new = splev(xs_new, tck) * factor
+        plt.plot(xs_new, ys_new, color=spline_color, linewidth=spline_linewidth, alpha=spline_alpha)
 
     plt.xlabel(f'{catalyst_name} (catalyst) concentration, mol/L')
     if column_to_plot == 'yield':
@@ -236,7 +248,8 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
 
 if __name__ == '__main__':
     df_results = join_data_from_runs(['multicomp-reactions/2023-03-20-run01/',
-                                      'multicomp-reactions/2023-03-29-run01/'])
+                                      'multicomp-reactions/2023-03-29-run01/',
+                                      'multicomp-reactions/2023-03-31-run01/'])
 
     substances = ['ic001','am001','ald001','ptsa']
     product = 'IIO029A'
@@ -257,20 +270,27 @@ if __name__ == '__main__':
     unique_cats = sorted(list(set(list(cats))))
     print(f'Unique cats: {unique_cats}')
 
-    # plot_one_point_across_catalyst_range(df_results, (2, 0, 2), label='Corner A')
-    # plot_one_point_across_catalyst_range(df_results, (2, 2, 0), label='Corner B')
-    # plot_one_point_across_catalyst_range(df_results, (2, 1, 1), label='Between corners', color='grey')
+    fig = plt.figure(figsize=(3,2.6))
+    plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=False, plot_savgol=False, spline_color='C3', spline_alpha=0.6, spline_linewidth=3)
+    plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=False, plot_savgol=False, spline_color='C0', spline_alpha=0.6, spline_linewidth=3,
+                                         factor=1.35)
 
-    plot_one_point_across_catalyst_range(df_results, (2, 10, 5), label='Repeated point', color='red')
-    plt.show()
-    for ald in [0, 5, 10]:
-        plot_one_point_across_catalyst_range(df_results, (2, 10, ald), label=f'Repeated point, ald{ald}')
-        plt.show()
-    for am in [0, 5, 10]:
-        plot_one_point_across_catalyst_range(df_results, (2, am, 5), label=f'Repeated point, am{am}')
-        plt.show()
-    plt.legend()
-    plt.xlabel('PTSA (catalyst) concentration, mol/L')
-    plt.ylabel('Yield, %')
+    # # plot_one_point_across_catalyst_range(df_results, (2, 1, 1), label='Between corners', color='grey')
+    # plot_one_point_across_catalyst_range(df_results, (3, 5, 7), label='Outlier A', withspline=True)
+    # plt.show()
+
+    # plot_one_point_across_catalyst_range(df_results, (2, 10, 5), label='Repeated point', color='red')
+    # plt.show()
+    # for ald in [0, 5, 10]:
+    #     plot_one_point_across_catalyst_range(df_results, (2, 10, ald), label=f'Repeated point, ald{ald}')
+    #     plt.show()
+    # for am in [0, 5, 10]:
+    #     plot_one_point_across_catalyst_range(df_results, (2, am, 5), label=f'Repeated point, am{am}')
+    #     plt.show()
+    simpleaxis(plt.gca())
+    # plt.legend()
+    plt.xlabel('Acid concentration [mol/L]')
+    plt.ylabel('Yield [%]')
     plt.tight_layout()
+    fig.savefig('yield_vs_acid.png', dpi=300)
     plt.show()
