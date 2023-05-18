@@ -127,7 +127,7 @@ def load_stock_solutions_from_excel(path: str = path_for_reactions) -> list:
     wb_excel = load_workbook(path, data_only=True)
     ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
 
-    for row in tuple(ws.rows)[1:2]:  # exclude the header  ## only load the 1st row
+    for row in tuple(ws.rows)[1:]:  # exclude the header  ## only load the 1st row
         if row[0].value is not None:
             substance_name = row[0].value,
             index = row[1].value,
@@ -171,15 +171,16 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
         event_temp.substance_name = solution[0]
         event_temp.source_container = copy.deepcopy(brb.plate_list[int(plate_id)].containers[int(container_id)])
         event_temp.destination_container = copy.deepcopy(event_temp.source_container)
-        event_temp.asp_lld = 1  # liquidClassTableIndex =13, so pLLD will be used.
+        event_temp.asp_lld = 0  # liquidClassTableIndex =13, so pLLD will be used.
         event_temp.disp_lld = 0
         event_temp.asp_liquidClassTableIndex = 13  # use pLLD for surface detection
         event_temp.disp_liquidClassTableIndex = 13
-        event_temp.asp_liquidSurface = 1600
+        event_temp.asp_liquidSurface = 2000
         event_temp.asp_lldSearchPosition = 1600
         event_temp.disp_liquidSurface = 1600
         event_temp.aspirationVolume = 200
         event_temp.dispensingVolume = 200
+        event_temp.tip_type = '300ul'
         event_list_surface_detection.append(event_temp)
 
     return event_list_surface_detection
@@ -196,7 +197,7 @@ time.sleep(1)
 ## run events for liquid surface detection
 liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                                            start_event_id=0,
-                                           event_list=event_list_surface_detection)
+                                           event_list= event_list_surface_detection, prewet_tip = False)
 
 logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
 
@@ -262,7 +263,7 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, calibration_event_list = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Validation_0325', usecols='F',
+                              sheet_name='Reactions_0413', usecols='B:G',
                               is_pipeting_to_balance=True, is_for_bio=False)
 time.sleep(1)
 
@@ -281,26 +282,36 @@ with open(event_list_path, 'rb') as f:
 # specify tip and liquidClassIndex and other staff for calibration
 def specify_tip_and_liquidClassIndex_for_calibration(event_list: list = calibration_event_list):
     for event in event_list:
-        if event.substance_name == 'DMF_300ul':
-            event.tip_type = '300ul'
-            event.asp_liquidClassTableIndex = 22
-            event.disp_liquidClassTableIndex = 22
-            event.disp_liquidSurface = 1600
-            event.disp_lldSearchPosition = 1600
-        elif event.substance_name == 'DMF_50ul':
-            event.tip_type = '50ul'
-            event.asp_liquidClassTableIndex = 24
-            event.disp_liquidClassTableIndex = 24
-            event.disp_liquidSurface = 1600
-            event.disp_lldSearchPosition = 1600
-        elif event.substance_name == 'DMF_1000ul':
-            event.tip_type = '1000ul'
-            event.asp_liquidClassTableIndex = 23
-            event.disp_liquidClassTableIndex = 23
-            event.disp_liquidSurface = 1600
-            event.disp_lldSearchPosition = 1600
+        # if event.substance_name == 'DMF_300ul':
+        #     event.tip_type = '300ul'
+        #     event.asp_liquidClassTableIndex = 22
+        #     event.disp_liquidClassTableIndex = 22
+        #     event.disp_liquidSurface = 1600
+        #     event.disp_lldSearchPosition = 1600
+        # elif event.substance_name == 'DMF_50ul':
+        #     event.tip_type = '50ul'
+        #     event.asp_liquidClassTableIndex = 24
+        #     event.disp_liquidClassTableIndex = 24
+        #     event.disp_liquidSurface = 1600
+        #     event.disp_lldSearchPosition = 1600
+        # elif event.substance_name == 'DMF_1000ul':
+        #     event.tip_type = '1000ul'
+        #     event.asp_liquidClassTableIndex = 23
+        #     event.disp_liquidClassTableIndex = 23
+        #     event.disp_liquidSurface = 1600
+        #     event.disp_lldSearchPosition = 1600
+        event.asp_liquidClassTableIndex = 1
+        event.disp_liquidClassTableIndex = 1
+        event.asp_lld = 0
+        event.asp_liquidSurface = 2000
+        event.disp_liquidSurface = 1700
+        event.aspirationVolume = 200
+        event.dispensingVolume = 200
+        event.tip_type = '300ul'
+
 
     return event_list
+
 
 calibration_event_list_adjust = specify_tip_and_liquidClassIndex_for_calibration()
 #########################################################################
@@ -315,7 +326,7 @@ event_list_path = 'Calibration_for_pipetting\\event_list_calib_adjust_300ul.pick
 with open(event_list_path, 'rb') as f:
     calibration_event_list_adjust = pickle.load(f)
 
-calibration_event_list_adjust = calibration_event_list_adjust[::-1] # reverse the list. pipetting from large volume
+# calibration_event_list_adjust = calibration_event_list_adjust[::-1] # reverse the list. pipetting from large volume
 
 #
 
@@ -323,7 +334,15 @@ calibration_event_list_adjust = calibration_event_list_adjust[::-1] # reverse th
 weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
                                                 calibration_event_list= calibration_event_list_adjust,
                                                change_tip_after_every_pipetting= False,
-                                               repeat_n_times= 30)
+                                               repeat_n_times= 10)
+
+
+
+
+
+
+
+
 # weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
 #                                                 calibration_event_list= calibration_event_list_adjust,
 #                                                change_tip_after_every_pipetting= False)
@@ -332,4 +351,9 @@ weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
 #                                                change_tip_after_every_pipetting= False)
 
 #
+
+# save the weighing result in json file and later load from this file
+with open('Calibration_for_pipetting'
+          '\\weighing_result_300ul-0413-1500.json', 'w') as f:
+    json.dump(weighing_result, f, indent=4)
 

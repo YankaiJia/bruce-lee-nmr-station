@@ -159,6 +159,9 @@ def generate_dilution_event(source_container: object = None,
     event.disp_liquidSurface = disp_liquid_surface
     event.disp_lld = 0
 
+    event.asp_containerGeometryTableIndex = source_container.containerGeometryTableIndex
+    event.disp_containerGeometryTableIndex = destination_container.containerGeometryTableIndex
+
     return event
 
 

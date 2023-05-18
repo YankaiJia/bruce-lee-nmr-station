@@ -447,8 +447,6 @@ def prewet_new_tip( zm: object, pt: object, logger: object, pipetting_event: obj
     logger.info('Prewet done! Continue with pipetting...')
 
 
-
-
 def beep():
 
     duration = 600  # milliseconds
@@ -466,27 +464,27 @@ def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
         with open(event_list_path, 'rb') as f:
             event_list = pickle.load(f)
 
-    ## adjust lc index ## this is for 0320_run
-    for event in event_list:
-        if event.aspirationVolume <= 50:
-            event.asp_liquidClassTableIndex = 24
-            event.disp_liquidClassTableIndex = 24
-            event.tip_type = '50ul'
-        elif event.aspirationVolume <=300:
-            event.asp_liquidClassTableIndex = 22
-            event.disp_liquidClassTableIndex = 22
-            event.tip_type = '300ul'
-        else:
-            event.asp_liquidClassTableIndex = 23
-            event.disp_liquidClassTableIndex = 23
-            event.tip_type = '1000ul'
+    # ## adjust lc index ## this is for 0320_run
+    # for event in event_list:
+    #     if event.aspirationVolume <= 50:
+    #         event.asp_liquidClassTableIndex = 24
+    #         event.disp_liquidClassTableIndex = 24
+    #         event.tip_type = '50ul'
+    #     elif event.aspirationVolume <=300:
+    #         event.asp_liquidClassTableIndex = 22
+    #         event.disp_liquidClassTableIndex = 22
+    #         event.tip_type = '300ul'
+    #     else:
+    #         event.asp_liquidClassTableIndex = 23
+    #         event.disp_liquidClassTableIndex = 23
+    #         event.tip_type = '1000ul'
 
     liquid_surface_height_from_zeus = {}
 
     if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
         pt.discard_tip()
 
-    for event_index in tqdm(range(start_event_id, len(event_list))):
+    for event_index in range(start_event_id, len(event_list)):
 
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
@@ -591,6 +589,7 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
         event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
         try:
             liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
+            beep()
 
         except Exception as e:
             logger.error(f'Error in transfer liquid.\n '

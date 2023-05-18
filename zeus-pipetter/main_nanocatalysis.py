@@ -264,7 +264,7 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, event_list_chem = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0404', usecols='B:I',
+                              sheet_name='Reactions_0517', usecols='B:K',
                               is_pipeting_to_balance=False, is_for_bio=False)
 time.sleep(1)
 
@@ -279,10 +279,10 @@ with open(path_for_pickle_event_list, 'wb') as f:
 
 for i in event_list_chem:
     print(i.event_label)
-    # i.asp_lld = 0
+    i.asp_lld = 0
     print(i.asp_lld)
 
-# ## do multicomponent reactions
+# # ## do multicomponent reactions
 pln.run_events_chem_nps(zm=zm, pt=pt, logger=logger,
                     # event_list_path= path_for_pickle_event_list,
                     change_tip_after_every_pipetting = False,
@@ -291,7 +291,9 @@ pln.run_events_chem_nps(zm=zm, pt=pt, logger=logger,
                     prewet_tip = False)
 
 
-#
+# #
 # for event in event_list_chem:
+#     if event.substance_name == 'I':
+#         event.asp_liquidClassTableIndex = 13
+#         event.disp_liquidClassTableIndex = 13
 #     print(event.asp_liquidClassTableIndex)
-#     print(event.event_label)

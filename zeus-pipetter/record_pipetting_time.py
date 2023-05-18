@@ -72,7 +72,10 @@ def save_cvs():
                 print(event.is_event_conducted)
                 print(event.event_start_time_datetime)
 
-    list_of_plate_barcode = ['6', '9', '11']
+    list_of_plate_barcode = [] # exp: ['6', '9', '11']
+    if not list_of_plate_barcode:
+        print('list_of_plate_barcode is empty')
+        raise ValueError('list_of_plate_barcode is empty')
 
     fields=['plate_code',
             'experiment_name',
@@ -87,6 +90,7 @@ def save_cvs():
     # path = 'C:\\Users\\Chemiluminescence\\OneDrive' \
     #        '\\roborea\\zeus-pipetter\\multicomponent_reaction\\0323\\0323_record.csv'
 
+    # output path into which the csv (presumably what should become run_info.csv but isnt) is saved
     path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\' \
             'zeus-pipetter\\multicomponent_reaction\\csvs\\event_status_record.csv'
 
@@ -105,7 +109,7 @@ def save_cvs():
 
         ## string format: 'start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime'
         start_finish_string = f'{list_of_plate_barcode[count]}, ' \
-                              f'simple_reaction_2023_04_07_run01, ' \
+                              f'2023_04_14_run01, ' \
                               f'{int(list_of_one_plate[0].event_start_time_utc)}, ' \
                               f'{list_of_one_plate[0].event_start_time_datetime}, ' \
                               f'{int(list_of_one_plate[-1].event_finish_time)}, ' \
@@ -131,7 +135,7 @@ def convert_datetime_to_unix_time(datetime_string):
 
 # convert_unix_time_to_datetime(1679909368)
 
-convert_datetime_to_unix_time('2023-04-03 23:42:49')
+convert_datetime_to_unix_time('2023-04-12 15:04:19')
 # 2023-04-03 23:42:49
 
 def print_info():

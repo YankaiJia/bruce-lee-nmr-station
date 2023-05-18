@@ -91,11 +91,6 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 
     return zm, gt, pt
 
-## initiate hardware
-zm, gt, pt = initiate_hardware()
-time.sleep(1)
-
-
 # use GUI to specify Excel path for reactions and stock solutions
 def load_excel_path_by_pysimplegui():
     sg.theme('BrightColors')  # Add a touch of color
@@ -120,10 +115,7 @@ def load_excel_path_by_pysimplegui():
     logger.info(f"Excel file for reactions is selected: {values['-FILE_PATH-']}")
     return values['-FILE_PATH-']
 
-path_for_reactions = load_excel_path_by_pysimplegui()
-
-
-def load_stock_solutions_from_excel(path: str = path_for_reactions) -> list:
+def load_stock_solutions_from_excel(path: str) -> list:
     stock_solution_list = []
     wb_excel = load_workbook(path, data_only=True)
     ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
@@ -152,8 +144,7 @@ def load_stock_solutions_from_excel(path: str = path_for_reactions) -> list:
 
     return stock_solution_list
 
-
-def generate_event_list_for_surface_detection(path_for_stock_solution: str = path_for_reactions):
+def generate_event_list_for_surface_detection(path_for_stock_solution: str):
     event_list_surface_detection = []
 
     # load object from pickle.
@@ -176,33 +167,14 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
         event_temp.disp_lld = 0
         event_temp.asp_liquidClassTableIndex = 13  # use pLLD for surface detection
         event_temp.disp_liquidClassTableIndex = 13
-        event_temp.asp_liquidSurface = 1600
-        event_temp.asp_lldSearchPosition = 1700
+        event_temp.asp_liquidSurface = 1200
+        event_temp.asp_lldSearchPosition = zm.ZeusTraversePosition
         event_temp.disp_liquidSurface = 1800
-        event_temp.aspirationVolume = 50
-        event_temp.tip_type = '50ul'
+        event_temp.aspirationVolume = 100
+        event_temp.tip_type = '300ul'
         event_list_surface_detection.append(event_temp)
 
     return event_list_surface_detection
-
-event_list_surface_detection = generate_event_list_for_surface_detection()
-
-
-time.sleep(1)
-
-## run detection events and get liquid surface heights
-# liquid_info_in_stock example:
-# {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
-liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                                           start_event_id=0,
-                                           event_list=event_list_surface_detection,
-                                           prewet_tip=False)
-
-logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
-
-time.sleep(1)
-
-
 
 ## This update will rely on the exact naming and order of the file header, so keep them the same as the template.
 def update_excel_with_liquid_heights_and_volume(path_for_reaction: str,
@@ -223,11 +195,6 @@ def update_excel_with_liquid_heights_and_volume(path_for_reaction: str,
                         f'{liquid_surface_heights_in_stock[substance_name]}')
 
     wb.save(path_for_reaction)
-
-update_excel_with_liquid_heights_and_volume(path_for_reaction = path_for_reactions, liquid_info_in_stock=liquid_info_in_stock)
-
-time.sleep(1)
-
 
 def add_stock_solutions_to_brb_containers(reaction_excel_path: str):
     # this loading should be done after the liquid surface heights are updated in the Excel file
@@ -255,37 +222,64 @@ def add_stock_solutions_to_brb_containers(reaction_excel_path: str):
     logger.info('All stock solutions have been added to brb.plate_list')
     return brb.source_substance_containers
 
+if __name__ == '__main__':
 
-add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
+    ## initiate hardware
+    zm, gt, pt = initiate_hardware()
 
+    ## load excel path
+    path_for_reactions = load_excel_path_by_pysimplegui()
 
-# generate event list for multicomponent reactions
-event_dataframe_chem, event_list_chem = \
-    pln.generate_event_object(logger=logger,
-                              excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0411', usecols='B:G',
-                              is_pipeting_to_balance=False, is_for_bio=False)
-time.sleep(1)
+    ## generate event list for surface detection
+    event_list_surface_detection = generate_event_list_for_surface_detection(path_for_reactions)
 
+    ## run detection events and get liquid surface heights
+    # liquid_info_in_stock example:
+    # {'p-BrPhOTf_height': 1986, 'p-BrPhOTf_volume': 9.7, 'm-BrPhOTf_height': 2091, 'm-BrPhOTf_volume': 4.3}
+    liquid_info_in_stock = pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+                                               start_event_id=0,
+                                               event_list=event_list_surface_detection,
+                                               prewet_tip=False)
 
-# save the event list in pickle file and later load from this file
-pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
-pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
-with open(pickle_file, 'wb') as f:
-    pickle.dump(event_list_chem, f)
+    logger.info(f"liquid_surface_heights: {liquid_info_in_stock}")
 
-# update planner.py when necessary
-# importlib.reload(pln)
-#
-## do multicomponent reactions
-pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                    event_list_path=pickle_file,
-                    # event_list= event_list,
-                    start_event_id= 0,
-                    prewet_tip = False)
+    ## update excel with liquid surface heights
+    update_excel_with_liquid_heights_and_volume(path_for_reaction = path_for_reactions, liquid_info_in_stock=liquid_info_in_stock)
 
+    ## add stock solutions to brb containers
+    add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 
+    # generate event list for multicomponent reactions
+    event_dataframe_chem, event_list_chem = \
+        pln.generate_event_object(logger=logger,
+                                  excel_to_generate_dataframe=path_for_reactions,
+                                  sheet_name='Reactions_0414', usecols='B:K',
+                                  is_pipeting_to_balance=False, is_for_bio=False)
 
+    # save the event list in pickle file and later load from this file
+    pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
+    pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
+
+    with open(pickle_file, 'wb') as f:
+        pickle.dump(event_list_chem, f)
+
+    # update planner.py when necessary
+    # importlib.reload(pln)
+
+    # do multicomponent reactions
+    pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+                        # event_list_path=pickle_file,
+                        event_list= event_list_chem,
+                        start_event_id=0,
+                        prewet_tip=True)
+    #
+
+# for event in event_list_chem[324:]:
+#     if event.substance_name == 'SN1OH01':
+#         event.asp_lldSearchPosition = 1500
+#     print(event.asp_lldSearchPosition)
+
+## the following code is cursed. do not use it....
 
 # event_list_path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\zeus-pipetter\\' \
 #                   'multicomponent_reaction\\0323\\event_list_chem_0-551_events.pickle'
