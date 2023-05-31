@@ -15,7 +15,7 @@ import matplotlib.colors as mcolors
 import sys
 import pprint
 
-DEBUG = 0
+DEBUG = 1
 INFO = 1
 WARNING = 1
 ERROR = 1
@@ -77,8 +77,9 @@ class Unbuffered(object):
 def printMSG(type, msg):
     ts = time.time()  # Timestamp
     if (type == 'info' and INFO == 1):
-        print(
-            Fore.WHITE + "(" + "{0:f}".format(ts) + ") INFO: " + msg + Style.RESET_ALL)
+        print('OK!')
+        # print(
+            # Fore.WHITE + "(" + "{0:f}".format(ts) + ") INFO: " + msg + Style.RESET_ALL)
 
     elif (type == 'debug' and DEBUG == 1):
         print(Fore.MAGENTA +
@@ -590,7 +591,7 @@ class ZeusError(Exception):
 
 class ZeusModule:
     CANBus = None
-    transmission_retries = 5
+    transmission_retries = 10
     remote_timeout = 1
     errorTable = {
         "20": "No communication to EEPROM.",

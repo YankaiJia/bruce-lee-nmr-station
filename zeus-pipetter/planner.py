@@ -244,7 +244,8 @@ class TransferEventConstructor:
             'glycerin_empty_300ul_plld': 16,
             'glycerin_empty_1000ul_plld': 17,
             'DMF_empty_300ul_clld': 22,
-            'DMF_empty_1000ul_clld': 23
+            'DMF_empty_1000ul_clld': 23,
+            'DMF_empty_50ul_clld': 24
         }
         solvent_para = {solvent, mode, tip_type}  # define a set of paras
         for liquid_class, index in liquid_class_dict.items():
@@ -257,9 +258,9 @@ class TransferEventConstructor:
     def choose_tip_type(self, transfer_volume: int):
         if transfer_volume <= 50:
             return "50ul"
-        if transfer_volume > 50 and transfer_volume <= 600:
+        if transfer_volume > 50 and transfer_volume <= 300:
             return "300ul"
-        if transfer_volume > 600 and transfer_volume < 3000:
+        if transfer_volume > 300 and transfer_volume < 2000:
             return "1000ul"
 
     def get_liquid_surface(self, container: object) -> int:

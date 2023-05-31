@@ -250,10 +250,13 @@ if __name__ == '__main__':
     add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 
     # generate event list for multicomponent reactions
+    #TODO:
+    # 1. change the sheet name to the one you want to use
+    # 2. change the usecols to the one you want to use
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0414', usecols='B:K',
+                                  sheet_name='Reactions_0526', usecols='B:G',
                                   is_pipeting_to_balance=False, is_for_bio=False)
 
     # save the event list in pickle file and later load from this file
@@ -266,18 +269,36 @@ if __name__ == '__main__':
     # update planner.py when necessary
     # importlib.reload(pln)
 
+    ## safety check
+    for event in event_list_chem:
+        if event.tip_type == '50ul':
+            event.asp_liquidClassTableIndex = 24
+            event.disp_liquidClassTableIndex = 24
+        if event.tip_type == '300ul':
+            event.asp_liquidClassTableIndex = 22
+            event.disp_liquidClassTableIndex = 22
+        if event.tip_type == '1000ul':
+            event.asp_liquidClassTableIndex = 23
+            event.disp_liquidClassTableIndex = 23
+
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                         # event_list_path=pickle_file,
                         event_list= event_list_chem,
                         start_event_id=0,
                         prewet_tip=True)
-    #
 
-# for event in event_list_chem[324:]:
-#     if event.substance_name == 'SN1OH01':
-#         event.asp_lldSearchPosition = 1500
-#     print(event.asp_lldSearchPosition)
+
+for event in event_list_chem[174:]:
+    if event.aspirationVolume >= 300:
+        event.asp_liquidClassTableIndex = 23
+        event.disp_liquidClassTableIndex = 23
+        event.tip_type = '1000ul'
+
+## renewal of the liquid surface after refill
+for event in event_list_chem[378:]:
+    event.asp_liquidSurface = 1700
+    event.asp_lldSearchPosition = 1700
 
 ## the following code is cursed. do not use it....
 

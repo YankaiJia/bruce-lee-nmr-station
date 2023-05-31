@@ -256,7 +256,7 @@ if __name__ == '__main__':
 
     t0 = time.time()
     print('Starting dilution')
-    #when empty vial
+    ## when empty vial
     #transfer_liquid_from_old_vial_to_new()
     dilute_new_vial()
     print(f'Time elapsed: {(time.time()-t0)/60:.1f} minutes')
