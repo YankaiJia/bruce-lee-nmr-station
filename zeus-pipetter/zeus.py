@@ -15,7 +15,7 @@ import matplotlib.colors as mcolors
 import sys
 import pprint
 
-DEBUG = 1
+DEBUG = 0
 INFO = 1
 WARNING = 1
 ERROR = 1
@@ -918,6 +918,25 @@ class ZeusModule:
     def sendString(self, string):
         # cmd = self.cmdHeader(string)
         self.sendCommand(string)
+
+    def volumeCheck(self, containerGeometryTableIndex, deckGeometryTableIndex,
+                    liquidClassTableIndex, lld, lldSearchPosition, liquidSurface):
+        print(f'containerGeometryTableIndex is {containerGeometryTableIndex}')
+        print(f'deckGeometryTableIndex is {deckGeometryTableIndex}')
+        print(f'liquidClassTableIndex is {liquidClassTableIndex}')
+        print(f'lld is {lld}')
+        print(f'lldSearchPosition is {lldSearchPosition}')
+        print(f'liquidSurface is {liquidSurface}')
+
+        cmd = self.cmdHeader('GJ')
+        cmd = cmd +\
+                'ge' + str(containerGeometryTableIndex.zfill(2)) + \
+                'go' + str(deckGeometryTableIndex.zfill(2)) + \
+                'lq' + str(liquidClassTableIndex.zfill(2)) + \
+                'lb' + str(lld) + \
+                'zp' + str(lldSearchPosition.zfill(4)) + \
+                'cf' + str(liquidSurface.zfill(4))
+        self.sendCommand(cmd)
 
     def aspiration(self, aspirationVolume=0, containerGeometryTableIndex=0,
                    deckGeometryTableIndex=0, liquidClassTableIndex=0, qpm=0,

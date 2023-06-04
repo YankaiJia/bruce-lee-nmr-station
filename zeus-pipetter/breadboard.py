@@ -41,35 +41,17 @@ class Deck:
     beginningofTipPickingPosition: int
     positionofTipDepositProcess: int
 
+deckgeom_300ul = Deck(index=0, endTraversePosition=ZeusTraversePosition,
+                      beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
 
-deckgeom_300ul = Deck(index=0,
-                      endTraversePosition=ZeusTraversePosition,
-                      beginningofTipPickingPosition=1500,
-                      positionofTipDepositProcess=1650)
+deckgeom_1000ul = Deck(index=1, endTraversePosition=ZeusTraversePosition,
+                       beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
 
-deckgeom_1000ul = Deck(index=1,
-                       endTraversePosition=ZeusTraversePosition,
-                       beginningofTipPickingPosition=1500,
-                       positionofTipDepositProcess=1650)
+deckgeom_balance = Deck(index=2, endTraversePosition=balance_traverse_height,
+                        beginningofTipPickingPosition=1530, positionofTipDepositProcess=2217)
 
-deckgeom_balance = Deck(index=2,
-                        endTraversePosition=balance_traverse_height,
-                        beginningofTipPickingPosition=1530,
-                        positionofTipDepositProcess=2217)
-
-deckgeom_50ul = Deck(index=3,
-                     endTraversePosition=ZeusTraversePosition,
-                     beginningofTipPickingPosition=1500,
-                     positionofTipDepositProcess=1650)  # this is the same as 300ul tips
-
-
-@dataclass
-class DeckGeometry:
-    index: int
-    endTraversePosition: int
-    beginningofTipPickingPosition: int
-    positionofTipDepositProcess: int
-
+deckgeom_50ul = Deck(index=3, endTraversePosition=ZeusTraversePosition,
+                     beginningofTipPickingPosition=1500,positionofTipDepositProcess=1650)  # this is the same as 300ul tips
 
 @dataclass
 class Container:
@@ -128,8 +110,7 @@ vial_2ml = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id=''
-)
+    container_id='')
 
 well_bio = Container(
     name='well_bio',
@@ -155,9 +136,7 @@ well_bio = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id=''
-
-)
+    container_id='')
 
 bottle_20ml = Container(
     name='bottle_20ml',
@@ -183,9 +162,8 @@ bottle_20ml = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id=''
+    container_id='')
 
-)
 jar_100ml = Container(
     name='jar_100ml',
     containerGeometryTableIndex=2,
@@ -210,8 +188,7 @@ jar_100ml = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id=''
-)
+    container_id='')
 
 tube_1500ul = Container(
     name='tube_1500ul',
@@ -237,8 +214,7 @@ tube_1500ul = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density= 1.0,
-    container_id=''
-)
+    container_id='')
 
 balance_cuvette = Container(
     name='balance_cuvette',
@@ -270,7 +246,6 @@ balance_cuvette = Container(
 def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a  plate from coordinates of corner wells.'''
     # left_side_wells
-
     coordinates = []
     xs = np.linspace(topleft[0], bottomleft[0], Nwells[0])
     ys = np.linspace(topleft[1], bottomleft[1], Nwells[0])
@@ -293,30 +268,17 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
 
     return coordinates
 
-#
-x_length_vial_2ml = 103 # this is the gap between two edge vials in mm
-y_length_vial_2ml = 65
-# xy_topleft_vial_2ml_plate0 = (-3, -233)
-# plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-#                                                              topleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1]),
-#                                                              topright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1]),
-#                                                              bottomleft=(xy_topleft_vial_2ml_plate0[0], xy_topleft_vial_2ml_plate0[1] - y_length_vial_2ml),
-#                                                              bottomright=(xy_topleft_vial_2ml_plate0[0] - x_length_vial_2ml, xy_topleft_vial_2ml_plate0[1] - y_length_vial_2ml))
-
-
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-3, -232),
                                                              topright=(-107, -231),
                                                              bottomleft=(-3.0, -297.0),
                                                              bottomright=(-107.5, -296))
 
-# xy_topleft_vial_2ml_plate1 = (-157 + 2, -256 + 22.5)
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-153, -232),
                                                              topright= (-257, -231),
                                                              bottomleft=(-153.5, -296.5),
                                                              bottomright=(-258.0, -297))
-# xy_topleft_vial_2ml_plate2 = (-303.5, -232)
 
 plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
                                                              topleft=(-303.5, -232),
@@ -358,7 +320,7 @@ plate7_tube_1500ul_coordinates = generate_container_coordinates(Nwells=(4, 5),
 
 
 # return a list of container(object) in one plate.
-# this function puts container geometry and container coordinate together for one specific plate
+# this function puts geometry and coordinate of containers together into one specific plate
 def container_list(container_geom: object, container_coordinates) -> list:
     # input exp: vial_2ml, plate0_vial_2mL_coordinates
     container_list = []
@@ -371,12 +333,9 @@ def container_list(container_geom: object, container_coordinates) -> list:
 class Plate:
     def __init__(self, plate_id: str, containers=None):
 
-        if containers == None:
-            self.containers = []
-        else:
-            self.containers = containers
-
+        self.containers = containers if containers is not None else []
         self.plate_id = plate_id
+
         self.logger = logging.getLogger('pipette_calibration.breadboard.Plate')
         self.logger.debug(f'A Plate object is created with plate_id: {plate_id}.')
 
@@ -405,53 +364,51 @@ class Plate:
     def assign_container_id(self, plate_id: int):
         for container_index in range(len(self.containers)):
             # print(f'brb.plate_list[{plate_id}].containers[{container_index}]')
-            self.containers[container_index].container_id = f'brb.plate_list[{plate_id}].containers[{container_index}]'
-
+            self.containers[container_index].id = {'plate_id':plate_id, 'container_id': container_index}
 
 def plate_on_breadboard():
-    plate0 = Plate(plate_id='plate0')
-    plate0.add_container(container_list(vial_2ml, plate0_vial_2mL_coordinates))
+    plate0_containers = container_list(vial_2ml, plate0_vial_2mL_coordinates)
+    plate0 = Plate(plate_id='plate0', containers=plate0_containers)
     plate0.assign_container_id(plate_id=0)
 
-    plate1 = Plate(plate_id='plate1')
-    plate1.add_container(container_list(vial_2ml, plate1_vial_2mL_coordinates))
+    plate1_containers = container_list(vial_2ml, plate1_vial_2mL_coordinates)
+    plate1 = Plate(plate_id='plate1', containers=plate1_containers)
     plate1.assign_container_id(plate_id=1)
 
-    plate2 = Plate(plate_id='plate2')
-    plate2.add_container(container_list(vial_2ml, plate2_vial_2mL_coordinates))
+    plate2_containers = container_list(vial_2ml, plate2_vial_2mL_coordinates)
+    plate2 = Plate(plate_id='plate2', containers=plate2_containers)
     plate2.assign_container_id(plate_id=2)
 
-    plate3 = Plate(plate_id='plate3')
-    plate3.add_container(container_list(well_bio, plate3_well_bio_coordinates))
+    plate3_containers = container_list(well_bio, plate3_well_bio_coordinates)
+    plate3 = Plate(plate_id='plate3', containers=plate3_containers)
     plate3.assign_container_id(plate_id=3)
 
-    plate4 = Plate(plate_id='plate4')
-    plate4.add_container(container_list(bottle_20ml, plate4_bottle_20ml_coordinates))
+    plate4_containers = container_list(bottle_20ml, plate4_bottle_20ml_coordinates)
+    plate4 = Plate(plate_id='plate4', containers=plate4_containers)
     plate4.assign_container_id(plate_id=4)
 
-    plate5 = Plate(plate_id='plate5')
-    plate5.add_container(container_list(bottle_20ml, plate5_bottle_20ml_coordinates))
+    plate5_containers = container_list(bottle_20ml, plate5_bottle_20ml_coordinates)
+    plate5 = Plate(plate_id='plate5', containers=plate5_containers)
     plate5.assign_container_id(plate_id=5)
 
-    plate6 = Plate(plate_id='plate6')
-    plate6.add_container(container_list(jar_100ml, plate6_jar_100ml_coordinates))
+    plate6_containers = container_list(jar_100ml, plate6_jar_100ml_coordinates)
+    plate6 = Plate(plate_id='plate6', containers=plate6_containers)
     plate6.assign_container_id(plate_id=6)
 
-    plate7 = Plate(plate_id='plate7')
-    plate7.add_container(container_list(tube_1500ul, plate7_tube_1500ul_coordinates))
+    plate7_containers = container_list(tube_1500ul, plate7_tube_1500ul_coordinates)
+    plate7 = Plate(plate_id='plate7', containers=plate7_containers)
     plate7.assign_container_id(plate_id=7)
 
     module_logger.info('All plates in breadboard are created.')
 
     return plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7
 
-
 plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7 = plate_on_breadboard()
 plate_list = [plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7]
 
-
+# decks are for pipetting tips
 def generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
-    '''generate coordinates for all wells of a well plate from coordinates of corner wells.'''
+
     # left_side_wells
     xs = np.linspace(topleft[0], bottomleft[0], Nwells[0])
     ys = np.linspace(topleft[1], bottomleft[1], Nwells[0])
@@ -552,23 +509,16 @@ tip_rack_50ul = tip_rack['50ul']
 tip_rack_300ul = tip_rack['300ul']
 tip_rack_1000ul = tip_rack['1000ul']
 
-def main():
+if __name__ == "__main__":
 
-    print("This is main.")
+    print('This is main.')
 
     ##run this ONLY when changing new tip rack.
-    load_new_tip_rack(rack_reload ='300ul')
-    module_logger.info('New tip rack: 300ul is loaded.')
-    load_new_tip_rack(rack_reload ='1000ul')
-    module_logger.info('New tip rack: 1000ul is loaded.')
-    load_new_tip_rack(rack_reload ='50ul')
-    module_logger.info('New tip rack: 50ul is loaded.')
+    # load_new_tip_rack(rack_reload ='300ul')
+    # module_logger.info('New tip rack: 300ul is loaded.')
 
+    # load_new_tip_rack(rack_reload ='1000ul')
+    # module_logger.info('New tip rack: 1000ul is loaded.')
 
-
-
-
-
-if __name__ == "__main__":
-    print(1)
-    # main()
+    # load_new_tip_rack(rack_reload ='50ul')
+    # module_logger.info('New tip rack: 50ul is loaded.')

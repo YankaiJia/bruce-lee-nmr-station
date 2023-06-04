@@ -225,9 +225,6 @@ class Pipetter():
         self.logger = logging.getLogger('main.pipetter.Pipetter')
         self.logger.info('creating an instance of Pepetter')
 
-
-
-
     def pick_tip(self, tip_type: str):
 
         with open('data/tip_rack.json') as json_file:
@@ -277,6 +274,23 @@ class Pipetter():
         if self.zeus.tip_on_zeus != '':
             self.discard_tip()
         self.pick_tip(tip_rack)
+
+    def check_volume_in_container(self, container:object,
+                                  containerGeometryTableIndex: int, deckGeometryTableIndex: int,
+                                  liquidClassTableIndex: int, lld: int,
+                                  lldSearchPosition: int, liquidSurface: int,
+                                  tip_for_volume_check: str = '50ul',):
+
+        self.change_tip(tip_for_volume_check)
+        self.zeus.move_z(self.zeus.ZeusTraversePosition)
+        self.gantry.move_xy(container.xy)
+
+        self.zeus.volumeCheck(containerGeometryTableIndex=containerGeometryTableIndex,
+                              deckGeometryTableIndex=deckGeometryTableIndex,
+                              liquidClassTableIndex=liquidClassTableIndex,
+                              lld=lld,
+                              lldSearchPosition=lldSearchPosition,
+                              liquidSurface = liquidSurface)
 
     def draw_liquid(self, transfer_event: object, n_retries=3) -> bool:
 
@@ -539,7 +553,7 @@ if __name__ == '__main__':
     import breadboard as brb
     #
     zm = zeus.ZeusModule(id = 1)
-    time.sleep(5)
+    time.sleep(3)
     #
     gt = Gantry(zeus=zm)
     time.sleep(2)
@@ -547,3 +561,18 @@ if __name__ == '__main__':
     time.sleep(5)
     #
     pt = Pipetter(zeus=zm, gantry=gt)
+
+    pt.check_volume_in_container(container = brb.plate5.containers[0],
+                                 containerGeometryTableIndex = brb.bottle_20ml.containerGeometryTableIndex,
+                                 deckGeometryTableIndex = brb.deckgeom_50ul.index,
+                                 liquidClassTableIndex = '21',
+                                 lld = 1,
+                                 lldSearchPosition = '1700',
+                                 liquidSurface='1700',
+                                 tip_for_volume_check='50ul')
+    time.sleep(2)
+    print(zm.r.received_msg)
+
+    time.sleep(2)
+    print(zm.r.received_msg)
+
