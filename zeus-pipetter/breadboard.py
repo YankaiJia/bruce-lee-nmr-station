@@ -35,25 +35,6 @@ bottom_z_of_balance_cuvette = 1930
 source_substance_containers: list = []
 
 @dataclass
-class Deck:
-    index: int
-    endTraversePosition: int
-    beginningofTipPickingPosition: int
-    positionofTipDepositProcess: int
-
-deckgeom_300ul = Deck(index=0, endTraversePosition=ZeusTraversePosition,
-                      beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
-
-deckgeom_1000ul = Deck(index=1, endTraversePosition=ZeusTraversePosition,
-                       beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
-
-deckgeom_balance = Deck(index=2, endTraversePosition=balance_traverse_height,
-                        beginningofTipPickingPosition=1530, positionofTipDepositProcess=2217)
-
-deckgeom_50ul = Deck(index=3, endTraversePosition=ZeusTraversePosition,
-                     beginningofTipPickingPosition=1500,positionofTipDepositProcess=1650)  # this is the same as 300ul tips
-
-@dataclass
 class Container:
     name: str
     container_id: str
@@ -406,6 +387,28 @@ def plate_on_breadboard():
 plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7 = plate_on_breadboard()
 plate_list = [plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7]
 
+
+
+@dataclass
+class Deck:
+    index: int
+    endTraversePosition: int
+    beginningofTipPickingPosition: int
+    positionofTipDepositProcess: int
+
+deckgeom_300ul = Deck(index=0, endTraversePosition=ZeusTraversePosition,
+                      beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
+
+deckgeom_1000ul = Deck(index=1, endTraversePosition=ZeusTraversePosition,
+                       beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
+
+deckgeom_balance = Deck(index=2, endTraversePosition=balance_traverse_height,
+                        beginningofTipPickingPosition=1530, positionofTipDepositProcess=2217)
+
+deckgeom_50ul = Deck(index=3, endTraversePosition=ZeusTraversePosition,
+                     beginningofTipPickingPosition=1500,positionofTipDepositProcess=1650)  # this is the same as 300ul tips
+
+
 # decks are for pipetting tips
 def generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
 
@@ -429,11 +432,11 @@ def generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright
 
 def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomright):
     well_positions = generate_deck_coordinates(Nwells, topleft, topright, bottomleft, bottomright)
-    plate = {'wells': list()}
+    deck = {'tips': list()}
     for well_index in range(well_positions.shape[0]):
-        plate['wells'].append(template_well.copy())
-        plate['wells'][-1]['xy'] = list(well_positions[well_index, :])
-    return plate
+        deck['tips'].append(template_well.copy())
+        deck['tips'][-1]['xy'] = list(well_positions[well_index, :])
+    return deck
 
 
 def load_new_tip_rack(rack_reload):
@@ -508,6 +511,7 @@ with open('data/tip_rack.json') as json_file:
 tip_rack_50ul = tip_rack['50ul']
 tip_rack_300ul = tip_rack['300ul']
 tip_rack_1000ul = tip_rack['1000ul']
+
 
 if __name__ == "__main__":
 
