@@ -277,8 +277,8 @@ class Pipetter():
 
     def check_volume_in_container(self, container:object,
                                   containerGeometryTableIndex: int, deckGeometryTableIndex: int,
-                                  liquidClassTableIndex: int, lld: int,
-                                  lldSearchPosition: int, liquidSurface: int,
+                                  liquidClassTableIndex: int, lld: int=1,
+                                  lldSearchPosition: int=1700, liquidSurface: int=1700,
                                   tip_for_volume_check: str = '50ul',):
 
         self.change_tip(tip_for_volume_check)

@@ -930,12 +930,12 @@ class ZeusModule:
 
         cmd = self.cmdHeader('GJ')
         cmd = cmd +\
-                'ge' + str(containerGeometryTableIndex.zfill(2)) + \
-                'go' + str(deckGeometryTableIndex.zfill(2)) + \
-                'lq' + str(liquidClassTableIndex.zfill(2)) + \
+                'ge' + str(containerGeometryTableIndex).zfill(2) + \
+                'go' + str(deckGeometryTableIndex).zfill(2) + \
+                'lq' + str(liquidClassTableIndex).zfill(2) + \
                 'lb' + str(lld) + \
-                'zp' + str(lldSearchPosition.zfill(4)) + \
-                'cf' + str(liquidSurface.zfill(4))
+                'zp' + str(lldSearchPosition).zfill(4) + \
+                'cf' + str(liquidSurface).zfill(4)
         self.sendCommand(cmd)
 
     def aspiration(self, aspirationVolume=0, containerGeometryTableIndex=0,

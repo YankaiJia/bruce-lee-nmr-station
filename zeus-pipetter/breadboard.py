@@ -390,22 +390,22 @@ plate_list = [plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7]
 
 
 @dataclass
-class Deck:
+class Deck_para:
     index: int
     endTraversePosition: int
     beginningofTipPickingPosition: int
     positionofTipDepositProcess: int
 
-deckgeom_300ul = Deck(index=0, endTraversePosition=ZeusTraversePosition,
+deckgeom_300ul = Deck_para(index=0, endTraversePosition=ZeusTraversePosition,
                       beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
 
-deckgeom_1000ul = Deck(index=1, endTraversePosition=ZeusTraversePosition,
+deckgeom_1000ul = Deck_para(index=1, endTraversePosition=ZeusTraversePosition,
                        beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
 
-deckgeom_balance = Deck(index=2, endTraversePosition=balance_traverse_height,
+deckgeom_balance = Deck_para(index=2, endTraversePosition=balance_traverse_height,
                         beginningofTipPickingPosition=1530, positionofTipDepositProcess=2217)
 
-deckgeom_50ul = Deck(index=3, endTraversePosition=ZeusTraversePosition,
+deckgeom_50ul = Deck_para(index=3, endTraversePosition=ZeusTraversePosition,
                      beginningofTipPickingPosition=1500,positionofTipDepositProcess=1650)  # this is the same as 300ul tips
 
 
@@ -512,6 +512,17 @@ tip_rack_50ul = tip_rack['50ul']
 tip_rack_300ul = tip_rack['300ul']
 tip_rack_1000ul = tip_rack['1000ul']
 
+@dataclass
+class Liquid:
+    name: str
+    liquid_class_index: int
+    density: float
+
+    def __post_init__(self):
+      pass
+
+    def __repr__(self):
+        return f'liquid_name: {self.name}, liquid_class_index: {self.liquid_class_index}'
 
 if __name__ == "__main__":
 
