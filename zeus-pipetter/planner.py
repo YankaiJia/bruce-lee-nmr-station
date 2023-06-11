@@ -114,7 +114,7 @@ class EventInterpreter:
 
 class TransferEventConstructor:
 
-    def __init__(self, event_dataframe: pd.DataFrame, pipeting_to_balance: bool = False):
+    def __init__(self, event_dataframe: pd.DataFrame, containers_for_stock, pipeting_to_balance: bool = False):
 
         self.substance_name: str = event_dataframe['substance']
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
@@ -124,7 +124,9 @@ class TransferEventConstructor:
 
         # print(f'solvent: {solvent}')
         # print(event_dataframe['substance'])
-        self.source_container: object = self.get_source_container(event_dataframe['substance'])
+        # self.source_container: object = self.get_source_container(event_dataframe['substance'])
+        self.source_container: object = [container for container in containers_for_stock if container.substance == self.substance_name][0]
+
         # print(f'source_container: {self.source_container}')
         # self.source_container_xy = self.source_container.xy
         # print(f'source_container_xy: {self.source_container_xy}')
@@ -302,7 +304,7 @@ def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_nam
     return event_dataframes.pd_output
 
 
-def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool = False) -> list:
+def generate_event_list(event_dataframe: pd.DataFrame,containers_for_stock, pipeting_to_balance: bool = False) -> list:
     """
     IMPORTANT: The source and destination containers in the event_list are not copied, but referenced to the brb.plate_list.
     So, change the liquid_volume in the event_list will also change the liquid_volume in the brb.plate_list, and vice versa.
@@ -317,7 +319,7 @@ def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool
     for i in range(len(event_dataframe.index)):
         # print(i)
         event = TransferEventConstructor(event_dataframe=event_dataframe.iloc[i],
-                                         pipeting_to_balance=pipeting_to_balance)
+                                         pipeting_to_balance=pipeting_to_balance, containers_for_stock=containers_for_stock)
         # print(event.source_container.container_id, event.destination_container.container_id)
         # print(f'event_substance: {event.substance_name}')
         # event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
@@ -333,11 +335,9 @@ def generate_event_list(event_dataframe: pd.DataFrame, pipeting_to_balance: bool
     return event_list
 
 
-def generate_event_object(logger: object, excel_to_generate_dataframe: str,
+def generate_event_object(logger: object, excel_to_generate_dataframe: str,containers_for_stock,
                           sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False) -> tuple:
-    # load containers for source substances
-    source_substance_containers = brb.source_substance_containers
 
     # generate event dataframes from excel
     event_dataframe = \
@@ -349,7 +349,8 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,
 
     # generate event list
     event_list = generate_event_list(event_dataframe=event_dataframe,
-                                     pipeting_to_balance=is_pipeting_to_balance)
+                                     pipeting_to_balance=is_pipeting_to_balance,
+                                     containers_for_stock=containers_for_stock)
 
     logger.info("All event objects are generated from dataframes.")
 

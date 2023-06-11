@@ -1493,9 +1493,10 @@ class ZeusModule:
         raise Exception
         return False
 
-    def move_z(self, z):
+    def move_z(self, z, raise_exception=True):
         self.moveZDrive(z, 'fast')
-        self.wait_until_zeus_responds_with_string('GZid')
+        if raise_exception:
+            self.wait_until_zeus_responds_with_string('GZid')
 
     def zeus_is_at_traverese_height(self):
         if self.pos <= self.ZeusTraversePosition:
@@ -1754,25 +1755,30 @@ class ZeusModule:
         self.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
         time.sleep(0.5)
         self.logger.info(f"liquid parameters: {self.r.received_msg}")
+        print(f"liquid parameters: {self.r.received_msg}")
 
         # calibrations
         self.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
         time.sleep(0.5)
         self.logger.info(f"calibration_asp {self.r.received_msg}")
+        print(f"calibration_asp {self.r.received_msg}")
 
         self.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
         time.sleep(0.5)
         self.logger.info(f"calibration_disp {self.r.received_msg}")
+        print(f"calibration_disp {self.r.received_msg}")
 
 
         # qpm
         self.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
         time.sleep(0.5)
         self.logger.info(f"qpm_asp {self.r.received_msg}")
+        print(f"qpm_asp {self.r.received_msg}")
 
         self.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
         time.sleep(0.5)
         self.logger.info(f"qpm_asp {self.r.received_msg}")
+        print(f"qpm_asp {self.r.received_msg}")
 
     # set_liquid_class_to_zeus( liquid_index =23 )
 
@@ -1787,7 +1793,7 @@ if __name__ == '__main__':
 
     # load container parameters
     zm = ZeusModule(id = 1)
-    zm.setContainerGeometryParameters(brb.vial_2ml)
+    # zm.setContainerGeometryParameters(brb.vial_2ml)
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.well_bio)
     # time.sleep(2)

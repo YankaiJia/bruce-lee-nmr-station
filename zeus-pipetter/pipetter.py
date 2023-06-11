@@ -275,22 +275,47 @@ class Pipetter():
             self.discard_tip()
         self.pick_tip(tip_rack)
 
-    def check_volume_in_container(self, container:object,
-                                  containerGeometryTableIndex: int, deckGeometryTableIndex: int,
-                                  liquidClassTableIndex: int, lld: int=1,
-                                  lldSearchPosition: int=1700, liquidSurface: int=1700,
-                                  tip_for_volume_check: str = '50ul',):
+    def check_volume_in_container(self, container: object,
+                                  liquidClassTableIndex: int = 26, lld: int = 1,
+                                  lldSearchPosition: int = 1600, liquidSurface: int = 1600,
+                                  tip_for_volume_check: str = '50ul',
+                                  change_tip_after_each_check: bool = True):
 
-        self.change_tip(tip_for_volume_check)
-        self.zeus.move_z(self.zeus.ZeusTraversePosition)
+        if change_tip_after_each_check:
+            self.change_tip(tip_for_volume_check)
+        else:
+            if self.zeus.tip_on_zeus != tip_for_volume_check:
+                self.change_tip(tip_for_volume_check)
+
+        self.zeus.move_z(self.zeus.ZeusTraversePosition, raise_exception=False)
+        time.sleep(1)
         self.gantry.move_xy(container.xy)
 
-        self.zeus.volumeCheck(containerGeometryTableIndex=containerGeometryTableIndex,
-                              deckGeometryTableIndex=deckGeometryTableIndex,
+        self.zeus.volumeCheck(containerGeometryTableIndex=container.containerGeometryTableIndex,
+                              deckGeometryTableIndex=brb.deckGeometryTableIndex[tip_for_volume_check],
                               liquidClassTableIndex=liquidClassTableIndex,
                               lld=lld,
                               lldSearchPosition=lldSearchPosition,
-                              liquidSurface = liquidSurface)
+                              liquidSurface=liquidSurface)
+
+        received_msg = self.zeus.r.received_msg
+        while 'yl' not in received_msg:
+            time.sleep(0.2)
+            received_msg = self.zeus.r.received_msg
+        if not self.zeus.zeus_had_error(received_msg):
+            # print(received_msg)
+            liquid_surface = received_msg[received_msg.find('yl') + 2:received_msg.find('yl') + 6]
+            volume = received_msg[received_msg.find('aw') + 2:received_msg.find('aw') + 8]
+            # print(f'Volume Check done! liquid_surface: {liquid_surface}, volume: {volume}')
+        else:
+            print(f'Liquid level not detected')
+            liquid_surface = 0
+            volume = 0
+            self.zeus.move_z(self.zeus.ZeusTraversePosition, raise_exception=False)
+            self.change_tip(tip_for_volume_check, raise_exception=False)
+        print(f'Volume Check done! liquid_surface: {liquid_surface}, volume: {volume}')
+        return (int(liquid_surface), float(int(volume) / 10))  # after / 10, volume is in ul
+
 
     def draw_liquid(self, transfer_event: object, n_retries=3) -> bool:
 
