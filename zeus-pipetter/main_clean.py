@@ -164,6 +164,7 @@ def add_stock_solutions_to_containers(stock_solution_list: list) -> list:
         solution_container = brb.plate_list[solution['plate_id']].containers[solution['container_id']]
         solution_container.substance = solution['substance_name']
         solution_container.substance_density = solution['density']
+        solution_container.solvent = solution['solvent']
 
         solution_container.liquid_surface_height, solution_container.liquid_volume\
             = pt.check_volume_in_container(container=solution_container,liquidClassTableIndex=26,change_tip_after_each_check=True)
@@ -173,6 +174,17 @@ def add_stock_solutions_to_containers(stock_solution_list: list) -> list:
     logger.info(f"Stock solutions are added to containers: {containers_for_stock}")
 
     return containers_for_stock
+
+    ## safety check
+def check_if_event_list_legit(event_list: list):
+        for event in event_list:
+            assert event.asp_liquidClassTableIndex is not None, f"asp_liquidClassTableIndex is not correct: {event.asp_liquidClassTableIndex}"
+            assert event.aspirationVolume >= 0, f"aspirationVolume is not correct: {event.aspirationVolume}"
+            assert event.tip_type in ['50ul', '300ul', '1000ul'], f"tip type is not correct: {event.tip_type}"
+            assert event.disp_liquidClassTableIndex is not None, f"disp_liquidClassTableIndex is not correct: {event.disp_liquidClassTableIndex}"
+            assert event.dispenseVolume >= 0, f"dispenseVolume is not correct: {event.dispenseVolume}"
+
+        print("event_list is legit!")
 
 if __name__ == '__main__':
 
@@ -216,25 +228,6 @@ if __name__ == '__main__':
 
     # update planner.py when necessary
     # importlib.reload(pln)
-    #
-    # ## safety check
-    # for event in event_list_chem:
-    #     if event.tip_type == '50ul':
-    #         event.asp_liquidClassTableIndex = 24
-    #         event.disp_liquidClassTableIndex = 24
-    #     if event.tip_type == '300ul':
-    #         event.asp_liquidClassTableIndex = 22
-    #         event.disp_liquidClassTableIndex = 22
-    #     if event.tip_type == '1000ul':
-    #         event.asp_liquidClassTableIndex = 23
-    #         event.disp_liquidClassTableIndex = 23
-
-    ## safety check
-    def check_if_event_list_legit(event_list: list):
-        for event in event_list:
-            # assert event.
-            assert event.aspirationVolume >= 0, f"aspirationVolume is not correct: {event.aspirationVolume}"
-            assert event.tip_type in ['50ul', '300ul', '1000ul'], f"tip type is not correct: {event.tip_type}"
 
     check_if_event_list_legit(event_list_chem)
 
@@ -246,16 +239,16 @@ if __name__ == '__main__':
                         prewet_tip=True)
 
 
-for event in event_list_chem[174:]:
-    if event.aspirationVolume >= 300:
-        event.asp_liquidClassTableIndex = 23
-        event.disp_liquidClassTableIndex = 23
-        event.tip_type = '1000ul'
-
-## renewal of the liquid surface after refill
-for event in event_list_chem[378:]:
-    event.asp_liquidSurface = 1700
-    event.asp_lldSearchPosition = 1700
+# for event in event_list_chem[174:]:
+#     if event.aspirationVolume >= 300:
+#         event.asp_liquidClassTableIndex = 23
+#         event.disp_liquidClassTableIndex = 23
+#         event.tip_type = '1000ul'
+#
+# ## renewal of the liquid surface after refill
+# for event in event_list_chem[378:]:
+#     event.asp_liquidSurface = 1700
+#     event.asp_lldSearchPosition = 1700
 
 ## the following code is cursed. do not use it....
 

@@ -155,8 +155,8 @@ class TransferEventConstructor:
         self.asp_deckGeometryTableIndex: int = self.get_deck_index(self.tip_type)
         # print(f'asp_deckGeometryTableIndex: {self.asp_deckGeometryTableIndex}')
         self.asp_liquidClassTableIndex: int = \
-            self.get_liquid_class_index(solvent=self.source_container.solvent.split('_')[0],
-                                        mode=self.source_container.solvent.split('_')[-1],
+            self.get_liquid_class_index(solvent=self.source_container.solvent,
+                                        mode=self.source_container.solvent,
                                         tip_type=self.tip_type)
 
         # print(f'asp_liquidClassTableIndex: {self.asp_liquidClassTableIndex}')
