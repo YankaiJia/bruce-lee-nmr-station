@@ -77,9 +77,10 @@ class Unbuffered(object):
 def printMSG(type, msg):
     ts = time.time()  # Timestamp
     if (type == 'info' and INFO == 1):
-        print('OK!')
+        pass
+        # print('OK!')
         # print(
-            # Fore.WHITE + "(" + "{0:f}".format(ts) + ") INFO: " + msg + Style.RESET_ALL)
+        #     Fore.WHITE + "(" + "{0:f}".format(ts) + ") INFO: " + msg + Style.RESET_ALL)
 
     elif (type == 'debug' and DEBUG == 1):
         print(Fore.MAGENTA +

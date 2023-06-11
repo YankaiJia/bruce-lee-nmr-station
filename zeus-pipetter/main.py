@@ -256,7 +256,7 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0526', usecols='B:G',
+                                  sheet_name='Reactions_0608', usecols='B:F',
                                   is_pipeting_to_balance=False, is_for_bio=False)
 
     # save the event list in pickle file and later load from this file

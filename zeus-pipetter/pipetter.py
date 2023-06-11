@@ -234,12 +234,12 @@ class Pipetter():
         self.zeus.wait_until_zeus_reaches_traverse_height()
 
         # if the rack is empty then ask user to reload
-        if not any(item['exists'] for item in tip_rack[tip_type]['wells']):
+        if not any(item['exists'] for item in tip_rack[tip_type]['tips']):
             input(f'ERROR: The tip rack is empty. Please reload the tip rack and hit enter.')
             tip_rack = brb.load_new_tip_rack(rack_reload=tip_type)
 
         # In the rack, find the first tip that exists
-        for item in tip_rack[tip_type]['wells']:
+        for item in tip_rack[tip_type]['tips']:
             if item['exists']:
                 # pick up tip
                 self.gantry.move_xy(item['xy'], ensure_traverse_height=True)
@@ -562,17 +562,17 @@ if __name__ == '__main__':
     #
     pt = Pipetter(zeus=zm, gantry=gt)
 
-    pt.check_volume_in_container(container = brb.plate5.containers[0],
-                                 containerGeometryTableIndex = brb.bottle_20ml.containerGeometryTableIndex,
-                                 deckGeometryTableIndex = brb.deckgeom_50ul.index,
-                                 liquidClassTableIndex = '21',
-                                 lld = 1,
-                                 lldSearchPosition = '1700',
-                                 liquidSurface='1700',
-                                 tip_for_volume_check='50ul')
-    time.sleep(2)
-    print(zm.r.received_msg)
-
-    time.sleep(2)
-    print(zm.r.received_msg)
+    # pt.check_volume_in_container(container = brb.plate5.containers[0],
+    #                              containerGeometryTableIndex = brb.bottle_20ml.containerGeometryTableIndex,
+    #                              deckGeometryTableIndex = brb.deckgeom_50ul.index,
+    #                              liquidClassTableIndex = '21',
+    #                              lld = 1,
+    #                              lldSearchPosition = '1700',
+    #                              liquidSurface='1700',
+    #                              tip_for_volume_check='50ul')
+    # time.sleep(2)
+    # print(zm.r.received_msg)
+    #
+    # time.sleep(2)
+    # print(zm.r.received_msg)
 

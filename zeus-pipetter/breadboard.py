@@ -249,56 +249,98 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
 
     return coordinates
 
+
+#
+# corner_coordinates = {
+#     'plate0': { 'top_left': (-3, -232),
+#                 'top_right': (-107, -231),
+#                 'bottom_left': (-3.0, -297.0),
+#                 'bottom_right': (-107.5, -296)},
+#     'plate1': { 'top_left': (-153, -232),
+#                 'top_right': (-257, -231),
+#                 'bottom_left': (-153.5, -296.5),
+#                 'bottom_right': (-258.0, -297)},
+#     'plate2': { 'top_left': (-303, -232),
+#                 'top_right': (-407, -231),
+#                 'bottom_left': (-303.5, -296.5),
+#                 'bottom_right': (-408.0, -297)},
+#     'plate3': { 'top_left': (-453, -232),
+#                 'top_right': (-557, -231),
+#                 'bottom_left': (-453.5, -296.5),
+#                 'bottom_right': (-558.0, -297)},
+#     'plate4': { 'top_left': (-603, -232),
+#                 'top_right': (-707, -231),
+#                 'bottom_left': (-603.5, -296.5),
+#                 'bottom_right': (-708.0, -297)},
+#     'plate5': { 'top_left': (-753, -232),
+#                 'top_right': (-857, -231),
+#                 'bottom_left': (-753.5, -296.5),
+#                 'bottom_right': (-858.0, -297)},
+#
+#     'plate6': { 'jar1': (-322, -165),
+#                 'jar2': (-385, -165)},
+#
+#     'plate7': { 'top_left': (-1053, -232),
+#                 'top_right': (-1157, -231),
+#                 'bottom_left': (-1053.5, -296.5),
+#                 'bottom_right': (-1158.0, -297)},
+#     }
+#
+# ## save coordinates to json file
+# with open('data\\corner_coordinates.json', 'w') as f:
+#     json.dump(corner_coordinates, f, indent=4)
+
+## load coordinates from json file
+with open('data\\corner_coordinates.json', 'r') as f:
+    corner_coordinates = json.load(f)
+
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(-3, -232),
-                                                             topright=(-107, -231),
-                                                             bottomleft=(-3.0, -297.0),
-                                                             bottomright=(-107.5, -296))
+                                                             topleft=corner_coordinates['plate0']['top_left'],
+                                                             topright=corner_coordinates['plate0']['top_right'],
+                                                             bottomleft=corner_coordinates['plate0']['bottom_left'],
+                                                             bottomright=corner_coordinates['plate0']['bottom_right'])
+
 
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(-153, -232),
-                                                             topright= (-257, -231),
-                                                             bottomleft=(-153.5, -296.5),
-                                                             bottomright=(-258.0, -297))
+                                                             topleft=corner_coordinates['plate1']['top_left'],
+                                                             topright=corner_coordinates['plate1']['top_right'],
+                                                             bottomleft=corner_coordinates['plate1']['bottom_left'],
+                                                             bottomright=corner_coordinates['plate1']['bottom_right'])
 
 plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=(-303.5, -232),
-                                                             topright=(-408.5, -232.0),
-                                                             bottomleft=(-303.5, -296.5),
-                                                             bottomright=(-408.5, -297.0))
-x_length_well_bio = 99
-y_length_well_bio = 63
-xy_topleft_well_bio_plate3 = (-453.5, -233)
+                                                             topleft=corner_coordinates['plate2']['top_left'],
+                                                             topright=corner_coordinates['plate2']['top_right'],
+                                                             bottomleft=corner_coordinates['plate2']['bottom_left'],
+                                                             bottomright=corner_coordinates['plate2']['bottom_right'])
+
 plate3_well_bio_coordinates = generate_container_coordinates(Nwells=(8, 12),
-                                                             topleft=(xy_topleft_well_bio_plate3 [0], xy_topleft_well_bio_plate3 [1]),
-                                                             topright=(xy_topleft_well_bio_plate3 [0] - x_length_well_bio, xy_topleft_well_bio_plate3 [1]),
-                                                             bottomleft=(xy_topleft_well_bio_plate3 [0], xy_topleft_well_bio_plate3 [1] - y_length_well_bio),
-                                                             bottomright=(xy_topleft_well_bio_plate3 [0] - x_length_well_bio, xy_topleft_well_bio_plate3 [1] - y_length_well_bio))
-x_length_bottle_20ml = 85
-y_length_bottle_20ml = 28
-xy_topleft_bottle_20ml_plate4 = (-10, -151)
+                                                             topleft=corner_coordinates['plate3']['top_left'],
+                                                             topright=corner_coordinates['plate3']['top_right'],
+                                                             bottomleft=corner_coordinates['plate3']['bottom_left'],
+                                                             bottomright=corner_coordinates['plate3']['bottom_right'])
+
 plate4_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
-                                                                topleft=(xy_topleft_bottle_20ml_plate4[0], xy_topleft_bottle_20ml_plate4[1]),
-                                                                topright=(xy_topleft_bottle_20ml_plate4[0] - x_length_bottle_20ml, xy_topleft_bottle_20ml_plate4[1]),
-                                                                bottomleft=(xy_topleft_bottle_20ml_plate4[0], xy_topleft_bottle_20ml_plate4[1] - y_length_bottle_20ml),
-                                                                bottomright=(xy_topleft_bottle_20ml_plate4[0] - x_length_bottle_20ml, xy_topleft_bottle_20ml_plate4[1] - y_length_bottle_20ml))
-xy_topleft_bottle_20ml_plate5 = (-161, -152) # (x,y)
+                                                                topleft=corner_coordinates['plate4']['top_left'],
+                                                                topright=corner_coordinates['plate4']['top_right'],
+                                                                bottomleft=corner_coordinates['plate4']['bottom_left'],
+                                                                bottomright=corner_coordinates['plate4']['bottom_right'])
+
+
+
 plate5_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
-                                                                topleft=(xy_topleft_bottle_20ml_plate5[0], xy_topleft_bottle_20ml_plate5[1]),
-                                                                topright=(xy_topleft_bottle_20ml_plate5[0] - x_length_bottle_20ml, xy_topleft_bottle_20ml_plate5[1]),
-                                                                bottomleft=(xy_topleft_bottle_20ml_plate5[0], xy_topleft_bottle_20ml_plate5[1] - y_length_bottle_20ml),
-                                                                bottomright=(xy_topleft_bottle_20ml_plate5[0] - x_length_bottle_20ml, xy_topleft_bottle_20ml_plate5[1] - y_length_bottle_20ml))
-plate6_jar_100ml_coordinates = [(-322, -165), (-385, -165)]
+                                                                topleft=corner_coordinates['plate5']['top_left'],
+                                                                topright=corner_coordinates['plate5']['top_right'],
+                                                                bottomleft=corner_coordinates['plate5']['bottom_left'],
+                                                                bottomright=corner_coordinates['plate5']['bottom_right'])
 
-x_length_tube_1500ul = 88.5
-y_length_tube_1500ul = 56
-xy_topleft_tube_1500ul_plate7 = (-461.0, -137)
+plate6_jar_100ml_coordinates = [corner_coordinates['plate6']['jar1'], corner_coordinates[ 'plate6']['jar2']]
+
+
 plate7_tube_1500ul_coordinates = generate_container_coordinates(Nwells=(4, 5),
-                                                                topleft=(xy_topleft_tube_1500ul_plate7[0], xy_topleft_tube_1500ul_plate7[1]),
-                                                                topright=(xy_topleft_tube_1500ul_plate7[0]- x_length_tube_1500ul, xy_topleft_tube_1500ul_plate7[1]),
-                                                                bottomleft=(xy_topleft_tube_1500ul_plate7[0], xy_topleft_tube_1500ul_plate7[1] - y_length_tube_1500ul),
-                                                                bottomright=(xy_topleft_tube_1500ul_plate7[0] - x_length_tube_1500ul, xy_topleft_tube_1500ul_plate7[1] - y_length_tube_1500ul))
-
+                                                                topleft=corner_coordinates['plate7']['top_left'],
+                                                                topright=corner_coordinates['plate7']['top_right'],
+                                                                bottomleft=corner_coordinates['plate7']['bottom_left'],
+                                                                bottomright=corner_coordinates['plate7']['bottom_right'])
 
 # return a list of container(object) in one plate.
 # this function puts geometry and coordinate of containers together into one specific plate
