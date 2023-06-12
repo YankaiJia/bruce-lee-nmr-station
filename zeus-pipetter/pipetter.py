@@ -277,7 +277,7 @@ class Pipetter():
 
     def check_volume_in_container(self, container: object,
                                   liquidClassTableIndex: int = 26, lld: int = 1,
-                                  lldSearchPosition: int = 1600, liquidSurface: int = 1600,
+                                  lldSearchPosition: int = 1300, liquidSurface: int = 1300,
                                   tip_for_volume_check: str = '50ul',
                                   change_tip_after_each_check: bool = True):
 
@@ -324,7 +324,7 @@ class Pipetter():
 
         for retry in range(n_retries):
             try:
-                print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
+                # print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
                 self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)), # volume in 0.1 ul
                                      containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
                                      deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
@@ -394,7 +394,7 @@ class Pipetter():
 
         # if it exceeds max_volume, then do several pipettings
         N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
-        print(f'N_max_vol_pipettings: {N_max_vol_pipettings}')
+        # print(f'N_max_vol_pipettings: {N_max_vol_pipettings}')
 
         for i in range(N_max_vol_pipettings):
             print(f'Pipetting {i+1} of {N_max_vol_pipettings}')

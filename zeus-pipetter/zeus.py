@@ -975,8 +975,8 @@ class ZeusModule:
               'ma' + str(mixVolume).zfill(5) + \
               'mb' + str(mixFlowRate).zfill(5) + \
               'dn' + str(mixCycles).zfill(2)
-        print(f"DEBUG: zeus.dispensing():: The command sent to Zeus is : {cmd}")
-        print(f"DEBUG: zeus.dispensing():: liquidSurface is : {liquidSurface}")
+        # print(f"DEBUG: zeus.dispensing():: The command sent to Zeus is : {cmd}")
+        # print(f"DEBUG: zeus.dispensing():: liquidSurface is : {liquidSurface}")
         self.sendCommand(cmd)
 
     def switchOff(self):
@@ -1573,7 +1573,7 @@ class ZeusModule:
         self.sendCommand(cmd)
         time.sleep(0.5)
         msg_received_from_Zeus = self.r.received_msg
-        print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
+        # print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
 
     def extract_qpm_aspiration(self, liquid_index, id='0001'):
