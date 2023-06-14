@@ -179,6 +179,7 @@ class Gantry():
 
     def home_xy(self, ensure_traverse_height=True) -> None:
         self.logger.info('The gantry is homing...')
+        self.zm.move_z(self.zm.ZeusTraversePosition)
         self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,
                               ensure_traverse_height=ensure_traverse_height)
         self.xy_pos()
@@ -224,6 +225,9 @@ class Pipetter():
 
         self.logger = logging.getLogger('main.pipetter.Pipetter')
         self.logger.info('creating an instance of Pepetter')
+
+    def home_xy(self):
+        self.gantry.home_xy()
 
     def pick_tip(self, tip_type: str):
 
@@ -302,6 +306,8 @@ class Pipetter():
         while 'yl' not in received_msg:
             time.sleep(0.2)
             received_msg = self.zeus.r.received_msg
+
+        time.sleep(0.2)
         if not self.zeus.zeus_had_error(received_msg):
             # print(received_msg)
             liquid_surface = received_msg[received_msg.find('yl') + 2:received_msg.find('yl') + 6]

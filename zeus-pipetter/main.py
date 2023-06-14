@@ -217,7 +217,7 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0612', usecols='B:F',
+                                  sheet_name='Reactions_0613', usecols='B:C',
                                   is_pipeting_to_balance=False, is_for_bio=False, containers_for_stock=containers_for_stock, )
 
     # save the event list in pickle file and later load from this file
@@ -238,7 +238,9 @@ if __name__ == '__main__':
                         event_list= event_list_chem,
                         start_event_id=0,
                         prewet_tip=True)
-
+for event in event_list_chem:
+    # print(event.asp_lld)
+    event.asp_lldSearchPosition -= 50
 
 # for event in event_list_chem[174:]:
 #     if event.aspirationVolume >= 300:

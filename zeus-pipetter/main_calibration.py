@@ -269,7 +269,7 @@ for event in calibration_event_list_reversed:
 weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
                                                 calibration_event_list= calibration_event_list_reversed,
                                                change_tip_after_every_pipetting= False,
-                                               repeat_n_times= 5)
+                                               repeat_n_times= 10)
 
 # save the weighing result to json file
 with open('data\\weighing_result.json', 'w') as f:

@@ -214,7 +214,8 @@ def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
 def transfer_liquid_from_old_vial_to_new( skip_vials=(), rows_to_dilute=(0, 18, 36)): # transfer volume 20ul
-    global event_list_dilution_old_to_new
+
+    event_list_dilution_old_to_new = []
 
     for i in rows_to_dilute:
         for vial_index in range(i, i + 9):
@@ -265,7 +266,7 @@ if __name__ == '__main__':
     time.sleep(60*mins_to_wait)
 
     print('Starting dilution')
-    dilute_old_vial(skip_vials = ())
+    # dilute_old_vial(skip_vials = ())
     transfer_liquid_from_old_vial_to_new(skip_vials = ())
     dilute_new_vial(skip_vials = ())
 
