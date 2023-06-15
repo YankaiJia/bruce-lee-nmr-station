@@ -460,6 +460,10 @@ class SpectraProcessor:
                                                       fill_value='extrapolate')
                                  for i in range(2)]
 
+        if len(wavelength_indices[mask]) == 0:
+            print('There is no data that is within mask. Returning zeros.')
+            return [0 for i in range(4)]
+
         def func(xs, a, b, c, d, e, f):
             return a * calibrants[0]['reference_interpolator'](xs) + b * calibrants[1]['reference_interpolator'](xs) + c \
                    + d*xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
@@ -474,8 +478,10 @@ class SpectraProcessor:
             linebounds = [-np.inf, np.inf]
         else:
             linebounds = [-1e-15, 1e-15]
-        bounds = ([-1e-9, -1e-9, -np.inf, linebounds[0], -np.inf, -np.inf],
-                  [upper_bounds[0], upper_bounds[1], np.inf, linebounds[1], np.inf, np.inf])
+
+        bkg_comp_limit = 1e-5
+        bounds = ([-1e-9, -1e-9, -np.inf, linebounds[0], -1*bkg_comp_limit, -1*bkg_comp_limit],
+                  [upper_bounds[0], upper_bounds[1], np.inf, linebounds[1], bkg_comp_limit, bkg_comp_limit])
         popt, pcov = curve_fit(func, wavelength_indices[mask], target_spectrum[mask],
                                p0=p0, bounds=bounds)
         perr = np.sqrt(np.diag(pcov))  # errors of the fitted coefficients
@@ -563,21 +569,75 @@ class SpectraProcessor:
             concentrations.append(concentrations_here[0])
         input_compositions[calibrant_shortnames[0]] = concentrations
         input_compositions.to_csv(
-            data_folder + experiment_name + f'results/timepoint{timepoint_id:03d}-reaction_results.csv', index=False)
+            experiment_folder + f'results/timepoint{timepoint_id:03d}-reaction_results.csv', index=False)
         return input_compositions
 
 
-    def get_absorbance_at_single_wavelength_for_one_plate(self, plate_folder, wavelength_id = 100, ref_wavelength_id=[500]):
+    def get_absorbance_at_single_wavelength_for_one_plate(self, plate_folder, wavelength=None, ref_wavelengths=None,
+                                                          wavelength_id = 100, ref_wavelength_id=[500]):
+        if not (wavelength is None):
+            wavelengths = self.load_msp_by_id(plate_folder=plate_folder, well_id=0)[:, 0]
+            wavelength_id = np.absolute(wavelengths - wavelength).argmin()
+            ref_wavelength_id = [np.absolute(wavelengths - ref_wavelength).argmin() for ref_wavelength in ref_wavelengths]
+
         concentrations = []
         for well_id in range(54):
             spectrum = self.load_msp_by_id(plate_folder=plate_folder, well_id=well_id)[:, 1]
             concentrations.append(spectrum[wavelength_id] - np.mean(np.array([spectrum[ref_wav] for ref_wav in ref_wavelength_id])))
         return np.array(concentrations)
 
+def plot_differential_absorbances_for_plate(craic_exp_name,
+                                            wavelength,
+                                            ref_wavelengths,
+                                            ):
+    """
+    Plots the difference between absorbance at the target wavelength and the mean absorbance at reference wavelengths
+    from ref_wavelength list.
+
+    Parameters
+    ----------
+    craic_exp_name: str
+        Name of the folder with CRAIC microspectrometer measurements.
+    wavelength
+        Target wavelength at which the absorbance is calculated.
+    ref_wavelengths
+        List of reference wavelengths. Mean absorbance at these wavelengths is subtracted from the absorbance at the
+        target wavelength.
+
+    Returns
+    -------
+    diff: np.array
+        Array of differential absorbances.
+    """
+    sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
+                                                         '2022-12-01/interpolator-dataset/')
+    craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
+    sp.show_all_spectra(craic_folder + craic_exp_name + '/')
+    plt.show()
+    diff = sp.get_absorbance_at_single_wavelength_for_one_plate(craic_folder + craic_exp_name + '/',
+                                                                wavelength=wavelength,
+                                                                ref_wavelengths=ref_wavelengths)
+    diluted_indices = [i + j for i in [9, 27, 45] for j in range(9)]
+    undiluted_indices = [i + j for i in [0, 18, 36] for j in range(9)]
+    diff = diff[diluted_indices]
+    print(f'rel.std {np.std(diff) / np.mean(diff)}')
+    plt.plot(diff)
+    plt.xlabel('Vial ID')
+    plt.ylabel(f'Absorbance at {wavelength} nm minus absorbance at wavelengths {ref_wavelengths} nm')
+    plt.title(f'{craic_exp_name}.\nRel. STD: {np.std(diff) / np.mean(diff)}')
+    plt.show()
+    return diff
+
 if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
+
+    plot_differential_absorbances_for_plate(
+            craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
+            wavelength=420,
+            ref_wavelengths=[525]
+            )
 
     # ##### =================================== 2023-01-18-run01 ========================================================
     # experiment_name = 'multicomp-reactions/2023-01-18-run01/'
@@ -650,12 +710,18 @@ if __name__ == '__main__':
     #
     # concentrations_df.to_csv(data_folder + experiment_name + 'results/' + 'product_concentration.csv', index=False)
 
-    craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
-    sp.show_all_spectra(craic_folder + '2023-04-13_16-45-08__plate0000017__multicomp-reactions-2023-04-12-run01/')
-    plt.show()
+    # craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
+    # sp.show_all_spectra(craic_folder + '2023-06-13_14-15-08__plate0000039__multicomponent-reactions-2023-06-13-pigments/')
+    # sp.show_all_spectra(
+    #     craic_folder + '2023-06-13_14-42-05__plate0000040__multicomponent-reactions-2023-06-13-pigments/')
+    # sp.show_all_spectra(craic_folder + '2023-05-23_01-51-15__plate0000020__simple-reactions-2023-05-22-run01_calibration/')
+    # plt.show()
     # wavelengths = sp.load_msp_by_id(craic_folder + '2023-04-08_16-06-36__plate0000021__2023-04-07-run01-diluted/', well_id=0)[:, 0]
     # pass
 
     # conc = sp.get_absorbance_at_single_wavelength_for_one_plate(craic_folder + '2023-04-08_16-06-36__plate0000021__2023-04-07-run01-diluted/',
     #                                                             wavelength_id=98,
     #                                                             ref_wavelength_id=198)
+
+    # w1 = get_absorbance_at_single_wavelength_for_one_plate()
+
