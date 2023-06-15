@@ -245,7 +245,7 @@ def specify_tip_and_liquidClassIndex_for_calibration(event_list: list = calibrat
         event.disp_liquidClassTableIndex = 1
         event.asp_lld = 0
         event.asp_liquidSurface = 2000
-        event.disp_liquidSurface = 1700
+        event.disp_liquidSurface = 1500
         event.aspirationVolume = 200
         event.dispensingVolume = 200
         event.tip_type = '300ul'
@@ -253,16 +253,17 @@ def specify_tip_and_liquidClassIndex_for_calibration(event_list: list = calibrat
 
     return event_list
 
-
 # calibration_event_list_adjust = specify_tip_and_liquidClassIndex_for_calibration()
 #########################################################################
 
 
 calibration_event_list_reversed = calibration_event_list[::-1] # reverse the list. pipetting from large volume
 
+calibration_event_list_reversed = calibration_event_list_reversed[::-1]
 for event in calibration_event_list_reversed:
     event.asp_liquidSurface = 1600
     event.asp_lldSearchPosition = 1600
+    event.disp_liquidSurface = 1500
     print(event)
 
 # do_calibration

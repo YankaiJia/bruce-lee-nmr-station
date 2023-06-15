@@ -217,7 +217,7 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0613', usecols='B:C',
+                                  sheet_name='Reactions_0613', usecols='B:F',
                                   is_pipeting_to_balance=False, is_for_bio=False, containers_for_stock=containers_for_stock, )
 
     # save the event list in pickle file and later load from this file
@@ -232,80 +232,13 @@ if __name__ == '__main__':
 
     check_if_event_list_legit(event_list_chem)
 
-    # do multicomponent reactions
-    pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                        # event_list_path=pickle_file,
-                        event_list= event_list_chem,
-                        start_event_id=0,
-                        prewet_tip=True)
-for event in event_list_chem:
-    # print(event.asp_lld)
-    event.asp_lldSearchPosition -= 50
+    for event in event_list_chem:
+        # print(event.asp_lld)
+        event.asp_lldSearchPosition -= 50
 
-# for event in event_list_chem[174:]:
-#     if event.aspirationVolume >= 300:
-#         event.asp_liquidClassTableIndex = 23
-#         event.disp_liquidClassTableIndex = 23
-#         event.tip_type = '1000ul'
-#
-# ## renewal of the liquid surface after refill
-# for event in event_list_chem[378:]:
-#     event.asp_liquidSurface = 1700
-#     event.asp_lldSearchPosition = 1700
+    # # do multicomponent reactions
+    # pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+    #                     event_list= event_list_chem,
+    #                     start_event_id=0,
+    #                     prewet_tip=True)
 
-## the following code is cursed. do not use it....
-
-# event_list_path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\zeus-pipetter\\' \
-#                   'multicomponent_reaction\\0323\\event_list_chem_0-551_events.pickle'
-# with open(event_list_path, 'rb') as f:
-#     event_list = pickle.load(f)
-#
-# for event in event_list:
-#     print(event.is_event_conducted)
-#     print(event.event_label)
-# #
-# # step1: update the event list. compare the first event to check the starting liquid surface height
-# event_list_chem_later_later = copy.deepcopy(event_list_chem)
-# for event in event_list_chem_later_later:
-#     if event.substance_name == 'ic001':
-#         print(event.event_label)
-#         event.asp_liquidSurface = 1700
-#         event.asp_lldSearchPosition = 1700
-#
-#
-# ## do multicomponent reactions
-# pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-#                     # event_list_path='multicomponent_reaction\\event_list_chem.pickle',
-#                     event_list=event_list_chem_later_later,
-#                     start_event_id= 0 )
-#
-
-# ## 0322 for updating DMF volume.
-#
-# # step1: update the event list. compare the first event to check the starting liquid surface height
-# event_list_chem_later = copy.deepcopy(event_list_chem)
-# for event in event_list_chem_later[1094:]:
-#     if event.substance_name == 'DMF':
-#         print(event.event_label)
-#         event.asp_liquidSurface = event.asp_liquidSurface - 386
-#         event.asp_lldSearchPosition = event.asp_liquidSurface - 50
-#
-# ## step2: run the event list
-# pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-#                     # event_list_path='multicomponent_reaction\\event_list_chem.pickle',
-#                     event_list=event_list_chem_later,
-#                     start_event_id= 1094)
-#
-#
-# with open('multicomponent_reaction\\event_list_chem_later.pickle', 'wb') as f:
-#     pickle.dump(event_list_chem_later, f)
-
-# with open('multicomponent_reaction\\event_list_chem.pickle', 'wb') as f:
-#     pickle.dump(event_list_chem, f)
-#
-#
-# with open('multicomponent_reaction\\event_list_chem.pickle', 'rb') as f:
-#     new  = pickle.load(f)
-#
-# with open(event_list_path, 'rb') as f:
-#     event_list = pickle.load(f)

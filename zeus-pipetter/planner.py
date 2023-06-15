@@ -375,7 +375,8 @@ def do_calibration_on_events(zm: object, pt: object, logger: object,
             time.sleep(0.5)
 
         result = pt.pipetting_to_balance_and_weight_n_times(transfer_event=calibration_event_list[event_index],
-                                                            n_times=repeat_n_times, change_tip_after_every_pipetting= change_tip_after_every_pipetting)
+                                                            n_times=repeat_n_times,
+                                                            change_tip_after_every_pipetting= change_tip_after_every_pipetting)
         results_for_calibration.append(result)
 
         time.sleep(1)
@@ -456,30 +457,11 @@ def beep():
     # time.sleep(0.2)
     winsound.Beep(freq, duration)
 
-def run_events_chem(zm: object, pt: object, logger: object, start_event_id: int,
-                    event_list_path=None, event_list=None,
+def run_events_chem(zm: object, pt: object, logger: object,
+                    start_event_id: int,
+                    event_list=None,
                     change_tip_after_every_pipetting: bool = False,
-                    prewet_tip: bool = True) -> dict[Any, Any]:
-
-    # for event list, specify either a path or a list. Only speficify one of them.
-    if event_list_path is not None:
-        with open(event_list_path, 'rb') as f:
-            event_list = pickle.load(f)
-
-    # ## adjust lc index ## this is for 0320_run
-    # for event in event_list:
-    #     if event.aspirationVolume <= 50:
-    #         event.asp_liquidClassTableIndex = 24
-    #         event.disp_liquidClassTableIndex = 24
-    #         event.tip_type = '50ul'
-    #     elif event.aspirationVolume <=300:
-    #         event.asp_liquidClassTableIndex = 22
-    #         event.disp_liquidClassTableIndex = 22
-    #         event.tip_type = '300ul'
-    #     else:
-    #         event.asp_liquidClassTableIndex = 23
-    #         event.disp_liquidClassTableIndex = 23
-    #         event.tip_type = '1000ul'
+                    prewet_tip: bool = True):
 
     liquid_surface_height_from_zeus = {}
 
