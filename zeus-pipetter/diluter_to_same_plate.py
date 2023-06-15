@@ -266,7 +266,7 @@ if __name__ == '__main__':
     time.sleep(60*mins_to_wait)
 
     print('Starting dilution')
-    # dilute_old_vial(skip_vials = ())
+    dilute_old_vial(skip_vials = ())
     transfer_liquid_from_old_vial_to_new(skip_vials = ())
     dilute_new_vial(skip_vials = ())
 

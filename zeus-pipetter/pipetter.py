@@ -488,7 +488,9 @@ class Pipetter():
             line = self.balance.readline()
             # print(f'balance line: {line}')
             if (b'S D' in line) or (b'S S' in line):
-                raw_parsed = line.split(b' g\r\n')[0][-8:]
+                raw_parsed = line.split(b' g\r\n')[0][-8:] # this is for balance XPE205
+                raw_parsed = re.findall(r"[-+]?(?:\d*\.*\d+)", line.decode("utf-8") )[0] # this is for balance ME204
+
                 if verbose:
                     print(f"Raw parsed: {raw_parsed}")
                 value: float = float(raw_parsed)
