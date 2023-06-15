@@ -24,7 +24,6 @@ class EventInterpreter:
     will be created.
         2, call add_events_to_df() to add events to self.pd_output.
     '''
-
     def __init__(self,
                  dataframe_filename: str,
                  sheet_name: str,
