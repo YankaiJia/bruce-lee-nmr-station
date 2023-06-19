@@ -168,6 +168,7 @@ def generate_dilution_event(source_container: object = None,
 # step1: dilution original reactions, adding volume: 1400ul
 def dilute_old_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volume 1400ul
     global event_list_dilute_old_vial
+    event_list_dilute_old_vial = []
 
     # generate dilution events
     for i in rows_to_dilute:
@@ -194,6 +195,7 @@ def dilute_old_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volum
 # for testing spectrophotometer repeatability, 2021-03-22 14:23
 def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
     global event_list_transfer_to_54_vials
+    event_list_transfer_to_54_vials = []
 
     # generate dilution events
     for vial_index in range(54):
@@ -203,7 +205,7 @@ def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
                                                 destination_container=destination_container,
                                                 volume=volume_added_to_vial,
                                                 asp_liquid_surface = 1600,
-                                                disp_liquid_surface = 2100)
+                                                disp_liquid_surface = 2000)
             event_list_transfer_to_54_vials.append(event_temp)
     # time.sleep(2)
 
@@ -214,7 +216,7 @@ def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
 def transfer_liquid_from_old_vial_to_new( skip_vials=(), rows_to_dilute=(0, 18, 36)): # transfer volume 20ul
-
+    global event_list_dilution_old_to_new
     event_list_dilution_old_to_new = []
 
     for i in rows_to_dilute:
@@ -266,7 +268,7 @@ if __name__ == '__main__':
     time.sleep(60*mins_to_wait)
 
     print('Starting dilution')
-    dilute_old_vial(skip_vials = ())
+    # dilute_old_vial(skip_vials = ())
     transfer_liquid_from_old_vial_to_new(skip_vials = ())
     dilute_new_vial(skip_vials = ())
 

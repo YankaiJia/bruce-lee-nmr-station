@@ -264,7 +264,7 @@ add_stock_solutions_to_brb_containers(reaction_excel_path=path_for_reactions)
 event_dataframe_chem, event_list_chem = \
     pln.generate_event_object(logger=logger,
                               excel_to_generate_dataframe=path_for_reactions,
-                              sheet_name='Reactions_0906', usecols='B:G',
+                              sheet_name='Reactions_0609', usecols='B:G',
                               is_pipeting_to_balance=False, is_for_bio=False)
 time.sleep(1)
 

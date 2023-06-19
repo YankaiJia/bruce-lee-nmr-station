@@ -382,7 +382,7 @@ class Pipetter():
                              mixVolume=transfer_event.disp_mixVolume,
                              mixFlowRate=transfer_event.disp_mixVolume,
                              mixCycles=transfer_event.disp_mixCycles)
-        print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
+        # print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
 
         time.sleep(1.5)
         # wait_until_zeus_reaches_traverse_height()
@@ -403,14 +403,14 @@ class Pipetter():
         # print(f'N_max_vol_pipettings: {N_max_vol_pipettings}')
 
         for i in range(N_max_vol_pipettings):
-            print(f'Pipetting {i+1} of {N_max_vol_pipettings}')
+            # print(f'Pipetting {i+1} of {N_max_vol_pipettings}')
             _split_event_1 = copy.deepcopy(transfer_event)
             _split_event_1.aspirationVolume = max_volume # volume in ul
             _split_event_1.dispensingVolume = max_volume # volume in ul
-            print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
-            print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
+            # print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
+            # print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
             self.draw_liquid(_split_event_1)
-            print(f'DEBUG: transfer_liquid()::disp_height: {transfer_event.disp_liquidSurface}')
+            # print(f'DEBUG: transfer_liquid()::disp_height: {transfer_event.disp_liquidSurface}')
             liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_1)
 

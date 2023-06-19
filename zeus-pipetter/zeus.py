@@ -922,12 +922,12 @@ class ZeusModule:
 
     def volumeCheck(self, containerGeometryTableIndex, deckGeometryTableIndex,
                     liquidClassTableIndex, lld, lldSearchPosition, liquidSurface):
-        print(f'containerGeometryTableIndex is {containerGeometryTableIndex}')
-        print(f'deckGeometryTableIndex is {deckGeometryTableIndex}')
-        print(f'liquidClassTableIndex is {liquidClassTableIndex}')
-        print(f'lld is {lld}')
-        print(f'lldSearchPosition is {lldSearchPosition}')
-        print(f'liquidSurface is {liquidSurface}')
+        # print(f'containerGeometryTableIndex is {containerGeometryTableIndex}')
+        # print(f'deckGeometryTableIndex is {deckGeometryTableIndex}')
+        # print(f'liquidClassTableIndex is {liquidClassTableIndex}')
+        # print(f'lld is {lld}')
+        # print(f'lldSearchPosition is {lldSearchPosition}')
+        # print(f'liquidSurface is {liquidSurface}')
 
         cmd = self.cmdHeader('GJ')
         cmd = cmd +\
@@ -1148,7 +1148,7 @@ class ZeusModule:
 
     def setDeckGeometryParameters(self, deckGeometryParameters):
         cmd = self.cmdHeader('GO')
-        cmd = cmd + 'go' + str(deckGeometryParameters.index).zfill(2) + \
+        cmd = cmd + 'go' + str(deckGeometryParameters.deckGeometryTableIndex).zfill(2) + \
               'te' + str(deckGeometryParameters.endTraversePosition).zfill(4) + \
               'tm' + \
               str(deckGeometryParameters.beginningofTipPickingPosition).zfill(4) + \
@@ -1788,29 +1788,57 @@ if __name__ == '__main__':
 
     print('This is main of zeus.py')
 
-    # load liquid classes
-    # load deck parameters
-
     # load container parameters
-    zm = ZeusModule(id = 1)
+    zm = ZeusModule(id=1)
+
+    # #
+    #
+    # #run this ONLY when changing new tip rack.
+    # brb.load_new_tip_rack(rack_reload ='300ul')
+    # print('New tip rack: 300ul is loaded.')
+    #
+    # brb.load_new_tip_rack(rack_reload ='1000ul')
+    # print('New tip rack: 1000ul is loaded.')
+    #
+    # brb.load_new_tip_rack(rack_reload ='50ul')
+    # print('New tip rack: 50ul is loaded.')
+
+    # # #
+    # # # reset Container Geometry Parameters
     # zm.setContainerGeometryParameters(brb.vial_2ml)
+    # print('ContainerGeometryParameters::vial_2ml is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.well_bio)
+    # print('ContainerGeometryParameters::well_bio is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.bottle_20ml)
+    # print('ContainerGeometryParameters::bottle_20ml is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.jar_100ml)
+    # print('ContainerGeometryParameters::jar_100ml is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.tube_1500ul)
+    # print('ContainerGeometryParameters::tube_1500ul is loaded.')
+    # time.sleep(2)
 
-    # # load deck parameters
-    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
-    # time.sleep(1)
-    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
-    # time.sleep(1)
-    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
-    # time.sleep(1)
-    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
-    # time.sleep(1)
+    # load deck parameters
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
+    print('DeckGeometryParameters::deckgeom_300ul is loaded.')
+    time.sleep(1)
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
+    print('DeckGeometryParameters::deckgeom_1000ul is loaded.')
+    time.sleep(1)
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
+    print('DeckGeometryParameters::deckgeom_balance is loaded.')
+    time.sleep(1)
+    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
+    print('DeckGeometryParameters::deckgeom_50ul is loaded.')
+    time.sleep(1)
 
-    # lc = ZeusLiquidClass(zm = zm)
+    # # load liquid class parameters
+    # zm.request_parameters_from_zeus()
+    # time.sleep(1)
+    # zm.set_liquid_class_to_zeus()
+    # time.sleep(1)
+    #
+

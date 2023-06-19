@@ -1,6 +1,9 @@
 import logging
+import os
 import pickle
 import json
+
+import numpy as np
 import winsound
 from typing import Dict, Any
 
@@ -318,7 +321,8 @@ def generate_event_list(event_dataframe: pd.DataFrame,containers_for_stock, pipe
     for i in range(len(event_dataframe.index)):
         # print(i)
         event = TransferEventConstructor(event_dataframe=event_dataframe.iloc[i],
-                                         pipeting_to_balance=pipeting_to_balance, containers_for_stock=containers_for_stock)
+                                         pipeting_to_balance=pipeting_to_balance,
+                                         containers_for_stock=containers_for_stock)
         # print(event.source_container.container_id, event.destination_container.container_id)
         # print(f'event_substance: {event.substance_name}')
         # event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
@@ -457,82 +461,114 @@ def beep():
     winsound.Beep(freq, duration)
 
 def run_events_chem(zm: object, pt: object, logger: object,
-                    start_event_id: int,
+                    start_event_id: int,excel_path, plate_code_list,
                     event_list=None,
                     change_tip_after_every_pipetting: bool = False,
-                    prewet_tip: bool = True):
+                    prewet_tip: bool = True,
+                    ):
 
     liquid_surface_height_from_zeus = {}
+    excel_file_name = excel_path.split('/')[-1].split('.')[0]  # get the excel file name
 
     if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
         pt.discard_tip()
 
-    for event_index in range(start_event_id, len(event_list)):
+    split_index = []
+    for index in range(1, len(event_list)):
+        if event_list[index].destination_container.id['plate_id'] != \
+                event_list[index - 1].destination_container.id['plate_id']:
+            split_index.append(index)
+    # group event by mask
+    events_grouped_by_plate_id = np.split(event_list, split_index)
 
-        if zm.tip_on_zeus != event_list[event_index].tip_type:
-            pt.change_tip(event_list[event_index].tip_type)
-            logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')
-            time.sleep(0.5)
+    for plate_index, events_in_one_plate in enumerate(events_grouped_by_plate_id):
 
-            # do prewet every time a new tip is taken
-            if prewet_tip:
-                prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=event_list[event_index])
+        start_time_unix = int(time.time())
+        start_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # record start time
-        event_start_time = int(time.time())  # get unix time stamp
-        event_start_time_datetime = datetime.fromtimestamp(event_start_time)
-        event_list[event_index].event_start_time_utc = event_start_time
-        event_list[event_index].event_start_time_datetime = str(event_start_time_datetime)
+        for event_index in range(start_event_id, len(events_in_one_plate)):
 
-        try:
-            liquid_surface_height_from_zeus_here = pt.transfer_liquid(event_list[event_index])
-            beep()
+            if zm.tip_on_zeus != events_in_one_plate[event_index].tip_type:
+                pt.change_tip(events_in_one_plate[event_index].tip_type)
+                logger.info(f'The tip is changed to : {events_in_one_plate[event_index].tip_type}')
+                time.sleep(0.5)
 
-        except Exception as e:
-            logger.error(f'Error in transfer liquid.\n '
-                         f'\t\t\t\t\t\tConsider adding more liquid to source container: {event_list[event_index].source_container.container_id}\n'
-                         f'\t\t\t\t\t\tNext, proceed with: event_number{event_index}, {event_list[event_index].event_label}')
+                # do prewet every time a new tip is taken
+                if prewet_tip:
+                    prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=events_in_one_plate[event_index])
 
-            pt.discard_tip()
 
-            return liquid_surface_height_from_zeus
+            try:
+                liquid_surface_height_from_zeus_here = pt.transfer_liquid(events_in_one_plate[event_index])
+                beep()
 
-        # record finish time
-        event_finish_time = int(time.time())  # UTC time
-        event_finish_time_datetime = datetime.fromtimestamp(event_finish_time)
-        event_list[event_index].event_finish_time = event_finish_time
-        event_list[event_index].event_finish_time_datetime = str(event_finish_time_datetime)
-        event_list[event_index].is_event_conducted = True
-
-        # calculate volume and liquid height
-        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] = \
-            liquid_surface_height_from_zeus_here
-        volume_here = (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
-                      * event_list[event_index].source_container.area / 10  # in uL
-        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_volume'] = round(volume_here, 1)
-
-        time.sleep(0.05)
-        logger.info(f"Performed one event: event_number {event_index}, "
-                    f"{event_list[event_index].event_label}")
-
-        # save this event to local pickle file
-        pickle_folder  = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\pickle_files\\'
-        with open(pickle_folder + f'event_id_{event_index}_substrate_{event_list[event_index].substance_name}'
-                                  f'_time_{datetime.now().strftime("%m_%d_%H_%M_%S")}.pickle', 'wb') as f:
-            pickle.dump(event_list[event_index], f)
-
-        # check tip when the next event is different substance
-        if event_index != len(event_list) - 1:  # check if this is the last event.
-            if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
-                # pt.change_tip(event_list[event_index + 1].tip_type)
+            except Exception as e:
+                logger.error(f'Error in transfer liquid.\n')
                 pt.discard_tip()
-        time.sleep(0.5)
-        #  change tip after every pipetting if specified
-        if change_tip_after_every_pipetting:
-            pt.discard_tip()
-            time.sleep(0.5)
 
-    pt.discard_tip()
+                return liquid_surface_height_from_zeus
+
+            # calculate volume and liquid height
+            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance_name + '_height'] = \
+                liquid_surface_height_from_zeus_here
+            volume_here = (-liquid_surface_height_from_zeus_here + events_in_one_plate[event_index].source_container.bottomPosition) \
+                          * events_in_one_plate[event_index].source_container.area / 10  # in uL
+            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance_name + '_volume'] = round(volume_here, 1)
+
+            time.sleep(0.05)
+
+            logger.info(f"Performed one event: event_number {event_index}, "
+                        f"{events_in_one_plate[event_index].event_label},"
+                        f'{events_in_one_plate[event_index].destination_container.id},'
+                        f'plate_code: {plate_code_list[plate_index]}')
+
+            # save this event to local pickle file
+            pickle_folder = os.path.dirname(excel_path) + '\\pipetter_io\\run_log\\'
+            # build a new folder if not exist
+            if not os.path.exists(pickle_folder):
+                os.makedirs(pickle_folder)
+            # pickle_folder  = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\pickle_files\\'
+            with open(pickle_folder + f'{datetime.now().strftime("%m_%d_%H_%M_%S")}'
+                                      f'_id_{event_index}'
+                                      f'_{events_in_one_plate[event_index].substance_name}'
+                                      f'_{events_in_one_plate[event_index].aspirationVolume}_ul'
+                                      f'_barcode_{plate_code_list[plate_index]}.pickle', 'wb') as f:
+                pickle.dump(events_in_one_plate[event_index], f)
+
+            # check tip when the next event is different substance
+            if event_index != len(events_in_one_plate) - 1:  # check if this is the last event.
+                if events_in_one_plate[event_index].substance_name != events_in_one_plate[event_index + 1].substance_name:
+                    # pt.change_tip(event_list[event_index + 1].tip_type)
+                    pt.discard_tip()
+            time.sleep(0.5)
+            #  change tip after every pipetting if specified
+            if change_tip_after_every_pipetting:
+                pt.discard_tip()
+                time.sleep(0.5)
+
+
+        finish_time_unix = int(time.time())
+        finish_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # record the events in this plate
+        pipetter_io_info = os.path.dirname(excel_path) + '\\pipetter_io\\'
+        if not os.path.exists(pipetter_io_info):
+            os.makedirs(pipetter_io_info)
+
+        run_info = f"{plate_code_list[plate_index]}, " \
+                   f"{excel_file_name}, " \
+                   f"{start_time_unix}, " \
+                   f"{start_time_datetime}, " \
+                   f"{finish_time_unix}, " \
+                   f"{finish_time_datetime}, " \
+                   f"\n"
+        with open(pipetter_io_info + 'run_info.csv', 'a') as f:
+            f.write(run_info)
+
+        #plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, reaction_id, excel_path, note
+        #17, 2023_04_12_run01, 1681309257, 2023-04-12 23:20:57, 1681310983, 2023-04-12 23:49:43, '0-134', 0-26,"""
+
+        pt.discard_tip()
 
     return liquid_surface_height_from_zeus
 

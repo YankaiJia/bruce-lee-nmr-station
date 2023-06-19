@@ -53,7 +53,6 @@ def setup_logger():
 
 logger = setup_logger()
 
-import numpy as np
 import copy, time, pickle, re, importlib, json, os
 from datetime import datetime
 from typing import List
@@ -188,40 +187,6 @@ def check_if_event_list_legit(event_list: list):
 
         print("event_list is legit!")
 
-
-def sort_events_according_to_aspiration_volume(event_list_chem):
-
-        output_list = []
-
-        # # group event by plate id
-        # get mask for change of plate id
-        split_index = []
-        for index in range(1, len(event_list_chem)):
-            if event_list_chem[index].destination_container.id['plate_id'] != \
-                event_list_chem[index-1].destination_container.id['plate_id']:
-                split_index.append(index)
-        # group event by mask
-        events_grouped_by_plate_id = np.split(event_list_chem, split_index)
-
-        # group and sort events in each plate according to substance
-        for index, plate_event in enumerate(events_grouped_by_plate_id):
-            # get mask for change of substance
-            split_index = []
-            for index in range(1, len(plate_event)):
-                if plate_event[index].substance_name != \
-                    plate_event[index-1].substance_name:
-                    split_index.append(index)
-            # group event by mask
-            split_list = np.split(plate_event, split_index)
-
-            for event_of_one_substance in split_list:
-                # sort events in each group according to aspiration volume
-                sorted_list = sorted(event_of_one_substance, key=lambda x: x.aspirationVolume, reverse=True)
-                output_list.extend(sorted_list)
-
-        return output_list
-
-
 if __name__ == '__main__':
 
     ## initiate hardware
@@ -230,7 +195,6 @@ if __name__ == '__main__':
     path_for_reactions = load_excel_path_by_pysimplegui()
 
     stock_solution_list = load_stock_solutions_from_excel(path=path_for_reactions)
-
     # check the volume in stock containers and add stock solutions to containers
     containers_for_stock = add_stock_solutions_to_containers(stock_solution_list)
 
@@ -253,9 +217,19 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0616', usecols='B:F',
-                                  is_pipeting_to_balance=False, is_for_bio=False, containers_for_stock=containers_for_stock, )
+                                  sheet_name='Reactions_1606', usecols='B:I',
+                                  is_pipeting_to_balance=False, is_for_bio=False,
+                                  containers_for_stock=containers_for_stock, )
 
+    # save the event list in pickle file and later load from this file
+    pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
+    pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
+
+    with open(pickle_file, 'wb') as f:
+        pickle.dump(event_list_chem, f)
+
+    # update planner.py when necessary
+    # importlib.reload(pln)
 
     check_if_event_list_legit(event_list_chem)
 
@@ -263,31 +237,17 @@ if __name__ == '__main__':
         # print(event.asp_lld)
         event.asp_lldSearchPosition -= 150
 
-    event_list_chem_sorted = sort_events_according_to_aspiration_volume(event_list_chem)
-
-    # save the event list in pickle file and later load from this file
-    pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
-    pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
-
-    with open(pickle_file, 'wb') as f:
-        pickle.dump(event_list_chem_sorted, f)
-
-    # input the sequence of plate id
-    plates = input("Please input the ids of 6 plates in order: ")
-    plate_code_list = [int(i) for i in plates.split()]
-
-    if input(f'Plate id list is {plate_code_list}, continue? Y/N') not in ['Y', 'y']:
-        raise Exception("The plate id list is not confirmed!")
-
-    # use input to Y/N to confirm the event list
-    if input("Run pipetting? Y/N") not in  ['Y', 'y']:
-        raise Exception("The event list is not confirmed!")
-
+    # LC 2 is corrupted in the Zeus firmware, so change it to LC 32.
+    for event in event_list_chem:
+        # print(i.event_label)
+        event.asp_lld = 0
+        if event.asp_liquidClassTableIndex == 2:
+            event.asp_liquidClassTableIndex = 32
+            event.disp_liquidClassTableIndex = 32
 
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                        event_list= event_list_chem_sorted,
+                        event_list= event_list_chem,
                         start_event_id=0,
-                        prewet_tip=True,
-                        excel_path=path_for_reactions,
-                        plate_code_list=plate_code_list)
+                        prewet_tip=True)
+
