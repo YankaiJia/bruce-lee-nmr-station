@@ -291,9 +291,9 @@ if __name__ == '__main__':
 
     # plot_one_point_across_catalyst_range(df_results, (2, 10, 5), label='Repeated point', color='red')
     # plt.show()
-    # for ald in [0, 5, 10]:
-    #     plot_one_point_across_catalyst_range(df_results, (2, 10, ald), label=f'Repeated point, ald{ald}')
-    #     plt.show()
+    for ald in [0, 5, 10]:
+        plot_one_point_across_catalyst_range(df_results, (2, 10, ald), label=f'Repeated point, ald{ald}')
+        plt.show()
     # for am in [0, 5, 10]:
     #     plot_one_point_across_catalyst_range(df_results, (2, am, 5), label=f'Repeated point, am{am}')
     #     plt.show()
