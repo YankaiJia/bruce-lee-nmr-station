@@ -249,8 +249,10 @@ class Pipetter():
                 self.gantry.move_xy(item['xy'], ensure_traverse_height=True)
                 self.zeus.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'],
                                     deckGeometryTableIndex=item['deckGeometryTableIndex'])
+
                 self.zeus.wait_until_zeus_responds_with_string('GTid')
                 tip_is_picked = self.zeus.getTipPresenceStatus()
+
                 if tip_is_picked:
                     # print(f'tip_status: {self.zeus.getTipPresenceStatus()}')
                     self.zeus.tip_on_zeus = tip_type
@@ -268,10 +270,13 @@ class Pipetter():
 
     def discard_tip(self):
         self.zeus.move_z(self.zeus.ZeusTraversePosition)
-        self.zeus.wait_until_zeus_reaches_traverse_height()
+        time.sleep(0.2)
+        # self.zeus.wait_until_zeus_reaches_traverse_height()
         self.gantry.move_xy(self.gantry.trash_xy)
         self.zeus.discardTip(deckGeometryTableIndex=1)
         self.zeus.tip_on_zeus = ''
+        # time.sleep(0.25)
+        # self.zeus.move_z(self.zeus.ZeusTraversePosition)
         self.zeus.wait_until_zeus_responds_with_string('GUid')
 
     def change_tip(self, tip_rack: str):
@@ -304,10 +309,9 @@ class Pipetter():
 
         received_msg = self.zeus.r.received_msg
         while 'yl' not in received_msg:
-            time.sleep(0.2)
+            time.sleep(1)
             received_msg = self.zeus.r.received_msg
 
-        time.sleep(0.2)
         if not self.zeus.zeus_had_error(received_msg):
             # print(received_msg)
             liquid_surface = received_msg[received_msg.find('yl') + 2:received_msg.find('yl') + 6]
@@ -343,7 +347,7 @@ class Pipetter():
                                      mixFlowRate=transfer_event.asp_mixFlowRate,
                                      mixCycles=transfer_event.asp_mixCycles)
                 # TODO: Replace this sleep with a proper check. Why do you even need a sleep if next function is zeus.wait_until...???
-                time.sleep(2)
+                # time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True
 
@@ -384,7 +388,7 @@ class Pipetter():
                              mixCycles=transfer_event.disp_mixCycles)
         # print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
 
-        time.sleep(1.5)
+        # time.sleep(0.25)
         # wait_until_zeus_reaches_traverse_height()
         self.zeus.wait_until_zeus_responds_with_string('GDid')
 
@@ -423,8 +427,8 @@ class Pipetter():
             liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_2)
 
-        self.logger.info(f'Aspiration volume: {transfer_event.aspirationVolume}ul '
-                         f'Dispensing volume: {transfer_event.dispensingVolume}ul')
+        # self.logger.info(f'Aspiration volume: {transfer_event.aspirationVolume}ul '
+        #                  f'Dispensing volume: {transfer_event.dispensingVolume}ul')
 
         return liquid_surface_height_from_zeus
 
@@ -433,7 +437,7 @@ class Pipetter():
         time.sleep(0.25)
         liquid_surface_height_detected = re.findall('[0-9]+', self.zeus.r.received_msg)[1]
 
-        self.logger.info(f'liquid_surface_height_detected: {liquid_surface_height_detected}')
+        # self.logger.info(f'liquid_surface_height_detected: {liquid_surface_height_detected}')
         return int(liquid_surface_height_detected)
 
     def send_command_to_balance(self, command, read_all=True, verbose=False):

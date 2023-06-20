@@ -119,7 +119,7 @@ def load_excel_path_by_pysimplegui():
 def load_stock_solutions_from_excel(path: str) -> list:
     stock_solution_list = []
     wb_excel = load_workbook(path, data_only=True)
-    ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
+    ws = wb_excel[[x for x in wb_excel.sheetnames if 'stock_solutions' in x][0]]
 
     for row in tuple(ws.rows)[1:]:  # exclude the header
         if row[0].value is not None:
@@ -149,7 +149,7 @@ def load_stock_solutions_from_excel(path: str) -> list:
 
 def update_stock_solution_list_to_excel(path_for_reactions: str, stock_solution_list: list):
     wb_excel = load_workbook(path_for_reactions)
-    ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
+    ws = wb_excel[[x for x in wb_excel.sheetnames if 'stock_solutions' in x][0]]
     for row in tuple(ws.rows)[1:]:  # exclude the header
         if row[0].value is not None:
             for solution in stock_solution_list:
@@ -253,7 +253,6 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0616', usecols='B:F',
                                   is_pipeting_to_balance=False, is_for_bio=False, containers_for_stock=containers_for_stock, )
 
 
@@ -261,7 +260,7 @@ if __name__ == '__main__':
 
     for event in event_list_chem:
         # print(event.asp_lld)
-        event.asp_lldSearchPosition -= 150
+        event.asp_lldSearchPosition -= 100
 
     event_list_chem_sorted = sort_events_according_to_aspiration_volume(event_list_chem)
 

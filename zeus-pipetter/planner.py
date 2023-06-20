@@ -29,20 +29,18 @@ class EventInterpreter:
     '''
     def __init__(self,
                  dataframe_filename: str,
-                 sheet_name: str,
-                 usecols: str,
                  is_for_bio=False
                  ):
         self.dataframe_filename = dataframe_filename
-        self.sheet_name = sheet_name
-        self.usecols = usecols
 
         self.logger = logging.getLogger('main.planner.EventInterpreter')
         self.logger.info(f'Interpretating dataframe_filename from {self.dataframe_filename}')
 
         self.reaction_df = pd.read_excel(io=self.dataframe_filename,
-                                         sheet_name=self.sheet_name,
-                                         usecols=self.usecols)
+                                         sheet_name= 'reactions')
+
+        # remove the first column from df
+        self.reaction_df = self.reaction_df.iloc[:, 1:]
 
         self.pd_output = pd.DataFrame(columns=['reaction_id',
                                                'event_id',
@@ -119,6 +117,9 @@ class TransferEventConstructor:
     def __init__(self, event_dataframe: pd.DataFrame, containers_for_stock, pipeting_to_balance: bool = False):
 
         self.substance_name: str = event_dataframe['substance']
+        # show event_dataframe
+        # print(event_dataframe)
+
         self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
                                 'substance:' + str(event_dataframe['substance']) + '   ' + \
                                 'transfer_volume:' + str(event_dataframe['transfer_volume'])
@@ -286,12 +287,10 @@ class TransferEventConstructor:
         return round(container.bottomPosition - liquid_height)
 
 
-def interprete_events_from_excel_to_dataframe(dataframe_filename: str, sheet_name: str, usecols: str,
+def interprete_events_from_excel_to_dataframe(dataframe_filename: str,
                                               is_for_bio: bool) -> pd.DataFrame:
     # generate empty dataframes
     event_dataframes = EventInterpreter(dataframe_filename=dataframe_filename,
-                                        sheet_name=sheet_name,
-                                        usecols=usecols,
                                         is_for_bio=is_for_bio)
 
     # add all events to the dataframe
@@ -339,14 +338,13 @@ def generate_event_list(event_dataframe: pd.DataFrame,containers_for_stock, pipe
 
 
 def generate_event_object(logger: object, excel_to_generate_dataframe: str,containers_for_stock,
-                          sheet_name: str, usecols: str, is_pipeting_to_balance: bool = False,
+                          is_pipeting_to_balance: bool = False,
                           is_for_bio: bool = False) -> tuple:
 
     # generate event dataframes from excel
     event_dataframe = \
         interprete_events_from_excel_to_dataframe(dataframe_filename=excel_to_generate_dataframe,
-                                                  sheet_name=sheet_name,
-                                                  usecols=usecols, is_for_bio=is_for_bio)
+                                                  is_for_bio=is_for_bio)
 
     logger.info(f"All events are generated to dataframes from excel here: {excel_to_generate_dataframe}")
 
@@ -684,38 +682,40 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
             beep()
 
         except Exception as e:
-            print(f'Error in transfer liquid.\n '
-                  f'\t\t\t\t\t\tConsider adding more liquid to source container: '
-                  f'{event_list[event_index].source_container.container_id}\n'
-                  f'\t\t\t\t\t\tNext, proceed with: {event_list[event_index].event_label}')
+            print(f"Error in transfer liquid.\n")
 
-            with open(f'multicomponent_reaction\\event_list_chem_id_{event_index}.pickle', 'wb') as f:
-                pickle.dump(event_list, f)
+            # with open(f'multicomponent_reaction\\event_list_chem_id_{event_index}.pickle', 'wb') as f:
+            #     pickle.dump(event_list, f)
 
             pt.discard_tip() # discard the tip to trash bin if there is an error
             raise e # raise the error to stop the program
 
-        time.sleep(0.05)
+        # time.sleep(0.05)
 
-        logger.info(f"Performed one event for dilution: event_number {event_index}, "
-                    f"{event_list[event_index].event_label}")
-        # print(f"Performed one event for dilution: event_number {event_index}, "
-        #       f"{event_list[event_index].event_label}")
+        logger.info(f"Performed one pipetting for dilution: event_number {event_index}, "
+                    f"volume: {event_list[event_index].aspirationVolume},"
+                    f"from {event_list[event_index].source_container.id},"
+                    f"to {event_list[event_index].destination_container.id},")
+
+        print(f"Performed one pipetting for dilution: event_number {event_index}, "
+                    f"volume: {event_list[event_index].aspirationVolume},"
+                    f"from {event_list[event_index].source_container.id},"
+                    f"to {event_list[event_index].destination_container.id},")
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
             if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
                 pt.change_tip(event_list[event_index + 1].tip_type)
 
-        time.sleep(0.1)
+        # time.sleep(0.1)
 
-        with open(f'multicomponent_reaction\\event_list_chem_dilution_\\pickle_output\\'
-                  f'{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
-            pickle.dump(event_list, f)
+        # with open(f'multicomponent_reaction\\event_list_chem_dilution_\\pickle_output\\'
+        #           f'{datetime.now().strftime("%Y_%m_%d_%H_%M")}.pickle', 'wb') as f:
+        #     pickle.dump(event_list, f)
 
         if change_tip_after_every_pipetting:
             pt.discard_tip()
-            time.sleep(0.1)
+            # time.sleep(0.1)
 
     if zm.tip_on_zeus:
         pt.discard_tip()

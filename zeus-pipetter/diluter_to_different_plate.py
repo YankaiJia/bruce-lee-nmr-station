@@ -29,7 +29,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('logs\\main.log')
+    fh = logging.FileHandler('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\main.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -165,55 +165,31 @@ def generate_dilution_event(source_container: object = None,
 
 
 # step1: dilution original reactions, adding volume: 1400ul
-def dilute_old_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volume 1400ul
+def dilute_old_vial(starting_index = 0, rows_to_dilute=(0, 9, 18, 27, 36, 45)): # diluting volume 1400ul
     global event_list_dilute_old_vial
-
+    event_list_dilute_old_vial = []
     # generate dilution events
     for i in rows_to_dilute:
         for vial_index in range(i, i+9):
-            if vial_index in skip_vials:
-                print(f'skipping vial with index {vial_index}')
-                continue
             source_container = copy.deepcopy(brb.plate_list[6].containers[0])
-            destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
+            destination_container = copy.deepcopy(brb.plate_list[1].containers[vial_index])
             event_temp = generate_dilution_event(source_container=source_container,
                                                 destination_container=destination_container,
                                                 volume=volume_added_to_old_vial,
-                                                asp_liquid_surface = 1800,
+                                                asp_liquid_surface = 1600,
                                                 disp_liquid_surface = 2100)
             event_list_dilute_old_vial.append(event_temp)
     # time.sleep(2)
 
     ## run dilution events
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
-                        event_list= event_list_dilute_old_vial, start_event_id=0)
-
-
-## this is for transfering liquid from jar to 54 containers,
-# for testing spectrophotometer repeatability, 2021-03-22 14:23
-def transfer_to_54_vials(volume_added_to_vial = 500): # diluting volume 1400ul
-    global event_list_transfer_to_54_vials
-
-    # generate dilution events
-    for vial_index in range(54):
-            source_container = copy.deepcopy(brb.plate_list[6].containers[0])
-            destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
-            event_temp = generate_dilution_event(source_container=source_container,
-                                                destination_container=destination_container,
-                                                volume=volume_added_to_vial,
-                                                asp_liquid_surface = 1800,
-                                                disp_liquid_surface = 2100)
-            event_list_transfer_to_54_vials.append(event_temp)
-    # time.sleep(2)
-
-    ## run dilution events
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
-                        event_list= event_list_transfer_to_54_vials, start_event_id=0)
+                        event_list= event_list_dilute_old_vial, start_event_id= starting_index)
 
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
-def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
+def transfer_liquid_from_old_vial_to_new(start_index = 0): # transfer volume 20ul
     global event_list_dilution_old_to_new
+    event_list_dilution_old_to_new = []
     for vial_index in range(54):
         source_container = copy.deepcopy(brb.plate_list[1].containers[vial_index])
         destination_container = copy.deepcopy(brb.plate_list[2].containers[vial_index])
@@ -226,13 +202,13 @@ def transfer_liquid_from_old_vial_to_new(): # transfer volume 20ul
 
     # time.sleep(1)
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
-                        event_list=event_list_dilution_old_to_new, start_event_id=0,
+                        event_list=event_list_dilution_old_to_new, start_event_id=start_index,
                         change_tip_after_every_pipetting = True)
 
 
 # step3: dilution new vial, adding volume: 485ul
 
-def dilute_new_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volume 485ul
+def dilute_new_vial(starting_index=0): # diluting volume 485ul
     global event_list_dilute_new_vial
     # TODO: These two added nines in two difference places of these loops are confusing. Logic here should be more transparent.
     for vial_index in range(54):
@@ -241,13 +217,14 @@ def dilute_new_vial(skip_vials=(), rows_to_dilute=(0, 18, 36)): # diluting volum
         event_temp = generate_dilution_event(source_container=source_container,
                                              destination_container=destination_container,
                                              volume=volume_added_to_new_vial,
-                                             asp_liquid_surface=1700,
+                                             asp_liquid_surface=1600,
                                              disp_liquid_surface=2100)
         event_list_dilute_new_vial.append(event_temp)
 
     # time.sleep(2)
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
-                        event_list=event_list_dilute_new_vial, start_event_id=0)
+                        event_list=event_list_dilute_new_vial, start_event_id=starting_index)
+
 
 if __name__ == '__main__':
     mins_to_wait = 0
@@ -255,8 +232,16 @@ if __name__ == '__main__':
     time.sleep(60 * mins_to_wait)
 
     t0 = time.time()
-    print('Starting dilution')
-    ## when empty vial
-    #transfer_liquid_from_old_vial_to_new()
+    # print strating time
+    print(f'Starting dilution...{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+
+    # step 1
+    dilute_old_vial()
+    # step 2
+    transfer_liquid_from_old_vial_to_new()
+    # step 3
     dilute_new_vial()
+
+    print(f'Dilution finished...{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
+
     print(f'Time elapsed: {(time.time()-t0)/60:.1f} minutes')
