@@ -236,9 +236,9 @@ if __name__ == '__main__':
     print(f'Starting dilution...{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
 
     # step 1
-    # dilute_old_vial()
+    dilute_old_vial()
     # step 2
-    transfer_liquid_from_old_vial_to_new(start_index=2)
+    transfer_liquid_from_old_vial_to_new()
     # step 3
     dilute_new_vial()
 

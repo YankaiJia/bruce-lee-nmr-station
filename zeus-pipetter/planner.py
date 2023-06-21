@@ -458,8 +458,16 @@ def beep():
     # time.sleep(0.2)
     winsound.Beep(freq, duration)
 
+def beep_n():
+
+    duration = 600  # milliseconds
+    freq = 1000  # Hz
+    # time.sleep(0.2)
+    for i in range(10):
+        winsound.Beep(freq, duration)
+
 def run_events_chem(zm: object, pt: object, logger: object,
-                    start_event_id: int,excel_path, plate_code_list,
+                    excel_path, plate_code_list,
                     event_list=None,
                     change_tip_after_every_pipetting: bool = False,
                     prewet_tip: bool = True,
@@ -484,7 +492,7 @@ def run_events_chem(zm: object, pt: object, logger: object,
         start_time_unix = int(time.time())
         start_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        for event_index in range(start_event_id, len(events_in_one_plate)):
+        for event_index in range(len(events_in_one_plate)):
 
             if zm.tip_on_zeus != events_in_one_plate[event_index].tip_type:
                 pt.change_tip(events_in_one_plate[event_index].tip_type)
@@ -567,6 +575,9 @@ def run_events_chem(zm: object, pt: object, logger: object,
         #17, 2023_04_12_run01, 1681309257, 2023-04-12 23:20:57, 1681310983, 2023-04-12 23:49:43, '0-134', 0-26,"""
 
         pt.discard_tip()
+
+        ## play some sound to notify the user
+        beep()
 
     return liquid_surface_height_from_zeus
 

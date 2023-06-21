@@ -283,10 +283,15 @@ if __name__ == '__main__':
         raise Exception("The event list is not confirmed!")
 
 
+    starting_id = 0
+    event_for_run = event_list_chem_sorted[starting_id:]
+
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                        event_list= event_list_chem_sorted,
-                        start_event_id=0,
+                        event_list= event_for_run,
                         prewet_tip=True,
                         excel_path=path_for_reactions,
                         plate_code_list=plate_code_list)
+
+for i in range(1360, 1370):
+    print(event_list_chem_sorted[1326].substance_name)
