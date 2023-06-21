@@ -196,7 +196,7 @@ def transfer_liquid_from_old_vial_to_new(start_index = 0): # transfer volume 20u
         event_temp = generate_dilution_event(source_container=source_container,
                                              destination_container=destination_container,
                                              volume=volume_transfered_from_old_to_new_vial,
-                                             asp_liquid_surface= 2090,
+                                             asp_liquid_surface= 2070,
                                              disp_liquid_surface=2100)
         event_list_dilution_old_to_new.append(event_temp)
 
@@ -236,9 +236,9 @@ if __name__ == '__main__':
     print(f'Starting dilution...{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
 
     # step 1
-    dilute_old_vial()
+    # dilute_old_vial()
     # step 2
-    transfer_liquid_from_old_vial_to_new()
+    transfer_liquid_from_old_vial_to_new(start_index=2)
     # step 3
     dilute_new_vial()
 
