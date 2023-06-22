@@ -118,7 +118,7 @@ def load_excel_path_by_pysimplegui():
 def load_stock_solutions_from_excel(path: str) -> list:
     stock_solution_list = []
     wb_excel = load_workbook(path, data_only=True)
-    ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
+    ws = wb_excel[[x for x in wb_excel.sheetnames if 'stock_solutions' in x][0]]
 
     for row in tuple(ws.rows)[1:]:  # exclude the header
         if row[0].value is not None:
@@ -148,7 +148,7 @@ def load_stock_solutions_from_excel(path: str) -> list:
 
 def update_stock_solution_list_to_excel(path_for_reactions: str, stock_solution_list: list):
     wb_excel = load_workbook(path_for_reactions)
-    ws = wb_excel[[x for x in wb_excel.sheetnames if 'Stock_solutions' in x][0]]
+    ws = wb_excel[[x for x in wb_excel.sheetnames if 'stock_solutions' in x][0]]
     for row in tuple(ws.rows)[1:]:  # exclude the header
         if row[0].value is not None:
             for solution in stock_solution_list:
@@ -217,7 +217,6 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_1606', usecols='B:I',
                                   is_pipeting_to_balance=False, is_for_bio=False,
                                   containers_for_stock=containers_for_stock, )
 
@@ -228,8 +227,6 @@ if __name__ == '__main__':
     with open(pickle_file, 'wb') as f:
         pickle.dump(event_list_chem, f)
 
-    # update planner.py when necessary
-    # importlib.reload(pln)
 
     check_if_event_list_legit(event_list_chem)
 
@@ -248,6 +245,7 @@ if __name__ == '__main__':
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt, logger=logger,
                         event_list= event_list_chem,
-                        start_event_id=0,
-                        prewet_tip=True)
+                        prewet_tip=True,
+                        excel_path=path_for_reactions,
+                        plate_code_list= (0,1,2))
 

@@ -577,7 +577,7 @@ def run_events_chem(zm: object, pt: object, logger: object,
         pt.discard_tip()
 
         ## play some sound to notify the user
-        beep()
+        beep_n()
 
     return liquid_surface_height_from_zeus
 
@@ -671,7 +671,8 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
 
 
 def run_events_chem_dilution(zm: object, pt: object, logger: object,
-                             start_event_id: int, event_list_path=None, event_list=None,
+                             start_event_id: int, skip_vial_id: tuple = (),
+                             event_list_path=None, event_list=None,
                              change_tip_after_every_pipetting: bool = False):
 
     # for event list, specify either a path or a list. Only specify one of them.
@@ -684,6 +685,12 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
         pt.discard_tip()
 
     for event_index in range(start_event_id, len(event_list)):
+
+        if event_index in skip_vial_id:
+            print(f"Skip event {event_index}.\n")
+            logger.info(f"Skip event {event_index}.\n")
+            continue
+
         if zm.tip_on_zeus != event_list[event_index].tip_type:
             pt.change_tip(event_list[event_index].tip_type)
             logger.info(f'The tip is changed to : {event_list[event_index].tip_type}')

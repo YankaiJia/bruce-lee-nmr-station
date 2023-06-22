@@ -293,5 +293,5 @@ if __name__ == '__main__':
                         excel_path=path_for_reactions,
                         plate_code_list=plate_code_list)
 
-for i in range(1360, 1370):
-    print(event_list_chem_sorted[1326].substance_name)
+# for i in range(1360, 1370):
+#     print(event_list_chem_sorted[1326].substance_name)

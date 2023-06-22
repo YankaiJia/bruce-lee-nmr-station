@@ -165,7 +165,9 @@ def generate_dilution_event(source_container: object = None,
 
 
 # step1: dilution original reactions, adding volume: 1400ul
-def dilute_old_vial(starting_index = 0, rows_to_dilute=(0, 9, 18, 27, 36, 45)): # diluting volume 1400ul
+def dilute_old_vial(starting_index = 0,
+                    skip_vial_id = (),
+                    rows_to_dilute=(0, 9, 18, 27, 36, 45)): # diluting volume 1400ul
     global event_list_dilute_old_vial
     event_list_dilute_old_vial = []
     # generate dilution events
@@ -183,11 +185,13 @@ def dilute_old_vial(starting_index = 0, rows_to_dilute=(0, 9, 18, 27, 36, 45)): 
 
     ## run dilution events
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
-                        event_list= event_list_dilute_old_vial, start_event_id= starting_index)
+                        event_list= event_list_dilute_old_vial,
+                        start_event_id= starting_index,
+                        skip_vial_id= skip_vial_id)
 
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
-def transfer_liquid_from_old_vial_to_new(start_index = 0): # transfer volume 20ul
+def transfer_liquid_from_old_vial_to_new(start_index = 0, skip_vial_id: tuple = ()): # transfer volume 20ul
     global event_list_dilution_old_to_new
     event_list_dilution_old_to_new = []
     for vial_index in range(54):
@@ -203,12 +207,13 @@ def transfer_liquid_from_old_vial_to_new(start_index = 0): # transfer volume 20u
     # time.sleep(1)
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
                         event_list=event_list_dilution_old_to_new, start_event_id=start_index,
-                        change_tip_after_every_pipetting = True)
+                        change_tip_after_every_pipetting = True,
+                        skip_vial_id = skip_vial_id)
 
 
 # step3: dilution new vial, adding volume: 485ul
 
-def dilute_new_vial(starting_index=0): # diluting volume 485ul
+def dilute_new_vial(starting_index=0, skip_vial_id = ()): # diluting volume 485ul
     global event_list_dilute_new_vial
     # TODO: These two added nines in two difference places of these loops are confusing. Logic here should be more transparent.
     for vial_index in range(54):
@@ -223,7 +228,9 @@ def dilute_new_vial(starting_index=0): # diluting volume 485ul
 
     # time.sleep(2)
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=logger,
-                        event_list=event_list_dilute_new_vial, start_event_id=starting_index)
+                        event_list=event_list_dilute_new_vial,
+                        start_event_id=starting_index,
+                        skip_vial_id=skip_vial_id)
 
 
 if __name__ == '__main__':
@@ -237,11 +244,12 @@ if __name__ == '__main__':
 
     # step 1
     dilute_old_vial()
+    # print(f'First step time elapsed: {(time.time() - t0) / 60:.1f} minutes')
+
     # step 2
     transfer_liquid_from_old_vial_to_new()
     # step 3
     dilute_new_vial()
-
     print(f'Dilution finished...{time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())}')
 
     print(f'Time elapsed: {(time.time()-t0)/60:.1f} minutes')
