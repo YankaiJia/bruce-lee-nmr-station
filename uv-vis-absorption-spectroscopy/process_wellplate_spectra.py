@@ -112,8 +112,8 @@ def well_id_to_file_id(well_id):
     return file_id
 
 
-def load_raw_msp_by_id(plate_folder, well_id, prefix='spectrum_'):
-    data = load_msp_file(plate_folder + prefix + f'-{well_id_to_file_id(well_id)}.msp')
+def load_raw_msp_by_id(plate_folder, well_id, prefix='spectrum_', suffix=''):
+    data = load_msp_file(plate_folder + prefix + f'-{well_id_to_file_id(well_id)}{suffix}.msp')
     return data
 
 def diluted_vials_only(list_of_vials_on_plate):
@@ -154,8 +154,18 @@ class SpectraProcessor:
         self.absorbance_correction_dataset = load_dataset_for_absorbance_correction(
             target_folder=folder_with_correction_dataset)
 
-    def load_msp_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False):
+    def load_msp_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False, ignore_second_repetition=False):
         spectrum = load_raw_msp_by_id(plate_folder=plate_folder, well_id=well_id, prefix=prefix)
+        # if the file of the same name but suffix '_rep2' exists, then load it and apply the correction due to
+        # photobleaching
+        if (not ignore_second_repetition) and \
+                (os.path.isfile(plate_folder + prefix + f'-{well_id_to_file_id(well_id)}_rep2.msp')):
+            try:
+                spectrum_rep2 = load_raw_msp_by_id(plate_folder=plate_folder, well_id=well_id, prefix=prefix,
+                                                   suffix='_rep2')
+                spectrum[:, 1] = spectrum[:, 1] - 0.5*(spectrum_rep2[:, 1] - spectrum[:, 1])
+            except FileNotFoundError:
+                pass
         if do_show:
             plt.plot(spectrum[:, 0], spectrum[:, 1])
         spectrum[:, 1] = apply_correction(spectrum[:, 1],
@@ -479,7 +489,7 @@ class SpectraProcessor:
         else:
             linebounds = [-1e-15, 1e-15]
 
-        bkg_comp_limit = 1e-5
+        bkg_comp_limit = np.inf
         bounds = ([-1e-9, -1e-9, -np.inf, linebounds[0], -1*bkg_comp_limit, -1*bkg_comp_limit],
                   [upper_bounds[0], upper_bounds[1], np.inf, linebounds[1], bkg_comp_limit, bkg_comp_limit])
         popt, pcov = curve_fit(func, wavelength_indices[mask], target_spectrum[mask],

@@ -274,6 +274,16 @@ if __name__ == '__main__':
     plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=False, plot_savgol=False, spline_color='C3', spline_alpha=0.6, spline_linewidth=3)
     plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=False, plot_savgol=False, spline_color='C0', spline_alpha=0.6, spline_linewidth=3,
                                          factor=1.35)
+    for x in unique_cats:
+        plt.axvline(x=x, color='grey', alpha=0.5)
+    # plt.show()
+
+    unique_cats = np.array(unique_cats)[[1,3,5,6,7,8,9,10,11,12,14,16,18,20,22,24,25,26,27,28,29]]
+    np.savetxt(data_folder + 'multicomp-reactions/2023-06-19-run01/outVandC/unique_cats.txt', unique_cats)
+    print(f'New length of unique cats: {unique_cats.shape}')
+    for x in unique_cats:
+        plt.axvline(x=x, color='red', alpha=0.8)
+    plt.show()
 
     # # plot_one_point_across_catalyst_range(df_results, (2, 1, 1), label='Between corners', color='grey')
     # plot_one_point_across_catalyst_range(df_results, (3, 5, 7), label='Outlier A', withspline=True)
@@ -281,9 +291,9 @@ if __name__ == '__main__':
 
     # plot_one_point_across_catalyst_range(df_results, (2, 10, 5), label='Repeated point', color='red')
     # plt.show()
-    # for ald in [0, 5, 10]:
-    #     plot_one_point_across_catalyst_range(df_results, (2, 10, ald), label=f'Repeated point, ald{ald}')
-    #     plt.show()
+    for ald in [0, 5, 10]:
+        plot_one_point_across_catalyst_range(df_results, (2, 10, ald), label=f'Repeated point, ald{ald}')
+        plt.show()
     # for am in [0, 5, 10]:
     #     plot_one_point_across_catalyst_range(df_results, (2, am, 5), label=f'Repeated point, am{am}')
     #     plt.show()

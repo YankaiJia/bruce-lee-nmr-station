@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from visualize_results import *
 from scipy.interpolate import Rbf, LinearNDInterpolator
 
@@ -7,6 +9,7 @@ df_results = join_data_from_runs(['multicomp-reactions/2023-03-20-run01/',
                                   'multicomp-reactions/2023-04-11-run01/'])
 # 'multicomp-reactions/2023-03-29-run01/'])
 do_plot = True
+plot_interpolants = False
 substances = ['ic001', 'am001', 'ald001', 'ptsa']
 product = 'IIO029A'
 catalyst_name = 'ptsa'
@@ -107,8 +110,8 @@ for index, row in df_combinations.iterrows():
     if do_plot:
         plt.errorbar(xs, ys, yerr=yerr, linestyle='None', marker='x', capsize=3, label='data', alpha=0.5, color='C1')
     # tck = make_spline(xs, ys, yerr, do_plot=do_plot, spline_smoothing_factor=0.05)
-    tck = make_spline(xs, ys, yerr, do_plot=do_plot, spline_smoothing_factor=0.08)
-    if do_plot:
+    tck = make_spline(xs, ys, yerr, do_plot=(do_plot and plot_interpolants), spline_smoothing_factor=0.08)
+    if do_plot and plot_interpolants:
         xs_new = np.linspace(np.min(xs), np.max(xs), 100)
         ys_new = splev(xs_new, tck)
         plt.plot(xs_new, ys_new, color='black', linewidth=5, alpha=0.3)
@@ -120,6 +123,9 @@ for index, row in df_combinations.iterrows():
         df_temporary.loc[i] = [row['ald001'], ptsa_new, row['am001'], row['ic001'], ys_new[i]]
     df_interpolated = df_interpolated.append(df_temporary, ignore_index=True)
     if do_plot:
+        plt.title(f"Subtrate concentrations: isocyanide {row['ic001']} M,\namine:{row['am001']} M, aldehyde:{row['ald001']} M")
+        plt.xlabel('Catalyst (pTSA) concentration (mol/L)')
+        plt.ylabel('Yield (%)')
         plt.show()
 
 # save to file
