@@ -4,8 +4,20 @@ import pandas as pd
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
 
-def organize_run_structure(experiment_name):
 
+def organize_run_structure(experiment_name):
+    """
+    Automatically combine `run_info.csv`, `dilution_info.csv` and CRAIC plate database into
+    a unified "run structure" table saved into `results/run_structure.csv`.
+
+    The output table indicates for each condition the vial_id, the reaction plate id, the id of plate it was
+    diluted into, and the CRAIC folder name that contains the spectra for this plate.
+
+    Parameters
+    ----------
+    experiment_name: str
+        The name of the experiment, e.g. `multicomp-reactions/2023-06-26-run01/`
+    """
     run_name = experiment_name.split('/')[1]
 
     # if there is not 'results' folder in the run folder, create it
@@ -18,7 +30,7 @@ def organize_run_structure(experiment_name):
 
     # open run_info.csv as dataframe
     df_pipetter = pd.read_csv(data_folder + experiment_name + 'pipetter_io/run_info.csv', delimiter=', ', header=None,
-                            names=['plate_code', 'experiment_name', 'start_time_unix',
+                              names=['plate_code', 'experiment_name', 'start_time_unix',
                                      'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
 
     # open the Excel file with the volumes, use first sheet
@@ -49,13 +61,14 @@ def organize_run_structure(experiment_name):
         craic_folder = df_craic.iloc[row_id]['folder']
 
         # populate the structure dataframe with the plate codes and the craic folder
-        df_structure.at[row_id*54:(row_id+1)*54-1, 'reaction_plate_id'] = reaction_plate
-        df_structure.at[row_id*54:(row_id+1)*54-1, 'diluted_plate_id'] = plate_for_dilution
-        df_structure.at[row_id*54:(row_id+1)*54-1, 'craic_folder'] = craic_folder
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'reaction_plate_id'] = reaction_plate
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'diluted_plate_id'] = plate_for_dilution
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'craic_folder'] = craic_folder
         df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'vial_id'] = tuple(range(54))
 
     # save the dataframe as csv
     df_structure.to_csv(data_folder + experiment_name + 'results/run_structure.csv', index=False)
+
 
 if __name__ == '__main__':
     organize_run_structure('multicomp-reactions/2023-06-20-run01/')
