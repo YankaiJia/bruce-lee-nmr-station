@@ -159,7 +159,7 @@ def curve(n_mer):
 
 
 class MyModel(HasTraits):
-    pTSA_concentration_id = Range(0, len(unique_cats)-1, 20, ) # slider for catalyst concentration
+    pTSA_concentration_id = Range(0, len(unique_cats)-1, 0, ) # slider for catalyst concentration
     second_slider_id = Range(0, 3, )  # slider for catalyst concentration
     scene = Instance(MlabSceneModel, ())
     scene.background = (1, 1, 1)

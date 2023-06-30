@@ -4,6 +4,9 @@ import os
 import matplotlib.pyplot as plt
 from scipy.interpolate import splev, splrep
 from savitzky_golay_werrors import savgol_filter_werror
+import importlib
+organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
+
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 
@@ -13,7 +16,7 @@ def simpleaxis(ax):
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
 
-def filter_layouts(array, threshold, verbose=True):
+def filter_outliers(array, threshold, verbose=True):
     """
     Points that are further away from the previous and next point than the threshold
     are replaced by the mean of the previous and the next point.
@@ -49,72 +52,6 @@ def filter_layouts(array, threshold, verbose=True):
     return array
 
 
-def round_to_nearest(df_new, df_reference, column_names):
-    """
-    Round the values in the new dataframe to the nearest values in the reference dataframe.
-    For example, if column in reference dataframe has values [0.1, 0.2, 0.3] and the new dataframe has values
-    [5, 8, 11, 0.099999999999999999998, 11, 0.2000000000000000001, 0.35], the new dataframe values will be rounded to
-    [5, 8, 11, 0.1, 0.2, 0.3. 11. 0.2, 0.35]
-    and returned.
-
-    Parameters
-    ----------
-    df_new: pd.DataFrame
-        The dataframe with the new values that may be slightly different from the reference values due to rounding
-        errors.
-
-    df_reference: pd.DataFrame
-        The dataframe with the reference values.
-
-    column_names: list of str
-        Only these columns will be changed in the new dataframe. Columns of same names are compared between
-        the dataframes.
-
-    Returns
-    -------
-    df_new: pd.DataFrame
-        The dataframe with the new values rounded to the nearest values in the reference dataframe.
-    """
-    for column_name in column_names:
-        new_values = df_new[column_name].to_numpy()
-        unique_values_from_reference_df = df_reference[column_name].unique()
-        for i, new_value in enumerate(new_values):
-            for unique_value_from_reference in unique_values_from_reference_df:
-                if np.isclose(new_value, unique_value_from_reference):
-                    new_values[i] = unique_value_from_reference
-        df_new[column_name] = new_values
-    return df_new
-
-
-def join_data_from_runs(run_names, round_on_columns=('ic001', 'am001', 'ald001', 'ptsa')):
-    """
-    Loads the `results/product_concentration.csv` from multiple runs and joins them into one dataframe.
-
-    Parameters
-    ----------
-    run_names: list
-        The names of the runs whose results will be loaded and joined. These names are the names of the subfolders
-        of the data folder.
-
-    round_on_columns
-        The columns that will be rounded to the nearest values in the reference dataframe. This is done to avoid
-        rounding errors when joining the dataframes.
-
-    Returns
-    -------
-    df_result: pd.DataFrame
-        The dataframe with the joined data. The sequence of the rows is the same as the sequence of the runs.
-    """
-    df_result = pd.read_csv(data_folder + run_names[0] + f'results/product_concentration.csv')
-    df_result.drop('Unnamed: 0', inplace=True, axis=1)
-    for run_name in run_names[1:]:
-        df_temporary = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
-        df_temporary.drop('Unnamed: 0', inplace=True, axis=1)
-        df_temporary = round_to_nearest(df_temporary, df_result, round_on_columns)
-        df_result = df_result.append(df_temporary, ignore_index=True)
-    return df_result
-
-
 def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more_error_spline=0.2,
                 spline_smoothing_factor=6, do_plot=False):
     """
@@ -137,7 +74,7 @@ def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more
         The errors of the y values.
 
     layout_threshold: float
-        The threshold for filtering the data for layouts. See the filter_layouts function above.
+        The threshold for filtering the data for layouts. See the filter_outliers function above.
 
     more_error_savgol: float
         The additional error to be added to the yerr when smoothing the data with weighted Savitsky-Golay filter.
@@ -160,7 +97,7 @@ def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more
     permurations_that_sort_xs = xs.argsort()
     xs = xs[permurations_that_sort_xs]
     ys = ys[permurations_that_sort_xs]
-    ys = filter_layouts(ys, threshold=layout_threshold)
+    # ys = filter_outliers(ys, threshold=layout_threshold)
     ys_sg = savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
     if do_plot:
         plt.plot(xs, ys_sg, color='gold', linewidth=4, alpha=0.5)
@@ -236,7 +173,7 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
             plt.errorbar(xs, ys, yerr=yerr, linestyle='None', marker='o', capsize=3, label=label, alpha=0.5, color=color)
 
     if withspline:
-        tck = make_spline(xs, ys, yerr, do_plot=plot_savgol, spline_smoothing_factor=4)
+        tck = make_spline(xs, ys, yerr, do_plot=plot_savgol, spline_smoothing_factor=1)
         xs_new = np.linspace(np.min(xs), np.max(xs), 100)
         ys_new = splev(xs_new, tck) * factor
         plt.plot(xs_new, ys_new, color=spline_color, linewidth=spline_linewidth, alpha=spline_alpha)
@@ -246,12 +183,12 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
         plt.ylabel('Yield, %')
 
 
-if __name__ == '__main__':
-    df_results = join_data_from_runs(['multicomp-reactions/2023-03-20-run01/',
+def visualize_multicomp_2023_03_20():
+    df_results = organize_run_results.join_data_from_runs(['multicomp-reactions/2023-03-20-run01/',
                                       'multicomp-reactions/2023-03-29-run01/',
                                       'multicomp-reactions/2023-03-31-run01/'])
 
-    substances = ['ic001','am001','ald001','ptsa']
+    substances = ['ic001', 'am001', 'ald001', 'ptsa']
     product = 'IIO029A'
 
     substrate_cs = []
@@ -270,15 +207,17 @@ if __name__ == '__main__':
     unique_cats = sorted(list(set(list(cats))))
     print(f'Unique cats: {unique_cats}')
 
-    fig = plt.figure(figsize=(3,2.6))
-    plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=False, plot_savgol=False, spline_color='C3', spline_alpha=0.6, spline_linewidth=3)
-    plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=False, plot_savgol=False, spline_color='C0', spline_alpha=0.6, spline_linewidth=3,
+    fig = plt.figure(figsize=(3, 2.6))
+    plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=False,
+                                         plot_savgol=False, spline_color='C3', spline_alpha=0.6, spline_linewidth=3)
+    plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=False,
+                                         plot_savgol=False, spline_color='C1', spline_alpha=0.6, spline_linewidth=3,
                                          factor=1.35)
     for x in unique_cats:
         plt.axvline(x=x, color='grey', alpha=0.5)
     # plt.show()
 
-    unique_cats = np.array(unique_cats)[[1,3,5,6,7,8,9,10,11,12,14,16,18,20,22,24,25,26,27,28,29]]
+    unique_cats = np.array(unique_cats)[[1, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 25, 26, 27, 28, 29]]
     np.savetxt(data_folder + 'multicomp-reactions/2023-06-19-run01/outVandC/unique_cats.txt', unique_cats)
     print(f'New length of unique cats: {unique_cats.shape}')
     for x in unique_cats:
@@ -304,3 +243,56 @@ if __name__ == '__main__':
     plt.tight_layout()
     fig.savefig('yield_vs_acid.png', dpi=300)
     plt.show()
+
+if __name__ == '__main__':
+    list_of_runs = tuple(['2023-06-20-run01',
+                          '2023-06-21-run01',
+                          '2023-06-21-run02',
+                          '2023-06-22-run01',
+                          '2023-06-22-run02',
+                          '2023-06-22-run03',
+                          '2023-06-23-run01',
+                          '2023-06-23-run02',
+                          '2023-06-26-run01',
+                          '2023-06-26-run02',
+                          '2023-06-27-run01',
+                          '2023-06-27-run02',
+                          '2023-06-27-run03',
+                          '2023-06-28-run01',
+                          '2023-06-28-run02'])
+
+    df_results = organize_run_results.join_data_from_runs([f'multicomp-reactions/{run}/' for run in list_of_runs])
+
+    substances = ['ic001', 'am001', 'ald001', 'ptsa']
+    product = 'IIO029A'
+
+    substrate_cs = []
+    for substance in substances:
+        substrate_cs.append(df_results[substance].to_numpy())
+
+    xs0, ys0, zs0, cats = substrate_cs
+
+    for substance in substances:
+        print(f'{substance} min: {np.min(df_results[substance].to_numpy())}')
+        print(f'{substance} max: {np.max(df_results[substance].to_numpy())}')
+        print(f'{substance} unique: {sorted(df_results[substance].unique())}')
+
+    minimal_concentration_of_substrates = np.min(np.array([xs0, ys0, zs0]))
+
+    unique_cats = sorted(list(set(list(cats))))
+    print(f'Unique cats: {unique_cats}')
+
+    fig = plt.figure(figsize=(3, 2.6))
+    plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=True,
+                                         plot_savgol=False, spline_color='C3', spline_alpha=0.6, spline_linewidth=3)
+    plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=True,
+                                         plot_savgol=False, spline_color='C1', spline_alpha=0.6, spline_linewidth=3,
+                                         factor=1)
+    # for x in unique_cats:
+    #     plt.axvline(x=x, color='grey', alpha=0.5)
+    plt.show()
+
+
+    for ald in range(6):
+        plot_one_point_across_catalyst_range(df_results, (-1, 0, ald), label=f'ald{ald}')
+        plt.show()

@@ -6,7 +6,7 @@ import datetime
 import os
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
-experiment_name = 'multicomp-reactions/2023-06-23-run02/'
+experiment_name = 'multicomp-reactions/2023-06-28-run03/'
 
 # df = pd.read_csv(data_folder + experiment_name + 'pipetter_io/run_info_0322.csv', delimiter=', ',
 #                  usecols=['plate_code', 'experiment_name', 'finish_time_unix', 'note'])
@@ -14,7 +14,7 @@ experiment_name = 'multicomp-reactions/2023-06-23-run02/'
 # df = pd.read_csv(data_folder + experiment_name + 'pipetter_io/run_info.csv', delimiter=', ',
 #                  usecols=['plate_code', 'experiment_name', 'finish_time_unix', 'note'])
 
-df = pd.read_csv(data_folder + experiment_name + 'pipetter_io/run_info.csv', delimiter=', ', header=None,
+df = pd.read_csv(data_folder + experiment_name + 'pipetter_io/run_info.csv', delimiter=',', header=0,
                  names=['plate_code', 'experiment_name', 'start_time_unix',
          'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
 

@@ -156,8 +156,8 @@ class SpectraProcessor:
 
     def load_msp_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False, ignore_second_repetition=False):
         spectrum = load_raw_msp_by_id(plate_folder=plate_folder, well_id=well_id, prefix=prefix)
-        # if the file of the same name but suffix '_rep2' exists, then load it and apply the correction due to
-        # photobleaching
+        # if the file of the same name but suffix '_rep2' exists, then load it and apply the 'zero-dose extrapolation'
+        # to correct for photobleaching
         if (not ignore_second_repetition) and \
                 (os.path.isfile(plate_folder + prefix + f'-{well_id_to_file_id(well_id)}_rep2.msp')):
             try:
@@ -642,12 +642,12 @@ if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
-
-    plot_differential_absorbances_for_plate(
-            craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
-            wavelength=420,
-            ref_wavelengths=[525]
-            )
+    process_run_by_shortname(run_name)
+    # plot_differential_absorbances_for_plate(
+    #         craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
+    #         wavelength=420,
+    #         ref_wavelengths=[525]
+    #         )
 
     # ##### =================================== 2023-01-18-run01 ========================================================
     # experiment_name = 'multicomp-reactions/2023-01-18-run01/'
