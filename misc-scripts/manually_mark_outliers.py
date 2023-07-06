@@ -52,67 +52,94 @@ for substance in substances:
 
 # df_manual_outliers = pd.DataFrame().reindex_like(df_data)[0:0]
 
-substances = ('ic001','am001','ald001','ptsa')
-locations = [
-[-1, 1, 6, 10],
-[-1, 1, 5, 10],
-[-1, 0, 4, 10],
-[-1, 0, 5, 10],
-[-1, 2, 4, 10],
-[ 4, 0, 6, 4],
-[ 4, 0, 4, 4],
-[ 6, 0, 4, 4],
-[ 3, 0, 5, 6],
-[ 6, 0, 4, 7],
-[ 6, 0, 5, 7],
-[ 5, 0, 5, 7],
-[-1, 4, 5, 7],
-[-1, 1, 5, 8],
-[-1, 0, 5, 8],
-[ 3, 0, 2, 8],
-[ 5, 0, 6, 8],
-[ 5, 0, 5, 8],
-[ 5, 0, 4, 8],
-[ 5, 0, 3, 8],
-[ 4, 0, 2, 8],
-[-1, 0, 0, 8],
-[-2, 0, 2, 9],
-[-1, 0, 6, 9],
-[-1, 1, 6, 11],
-[-1, 1, 1, 11],
-[-1, 2, 5, 11],
-[-1, 0, 6, 12],
-[-1, 1, 5, 12],
-[-1, 2, 5, 13],
-[ 5, 4, 0, 14],
-[ 2, 6, 6, 16],
-[-1, 4, 5, 16],
-[ 5, 5, 0, 16],
-[-1, 5, 6, 17],
-[-1, 6, 5, 17],
-[-1, 5, 3, 17],
-[-1, 5, 6, 18],
-[-1, 5, 3, 18],
-[ 4, 6, 0, 18],
-[ 2, 6, 6, 20],
-[ 0, 6, 6, 20],
-[ 2, 6, 6, 20],
-[-1, 6, 2, 20],
+def make_outliers_at_given_locations(locations, output_filename, substances = ('ic001','am001','ald001','ptsa')):
 
-]
+    df_manual_outliers = pd.concat(
+            [df_data.loc[row_index_by_indices_in_unique_value_lists(df_results,
+                                                                    location,
+                                                                    column_names=substances)]
+             for location in locations],
+        ignore_index=True,
+        sort=False)
 
-df_manual_outliers = pd.concat(
-        [df_data.loc[row_index_by_indices_in_unique_value_lists(df_results,
-                                                                  location,
-                                                                  column_names=substances)] for location in locations],
-    ignore_index=True,
-    sort=False)
+    # remove known outliers
+    df_manual_outliers = df_manual_outliers[df_manual_outliers['is_outlier'] == 0]
 
-# remove known outliers
-df_manual_outliers = df_manual_outliers[df_manual_outliers['is_outlier'] == 0]
+    #save manual outliers to csv
+    target_folder = data_folder + run_name + 'results/outliers'
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    df_manual_outliers.to_csv(data_folder + run_name + f'results/outliers/{output_filename}.csv', index=False)
 
-#save manual outliers to csv
-target_folder = data_folder + run_name + 'results/outliers'
-if not os.path.exists(target_folder):
-    os.makedirs(target_folder)
-df_manual_outliers.to_csv(data_folder + run_name + 'results/outliers/manual_outliers.csv', index=False)
+if __name__ == '__main__':
+    # locations = [
+    #     [-1, 1, 6, 10],
+    #     [-1, 1, 5, 10],
+    #     [-1, 0, 4, 10],
+    #     [-1, 0, 5, 10],
+    #     [-1, 2, 4, 10],
+    #     [2, 0, 5, 10],
+    #     [-1, 1, 2, 10],
+    #     [4, 0, 6, 4],
+    #     [4, 0, 4, 4],
+    #     [6, 0, 4, 4],
+    #     [3, 0, 5, 6],
+    #     [6, 0, 4, 7],
+    #     [6, 0, 5, 7],
+    #     [5, 0, 5, 7],
+    #     [-1, 4, 5, 7],
+    #     [-1, 1, 5, 8],
+    #     [-1, 0, 5, 8],
+    #     [3, 0, 2, 8],
+    #     [5, 0, 6, 8],
+    #     [5, 0, 5, 8],
+    #     [5, 0, 4, 8],
+    #     [5, 0, 3, 8],
+    #     [4, 0, 2, 8],
+    #     [-1, 0, 0, 8],
+    #     [-2, 0, 2, 9],
+    #     [-1, 0, 6, 9],
+    #     [-1, 1, 6, 11],
+    #     [-1, 1, 1, 11],
+    #     [-1, 2, 5, 11],
+    #     [-1, 0, 6, 12],
+    #     [-1, 1, 5, 12],
+    #     [-1, 2, 5, 13],
+    #     [5, 4, 0, 14],
+    #     [2, 6, 6, 16],
+    #     [-1, 4, 5, 16],
+    #     [5, 5, 0, 16],
+    #     [-1, 5, 6, 17],
+    #     [-1, 6, 5, 17],
+    #     [-1, 5, 3, 17],
+    #     [-1, 5, 6, 18],
+    #     [-1, 5, 3, 18],
+    #     [4, 6, 0, 18],
+    #     [2, 6, 6, 20],
+    #     [0, 6, 6, 20],
+    #     [2, 6, 6, 20],
+    #     [-1, 6, 2, 20]
+    # ]
+    # make_outliers_at_given_locations(locations=locations, output_filename = 'manual_outliers')
+
+    locations = [
+    [-1, 0, 6, 4],
+    [-1, 0, 5, 4],
+    [-1, 0, 4, 4],
+    [ 5, 0, 6, 4],
+    [ 5, 0, 5, 4],
+    [ 4, 0, 6, 4],
+    [-1, 0, 5, 9],
+    [-1, 0, 4, 9],
+    [-1, 0, 3, 9],
+    [-1, 0, 2, 9],
+    [ 5, 0, 6, 9],
+    [ 5, 0, 5, 9],
+    [ 5, 0, 4, 9],
+    [ 5, 0, 3, 9],
+    [ 4, 0, 6, 9],
+    [ 6, 1 ,4, 11],
+    [-1, 0, 4, 10],
+    [-1, 5, 0, 18],
+    ]
+    make_outliers_at_given_locations(locations=locations, output_filename='manual_outliers_2')

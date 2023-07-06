@@ -62,24 +62,27 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 experiment_name = 'multicomp-reactions/2023-06-19-run01/'
 # df_results = pd.read_csv(data_folder + experiment_name + f'results/timepoint{timepoint_id:03d}-reaction_results.csv')
 
-list_of_runs = tuple(['2023-06-20-run01',
-                    '2023-06-21-run01',
-                    '2023-06-21-run02',
-                    '2023-06-22-run01',
-                    '2023-06-22-run02',
-                    '2023-06-22-run03',
-                    '2023-06-23-run01',
-                    '2023-06-23-run02',
-                    '2023-06-26-run01',
-                    '2023-06-26-run02',
-                    '2023-06-27-run01',
-                    '2023-06-27-run02',
-                    '2023-06-27-run03',
-                    '2023-06-28-run01',
-                    '2023-06-28-run02',
-                    '2023-06-28-run03'])
+# list_of_runs = tuple(['2023-06-20-run01',
+#                     '2023-06-21-run01',
+#                     '2023-06-21-run02',
+#                     '2023-06-22-run01',
+#                     '2023-06-22-run02',
+#                     '2023-06-22-run03',
+#                     '2023-06-23-run01',
+#                     '2023-06-23-run02',
+#                     '2023-06-26-run01',
+#                     '2023-06-26-run02',
+#                     '2023-06-27-run01',
+#                     '2023-06-27-run02',
+#                     '2023-06-27-run03',
+#                     '2023-06-28-run01',
+#                     '2023-06-28-run02',
+#                     '2023-06-28-run03'])
+#
+# df_results = organize_run_results.join_data_from_runs([f'multicomp-reactions/{run}/' for run in list_of_runs])
 
-df_results = organize_run_results.join_data_from_runs([f'multicomp-reactions/{run}/' for run in list_of_runs])
+df_results = pd.read_csv(data_folder + experiment_name + f'results/product_concentration_after_substituting_outliers.csv')
+
 print(f"There are {df_results[df_results['is_outlier'] == 1].shape[0]} outliers.")
 df_results = df_results[df_results['is_outlier'] == 0]
 
@@ -123,7 +126,7 @@ ks0 = yields
 print(max(ks0))
 print(min(ks0))
 
-max_ks0 = np.max(ks0) * 0.85
+max_ks0 = np.max(ks0)
 max_xs0 = np.max(xs0)
 max_ys0 = np.max(ys0)
 max_zs0 = np.max(zs0)
