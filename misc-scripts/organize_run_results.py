@@ -199,28 +199,24 @@ def outV_to_outC_by_lookup(experiment_name, lookup_run):
     df_outC.to_csv(data_folder + experiment_name + 'outVandC/outC.csv')
 
 
-def merge_repeated_outliers(original_run, outliers_run):
+def merge_repeated_outliers(original_run, outlier_runs,
+                            output_csv_filename='product_concentration_after_substituting_outliers.csv'):
     # find rows in outliers run that have same conditions as in the original run
     df_results_original = pd.read_csv(data_folder + original_run + 'results/product_concentration.csv')
     if 'Unnamed: 0' in df_results_original.columns:
         df_results_original.drop('Unnamed: 0', inplace=True, axis=1)
-    df_results_outliers = pd.read_csv(data_folder + outliers_run + 'results/product_concentration.csv')
+    df_results_outliers = join_data_from_runs(outlier_runs, round_on_columns=tuple())
     if 'Unnamed: 0' in df_results_outliers.columns:
         df_results_outliers.drop('Unnamed: 0', inplace=True, axis=1)
     df_results_concatenated = pd.concat([df_results_original, df_results_outliers], ignore_index=True)
-    # repove known outliers
+    # remove known outliers
     df_results_concatenated = df_results_concatenated[df_results_concatenated['is_outlier'] == 0]
-    # reindex df_results_concatenated
     df_results_concatenated.reset_index(inplace=True, drop=True)
     substrate_names = ['ic001', 'ald001', 'am001', 'ptsa']
-    # substrate_vectors_original = df_results_original[substrate_names].to_numpy()
-    # substrate_vectors_outliers = df_results_outliers[substrate_names].to_numpy()
     substrate_vectors_concatenated = df_results_concatenated[substrate_names].to_numpy()
-    # pairwise distances between the vectors using scikit learn pairwise distances
     distances = pairwise_distances(substrate_vectors_concatenated,
                                    substrate_vectors_concatenated, metric='euclidean')
     distance_threshold = 1e-7
-    # copy df_concatenated to df_output
     mindistance_by_first_index =(distances + np.eye(distances.shape[0])).min(axis=1)
     yield_lists = []
     indices_that_were_processed = []
@@ -248,33 +244,24 @@ def merge_repeated_outliers(original_run, outliers_run):
             yield_lists.append(yields_here)
             mean_yield_without_outlier = remove_one_outlier_and_average_rest(yields_here)
             df_results_concatenated.at[indices_that_match[0], 'yield'] = mean_yield_without_outlier
-            # print(df_results_concatenated.iloc[indices_that_match[0]])
             df_results_concatenated.at[indices_that_match[1:], 'is_outlier'] = 1
     df_output = df_results_concatenated[df_results_concatenated['is_outlier'] == 0]
-    # print(df_output)
-    # df_output.to_csv(data_folder + original_run + 'results/' + 'product_concentration_after_substituting_outliers.csv', index=False)
+    df_output.to_csv(data_folder + original_run + 'results/' + output_csv_filename, index=False)
     return df_output, yield_lists
 
 
-
-
-
-
-    # group of identical condition, decide what to do with them
-
-    # if there are three rows in the group, then remove the one that is furter from the other two than the distance
-    # between the two (in terms of yield differences).
-
-
 if __name__ == '__main__':
+
     df_output, yield_lists = merge_repeated_outliers(original_run = 'multicomp-reactions/2023-06-19-run01/',
-                            outliers_run = 'multicomp-reactions/2023-06-30-run01/')
+                            outlier_runs=['multicomp-reactions/2023-06-30-run01/',
+                                          'multicomp-reactions/2023-07-04-run01/'])
     for j, yields in enumerate(yield_lists):
         for i, yield_here in enumerate(yields):
             plt.scatter(j, yield_here, color=f'C{i}')
-    # plt.legend()
+    plt.legend()
     plt.show()
-    # run_name = '2023-06-30-run01'
+
+    # run_name = '2023-07-04-run01'
     # organize_run_structure(f'multicomp-reactions/{run_name}/')
     # outV_to_outC_by_lookup(experiment_name=f'multicomp-reactions/{run_name}/',
     #                        lookup_run='multicomp-reactions/2023-06-19-run01/')

@@ -70,7 +70,7 @@ def process_run_by_shortname(run_shortname):
     concentrations_df.to_csv(data_folder + run_name + 'results/' + 'product_concentration.csv', index=False)
 
 if __name__ == '__main__':
-    run_shortname = '2023-06-30-run01'
+    run_shortname = '2023-07-04-run01'
     process_run_by_shortname(run_shortname)
 
     # list_of_runs = tuple(['2023-06-20-run01',
