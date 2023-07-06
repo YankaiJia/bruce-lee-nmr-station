@@ -642,7 +642,7 @@ if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
-    process_run_by_shortname(run_name)
+    # process_run_by_shortname(run_name)
     # plot_differential_absorbances_for_plate(
     #         craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
     #         wavelength=420,
