@@ -23,7 +23,6 @@ def remove_one_outlier_and_average_rest(x, verbose=False):
     return result
 
 
-
 def round_to_nearest(df_new, df_reference, column_names):
     """
     Round the values in the new dataframe to the nearest values in the reference dataframe.
@@ -90,6 +89,37 @@ def join_data_from_runs(run_names, round_on_columns=('ic001', 'am001', 'ald001',
     return df_result
 
 
+def load_df_from_run_info(path_to_run_info_file):
+    """
+    Load the `pipetter_io/run_info.csv` file into a dataframe.
+    Parameters
+    ----------
+    path_to_run_info_file: str
+        The name of the `pipetter_io/run_info.csv` file.
+
+    Returns
+    -------
+    df_pipetter: pd.DataFrame
+        The dataframe with the run info.
+
+    """
+    with open(path_to_run_info_file, 'r') as f:
+        first_line = f.readline()
+    # take care of the version of run_info:
+    if first_line.startswith('#version'):
+        if first_line.startswith('#version: 1.00'):
+            df_pipetter = pd.read_csv(path_to_run_info_file, delimiter=',', header=0,
+                                      names=['plate_code', 'experiment_name', 'start_time_unix',
+                                             'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
+        else:
+            raise ValueError(f'Unknown version of run_info.csv: {first_line}. Good luck coding your own damn loader.')
+    else:
+        df_pipetter = pd.read_csv(path_to_run_info_file, delimiter=', ', header=None,
+                                  names=['plate_code', 'experiment_name', 'start_time_unix',
+                                         'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
+    return df_pipetter
+
+
 def organize_run_structure(experiment_name):
     """
     Automatically combine `run_info.csv`, `dilution_info.csv` and CRAIC plate database into
@@ -117,18 +147,7 @@ def organize_run_structure(experiment_name):
     df_dilution = pd.read_csv(data_folder + experiment_name + 'dilution/dilution_info.csv')
 
     # open run_info.csv as dataframe
-    # take care of the version of run_info:
-    run_info_filename = data_folder + experiment_name + 'pipetter_io/run_info.csv'
-    with open(run_info_filename, 'r') as f:
-        first_line = f.readline()
-    if first_line.startswith('#version: 1.00'):
-        df_pipetter = pd.read_csv(run_info_filename, delimiter=',', header=0,
-                                  names=['plate_code', 'experiment_name', 'start_time_unix',
-                                         'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
-    else:
-        df_pipetter = pd.read_csv(run_info_filename, delimiter=', ', header=None,
-                                  names=['plate_code', 'experiment_name', 'start_time_unix',
-                                         'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
+    df_pipetter = load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
 
     # open the Excel file with the volumes, use first sheet
     df_structure = pd.read_excel(data_folder + experiment_name + f'{run_name}.xlsx', sheet_name=0)
@@ -265,4 +284,3 @@ if __name__ == '__main__':
     # organize_run_structure(f'multicomp-reactions/{run_name}/')
     # outV_to_outC_by_lookup(experiment_name=f'multicomp-reactions/{run_name}/',
     #                        lookup_run='multicomp-reactions/2023-06-19-run01/')
-    pass
