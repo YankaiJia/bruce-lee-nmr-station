@@ -97,10 +97,14 @@ def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more
     permurations_that_sort_xs = xs.argsort()
     xs = xs[permurations_that_sort_xs]
     ys = ys[permurations_that_sort_xs]
-    # ys = filter_outliers(ys, threshold=layout_threshold)
+    ys = filter_outliers(ys, threshold=layout_threshold)
     ys_sg = savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
     if do_plot:
         plt.plot(xs, ys_sg, color='gold', linewidth=4, alpha=0.5)
+    # add point on the left and on the right with same y value as the first and the last point
+    xs = np.concatenate(([xs[0] - (xs[1]-xs[0])], xs, [xs[-1] + (xs[-1]-xs[-2])]))
+    ys_sg = np.concatenate(([ys_sg[0]], ys_sg, [ys_sg[-1]]))
+    yerr = np.concatenate(([yerr[0]], yerr, [yerr[-1]]))
     tck = splrep(xs, ys_sg, s=spline_smoothing_factor, w=1 / (yerr + more_error_spline))
     return tck
 
