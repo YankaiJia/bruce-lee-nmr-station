@@ -36,7 +36,7 @@ def get_spectra_file_list(target_folder, prefix='spectrum_'):
         file_list.remove(f'{prefix}-3D.msp')  # this file contains the 2D map of absorbance at single fixed wavelength
     except ValueError:
         pass
-    return file_list
+    return [filename for filename in file_list if 'rep2' not in filename]
 
 
 def construct_interpolators_for_absorbance_correction(
@@ -156,8 +156,8 @@ class SpectraProcessor:
 
     def load_msp_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False, ignore_second_repetition=False):
         spectrum = load_raw_msp_by_id(plate_folder=plate_folder, well_id=well_id, prefix=prefix)
-        # if the file of the same name but suffix '_rep2' exists, then load it and apply the correction due to
-        # photobleaching
+        # if the file of the same name but suffix '_rep2' exists, then load it and apply the 'zero-dose extrapolation'
+        # to correct for photobleaching
         if (not ignore_second_repetition) and \
                 (os.path.isfile(plate_folder + prefix + f'-{well_id_to_file_id(well_id)}_rep2.msp')):
             try:
@@ -183,7 +183,7 @@ class SpectraProcessor:
     def show_all_spectra(self, plate_folder, prefix='spectrum_-'):
         for well_id, spectrum in enumerate(self.load_all_spectra(plate_folder, prefix=prefix)):
             plt.plot(spectrum[:, 0], spectrum[:, 1], alpha=0.3, label=f'{well_id}')
-            print(f'{well_id}: max {np.max(spectrum[:, 1])}')
+            print(f'{well_id}: max {np.max(spectrum[:, 1])}, min {np.min(spectrum[:, 1])}')
         plt.ylabel('Absorbance')
         plt.xlabel('Wavelength, nm')
 
@@ -642,12 +642,12 @@ if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
-
-    plot_differential_absorbances_for_plate(
-            craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
-            wavelength=420,
-            ref_wavelengths=[525]
-            )
+    # process_run_by_shortname(run_name)
+    # plot_differential_absorbances_for_plate(
+    #         craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
+    #         wavelength=420,
+    #         ref_wavelengths=[525]
+    #         )
 
     # ##### =================================== 2023-01-18-run01 ========================================================
     # experiment_name = 'multicomp-reactions/2023-01-18-run01/'
@@ -720,12 +720,16 @@ if __name__ == '__main__':
     #
     # concentrations_df.to_csv(data_folder + experiment_name + 'results/' + 'product_concentration.csv', index=False)
 
-    # craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
-    # sp.show_all_spectra(craic_folder + '2023-06-13_14-15-08__plate0000039__multicomponent-reactions-2023-06-13-pigments/')
+    craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
+    sp.show_all_spectra(craic_folder + '2023-07-11_18-10-18__plate0000062__simple_reaction_2023-07-11_run01/')
+    # sp.show_all_spectra(craic_folder + '2023-07-11_00-48-50__plate0000057__simple_reaction_2023-07-10_run02/')
+    plt.legend()
+
+    # sp.show_all_spectra(craic_folder + '2023-07-10_23-38-15__plate0000055__simple_reaction_2023-07-10_run02/')
     # sp.show_all_spectra(
     #     craic_folder + '2023-06-13_14-42-05__plate0000040__multicomponent-reactions-2023-06-13-pigments/')
     # sp.show_all_spectra(craic_folder + '2023-05-23_01-51-15__plate0000020__simple-reactions-2023-05-22-run01_calibration/')
-    # plt.show()
+    plt.show()
     # wavelengths = sp.load_msp_by_id(craic_folder + '2023-04-08_16-06-36__plate0000021__2023-04-07-run01-diluted/', well_id=0)[:, 0]
     # pass
 

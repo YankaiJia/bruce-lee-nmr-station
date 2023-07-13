@@ -9,9 +9,9 @@ from mayavi.core.ui.api import MayaviScene, SceneEditor, \
 from tvtk.tools import visual
 from scipy.interpolate import Rbf, LinearNDInterpolator
 from visualize_results import *
-import time
+organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 
-contourvalues = [0.10, 0.14]
+contourvalues = [0.01] #[0.10, 0.11, 0.12]
 
 
 pos1 = [-0.168916619662477, 0.3818710137155461, 0.8890913200020035]
@@ -62,14 +62,42 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 experiment_name = 'multicomp-reactions/2023-06-19-run01/'
 # df_results = pd.read_csv(data_folder + experiment_name + f'results/timepoint{timepoint_id:03d}-reaction_results.csv')
 
-df_results = pd.read_csv(data_folder + experiment_name + f'results/product_concentration.csv')
+# list_of_runs = tuple(['2023-06-20-run01',
+#                     '2023-06-21-run01',
+#                     '2023-06-21-run02',
+#                     '2023-06-22-run01',
+#                     '2023-06-22-run02',
+#                     '2023-06-22-run03',
+#                     '2023-06-23-run01',
+#                     '2023-06-23-run02',
+#                     '2023-06-26-run01',
+#                     '2023-06-26-run02',
+#                     '2023-06-27-run01',
+#                     '2023-06-27-run02',
+#                     '2023-06-27-run03',
+#                     '2023-06-28-run01',
+#                     '2023-06-28-run02',
+#                     '2023-06-28-run03'])
+#
+# df_results = organize_run_results.join_data_from_runs([f'multicomp-reactions/{run}/' for run in list_of_runs])
+
+df_results = pd.read_csv(data_folder + experiment_name + f'results/interpolated_product_concentration.csv')
+# print(f"There are {df_results[df_results['is_outlier'] == 1].shape[0]} outliers.")
+# df_results = df_results[df_results['is_outlier'] == 0]
+
+
+# df_results = pd.read_csv(data_folder + experiment_name + f'results/interpolated_product_concentration.csv')
 # replace negative values in yield column with zeros
 df_results['yield'] = df_results['yield'].apply(lambda x: 0 if x < 0 else x)
 # df_results.drop('Unnamed: 0', inplace=True, axis=1)
 
 substances = ['ic001','am001','ald001','ptsa']
-# substance_titles = ['Isocyanide', 'Amine', 'Aldehyde', 'p-TSA']
-substance_titles = ['', '', '', '']
+substance_titles = ['Isocyanide', 'Amine', 'Aldehyde', 'p-TSA']
+# substance_titles = ['', '', '', '']
+
+padding_rows_count = (df_results[substances] == 0).all(axis=1).sum()
+print(f"There are {padding_rows_count} padding rows (with zero concentrations of substrates).")
+df_results = df_results[(df_results[substances] != 0).any(axis=1)]
 
 substrate_cs = []
 for substance in substances:
@@ -88,7 +116,7 @@ unique_cats = list(sorted(list(df_results['ptsa'].unique())))
 with open(data_folder + experiment_name + 'results/unique_cats.pickle', 'wb') as f:
     pickle.dump(unique_cats, f)
 
-print(f'Unique cats: {unique_cats}')
+print(f'{len(unique_cats)} unique cats: {unique_cats}')
 
 yields = df_results['yield'].to_numpy()
 
@@ -137,7 +165,7 @@ for cat_here in unique_cats:
     # RBF version
     # rbf4 = Rbf(xs, ys, zs, ks, epsilon=0.04, smooth=0.00001)  # function="thin_plate"
     # rbf4 = Rbf(xs, ys, zs, ks, epsilon=0.04, smooth=0.00008)  # function="thin_plate"
-    rbf4 = Rbf(xs, ys, zs, ks, epsilon=0.04, smooth=0.8)  # function="thin_plate"
+    rbf4 = Rbf(xs, ys, zs, ks, epsilon=0.10, smooth=0.04, function='gaussian', mode='1-D')  # function="thin_plate"
     wnew = rbf4(xnew, ynew, znew)
 
     # # Linead ND version
@@ -159,7 +187,7 @@ def curve(n_mer):
 
 
 class MyModel(HasTraits):
-    pTSA_concentration_id = Range(0, len(unique_cats)-1, 0, ) # slider for catalyst concentration
+    pTSA_concentration_id = Range(0, len(unique_cats)-1, 35) # slider for catalyst concentration
     second_slider_id = Range(0, 3, )  # slider for catalyst concentration
     scene = Instance(MlabSceneModel, ())
     scene.background = (1, 1, 1)
@@ -181,7 +209,7 @@ class MyModel(HasTraits):
         wnew, the_points = curve(self.pTSA_concentration_id)
         if self.plot is None:
             self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew, extent=[0.12, 0.30, 0.12, 0.30, 0.12, 0.30],
-                                                  contours=contourvalues, opacity=1, vmin=0, vmax=max_ks0)#,
+                                                  contours=contourvalues, opacity=0, vmin=0, vmax=max_ks0)#,
                                   # colormap='summer')
             self.plot.actor.actor.property.ambient = 0.5
             self.fig = self.scene.mlab.gcf()
@@ -197,7 +225,7 @@ class MyModel(HasTraits):
             self.scene.mlab.ylabel(f'{substance_titles[1]}')
             self.scene.mlab.zlabel(f'{substance_titles[2]}')
             self.scene.mlab.outline(self.plot)
-            # self.texthere = self.scene.mlab.text3d(max_xs0 * (0.2), max_ys0 * 0.6, max_zs0/2*1.3, 'Catalyst', scale=0.005)
+            self.texthere = self.scene.mlab.text3d(max_xs0 * (0.2), max_ys0 * 0.6, max_zs0/2*1.3, 'Catalyst', scale=0.005)
             # self.vslice = self.scene.mlab.volume_slice(xnew, ynew, znew, wnew, plane_orientation='x_axes',
             #                                            plane_opacity=0.01, opacity=0.01, transparent=True, #opacity=0.5,
             #                                            vmin=0, vmax=max_ks0)#, colormap='summer')
@@ -219,12 +247,11 @@ class MyModel(HasTraits):
             self.scene.scene.render()
 
         else:
-            # Explanation for the following code:
             # self.plot.mlab_source.trait_set(x=xnew, y=ynew, z=znew, scalars=wnew)
             # self.plot.contour.contours = contourvalues
             self.plot.remove()
-            self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew,# extent=[0.12, 0.30, 0.12, 0.30, 0.12, 0.30],
-                                                  contours=contourvalues, opacity=1, vmin=0, vmax=max_ks0)#,
+            self.plot = self.scene.mlab.contour3d(xnew, ynew, znew, wnew, extent=[0.12, 0.30, 0.12, 0.30, 0.12, 0.30],
+                                                  contours=contourvalues, opacity=0, vmin=0, vmax=max_ks0)
                                   # colormap='summer')
             self.plot.actor.actor.property.ambient = 0.2
             self.plot.actor.actor.property.specular = 0.2
@@ -233,10 +260,11 @@ class MyModel(HasTraits):
             # self.vslice.mlab_source.trait_set(x=xnew, y=ynew, z=znew, scalars=wnew, plane_opacity=0.01, opacity=0.01, transparent=True)
             xs, ys, zs, ks = the_points
             self.plot_points.mlab_source.reset(x=xs, y=ys, z=zs, scalars=ks)
-            # self.texthere.text = f'Catalyst (p-Toluenesulfonic acid): {unique_cats[self.pTSA_concentration_id]:.3f} mol/L'
-            # self.texthere.vector_text.update()
+            self.texthere.text = f'Catalyst (p-Toluenesulfonic acid): {unique_cats[self.pTSA_concentration_id]:.3f} mol/L'
+            self.texthere.vector_text.update()
             # update the camera positino
-            pos, fp, vu = cam_pos_and_focalpoint_by_blendfactor(blend_factor=0.5)
+            # pos, fp, vu = cam_pos_and_focalpoint_by_blendfactor(blend_factor=(self.pTSA_concentration_id/500)**2)
+            pos, fp, vu = cam_pos_and_focalpoint_by_blendfactor(blend_factor=(self.pTSA_concentration_id / (len(unique_cats)-1)) ** 2)
             self.scene.scene.camera.position = pos
             self.scene.scene.camera.focal_point = fp
             self.scene.scene.camera.view_up = vu
