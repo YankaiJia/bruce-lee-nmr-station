@@ -12,7 +12,7 @@ def remove_one_outlier_and_average_rest(x, verbose=False):
     # x is a numpy array
     sorted_list = np.sort(x)
     diff = np.diff(sorted_list)
-    if diff[0] > diff[-1]:
+    if np.abs(diff[0]) > np.abs(diff[-1]):
         if verbose:
             print('Removing the first value.')
         result = np.mean(sorted_list[1:])
