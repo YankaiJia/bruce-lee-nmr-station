@@ -1,15 +1,14 @@
 import logging
 import os
-
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from sklearn.metrics import pairwise_distances
 
 logging.basicConfig(level=logging.INFO)
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
+
 
 def remove_one_outlier_and_average_rest(x, verbose=False):
     # x is a numpy array
@@ -115,7 +114,8 @@ def load_df_from_run_info(path_to_run_info_file):
                                       names=['plate_code', 'experiment_name', 'start_time_unix',
                                              'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
         else:
-            raise ValueError(f'Unknown version of run_info.csv: {first_line[:-1]}. Good luck coding your own damn loader.')
+            raise ValueError(
+                f'Unknown version of run_info.csv: {first_line[:-1]}. Good luck coding your own damn loader.')
     else:
         df_pipetter = pd.read_csv(path_to_run_info_file, delimiter=', ', header=None,
                                   names=['plate_code', 'experiment_name', 'start_time_unix',
@@ -127,7 +127,9 @@ def load_df_from_dilution_info(experiment_name):
     # check if 'dilution' subfolder is present in the experiment folder
     path_to_dilution_info_file = data_folder + experiment_name + 'dilution/dilution_info.csv'
     if not os.path.exists(path_to_dilution_info_file):
-        raise ValueError(f'The dilution info file {path_to_dilution_info_file} does not exist. Make it or code your own damn loader.')
+        raise ValueError(
+            f'The dilution info file {path_to_dilution_info_file} does not exist. '
+            f'Make it or code your own damn loader.')
     else:
         with open(path_to_dilution_info_file, 'r') as f:
             first_line = f.readline()
@@ -142,9 +144,10 @@ def load_df_from_dilution_info(experiment_name):
                              f'Good luck coding your own damn loader.')
     return df_dilution
 
+
 def check_run_data_consistency(list_of_runs):
     """
-    Check if the data in the runs is consistent.
+    Check if the data in the completed runs is consistent.
 
     Parameters
     ----------
@@ -198,8 +201,10 @@ def check_run_data_consistency(list_of_runs):
             df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic_dil)].copy().reset_index()
         else:
             df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic)].copy().reset_index()
-        assert len(df_craic) > 0, f"No plates found in CRAIC database for {experiment_name}. Good luck learning to type."
-        # logging.info(f'Found {len(df_craic)} plates in CRAIC database for {experiment_name}: plate IDs: {df_craic["plate_id"].values}')
+        assert len(
+            df_craic) > 0, f"No plates found in CRAIC database for {experiment_name}. Good luck learning to type."
+        # logging.info(f'Found {len(df_craic)} plates in CRAIC database for {experiment_name}: '
+        #              f'plate IDs: {df_craic["plate_id"].values}')
 
         assert len(df_dilution) == len(df_pipetter) == len(df_structure) / 54 == len(df_craic), \
             'numbers of rows in the dataframes are inconsistent'
@@ -219,6 +224,7 @@ def check_run_data_consistency(list_of_runs):
 
     logging.info('Consistency is OK.')
     return True
+
 
 def organize_run_structure(experiment_name):
     """
@@ -336,7 +342,7 @@ def merge_repeated_outliers(original_run, outlier_runs,
     distances = pairwise_distances(substrate_vectors_concatenated,
                                    substrate_vectors_concatenated, metric='euclidean')
     distance_threshold = 1e-7
-    mindistance_by_first_index =(distances + np.eye(distances.shape[0])).min(axis=1)
+    mindistance_by_first_index = (distances + np.eye(distances.shape[0])).min(axis=1)
     yield_lists = []
     indices_that_were_processed = []
     for first_index in range(substrate_vectors_concatenated.shape[0]):
@@ -387,37 +393,3 @@ if __name__ == '__main__':
                           '2023-06-28-run02',
                           '2023-06-28-run03'])
     check_run_data_consistency([f'simple-reactions/{run_name}/' for run_name in list_of_runs])
-
-    # list_of_runs_multicomp = tuple(['2023-06-20-run01',
-    #                       '2023-06-21-run01',
-    #                       '2023-06-21-run02',
-    #                       '2023-06-22-run01',
-    #                       '2023-06-22-run02',
-    #                       '2023-06-22-run03',
-    #                       '2023-06-23-run01',
-    #                       '2023-06-23-run02',
-    #                       '2023-06-26-run01',
-    #                       '2023-06-26-run02',
-    #                       '2023-06-27-run01',
-    #                       '2023-06-27-run02',
-    #                       '2023-06-27-run03',
-    #                       '2023-06-28-run01',
-    #                       '2023-06-28-run02',
-    #                       '2023-06-28-run03'])
-    # check_run_data_consistency([f'multicomp-reactions/{run_name}/' for run_name in list_of_runs_multicomp])
-
-
-    # check_run_data_consistency(['simple-reactions/2023-07-07-run01/'])
-    # df_output, yield_lists = merge_repeated_outliers(original_run = 'multicomp-reactions/2023-06-19-run01/',
-    #                         outlier_runs=['multicomp-reactions/2023-06-30-run01/',
-    #                                       'multicomp-reactions/2023-07-04-run01/'])
-    # for j, yields in enumerate(yield_lists):
-    #     for i, yield_here in enumerate(yields):
-    #         plt.scatter(j, yield_here, color=f'C{i}')
-    # plt.legend()
-    # plt.show()
-
-    # run_name = '2023-07-04-run01'
-    # organize_run_structure(f'multicomp-reactions/{run_name}/')
-    # outV_to_outC_by_lookup(experiment_name=f'multicomp-reactions/{run_name}/',
-    #                        lookup_run='multicomp-reactions/2023-06-19-run01/')
