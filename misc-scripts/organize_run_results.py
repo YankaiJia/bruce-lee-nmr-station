@@ -219,9 +219,6 @@ def check_run_data_consistency(list_of_runs):
             plate_for_dilution = df_dilution.iloc[row_id]['to']
             assert df_craic.iloc[row_id]['plate_id'] == plate_for_dilution, 'Time sequence of plates is wrong.'
 
-        # save the dataframe as csv
-        df_structure.to_csv(data_folder + experiment_name + 'results/run_structure.csv', index=False)
-
     logging.info('Consistency is OK.')
     return True
 
