@@ -376,20 +376,12 @@ def merge_repeated_outliers(original_run, outlier_runs,
 
 
 if __name__ == '__main__':
-    list_of_runs = tuple(['2023-06-20-run01',
-                          '2023-06-21-run01',
-                          '2023-06-21-run02',
-                          '2023-06-22-run01',
-                          '2023-06-22-run02',
-                          '2023-06-22-run03',
-                          '2023-06-23-run01',
-                          '2023-06-23-run02',
-                          '2023-06-26-run01',
-                          '2023-06-26-run02',
-                          '2023-06-27-run01',
-                          '2023-06-27-run02',
-                          '2023-06-27-run03',
-                          '2023-06-28-run01',
-                          '2023-06-28-run02',
-                          '2023-06-28-run03'])
+    list_of_runs = tuple(['2023-07-05-run01',
+                          '2023-07-06-run01',
+                          '2023-07-07-run01',
+                          '2023-07-10-run01',
+                          '2023-07-10-run02',
+                          '2023-07-11-run01',
+                          '2023-07-11-run02',
+                          '2023-07-13-run01'])
     check_run_data_consistency([f'simple-reactions/{run_name}/' for run_name in list_of_runs])
