@@ -37,9 +37,9 @@ def test_load_df_from_run_info(datadir):
     data_folder = ''
     with datadir.as_cwd():
         experiment_name = 'multicomp-reactions/2023-06-20-run01/'
-        df_loaded = organize_run_results.load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
-        df_expected = pd.read_pickle('expected_outputs/run_info.pkl')
-        pd.testing.assert_frame_equal(df_loaded, df_expected)
+        pd.testing.assert_frame_equal(
+            organize_run_results.load_df_from_run_info(experiment_name + 'pipetter_io/run_info.csv'),
+            pd.read_pickle('expected_outputs/run_info.pkl'))
 
 
 def test_load_df_from_dilution_info(datadir):
@@ -56,7 +56,7 @@ def test_load_df_from_dilution_info(datadir):
         Temporary directory with the same structure as `tests/test_organize_run_results` directory.
     """
     data_folder = ''
-    craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
     with datadir.as_cwd():
-        pd.testing.assert_frame_equal(organize_run_results.load_df_from_dilution_info('multicomp-reactions/2023-06-20-run01/'),
-                                      pd.read_pickle('expected_outputs/dilution_info.pkl'))
+        pd.testing.assert_frame_equal(
+            organize_run_results.load_df_from_dilution_info('multicomp-reactions/2023-06-20-run01/'),
+            pd.read_pickle('expected_outputs/dilution_info.pkl'))
