@@ -1571,19 +1571,19 @@ if __name__ == '__main__':
     # print('ContainerGeometryParameters::tube_1500ul is loaded.')
     # time.sleep(2)
 
-    # load deck parameters
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
-    print('DeckGeometryParameters::deckgeom_300ul is loaded.')
-    time.sleep(1)
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
-    print('DeckGeometryParameters::deckgeom_1000ul is loaded.')
-    time.sleep(1)
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
-    print('DeckGeometryParameters::deckgeom_balance is loaded.')
-    time.sleep(1)
-    zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
-    print('DeckGeometryParameters::deckgeom_50ul is loaded.')
-    time.sleep(1)
+    # # load deck parameters
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
+    # print('DeckGeometryParameters::deckgeom_300ul is loaded.')
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
+    # print('DeckGeometryParameters::deckgeom_1000ul is loaded.')
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
+    # print('DeckGeometryParameters::deckgeom_balance is loaded.')
+    # time.sleep(1)
+    # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
+    # print('DeckGeometryParameters::deckgeom_50ul is loaded.')
+    # time.sleep(1)
 
     # # load liquid class parameters
     # zm.request_parameters_from_zeus()

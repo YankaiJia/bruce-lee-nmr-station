@@ -297,6 +297,7 @@ def interprete_events_from_excel_to_dataframe(dataframe_filename: str,
     event_dataframes.add_events_to_df()
 
     module_logger.info(f'event_dataframe is generated with {len(event_dataframes.pd_output.index)} events.')
+
     event_dataframes.pd_output.to_json(
         f'event_dataframes\\event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json',
         orient='records', lines=True)
@@ -443,8 +444,12 @@ def prewet_new_tip( zm: object, pt: object, logger: object, pipetting_event: obj
 
     max_volume = int(re.findall(r'\d+', zm.tip_on_zeus)[0])
     event_adjusted.aspirationVolume = max_volume
+    event_adjusted.asp_liquidSurface = 1200
+    event_adjusted.asp_lldSearchPosition = 1200
+    event_adjusted.asp_lld = 1
     event_adjusted.destination_container = event_adjusted.source_container
     event_adjusted.disp_liquidSurface = 1650
+
 
     logger.info(f'Prewetting tip with {max_volume}ul of {event_adjusted.substance_name}')
     pt.transfer_liquid(event_adjusted)
@@ -471,10 +476,20 @@ def run_events_chem(zm: object, pt: object, logger: object,
                     event_list=None,
                     change_tip_after_every_pipetting: bool = False,
                     prewet_tip: bool = True,
+                    pause_after_every_plate_min: int = 0,
                     ):
 
     liquid_surface_height_from_zeus = {}
-    excel_file_name = excel_path.split('/')[-1].split('.')[0]  # get the excel file name
+    excel_file_name = excel_path.split('/')[-1].split('.')[0]  # get the Excel file name
+
+    # record the events in this plate
+    pipetter_io_info = os.path.dirname(excel_path) + '\\pipetter_io\\'
+    if not os.path.exists(pipetter_io_info):
+        os.makedirs(pipetter_io_info)
+
+    run_info_header = '#version: 1.00\n'
+    with open(pipetter_io_info + 'run_info.csv', 'a') as f:
+        f.write(run_info_header)
 
     if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
         pt.discard_tip()
@@ -491,6 +506,9 @@ def run_events_chem(zm: object, pt: object, logger: object,
 
         start_time_unix = int(time.time())
         start_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        pt.home_xy()
+        logger.info(f'Gantry is homed at {start_time_datetime}, before {plate_index} plates')
 
         for event_index in range(len(events_in_one_plate)):
 
@@ -529,7 +547,10 @@ def run_events_chem(zm: object, pt: object, logger: object,
                         f'plate_code: {plate_code_list[plate_index]}')
 
             # save this event to local pickle file
-            pickle_folder = os.path.dirname(excel_path) + '\\pipetter_io\\run_log\\'
+            # pickle_folder = os.path.dirname(excel_path) + '\\pipetter_io\\run_log\\'
+
+            # this is changed on 2023-07-11 to exclude the pickles from Dropbox sync
+            pickle_folder = 'C:\\Yankai\\pickles_from_pipetter\\'
             # build a new folder if not exist
             if not os.path.exists(pickle_folder):
                 os.makedirs(pickle_folder)
@@ -552,21 +573,15 @@ def run_events_chem(zm: object, pt: object, logger: object,
                 pt.discard_tip()
                 time.sleep(0.5)
 
-
         finish_time_unix = int(time.time())
         finish_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # record the events in this plate
-        pipetter_io_info = os.path.dirname(excel_path) + '\\pipetter_io\\'
-        if not os.path.exists(pipetter_io_info):
-            os.makedirs(pipetter_io_info)
-
-        run_info = f"{plate_code_list[plate_index]}, " \
-                   f"{excel_file_name}, " \
-                   f"{start_time_unix}, " \
-                   f"{start_time_datetime}, " \
-                   f"{finish_time_unix}, " \
-                   f"{finish_time_datetime}, " \
+        run_info = f"{plate_code_list[plate_index]}," \
+                   f"{excel_file_name}," \
+                   f"{start_time_unix}," \
+                   f"{start_time_datetime}," \
+                   f"{finish_time_unix}," \
+                   f"{finish_time_datetime}," \
                    f"\n"
         with open(pipetter_io_info + 'run_info.csv', 'a') as f:
             f.write(run_info)
@@ -576,8 +591,16 @@ def run_events_chem(zm: object, pt: object, logger: object,
 
         pt.discard_tip()
 
+        # TODO: write to the excel that this plate is finished.
+
         ## play some sound to notify the user
         beep_n()
+        time.sleep(2)
+        beep_n()
+        time.sleep(2)
+
+        ## pause after each plate
+        time.sleep(pause_after_every_plate_min * 60)
 
     return liquid_surface_height_from_zeus
 

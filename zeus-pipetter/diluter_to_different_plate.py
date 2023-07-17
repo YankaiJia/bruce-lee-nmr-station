@@ -200,7 +200,7 @@ def transfer_liquid_from_old_vial_to_new(start_index = 0, skip_vial_id: tuple = 
         event_temp = generate_dilution_event(source_container=source_container,
                                              destination_container=destination_container,
                                              volume=volume_transfered_from_old_to_new_vial,
-                                             asp_liquid_surface= 2070,
+                                             asp_liquid_surface= 1850,
                                              disp_liquid_surface=2100)
         event_list_dilution_old_to_new.append(event_temp)
 

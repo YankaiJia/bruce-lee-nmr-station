@@ -4,8 +4,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -293.0,
-                    -9.0
+                    -290.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -16,8 +16,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -302.0,
-                    -9.0
+                    -299.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -28,8 +28,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -311.0,
-                    -9.0
+                    -308.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -40,8 +40,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -320.0,
-                    -9.0
+                    -317.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -52,8 +52,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -329.0,
-                    -9.0
+                    -326.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -64,8 +64,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -338.0,
-                    -9.0
+                    -335.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -76,8 +76,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -347.0,
-                    -9.0
+                    -344.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -88,8 +88,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -356.0,
-                    -9.0
+                    -353.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -100,8 +100,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -365.0,
-                    -9.0
+                    -362.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -112,8 +112,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -374.0,
-                    -9.0
+                    -371.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -124,8 +124,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -383.0,
-                    -9.0
+                    -380.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -136,8 +136,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -392.0,
-                    -9.0
+                    -389.5,
+                    -11.0
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -148,8 +148,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -292.92857142857144,
-                    -17.92857142857143
+                    -290.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -160,8 +160,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -301.92857142857144,
-                    -17.92857142857143
+                    -299.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -172,8 +172,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -310.92857142857144,
-                    -17.92857142857143
+                    -308.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -184,8 +184,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -319.92857142857144,
-                    -17.92857142857143
+                    -317.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -196,8 +196,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -328.92857142857144,
-                    -17.92857142857143
+                    -326.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -208,8 +208,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -337.92857142857144,
-                    -17.92857142857143
+                    -335.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -220,8 +220,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -346.92857142857144,
-                    -17.92857142857143
+                    -344.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -232,8 +232,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -355.92857142857144,
-                    -17.92857142857143
+                    -353.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -244,8 +244,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -364.92857142857144,
-                    -17.92857142857143
+                    -362.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -256,8 +256,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -373.92857142857144,
-                    -17.92857142857143
+                    -371.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -268,8 +268,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -382.92857142857144,
-                    -17.92857142857143
+                    -380.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -280,8 +280,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -391.92857142857144,
-                    -17.92857142857143
+                    -389.35714285714283,
+                    -19.92857142857143
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -292,8 +292,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -292.85714285714283,
-                    -26.857142857142858
+                    -290.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -304,8 +304,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -301.85714285714283,
-                    -26.857142857142858
+                    -299.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -316,8 +316,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -310.85714285714283,
-                    -26.857142857142858
+                    -308.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -328,8 +328,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -319.85714285714283,
-                    -26.857142857142858
+                    -317.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -340,8 +340,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -328.85714285714283,
-                    -26.857142857142858
+                    -326.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -352,8 +352,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -337.85714285714283,
-                    -26.857142857142858
+                    -335.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -364,8 +364,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -346.85714285714283,
-                    -26.857142857142858
+                    -344.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -376,8 +376,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -355.85714285714283,
-                    -26.857142857142858
+                    -353.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -388,8 +388,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -364.85714285714283,
-                    -26.857142857142858
+                    -362.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -400,8 +400,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -373.85714285714283,
-                    -26.857142857142858
+                    -371.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -412,8 +412,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -382.85714285714283,
-                    -26.857142857142858
+                    -380.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -424,8 +424,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -391.85714285714283,
-                    -26.857142857142858
+                    -389.2142857142857,
+                    -28.857142857142858
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -436,8 +436,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -292.7857142857143,
-                    -35.785714285714285
+                    -290.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -448,8 +448,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -301.7857142857143,
-                    -35.785714285714285
+                    -299.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -460,8 +460,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -310.7857142857143,
-                    -35.785714285714285
+                    -308.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -472,8 +472,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -319.7857142857143,
-                    -35.785714285714285
+                    -317.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -484,8 +484,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -328.7857142857143,
-                    -35.785714285714285
+                    -326.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -496,8 +496,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -337.7857142857143,
-                    -35.785714285714285
+                    -335.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -508,8 +508,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -346.7857142857143,
-                    -35.785714285714285
+                    -344.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -520,8 +520,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -355.7857142857143,
-                    -35.785714285714285
+                    -353.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -532,8 +532,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -364.7857142857143,
-                    -35.785714285714285
+                    -362.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -544,8 +544,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -373.7857142857143,
-                    -35.785714285714285
+                    -371.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -556,8 +556,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -382.7857142857143,
-                    -35.785714285714285
+                    -380.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -568,8 +568,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -391.7857142857143,
-                    -35.785714285714285
+                    -389.07142857142856,
+                    -37.785714285714285
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -580,8 +580,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -292.7142857142857,
-                    -44.714285714285715
+                    -289.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -592,8 +592,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -301.7142857142857,
-                    -44.714285714285715
+                    -298.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -604,8 +604,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -310.7142857142857,
-                    -44.714285714285715
+                    -307.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -616,8 +616,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -319.7142857142857,
-                    -44.714285714285715
+                    -316.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -628,8 +628,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -328.7142857142857,
-                    -44.714285714285715
+                    -325.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -640,8 +640,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -337.7142857142857,
-                    -44.714285714285715
+                    -334.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -652,8 +652,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -346.7142857142857,
-                    -44.714285714285715
+                    -343.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -664,8 +664,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -355.7142857142857,
-                    -44.714285714285715
+                    -352.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -676,8 +676,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -364.7142857142857,
-                    -44.714285714285715
+                    -361.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -688,8 +688,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -373.7142857142857,
-                    -44.714285714285715
+                    -370.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -700,8 +700,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -382.7142857142857,
-                    -44.714285714285715
+                    -379.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -712,8 +712,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -391.7142857142857,
-                    -44.714285714285715
+                    -388.92857142857144,
+                    -46.714285714285715
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -724,8 +724,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -292.64285714285717,
-                    -53.642857142857146
+                    -289.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -736,8 +736,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -301.64285714285717,
-                    -53.642857142857146
+                    -298.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -748,8 +748,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -310.64285714285717,
-                    -53.642857142857146
+                    -307.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -760,8 +760,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -319.64285714285717,
-                    -53.642857142857146
+                    -316.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -772,8 +772,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -328.64285714285717,
-                    -53.642857142857146
+                    -325.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -784,8 +784,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -337.64285714285717,
-                    -53.642857142857146
+                    -334.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -796,8 +796,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -346.64285714285717,
-                    -53.642857142857146
+                    -343.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -808,8 +808,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -355.64285714285717,
-                    -53.642857142857146
+                    -352.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -820,8 +820,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -364.64285714285717,
-                    -53.642857142857146
+                    -361.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -832,8 +832,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -373.64285714285717,
-                    -53.642857142857146
+                    -370.7857142857143,
+                    -55.642857142857146
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -844,8 +844,272 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -382.64285714285717,
-                    -53.642857142857146
+                    -379.7857142857143,
+                    -55.642857142857146
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -388.7857142857143,
+                    -55.642857142857146
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -289.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -298.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -307.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -316.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -325.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -334.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -343.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -352.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -361.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -370.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -379.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -388.64285714285717,
+                    -64.57142857142857
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -289.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -298.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -307.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -316.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -325.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -334.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -343.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -352.5,
+                    -73.5
+                ],
+                "tipTypeTableIndex": 6,
+                "deckGeometryTableIndex": 1,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 1000,
+                "xy": [
+                    -361.5,
+                    -73.5
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -856,8 +1120,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -391.64285714285717,
-                    -53.642857142857146
+                    -370.5,
+                    -73.5
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -868,8 +1132,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -292.57142857142856,
-                    -62.57142857142857
+                    -379.5,
+                    -73.5
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -880,272 +1144,8 @@
             {
                 "tip_vol": 1000,
                 "xy": [
-                    -301.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -310.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -319.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -328.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -337.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -346.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -355.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -364.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -373.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -382.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -391.57142857142856,
-                    -62.57142857142857
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -292.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -301.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -310.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -319.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -328.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -337.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -346.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -355.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -364.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -373.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -382.5,
-                    -71.5
-                ],
-                "tipTypeTableIndex": 6,
-                "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 1000,
-                "xy": [
-                    -391.5,
-                    -71.5
+                    -388.5,
+                    -73.5
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
@@ -1160,8 +1160,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -21.5
+                    -152.0,
+                    -23.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1172,8 +1172,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -21.40909090909091
+                    -161.0,
+                    -23.40909090909091
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1184,8 +1184,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -21.318181818181817
+                    -170.0,
+                    -23.318181818181817
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1196,8 +1196,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -21.227272727272727
+                    -179.0,
+                    -23.227272727272727
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1208,8 +1208,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -21.136363636363637
+                    -188.0,
+                    -23.136363636363637
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1220,8 +1220,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -21.045454545454547
+                    -197.0,
+                    -23.045454545454547
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1232,8 +1232,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -20.954545454545453
+                    -206.0,
+                    -22.954545454545453
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1244,8 +1244,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -20.863636363636363
+                    -215.0,
+                    -22.863636363636363
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1256,8 +1256,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -226.5,
-                    -20.772727272727273
+                    -224.0,
+                    -22.772727272727273
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1268,8 +1268,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -235.5,
-                    -20.681818181818183
+                    -233.0,
+                    -22.681818181818183
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1280,8 +1280,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -244.5,
-                    -20.59090909090909
+                    -242.0,
+                    -22.59090909090909
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1292,8 +1292,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -20.5
+                    -251.0,
+                    -22.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1304,8 +1304,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -30.5
+                    -151.92857142857142,
+                    -32.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1316,8 +1316,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -30.40909090909091
+                    -160.94155844155844,
+                    -32.41558441558441
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1328,8 +1328,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -30.318181818181817
+                    -169.95454545454544,
+                    -32.33116883116883
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1340,8 +1340,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -30.227272727272727
+                    -178.96753246753246,
+                    -32.246753246753244
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1352,8 +1352,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -30.136363636363637
+                    -187.9805194805195,
+                    -32.16233766233766
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1364,8 +1364,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -30.045454545454547
+                    -196.9935064935065,
+                    -32.077922077922075
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1376,8 +1376,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -29.954545454545453
+                    -206.0064935064935,
+                    -31.99350649350649
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1388,8 +1388,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -29.863636363636363
+                    -215.0194805194805,
+                    -31.909090909090907
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1400,8 +1400,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -226.5,
-                    -29.772727272727273
+                    -224.03246753246754,
+                    -31.824675324675322
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1412,8 +1412,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -235.5,
-                    -29.681818181818183
+                    -233.04545454545456,
+                    -31.740259740259738
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1424,8 +1424,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -244.5,
-                    -29.59090909090909
+                    -242.05844155844156,
+                    -31.655844155844154
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1436,8 +1436,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -29.5
+                    -251.07142857142858,
+                    -31.57142857142857
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1448,8 +1448,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -39.5
+                    -151.85714285714286,
+                    -41.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1460,8 +1460,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -39.40909090909091
+                    -160.88311688311688,
+                    -41.422077922077925
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1472,8 +1472,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -39.31818181818182
+                    -169.9090909090909,
+                    -41.34415584415584
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1484,8 +1484,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -39.22727272727273
+                    -178.93506493506493,
+                    -41.26623376623377
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1496,8 +1496,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -39.13636363636363
+                    -187.96103896103895,
+                    -41.188311688311686
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1508,8 +1508,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -39.04545454545455
+                    -196.98701298701297,
+                    -41.11038961038961
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1520,8 +1520,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -38.95454545454545
+                    -206.01298701298703,
+                    -41.03246753246753
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1532,8 +1532,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -38.86363636363637
+                    -215.03896103896102,
+                    -40.95454545454545
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1544,8 +1544,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -226.5,
-                    -38.77272727272727
+                    -224.06493506493507,
+                    -40.87662337662337
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1556,8 +1556,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -235.5,
-                    -38.68181818181818
+                    -233.09090909090907,
+                    -40.798701298701296
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1568,8 +1568,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -244.5,
-                    -38.59090909090909
+                    -242.11688311688312,
+                    -40.720779220779214
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1580,8 +1580,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -38.5
+                    -251.14285714285714,
+                    -40.64285714285714
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1592,8 +1592,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -48.5
+                    -151.78571428571428,
+                    -50.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1604,8 +1604,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -48.40909090909091
+                    -160.82467532467533,
+                    -50.42857142857143
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1616,8 +1616,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -48.31818181818182
+                    -169.86363636363637,
+                    -50.357142857142854
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1628,8 +1628,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -48.22727272727273
+                    -178.9025974025974,
+                    -50.285714285714285
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1640,8 +1640,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -48.13636363636363
+                    -187.94155844155844,
+                    -50.214285714285715
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1652,8 +1652,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -48.04545454545455
+                    -196.9805194805195,
+                    -50.142857142857146
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1664,8 +1664,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -47.95454545454545
+                    -206.0194805194805,
+                    -50.07142857142857
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1676,8 +1676,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -47.86363636363637
+                    -215.05844155844156,
+                    -50.0
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1688,8 +1688,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -226.5,
-                    -47.77272727272727
+                    -224.0974025974026,
+                    -49.92857142857143
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1700,8 +1700,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -235.5,
-                    -47.68181818181818
+                    -233.13636363636365,
+                    -49.85714285714286
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1712,8 +1712,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -244.5,
-                    -47.59090909090909
+                    -242.1753246753247,
+                    -49.785714285714285
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1724,8 +1724,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -47.5
+                    -251.21428571428572,
+                    -49.714285714285715
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1736,8 +1736,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -57.5
+                    -151.71428571428572,
+                    -59.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1748,8 +1748,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -57.40909090909091
+                    -160.76623376623377,
+                    -59.435064935064936
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1760,8 +1760,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -57.31818181818182
+                    -169.8181818181818,
+                    -59.37012987012987
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1772,8 +1772,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -57.22727272727273
+                    -178.87012987012986,
+                    -59.3051948051948
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1784,8 +1784,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -57.13636363636363
+                    -187.92207792207793,
+                    -59.24025974025974
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1796,8 +1796,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -57.04545454545455
+                    -196.97402597402598,
+                    -59.175324675324674
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1808,8 +1808,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -56.95454545454545
+                    -206.02597402597402,
+                    -59.11038961038961
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -1820,188 +1820,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -56.86363636363637
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -226.5,
-                    -56.77272727272727
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -235.5,
-                    -56.68181818181818
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -244.5,
-                    -56.59090909090909
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -253.5,
-                    -56.5
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -154.5,
-                    -66.5
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -163.5,
-                    -66.4090909090909
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -172.5,
-                    -66.31818181818181
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -181.5,
-                    -66.22727272727273
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -190.5,
-                    -66.13636363636364
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -199.5,
-                    -66.04545454545455
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -208.5,
-                    -65.95454545454545
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -217.5,
-                    -65.86363636363636
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -226.5,
-                    -65.77272727272727
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -235.5,
-                    -65.68181818181819
-                ],
-                "tipTypeTableIndex": 4,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": false,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 300,
-                "xy": [
-                    -244.5,
-                    -65.5909090909091
+                    -215.07792207792207,
+                    -59.04545454545455
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2012,8 +1832,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -65.5
+                    -224.12987012987014,
+                    -58.98051948051948
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2024,8 +1844,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -75.5
+                    -233.1818181818182,
+                    -58.91558441558441
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2036,8 +1856,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -75.4090909090909
+                    -242.23376623376623,
+                    -58.85064935064935
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2048,8 +1868,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -75.31818181818181
+                    -251.28571428571428,
+                    -58.785714285714285
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2060,8 +1880,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -75.22727272727273
+                    -151.64285714285714,
+                    -68.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2072,8 +1892,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -75.13636363636364
+                    -160.7077922077922,
+                    -68.44155844155844
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2084,8 +1904,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -75.04545454545455
+                    -169.77272727272728,
+                    -68.38311688311688
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2096,8 +1916,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -74.95454545454545
+                    -178.83766233766232,
+                    -68.32467532467533
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2108,8 +1928,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -74.86363636363636
+                    -187.9025974025974,
+                    -68.26623376623377
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2120,8 +1940,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -226.5,
-                    -74.77272727272727
+                    -196.96753246753246,
+                    -68.20779220779221
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2132,8 +1952,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -235.5,
-                    -74.68181818181819
+                    -206.03246753246754,
+                    -68.14935064935065
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2144,8 +1964,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -244.5,
-                    -74.5909090909091
+                    -215.0974025974026,
+                    -68.0909090909091
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2156,8 +1976,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -74.5
+                    -224.16233766233768,
+                    -68.03246753246754
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2168,8 +1988,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -154.5,
-                    -84.5
+                    -233.22727272727275,
+                    -67.97402597402598
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2180,8 +2000,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -163.5,
-                    -84.4090909090909
+                    -242.2922077922078,
+                    -67.91558441558442
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2192,8 +2012,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -172.5,
-                    -84.31818181818181
+                    -251.35714285714286,
+                    -67.85714285714286
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2204,8 +2024,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -181.5,
-                    -84.22727272727273
+                    -151.57142857142858,
+                    -77.5
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2216,8 +2036,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -190.5,
-                    -84.13636363636364
+                    -160.64935064935065,
+                    -77.44805194805195
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2228,8 +2048,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -199.5,
-                    -84.04545454545455
+                    -169.72727272727275,
+                    -77.3961038961039
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2240,8 +2060,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -208.5,
-                    -83.95454545454545
+                    -178.80519480519482,
+                    -77.34415584415585
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2252,8 +2072,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -217.5,
-                    -83.86363636363636
+                    -187.88311688311688,
+                    -77.29220779220779
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2264,8 +2084,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -226.5,
-                    -83.77272727272727
+                    -196.96103896103895,
+                    -77.24025974025975
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2276,8 +2096,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -235.5,
-                    -83.68181818181819
+                    -206.03896103896102,
+                    -77.18831168831169
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2288,8 +2108,8 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -244.5,
-                    -83.5909090909091
+                    -215.11688311688312,
+                    -77.13636363636364
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2300,8 +2120,188 @@
             {
                 "tip_vol": 300,
                 "xy": [
-                    -253.5,
-                    -83.5
+                    -224.19480519480518,
+                    -77.08441558441558
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -233.27272727272725,
+                    -77.03246753246754
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -242.35064935064935,
+                    -76.98051948051948
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -251.42857142857142,
+                    -76.92857142857143
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -151.5,
+                    -86.5
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -160.5909090909091,
+                    -86.45454545454545
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -169.6818181818182,
+                    -86.4090909090909
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -178.77272727272728,
+                    -86.36363636363636
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -187.86363636363637,
+                    -86.31818181818181
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -196.95454545454547,
+                    -86.27272727272727
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -206.04545454545456,
+                    -86.22727272727273
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -215.13636363636363,
+                    -86.18181818181819
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -224.22727272727275,
+                    -86.13636363636364
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -233.3181818181818,
+                    -86.0909090909091
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -242.40909090909093,
+                    -86.04545454545455
+                ],
+                "tipTypeTableIndex": 4,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": true,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 300,
+                "xy": [
+                    -251.5,
+                    -86.0
                 ],
                 "tipTypeTableIndex": 4,
                 "deckGeometryTableIndex": 0,
@@ -2316,8 +2316,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -21.0
+                    -27.0,
+                    -23.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2328,8 +2328,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.0,
-                    -21.0
+                    -36.0,
+                    -22.954545454545453
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2340,8 +2340,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.0,
-                    -21.0
+                    -45.0,
+                    -22.90909090909091
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2352,8 +2352,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.0,
-                    -21.0
+                    -54.0,
+                    -22.863636363636363
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2364,8 +2364,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.0,
-                    -21.0
+                    -63.0,
+                    -22.818181818181817
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2376,8 +2376,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.0,
-                    -21.0
+                    -72.0,
+                    -22.772727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2388,8 +2388,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.0,
-                    -21.0
+                    -81.0,
+                    -22.727272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2400,8 +2400,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.0,
-                    -21.0
+                    -90.0,
+                    -22.681818181818183
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2412,8 +2412,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -101.0,
-                    -21.0
+                    -99.0,
+                    -22.636363636363637
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2424,8 +2424,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -110.0,
-                    -21.0
+                    -108.0,
+                    -22.59090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2436,8 +2436,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -119.0,
-                    -21.0
+                    -117.0,
+                    -22.545454545454547
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2448,8 +2448,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -128.0,
-                    -21.0
+                    -126.0,
+                    -22.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2460,8 +2460,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -30.0
+                    -26.928571428571427,
+                    -32.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2472,8 +2472,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.006493506493506,
-                    -29.993506493506494
+                    -35.93116883116883,
+                    -31.954545454545453
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2484,8 +2484,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.01298701298701,
-                    -29.98701298701299
+                    -44.933766233766235,
+                    -31.90909090909091
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2496,8 +2496,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.019480519480524,
-                    -29.98051948051948
+                    -53.93636363636364,
+                    -31.863636363636363
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2508,8 +2508,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.02597402597402,
-                    -29.974025974025974
+                    -62.93896103896104,
+                    -31.818181818181817
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2520,8 +2520,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.03246753246754,
-                    -29.967532467532468
+                    -71.94155844155844,
+                    -31.772727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2532,8 +2532,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.03896103896105,
-                    -29.961038961038962
+                    -80.94415584415584,
+                    -31.727272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2544,8 +2544,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.04545454545456,
-                    -29.954545454545457
+                    -89.94675324675325,
+                    -31.681818181818183
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2556,8 +2556,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -101.05194805194806,
-                    -29.94805194805195
+                    -98.94935064935065,
+                    -31.636363636363637
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2568,8 +2568,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -110.05844155844157,
-                    -29.941558441558442
+                    -107.95194805194805,
+                    -31.59090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2580,8 +2580,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -119.06493506493507,
-                    -29.935064935064936
+                    -116.95454545454545,
+                    -31.545454545454547
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2592,8 +2592,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -128.07142857142858,
-                    -29.92857142857143
+                    -125.95714285714286,
+                    -31.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2604,8 +2604,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -39.0
+                    -26.857142857142858,
+                    -41.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2616,8 +2616,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.01298701298701,
-                    -38.98701298701299
+                    -35.862337662337666,
+                    -40.95454545454545
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2628,8 +2628,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.02597402597402,
-                    -38.97402597402598
+                    -44.86753246753247,
+                    -40.90909090909091
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2640,8 +2640,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.03896103896104,
-                    -38.96103896103896
+                    -53.872727272727275,
+                    -40.86363636363637
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2652,8 +2652,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.05194805194805,
-                    -38.94805194805195
+                    -62.87792207792208,
+                    -40.81818181818182
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2664,8 +2664,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.06493506493507,
-                    -38.935064935064936
+                    -71.88311688311688,
+                    -40.77272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2676,8 +2676,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.07792207792208,
-                    -38.922077922077925
+                    -80.88831168831169,
+                    -40.72727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2688,8 +2688,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.0909090909091,
-                    -38.909090909090914
+                    -89.8935064935065,
+                    -40.68181818181818
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2700,8 +2700,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -101.1038961038961,
-                    -38.8961038961039
+                    -98.8987012987013,
+                    -40.63636363636363
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2712,8 +2712,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -110.11688311688312,
-                    -38.883116883116884
+                    -107.9038961038961,
+                    -40.59090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2724,8 +2724,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -119.12987012987013,
-                    -38.87012987012987
+                    -116.9090909090909,
+                    -40.54545454545455
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2736,8 +2736,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -128.14285714285714,
-                    -38.85714285714286
+                    -125.91428571428571,
+                    -40.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2748,8 +2748,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -48.0
+                    -26.785714285714285,
+                    -50.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2760,8 +2760,200 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.019480519480524,
-                    -47.98051948051948
+                    -35.79350649350649,
+                    -49.95454545454545
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -44.801298701298705,
+                    -49.90909090909091
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -53.80909090909091,
+                    -49.86363636363637
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -62.81688311688312,
+                    -49.81818181818182
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -71.82467532467533,
+                    -49.77272727272727
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -80.83246753246755,
+                    -49.72727272727273
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -89.84025974025974,
+                    -49.68181818181818
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -98.84805194805196,
+                    -49.63636363636363
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -107.85584415584415,
+                    -49.59090909090909
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -116.86363636363637,
+                    -49.54545454545455
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -125.87142857142857,
+                    -49.5
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -26.714285714285715,
+                    -59.0
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -35.724675324675324,
+                    -58.95454545454545
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -44.73506493506494,
+                    -58.90909090909091
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -53.74545454545455,
+                    -58.86363636363637
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -62.75584415584416,
+                    -58.81818181818182
+                ],
+                "tipTypeTableIndex": 2,
+                "deckGeometryTableIndex": 0,
+                "ZeusTraversePosition": 880,
+                "exists": false,
+                "substance": "None"
+            },
+            {
+                "tip_vol": 50,
+                "xy": [
+                    -71.76623376623377,
+                    -58.77272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2772,8 +2964,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.03896103896104,
-                    -47.96103896103896
+                    -80.77662337662338,
+                    -58.72727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2784,8 +2976,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.05844155844156,
-                    -47.94155844155844
+                    -89.78701298701299,
+                    -58.68181818181818
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2796,8 +2988,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.07792207792208,
-                    -47.922077922077925
+                    -98.7974025974026,
+                    -58.63636363636363
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2808,8 +3000,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.0974025974026,
-                    -47.9025974025974
+                    -107.8077922077922,
+                    -58.59090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2820,8 +3012,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.11688311688312,
-                    -47.883116883116884
+                    -116.81818181818181,
+                    -58.54545454545455
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2832,8 +3024,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.13636363636364,
-                    -47.86363636363636
+                    -125.82857142857144,
+                    -58.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2844,8 +3036,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -101.15584415584416,
-                    -47.84415584415584
+                    -26.642857142857142,
+                    -68.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2856,8 +3048,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -110.17532467532469,
-                    -47.824675324675326
+                    -35.65584415584416,
+                    -67.95454545454545
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2868,8 +3060,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -119.19480519480521,
-                    -47.8051948051948
+                    -44.66883116883117,
+                    -67.9090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2880,8 +3072,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -128.21428571428572,
-                    -47.785714285714285
+                    -53.68181818181819,
+                    -67.86363636363636
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2892,8 +3084,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -57.0
+                    -62.6948051948052,
+                    -67.81818181818181
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2904,8 +3096,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.02597402597402,
-                    -56.97402597402598
+                    -71.70779220779221,
+                    -67.77272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2916,8 +3108,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.051948051948045,
-                    -56.94805194805195
+                    -80.72077922077922,
+                    -67.72727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2928,8 +3120,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.077922077922075,
-                    -56.922077922077925
+                    -89.73376623376623,
+                    -67.68181818181819
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2940,8 +3132,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.10389610389609,
-                    -56.896103896103895
+                    -98.74675324675324,
+                    -67.63636363636364
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2952,8 +3144,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.12987012987011,
-                    -56.87012987012987
+                    -107.75974025974025,
+                    -67.5909090909091
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2964,8 +3156,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.15584415584415,
-                    -56.84415584415584
+                    -116.77272727272727,
+                    -67.54545454545455
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2976,8 +3168,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.18181818181817,
-                    -56.81818181818182
+                    -125.78571428571429,
+                    -67.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -2988,8 +3180,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -101.2077922077922,
-                    -56.79220779220779
+                    -26.571428571428573,
+                    -77.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3000,8 +3192,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -110.23376623376622,
-                    -56.76623376623377
+                    -35.58701298701299,
+                    -76.95454545454545
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3012,8 +3204,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -119.25974025974024,
-                    -56.74025974025974
+                    -44.602597402597404,
+                    -76.9090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3024,8 +3216,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -128.28571428571428,
-                    -56.714285714285715
+                    -53.618181818181824,
+                    -76.86363636363636
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3036,8 +3228,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -66.0
+                    -62.63376623376624,
+                    -76.81818181818181
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3048,8 +3240,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.032467532467535,
-                    -65.96753246753246
+                    -71.64935064935065,
+                    -76.77272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3060,8 +3252,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.06493506493507,
-                    -65.93506493506493
+                    -80.66493506493507,
+                    -76.72727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3072,8 +3264,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.0974025974026,
-                    -65.90259740259741
+                    -89.68051948051948,
+                    -76.68181818181819
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3084,8 +3276,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.12987012987014,
-                    -65.87012987012987
+                    -98.69610389610389,
+                    -76.63636363636364
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3096,8 +3288,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.16233766233768,
-                    -65.83766233766234
+                    -107.7116883116883,
+                    -76.5909090909091
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3108,8 +3300,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.1948051948052,
-                    -65.8051948051948
+                    -116.72727272727272,
+                    -76.54545454545455
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3120,8 +3312,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.22727272727273,
-                    -65.77272727272727
+                    -125.74285714285715,
+                    -76.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3132,8 +3324,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -101.25974025974027,
-                    -65.74025974025973
+                    -26.5,
+                    -86.0
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3144,8 +3336,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -110.2922077922078,
-                    -65.70779220779221
+                    -35.518181818181816,
+                    -85.95454545454545
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3156,8 +3348,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -119.32467532467534,
-                    -65.67532467532467
+                    -44.53636363636363,
+                    -85.9090909090909
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3168,8 +3360,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -128.35714285714286,
-                    -65.64285714285714
+                    -53.554545454545455,
+                    -85.86363636363636
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3180,8 +3372,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -29.0,
-                    -75.0
+                    -62.57272727272727,
+                    -85.81818181818181
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3192,8 +3384,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -38.038961038961034,
-                    -74.96103896103897
+                    -71.5909090909091,
+                    -85.77272727272727
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3204,8 +3396,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -47.077922077922075,
-                    -74.92207792207792
+                    -80.60909090909091,
+                    -85.72727272727273
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3216,8 +3408,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -56.116883116883116,
-                    -74.88311688311688
+                    -89.62727272727273,
+                    -85.68181818181819
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3228,8 +3420,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -65.15584415584415,
-                    -74.84415584415585
+                    -98.64545454545454,
+                    -85.63636363636364
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3240,8 +3432,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -74.19480519480518,
-                    -74.8051948051948
+                    -107.66363636363636,
+                    -85.5909090909091
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3252,8 +3444,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -83.23376623376623,
-                    -74.76623376623377
+                    -116.68181818181817,
+                    -85.54545454545455
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,
@@ -3264,200 +3456,8 @@
             {
                 "tip_vol": 50,
                 "xy": [
-                    -92.27272727272727,
-                    -74.72727272727272
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -101.3116883116883,
-                    -74.68831168831169
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -110.35064935064933,
-                    -74.64935064935065
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -119.38961038961037,
-                    -74.6103896103896
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -128.42857142857142,
-                    -74.57142857142857
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -29.0,
-                    -84.0
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -38.04545454545455,
-                    -83.95454545454545
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -47.09090909090909,
-                    -83.9090909090909
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -56.13636363636363,
-                    -83.86363636363636
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -65.18181818181819,
-                    -83.81818181818181
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -74.22727272727272,
-                    -83.77272727272727
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -83.27272727272727,
-                    -83.72727272727273
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -92.31818181818181,
-                    -83.68181818181819
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -101.36363636363636,
-                    -83.63636363636364
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -110.4090909090909,
-                    -83.5909090909091
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -119.45454545454545,
-                    -83.54545454545455
-                ],
-                "tipTypeTableIndex": 2,
-                "deckGeometryTableIndex": 0,
-                "ZeusTraversePosition": 880,
-                "exists": true,
-                "substance": "None"
-            },
-            {
-                "tip_vol": 50,
-                "xy": [
-                    -128.5,
-                    -83.5
+                    -125.7,
+                    -85.5
                 ],
                 "tipTypeTableIndex": 2,
                 "deckGeometryTableIndex": 0,

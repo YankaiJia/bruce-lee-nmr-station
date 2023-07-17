@@ -36,7 +36,7 @@ class Gantry():
                  max_x: int = -820,
                  max_y: int = -360,
                  horiz_speed: int = 200*60,# horizontal speed in mm / min
-                 xy_offset: tuple = (4, 0),# offsets in x and y, negative to right, closer; positive, to left, further
+                 xy_offset: tuple = (-2.5, 0),# offsets in x and y, negative to right, closer; positive, to left, further
                  zeus_traverse_position: int = 880,
                  trash_xy: tuple = (-500, -70),
                  idle_xy: tuple = (-500, -220),
@@ -44,7 +44,7 @@ class Gantry():
                  ):
         self.logger = logging.getLogger('main.gantry.Gantry')
         self.logger.info('gantry is initiating...')
-        self.serial = serial.Serial('COM6', 115200, timeout=0.2)
+        self.serial = serial.Serial('COM5', 115200, timeout=0.2)
         self.horiz_speed = horiz_speed # horizontal speed in mm/min
         self.xy_offset = xy_offset
         self.max_x = max_x
@@ -73,7 +73,7 @@ class Gantry():
                 line = ser.readline()
                 if b'Alarm' in line:
                     print('GRBL ALARM: GRBL wend into alarm. Overrode it with $X.')
-                    self.send_to_xy_stage(ser, '$X')
+                    self.send_to_xy_stage( '$X')
                     break
                 if verbose:
                     print(line)
@@ -287,7 +287,7 @@ class Pipetter():
     def check_volume_in_container(self, container: object,
                                   liquidClassTableIndex: int = 26, lld: int = 1,
                                   lldSearchPosition: int = 1300, liquidSurface: int = 1300,
-                                  tip_for_volume_check: str = '50ul',
+                                  tip_for_volume_check: str = '300ul',
                                   change_tip_after_each_check: bool = True):
 
         if change_tip_after_each_check:
@@ -594,6 +594,7 @@ if __name__ == '__main__':
     #
     gt = Gantry(zeus=zm)
     time.sleep(2)
+
     gt.home_xy()
     time.sleep(5)
     #

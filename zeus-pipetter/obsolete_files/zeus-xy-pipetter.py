@@ -13,7 +13,6 @@ import zeus
 
 
 
-import gantry
 
 import time
 import numpy as np
@@ -674,7 +673,6 @@ def draw_liquid(container, volume, lld,  liquidClassTableIndex, tip_type = '300u
     #     wait_until_zeus_reaches_traverse_height()
     gt.move_xy(container['xy'])
     for retry in range(n_retries):
-        try:
             # This is used for organic solvents, e.g.BMF
             # print(f'Volume for zeus {int(round(volume_for_zeus(volume) * 10))}') # this is to offset the difference between water and the organic solvent, e.g. BMF
             # zm.aspiration(aspirationVolume=int(round(volume_for_zeus(volume)*10)),

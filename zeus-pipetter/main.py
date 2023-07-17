@@ -56,15 +56,12 @@ logger = setup_logger()
 import numpy as np
 import copy, time, pickle, re, importlib, json, os
 from datetime import datetime
-from typing import List
-from openpyxl import Workbook
 from openpyxl import load_workbook
 import PySimpleGUI as sg
-import pandas as pd
-# import arrow
 import zeus
 import pipetter
 import planner as pln
+
 import breadboard as brb
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
@@ -227,6 +224,8 @@ if __name__ == '__main__':
     ## initiate hardware
     zm, gt, pt = initiate_hardware()
 
+    # gt.xy_offset = (-2.5, 0)
+
     path_for_reactions = load_excel_path_by_pysimplegui()
 
     stock_solution_list = load_stock_solutions_from_excel(path=path_for_reactions)
@@ -258,18 +257,28 @@ if __name__ == '__main__':
 
     check_if_event_list_legit(event_list_chem)
 
+    ## this is manually rising the liquid level in the stock containers. Works for SN1 on  07052023
     for event in event_list_chem:
-        # print(event.asp_lld)
-        event.asp_lldSearchPosition -= 100
+        if event.substance_name == 'DMF' or event.substance_name == 'DMF1':
+            event.asp_liquidSurface -= 500
+            event.asp_lldSearchPosition -= 500
+        else:
+            event.asp_liquidSurface -= 200
+            event.asp_lldSearchPosition -= 200
+        if event.asp_lldSearchPosition < 900:
+            event.asp_lldSearchPosition = 900
 
-    event_list_chem_sorted = sort_events_according_to_aspiration_volume(event_list_chem)
+    starting_id = 0
+    event_for_run = event_list_chem[starting_id:]
+
+    event_for_run_sorted = sort_events_according_to_aspiration_volume(event_for_run)
 
     # save the event list in pickle file and later load from this file
     pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
     pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
 
     with open(pickle_file, 'wb') as f:
-        pickle.dump(event_list_chem_sorted, f)
+        pickle.dump(event_for_run_sorted, f)
 
     # input the sequence of plate id
     plates = input("Please input the ids of 6 plates in order: ")
@@ -283,15 +292,11 @@ if __name__ == '__main__':
         raise Exception("The event list is not confirmed!")
 
 
-    starting_id = 0
-    event_for_run = event_list_chem_sorted[starting_id:]
 
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-                        event_list= event_for_run,
+                        event_list= event_for_run_sorted,
                         prewet_tip=True,
                         excel_path=path_for_reactions,
-                        plate_code_list=plate_code_list)
-
-# for i in range(1360, 1370):
-#     print(event_list_chem_sorted[1326].substance_name)
+                        plate_code_list=plate_code_list,
+                        pause_after_every_plate_min = 0)

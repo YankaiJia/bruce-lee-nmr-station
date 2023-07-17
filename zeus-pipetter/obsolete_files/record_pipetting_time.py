@@ -91,8 +91,7 @@ def save_cvs():
     #        '\\roborea\\zeus-pipetter\\multicomponent_reaction\\0323\\0323_record.csv'
 
     # output path into which the csv (presumably what should become run_info.csv but isnt) is saved
-    path = 'C:\\Users\\Chemiluminescence\\OneDrive\\roborea\\' \
-            'zeus-pipetter\\multicomponent_reaction\\csvs\\event_status_record.csv'
+    path = '/zeus-pipetter/multicomponent_reaction/csvs/event_status_record.csv'
 
     with open(path, 'a', newline='') as f:
             f.write(', '.join(fields) + '\n')

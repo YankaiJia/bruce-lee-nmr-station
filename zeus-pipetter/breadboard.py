@@ -521,31 +521,29 @@ def load_new_tip_rack(rack_reload):
 
         tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
                                        Nwells=(8, 12),
-                                       topleft=(-29, -21),
-                                       topright=(-128, -21),
-                                       bottomleft=(-29, -84),
-                                       bottomright=(-128.5, -83.5)
+                                       topleft=(-27, -23),
+                                       topright=(-126, -22.5),
+                                       bottomleft=(-35.5+9, -86),
+                                       bottomright=(-125.7, -85.5)
                                        )
 
     if rack_reload == '300ul':
 
         tip_rack['300ul'] = create_deck(template_well=tip['300ul'],
                                         Nwells=(8, 12),
-                                        topleft=(-154.5, -21.5),
-                                        topright=(-253.5, -20.5),
-                                        bottomleft=(-154.5, -84.5),
-                                        bottomright=(-253.5, -83.5)
+                                        topleft=(-161.0+9, -23.5),
+                                        topright=(-251, -22.5),
+                                        bottomleft=(-160.5+9, -86.5),
+                                        bottomright=(-260.5+9, -86)
                                         )
     if rack_reload == '1000ul':
-        x_gap_1000ul = 99.5
-        y_gap_1000ul = 62.5
-        xy_topleft_1000ul = (-293, -9)
+
         tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
                                          Nwells=(8, 12),
-                                         topleft=(-293.0, -9.0),
-                                         topright=(-392, -9.0),
-                                         bottomleft=(-292.5, -71.5),
-                                         bottomright=(-391.5, -71.5)
+                                         topleft=(-299.5+9, -11),
+                                         topright= (-398.5+9, -11),
+                                         bottomleft=(-298.5+9, -73.5),
+                                         bottomright=((-397.5+9, -73.5))
                                          )
 
     with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
@@ -576,10 +574,10 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    ##run this ONLY when changing new tip rack.
-    # load_new_tip_rack(rack_reload ='300ul')
-    # module_logger.info('New tip rack: 300ul is loaded.')
-
+    # #run this ONLY when changing new tip rack.
+    load_new_tip_rack(rack_reload ='300ul')
+    module_logger.info('New tip rack: 300ul is loaded.')
+    #
     # load_new_tip_rack(rack_reload ='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')
 
