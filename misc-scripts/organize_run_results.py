@@ -251,7 +251,7 @@ def organize_run_structure(experiment_name):
         os.makedirs(target_folder)
 
     # open dilution_info.csv as dataframe
-    df_dilution = pd.read_csv(data_folder + experiment_name + 'dilution/dilution_info.csv')
+    df_dilution = load_df_from_dilution_info(experiment_name)
 
     # open run_info.csv as dataframe
     df_pipetter = load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
