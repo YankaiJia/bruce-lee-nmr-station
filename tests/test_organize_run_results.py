@@ -40,6 +40,7 @@ def test_load_df_from_run_info(datadir):
         pd.testing.assert_frame_equal(
             organize_run_results.load_df_from_run_info(experiment_name + 'pipetter_io/run_info.csv'),
             pd.read_pickle('expected_outputs/run_info.pkl'))
+    # TODO: Add testing on the run_info.csv file that does not have a version string in the first line.
 
 
 def test_load_df_from_dilution_info(datadir):
@@ -60,3 +61,24 @@ def test_load_df_from_dilution_info(datadir):
         pd.testing.assert_frame_equal(
             organize_run_results.load_df_from_dilution_info('multicomp-reactions/2023-06-20-run01/'),
             pd.read_pickle('expected_outputs/dilution_info.pkl'))
+
+
+def test_join_data_from_runs(datadir):
+    """
+    Test uses a fixture that copies all structure from `tests/test_organize_run_results` directory into a temporary
+    directory, which is later treated as the data_folder (that is normally in the Dropbox, but not for tests).
+    Test joins data
+
+    Parameters
+    ----------
+    datadir: pytest fixture
+        Temporary directory with the same structure as `tests/test_organize_run_results` directory.
+    """
+    data_folder = ''
+    with datadir.as_cwd():
+        pd.testing.assert_frame_equal(
+            organize_run_results.join_data_from_runs(['multicomp-reactions/2023-06-20-run01/',
+                                                      'multicomp-reactions/2023-06-21-run01/',
+                                                      'multicomp-reactions/2023-06-21-run02/'
+                                                     ]),
+            pd.read_pickle('expected_outputs/joined_data_from_runs.pkl'))
