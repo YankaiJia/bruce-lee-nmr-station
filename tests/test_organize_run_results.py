@@ -27,9 +27,9 @@ def test_load_df_from_run_info(datadir):
     Test uses a fixture that copies all structure from `tests/test_organize_run_results` directory into a temporary
     directory, which is later treated as the data_folder (that is normally in the Dropbox, but not for tests). Test
     loads the run_info from respective locations in the `multicomp-reactions/2023-06-20-run01/` in the temporary
-    folder and then checks the results against an expected dataframe loaded from `expected_outputs/run_info_no_version.pkl`.
-    Then it does the same for `multicomp-reactions/2023-07-04-run01/` and checks against
-    `expected_outputs/run_info_V1.00.pkl` to check for run_info version 1.00
+    folder and then checks the results against an expected dataframe loaded from
+    `expected_outputs/run_info_no_version.pkl`. Then it does the same for `multicomp-reactions/2023-07-04-run01/` and
+    checks against `expected_outputs/run_info_V1.00.pkl` to check for run_info version 1.00
 
     Parameters
     ----------
@@ -53,7 +53,7 @@ def test_load_df_from_dilution_info(datadir):
     """
     Test uses a fixture that copies all structure from `tests/test_organize_run_results` directory into a temporary
     directory, which is later treated as the data_folder (that is normally in the Dropbox, but not for tests). Test
-    loads the dataframw eith information about dilution from respective locations in the
+    loads the dataframe with information about dilution from respective locations in the
     `multicomp-reactions/2023-06-20-run01/` in the temporary folder and then checks the results against an expected
     dataframe loaded from `expected_outputs/dilution_info.pkl`.
 
@@ -73,7 +73,9 @@ def test_join_data_from_runs(datadir):
     """
     Test uses a fixture that copies all structure from `tests/test_organize_run_results` directory into a temporary
     directory, which is later treated as the data_folder (that is normally in the Dropbox, but not for tests).
-    Test joins data
+    Test joins data from runs `multicomp-reactions/2023-06-20-run01/`, `multicomp-reactions/2023-06-21-run01/` and
+    `multicomp-reactions/2023-06-21-run02/` and checks the results against an expected dataframe loaded from
+    `expected_outputs/joined_data_from_runs.pkl`.
 
     Parameters
     ----------
