@@ -73,7 +73,7 @@ class Gantry():
                 line = ser.readline()
                 if b'Alarm' in line:
                     print('GRBL ALARM: GRBL wend into alarm. Overrode it with $X.')
-                    self.send_to_xy_stage( '$X')
+                    self.send_to_xy_stage('$X')
                     break
                 if verbose:
                     print(line)
@@ -315,8 +315,12 @@ class Pipetter():
         if not self.zeus.zeus_had_error(received_msg):
             # print(received_msg)
             liquid_surface = received_msg[received_msg.find('yl') + 2:received_msg.find('yl') + 6]
-            volume = received_msg[received_msg.find('aw') + 2:received_msg.find('aw') + 8]
-            # print(f'Volume Check done! liquid_surface: {liquid_surface}, volume: {volume}')
+            # volume = received_msg[received_msg.find('aw') + 2:received_msg.find('aw') + 8] # This value is from Zeus and not precise.
+
+            ## calculate the volume manually
+            volume = ((container.bottomPosition-int(liquid_surface)) / 10)  * container.area # this is in mm^3, uL
+            print(f'Volume Check done! liquid_surface: {liquid_surface}, volume: {volume}')
+
         else:
             print(f'Liquid level not detected')
             liquid_surface = 0
@@ -332,6 +336,8 @@ class Pipetter():
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.source_container.xy)
 
+        liquid_surface_in_source_container = transfer_event.source_container.liquid_surface_height
+
         for retry in range(n_retries):
             try:
                 # print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
@@ -341,11 +347,13 @@ class Pipetter():
                                      liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
                                      qpm=transfer_event.asp_qpm,
                                      lld=transfer_event.asp_lld,
-                                     lldSearchPosition=transfer_event.asp_lldSearchPosition,
-                                     liquidSurface=transfer_event.asp_liquidSurface,
+                                     liquidSurface = liquid_surface_in_source_container,
+                                     lldSearchPosition= liquid_surface_in_source_container - 50,
                                      mixVolume=transfer_event.asp_mixVolume,
                                      mixFlowRate=transfer_event.asp_mixFlowRate,
                                      mixCycles=transfer_event.asp_mixCycles)
+                print(f'DEBUG:draw_liquid:():: asp_liquidSurface: {liquid_surface_in_source_container} ')
+
                 # TODO: Replace this sleep with a proper check. Why do you even need a sleep if next function is zeus.wait_until...???
                 # time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
@@ -549,8 +557,8 @@ class Pipetter():
 
         pipetting_weight = round((weight_after - weight_before) * 1000, 6)  # mg
         pipetting_volume = round(pipetting_weight / transfer_event.source_container.substance_density, 2)
-        self.logger.info(f'Weight of aliquot: {pipetting_weight} mg')
-        self.logger.info(f'Volume of aliquot: {pipetting_volume} ul')
+        self.logger.info(f'Weight of liquid transferred: {pipetting_weight} mg')
+        self.logger.info(f'Volume of aliquottransferred: {pipetting_volume} ul')
         return pipetting_weight, pipetting_volume
 
     def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times=3,
@@ -560,10 +568,13 @@ class Pipetter():
         dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul'] = \
             {'weight': [], 'volume': [], 'liquid_class_index': [], 'tip_type': []}
         temp_dict = dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul']
+
         for i in range(n_times):
-            print(f'this is n_times: {i}')
+            print(f'this is n_times: {i}/{n_times}')
             print(transfer_event.event_label)
+
             weight, volume = self.pipetting_to_balance_and_weight(transfer_event=transfer_event)
+
             if change_tip_after_every_pipetting:
                 self.change_tip(transfer_event.tip_type)
                 time.sleep(0.5)
@@ -595,10 +606,15 @@ if __name__ == '__main__':
     gt = Gantry(zeus=zm)
     time.sleep(2)
 
+    # gt.kill_alarm()
     gt.home_xy()
     time.sleep(5)
     #
     pt = Pipetter(zeus=zm, gantry=gt)
+    time.sleep(2)
+    pt.close_balance_door()
+
+    print("Init done!")
 
     # pt.check_volume_in_container(container = brb.plate5.containers[0],
     #                              containerGeometryTableIndex = brb.bottle_20ml.containerGeometryTableIndex,

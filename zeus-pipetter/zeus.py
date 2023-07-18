@@ -1503,30 +1503,32 @@ class ZeusModule:
 
         # liquid parameters
         self.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"liquid parameters: {self.r.received_msg}")
         print(f"liquid parameters: {self.r.received_msg}")
 
         # calibrations
         self.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"calibration_asp {self.r.received_msg}")
         print(f"calibration_asp {self.r.received_msg}")
 
         self.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"calibration_disp {self.r.received_msg}")
         print(f"calibration_disp {self.r.received_msg}")
 
 
         # qpm
         self.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"qpm_asp {self.r.received_msg}")
-        print(f"qpm_asp {self.r.received_msg}")
+        time.sleep(2)
+
+        # print(f"qpm_asp {self.r.received_msg}")
 
         self.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"qpm_asp {self.r.received_msg}")
         print(f"qpm_asp {self.r.received_msg}")
 

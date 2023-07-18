@@ -7,7 +7,10 @@ workflow:
 """
 
 import logging
+import os
 
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+# C:\Yankai\Dropbox\robochem
 
 def setup_logger():
     # better logging format in console
@@ -58,6 +61,8 @@ import copy, time, pickle, re, importlib, json, os
 from datetime import datetime
 from openpyxl import load_workbook
 import PySimpleGUI as sg
+import pandas as pd
+# import arrow
 import zeus
 import pipetter
 import planner as pln
@@ -165,7 +170,7 @@ def add_stock_solutions_to_containers(stock_solution_list: list) -> list:
         solution_container.solvent = solution['solvent']
 
         solution_container.liquid_surface_height, solution_container.liquid_volume\
-            = pt.check_volume_in_container(container=solution_container,liquidClassTableIndex=26,change_tip_after_each_check=True)
+            = pt.check_volume_in_container(container=solution_container,liquidClassTableIndex=12,change_tip_after_each_check=True)
 
         containers_for_stock.append(solution_container)
 
@@ -218,13 +223,15 @@ def sort_events_according_to_aspiration_volume(event_list_chem):
 
         return output_list
 
+def turn_off_lld(event_list):
+    for event in event_list:
+        event.asp_lld = 0
+
 
 if __name__ == '__main__':
 
     ## initiate hardware
     zm, gt, pt = initiate_hardware()
-
-    # gt.xy_offset = (-2.5, 0)
 
     path_for_reactions = load_excel_path_by_pysimplegui()
 
@@ -252,25 +259,29 @@ if __name__ == '__main__':
     event_dataframe_chem, event_list_chem = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  is_pipeting_to_balance=False, is_for_bio=False, containers_for_stock=containers_for_stock, )
-
-
+                                  is_pipeting_to_balance=False, is_for_bio=False,
+                                  containers_for_stock=containers_for_stock)
+    ## this is for Dioxane
+    turn_off_lld(event_list_chem)
+    ## Do this for every run
     check_if_event_list_legit(event_list_chem)
 
     ## this is manually rising the liquid level in the stock containers. Works for SN1 on  07052023
-    for event in event_list_chem:
-        if event.substance_name == 'DMF' or event.substance_name == 'DMF1':
-            event.asp_liquidSurface -= 500
-            event.asp_lldSearchPosition -= 500
-        else:
-            event.asp_liquidSurface -= 200
-            event.asp_lldSearchPosition -= 200
-        if event.asp_lldSearchPosition < 900:
-            event.asp_lldSearchPosition = 900
+    def modify_events_for_DMF():
+        for event in event_list_chem:
+            if event.substance_name == 'DMF' or event.substance_name == 'DMF1':
+                event.asp_liquidSurface -= 500
+                event.asp_lldSearchPosition -= 500
+
+            else:
+                event.asp_liquidSurface -= 200
+                event.asp_lldSearchPosition -= 200
+
+            if event.asp_lldSearchPosition < 900:
+                event.asp_lldSearchPosition = 900
 
     starting_id = 0
     event_for_run = event_list_chem[starting_id:]
-
     event_for_run_sorted = sort_events_according_to_aspiration_volume(event_for_run)
 
     # save the event list in pickle file and later load from this file
@@ -290,8 +301,6 @@ if __name__ == '__main__':
     # use input to Y/N to confirm the event list
     if input("Run pipetting? Y/N") not in  ['Y', 'y']:
         raise Exception("The event list is not confirmed!")
-
-
 
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt, logger=logger,
