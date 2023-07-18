@@ -136,6 +136,10 @@ def load_df_from_dilution_info(experiment_name):
         if first_line.startswith('#version'):
             if first_line.startswith('#version: 1.00'):
                 df_dilution = pd.read_csv(path_to_dilution_info_file, header=1)
+                # make sure that there are only two columns: 'from' and 'to'
+                assert len(df_dilution.columns) == 2, 'The dilution_info.csv file has more than two columns.'
+                assert df_dilution.columns[0] == 'from', 'The first column of dilution_info.csv is not "from".'
+                assert df_dilution.columns[1] == 'to', 'The second column of dilution_info.csv is not "to".'
             else:
                 raise ValueError(
                     f'Unknown version of dilution_info.csv: {first_line[:-1]}. Good luck coding your own damn loader.')
@@ -247,7 +251,7 @@ def organize_run_structure(experiment_name):
         os.makedirs(target_folder)
 
     # open dilution_info.csv as dataframe
-    df_dilution = pd.read_csv(data_folder + experiment_name + 'dilution/dilution_info.csv')
+    df_dilution = load_df_from_dilution_info(experiment_name)
 
     # open run_info.csv as dataframe
     df_pipetter = load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
