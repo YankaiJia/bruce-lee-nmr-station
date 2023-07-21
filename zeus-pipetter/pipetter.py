@@ -565,9 +565,9 @@ class Pipetter():
                                                 change_tip_after_every_pipetting:bool = False):
         print(f'this is transfer_event: {transfer_event}')
         dict_for_one_event = {}
-        dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul'] = \
+        dict_for_one_event[f'{transfer_event.substance}_{transfer_event.aspirationVolume}ul'] = \
             {'weight': [], 'volume': [], 'liquid_class_index': [], 'tip_type': []}
-        temp_dict = dict_for_one_event[f'{transfer_event.substance_name}_{transfer_event.aspirationVolume}ul']
+        temp_dict = dict_for_one_event[f'{transfer_event.substance}_{transfer_event.aspirationVolume}ul']
 
         for i in range(n_times):
             print(f'this is n_times: {i}/{n_times}')

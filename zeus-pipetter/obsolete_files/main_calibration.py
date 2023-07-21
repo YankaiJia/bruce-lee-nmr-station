@@ -168,7 +168,7 @@ def generate_event_list_for_surface_detection(path_for_stock_solution: str = pat
         event_temp = copy.deepcopy(event_for_surface_detection)  # deepcopy to avoid changing the original object
         plate_id = re.findall(r'\d+', solution[2])[0]  # get the first number in the string
         container_id = re.findall(r'\d+', solution[2])[1]  # get the second number in the string
-        event_temp.substance_name = solution[0]
+        event_temp.substance = solution[0]
         event_temp.source_container = copy.deepcopy(brb.plate_list[int(plate_id)].containers[int(container_id)])
         event_temp.destination_container = copy.deepcopy(event_temp.source_container)
         event_temp.asp_lld = 0  # liquidClassTableIndex =13, so pLLD will be used.

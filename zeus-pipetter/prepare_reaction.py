@@ -1,11 +1,11 @@
-import json, math, os, openpyxl, pandas as pd, shortuuid, PySimpleGUI as sg
+import json, math, os, openpyxl, pandas as pd, shortuuid, PySimpleGUI as sg, logging
 
 import config
 
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+module_logger = logging.getLogger('main.prepare_reaction')
 
-# excel_path_for_reactions = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\' \
-#                      'data\\simple-reactions\\2023-07-17-run01\\2023-07-17-run01.xlsx'
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+# excel_path_for_reactions = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\data\\simple-reactions\\2023-07-17-run01\\2023-07-17-run01.xlsx'
 
 ## use pySimpleGUI to get the excel_path, plate_barcodes, temperature
 def GUI_get_excel_path_plate_barcodes_temperature_etc():
@@ -106,7 +106,8 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
         # ## print the index of the dataframe
         # print(df.index)
     else:
-        print('The reaction_uuid column already exists. Overwriting is not allowed.')
+        # print('The reaction_uuid column already exists. Overwriting is not allowed.')
+        module_logger.info('The reaction_uuid column already exists. Overwriting is not allowed.')
 
     # set the index
     df.set_index('reaction_uuid', inplace=True)
@@ -114,7 +115,7 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
     ## preserve the original order of the columns
     columns_all = df.columns.tolist()
     substance_addition_sequence = [column for column in columns_all if 'vol#' in column]
-    print(substance_addition_sequence)
+    # print(f'substance_addition_sequence: {substance_addition_sequence}')
 
     # creat new columns
     columns_to_append = ['temperature','breadboard_plate_id','plate_barcode',
@@ -132,9 +133,12 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
                 df[column] = None
             # df[column] = None if column != 'status_of_reaction' else tuple(('not_started',0)) # set the 'status_of_reaction' to 'not_started'
             print('column: ', column, ' is created.')
+            module_logger.info(f'column: {column} is created.')
 
     # set the 'status_of_substance' to a json string: '{"substance1": ("not_started", timestamp), "substance2": ("not_started", timestamp)}'
-    print('substances_to_be_transferred: ', [i.split("#")[1] for i in df.columns if "vol#" in i])
+    # print('substances_to_be_transferred: ', [i.split("#")[1] for i in df.columns if "vol#" in i])
+    module_logger.info(f'substances_to_be_transferred: {[i.split("#")[1] for i in df.columns if "vol#" in i]}')
+
     for index, row in df.iterrows():
         df.at[index, 'status_of_substances'] = json.dumps({column[4:]: ("not_started", 0) for column in df.columns if 'vol#' in column
                                                and df.at[index, column] != 0})
@@ -161,7 +165,8 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
     with pd.ExcelWriter(excel_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
         df.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='reaction_uuid')
 
-    print('The excel file is prepared for the reaction.')
+    # print('The excel file is prepared for the reaction.')
+    module_logger.info('The excel file is prepared for the reaction.')
 
     return excel_path, df
 if __name__ == '__main__':

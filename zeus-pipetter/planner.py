@@ -1,25 +1,13 @@
-import logging
-import os
-import pickle
-import json
+
+import logging, os, pickle, json, numpy as np, winsound, copy, math, re, pandas as pd, time
 from math import ceil
-
-
-import numpy as np
-import openpyxl
-import winsound
+from datetime import datetime
 from typing import Dict, Any
 
 module_logger = logging.getLogger('main.planner')
 
-import time
-from datetime import datetime
-import copy
-import math
-import re
-import pandas as pd
-from pprint import pprint
-import breadboard as brb
+
+import breadboard as brb, config
 
 
 class EventInterpreter:
@@ -287,54 +275,57 @@ class TransferEventConstructor:
 
 class Event:
 
-    def __init__(self, event_dataframe, stock_solution_containers, pipeting_to_balance: bool = False):
+    def __init__(self, event_dataframe: pd.DataFrame,
+                 column_to_generate_event:str,
+                 stock_solution_containers: list,
+                 pipeting_to_balance: bool = False,
+                 asp_lld : int = 1):
 
-        self.substance_name: str = event_dataframe['substance']
+        self.reaction_uuid: str = event_dataframe['reaction_uuid']
+        self.plate_barcode: str = event_dataframe['plate_barcode']
 
-        self.event_label: str = ' event_id:' + str(event_dataframe['event_id']) + '   ' + \
-                                'substance:' + str(event_dataframe['substance']) + '   ' + \
-                                'transfer_volume:' + str(event_dataframe['transfer_volume'])
-                                # + " " + 'plate_number_barcode:' + str(event_dataframe['plate_number_barcode'])
+        self.substance: str = column_to_generate_event[4:] # remove "vol#"
 
-        self.source_container: object = [container for container in containers_for_stock
-                                         if container.substance == self.substance_name][0]
+        self.source_container: object = [container for container in stock_solution_containers
+                                         if container.substance == self.substance][0]
+        assert self.source_container.substance == self.substance, "substance name not match"
 
         if pipeting_to_balance:
             self.destination_container: object = brb.balance_cuvette
         else:
-            self.destination_container: object = brb.plate_list[event_dataframe['plate_id_on_breadboard']].containers[
-                event_dataframe['container_id']]
+            breadboard_plate_id = event_dataframe['breadboard_plate_id']
+            container_id = event_dataframe['container_id']
+            self.destination_container: object = brb.plate_list[breadboard_plate_id].containers[container_id]
+
 
         # for aspiration
-        self.aspirationVolume: int = event_dataframe['transfer_volume']
+        self.transfer_volume: int = event_dataframe[column_to_generate_event]
+        assert self.transfer_volume >=10 and self.transfer_volume <= 1000, f"transfer volume is invalid: {self.transfer_volume}"
 
-        self.tip_type: str = self.choose_tip_type(self.aspirationVolume)
+        self.tip_type: str = self.choose_tip_type(self.transfer_volume)
+        assert self.tip_type in ['50ul', '300ul', '1000ul'], f"tip type is invalid: {self.tip_type}"
 
         self.asp_containerGeometryTableIndex = self.source_container.containerGeometryTableIndex
 
-        self.asp_deckGeometryTableIndex: int = self.get_deck_index(self.tip_type)
+        self.asp_deckGeometryTableIndex: int =  {'50ul': 3, '300ul': 0, '1000ul': 1}[self.tip_type]
+        assert self.asp_deckGeometryTableIndex in [0, 1, 3], "tip type is invalid!"
 
-        self.asp_liquidClassTableIndex: int = \
-            self.get_liquid_class_index(solvent=self.source_container.solvent,
-                                        mode=self.source_container.solvent,
-                                        tip_type=self.tip_type)
+        self.liquidClassTableIndex: int = self.get_liquid_class_index(solvent=self.source_container.solvent,
+                                                                      mode=self.source_container.mode,tip_type=self.tip_type)
+        assert self.liquidClassTableIndex in range(100), f"liquid class is invalid: {self.liquidClassTableIndex}"
 
         # self.asp_liquidSurface: int = self.get_liquid_surface(self.source_container)
         self.asp_liquidSurface: int = self.source_container.liquid_surface_height
         self.asp_lldSearchPosition: int = self.asp_liquidSurface - 50
 
-        self.dispensingVolume: int = self.aspirationVolume
-
         self.disp_containerGeometryTableIndex: int = self.destination_container.containerGeometryTableIndex
         self.disp_deckGeometryTableIndex: int = self.asp_deckGeometryTableIndex
-        self.disp_liquidClassTableIndex: int = self.asp_liquidClassTableIndex
-
-        self.disp_liquidSurface: int = self.get_liquid_surface(self.destination_container)
+        self.disp_liquidSurface: int = self.destination_container.liquid_surface_height
         self.disp_lldSearchPosition: int = self.disp_liquidSurface - 50
 
         # default values
         self.asp_qpm: int = 1
-        self.asp_lld: int = 1
+        self.asp_lld: int = asp_lld
         self.disp_lld: int = 0
         self.asp_mixVolume: int = 0
         self.asp_mixFlowRate: int = 0
@@ -347,35 +338,6 @@ class Event:
         # event conducting status
         self.is_event_conducted: bool = False
         self.event_finish_time: str = None  # time: (UTC time, local time)
-
-    def get_source_container(self, substance_name: str, source_containers=None):
-
-        """
-        source_substance_containers exp:
-        {'DMF': {'plate_id': 4, 'container_id': 2}, 'amine': {'plate_id': 7, 'container_id': 15}}
-        """
-        # print(substance_name)
-        source_containers = brb.source_substance_containers  # global variable, mutable object (list),
-        # so it should not be used directly as a default argument
-        for container in source_containers:  # iterate through keys
-            # print(this_substance)
-            # print(substance_name)
-            # print(list(this_substance.keys())[0])
-            if substance_name == container.substance:
-                return container
-                # plate_id = this_substance[substance_name]['plate_id']
-                # container_id = this_substance[substance_name]['container_id']
-                # # print(f'substance is found in container: brb.plate_list[{plate_id}].containers[{container_id}]')
-                # return brb.plate_list[plate_id].containers[container_id]
-
-        print(f'Subtance:: {substance_name} is not found in the stock container!')
-
-    def get_deck_index(self, tip_type: str):
-        # print(f'tipe_type: {tip_type}')
-
-        tip_index_dict = {'50ul': 3, '300ul': 0, '1000ul': 1}
-
-        return tip_index_dict[tip_type]
 
     def get_liquid_class_index(self, solvent: str, mode: str, tip_type: str):
         liquid_class_dict = {
@@ -415,47 +377,44 @@ class Event:
     def choose_tip_type(self, transfer_volume: int):
         if transfer_volume <= 50:
             return "50ul"
-        if transfer_volume > 50 and transfer_volume <= 300:
+        elif transfer_volume > 50 and transfer_volume <= 300:
             return "300ul"
-        if transfer_volume > 300 and transfer_volume < 2000:
+        elif transfer_volume > 300 and transfer_volume < 2000:
             return "1000ul"
-
-    def get_liquid_surface(self, container: object) -> int:
-
-        # container.liquid_volume. This is in uL
-        # container.area This is in mm^2
-        # container.liquid_volume / container.area This is in mm
-        if container.container_shape == 'cylindrical':
-            liquid_height = ((container.liquid_volume / container.area) * 10)
-
-        elif container.container_shape == 'conical_1500ul':
-            if container.liquid_volume <= 500:
-                liquid_height = 17 * 10
-            else:
-                liquid_height = 17 * 10 + ((container.liquid_volume - 500) / container.area) * 10
         else:
-            print('Container shape is not defined!')
+            raise ValueError(f'Transfer volume is out of range! at {self.reaction_uuid}, {self.substance}')
 
-        return round(container.bottomPosition - liquid_height)
-
-    def execute_event(self):
+    def execute_event(self, excel_path_for_reactions: str):
 
         self.source_container.liquid_volume -= self.aspirationVolume
-
         self.destination_container.liquid_volume += self.aspirationVolume
 
-        self.source_container.liquid_surface_height += ceil((self.aspirationVolume / self.source_container.area)*10)
 
+        self.source_container.liquid_surface_height += ceil((self.aspirationVolume / self.source_container.area)*10)
         self.destination_container.liquid_surface_height -= ceil((self.aspirationVolume / self.destination_container.area)*10)
 
         self.is_event_conducted = True
-
         self.event_finish_time = round(time.time())
 
+        ## change the reaction/substance status in the excel file.
+        df_reactions = pd.read_excel(excel_path_for_reactions, sheet_name=config.sheet_name_for_run_info)
+        # change the status of the substance
+        dict_substance = json.loads(df_reactions.loc[df_reactions['reaction_uuid'] == \
+                                    self.reaction_uuid, 'status_of_substances'])
+        dict_substance[self.substance] = ['completed', self.event_finish_time]
+        dict_substance_after = json.dumps(dict_substance)
+        df_reactions.loc[df_reactions['reaction_uuid'] == self.reaction_uuid, 'status_of_substances']\
+            = dict_substance_after
 
-
-
-
+        # change the status of the reaction if necessary
+        substance_addition_sequence = [i[4:] for i in df_reactions.columns if "vol#" in i]
+        if self.substance == substance_addition_sequence[-1]:
+            dict_here = json.dumps({'status_of_reactions': ['completed', self.event_finish_time]})
+            df_reactions.loc[df_reactions['reaction_uuid'] == self.reaction_uuid, 'status_of_reactions']\
+                = dict_here
+        # save the dataframe to excel file
+        with  pd.ExcelWriter(excel_path_for_reactions, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
+            df_reactions.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='reaction_uuid')
 
 def interprete_events_from_excel_to_dataframe(dataframe_filename: str,
                                               is_for_bio: bool) -> pd.DataFrame:
@@ -646,18 +605,7 @@ def beep_n():
     for i in range(10):
         winsound.Beep(freq, duration)
 
-def update_event_info_to_excel(excel_path, event_excuted):
-
-    # ## if there is no backup sheet, create one
-    # wb = openpyxl.load_workbook(excel_path)
-    # reaction_sheet = wb['reactions']
-    # if 'reactions_original' not in wb.sheetnames:
-    #     target = wb.copy_worksheet(reaction_sheet)
-    #     target.title = 'reactions_original'
-    #     wb.save(excel_path)
-
-    pass
-
+## TODO change this function 20230721
 def run_events_chem(zm: object, pt: object, logger: object,
                     excel_path, plate_code_list,
                     event_list=None,
@@ -722,11 +670,11 @@ def run_events_chem(zm: object, pt: object, logger: object,
                 return liquid_surface_height_from_zeus
 
             # calculate volume and liquid height
-            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance_name + '_height'] = \
+            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance + '_height'] = \
                 liquid_surface_height_from_zeus_here
             volume_here = (-liquid_surface_height_from_zeus_here + events_in_one_plate[event_index].source_container.bottomPosition) \
                           * events_in_one_plate[event_index].source_container.area / 10  # in uL
-            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance_name + '_volume'] = round(volume_here, 1)
+            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance + '_volume'] = round(volume_here, 1)
 
             time.sleep(0.05)
 
@@ -746,14 +694,14 @@ def run_events_chem(zm: object, pt: object, logger: object,
             # pickle_folder  = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\pickle_files\\'
             with open(pickle_folder + f'{datetime.now().strftime("%m_%d_%H_%M_%S")}'
                                       f'_id_{event_index}'
-                                      f'_{events_in_one_plate[event_index].substance_name}'
+                                      f'_{events_in_one_plate[event_index].substance}'
                                       f'_{events_in_one_plate[event_index].aspirationVolume}_ul'
                                       f'_barcode_{plate_code_list[plate_index]}.pickle', 'wb') as f:
                 pickle.dump(events_in_one_plate[event_index], f)
 
             # check tip when the next event is different substance
             if event_index != len(events_in_one_plate) - 1:  # check if this is the last event.
-                if events_in_one_plate[event_index].substance_name != events_in_one_plate[event_index + 1].substance_name:
+                if events_in_one_plate[event_index].substance != events_in_one_plate[event_index + 1].substance:
                     # pt.change_tip(event_list[event_index + 1].tip_type)
                     pt.discard_tip()
             time.sleep(0.5)
@@ -852,11 +800,11 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
         event_list[event_index].is_event_conducted = True
 
         # calculate volume and liquid height
-        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_height'] = \
+        liquid_surface_height_from_zeus[event_list[event_index].substance + '_height'] = \
             liquid_surface_height_from_zeus_here
         volume_here = (-liquid_surface_height_from_zeus_here + event_list[event_index].source_container.bottomPosition) \
                       * event_list[event_index].source_container.area / 10  # in uL
-        liquid_surface_height_from_zeus[event_list[event_index].substance_name + '_volume'] = round(volume_here, 1)
+        liquid_surface_height_from_zeus[event_list[event_index].substance + '_volume'] = round(volume_here, 1)
 
         time.sleep(0.05)
         logger.info(f"Performed one event: event_number {event_index}, "
@@ -864,7 +812,7 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
-            if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
+            if event_list[event_index].substance != event_list[event_index + 1].substance:
                 # pt.change_tip(event_list[event_index + 1].tip_type)
                 pt.discard_tip()
 
@@ -934,7 +882,7 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
-            if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
+            if event_list[event_index].substance != event_list[event_index + 1].substance:
                 pt.change_tip(event_list[event_index + 1].tip_type)
 
         # time.sleep(0.1)

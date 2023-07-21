@@ -58,12 +58,14 @@ class Container:
     top_z: float  # height of container
     safety_margin_for_lldsearch_position: int
     solvent: str
+    liquid_surface_height: int
+
     # coordinate
     xy: tuple = (0, 0)
 
     substance: str = ' '
     substance_density: float = 1.0
-    liquid_surface_height = 0
+    mode = 'empty'
 
 
 vial_2ml = Container(
@@ -91,7 +93,9 @@ vial_2ml = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id='')
+    container_id='',
+    liquid_surface_height = bottom_z_of_vial_2ml - 100
+)
 
 well_bio = Container(
     name='well_bio',
@@ -117,7 +121,10 @@ well_bio = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id='')
+    container_id='',
+    liquid_surface_height = bottom_z_of_well_bio - 100
+
+)
 
 bottle_20ml = Container(
     name='bottle_20ml',
@@ -143,7 +150,8 @@ bottle_20ml = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id='')
+    container_id='',
+    liquid_surface_height = bottom_z_of_bottle_20ml - 100)
 
 jar_100ml = Container(
     name='jar_100ml',
@@ -169,7 +177,8 @@ jar_100ml = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density=1.0,
-    container_id='')
+    container_id='',
+    liquid_surface_height = bottom_z_of_jar_100ml - 100)
 
 tube_1500ul = Container(
     name='tube_1500ul',
@@ -195,7 +204,8 @@ tube_1500ul = Container(
     xy=(0, 0),  # coordinate
     substance='',
     substance_density= 1.0,
-    container_id='')
+    container_id='',
+    liquid_surface_height = bottom_z_of_tube_1500ul - 100)
 
 balance_cuvette = Container(
     name='balance_cuvette',
@@ -221,8 +231,8 @@ balance_cuvette = Container(
     xy=(-820, -240),  # coordinate
     substance='water',
     substance_density= 1.0,
-    container_id='balance_cuvette'
-)
+    container_id='balance_cuvette',
+    liquid_surface_height = bottom_z_of_balance_cuvette - 100)
 
 def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a  plate from coordinates of corner wells.'''
