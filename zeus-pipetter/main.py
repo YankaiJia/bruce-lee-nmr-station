@@ -6,7 +6,6 @@ workflow:
 4. generate event list for pipetting
 """
 import logging, copy, time, pickle, re, importlib, json, os, PySimpleGUI as sg, pandas as pd, numpy as np
-from openpyxl import load_workbook
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 # C:\Yankai\Dropbox\robochem
@@ -57,6 +56,9 @@ logger = setup_logger()
 
 import zeus, pipetter, planner as pln, breadboard as brb, prepare_reaction as prep
 
+# import matplotlib
+# matplotlib.use('TKAgg')
+
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
@@ -79,77 +81,6 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
     logger.info("pipetter is loaded as: pt")
 
     return zm, gt, pt
-
-
-def load_stock_solutions_from_excel(path: str) -> list:
-    stock_solution_list = []
-    wb_excel = load_workbook(path, data_only=True)
-    ws = wb_excel[[x for x in wb_excel.sheetnames if 'stock_solutions' in x][0]]
-
-    for row in tuple(ws.rows)[1:]:  # exclude the header
-        if row[0].value is not None:
-            substance_name = row[0].value,
-            index = row[1].value,
-            plate_id = row[2].value,
-            container_id = row[3].value,
-            solvent = row[4].value,
-            density = row[5].value,
-            volume = row[6].value,
-            liquid_surface_height = row[7].value,
-            pipetting_mode = row[8].value,
-            stock_solution_list.append(
-                {'substance_name': substance_name[0], 'index': index[0],
-                 'plate_id': plate_id[0], 'container_id': container_id[0],
-                 'solvent': solvent[0], 'density':density[0], 'volume': volume[0],
-                 'liquid_surface_height': liquid_surface_height[0], 'pipetting_mode': pipetting_mode[0]})
-
-    logger.info(f"stock solutions are loaded from Excel file: {stock_solution_list}")
-
-    # stock_solution_list example:
-    # {'substance_name': 'DMF', 'index': 'Substance_A', 'plate_id': 5, 'container_id': 0,
-    # 'solvent': 'DMF', 'density': 0.944, 'volume': None, 'liquid_surface_height': 1804, 'pipetting_mode': 'empty'}
-
-    return stock_solution_list
-
-
-def update_stock_solution_list_to_excel(path_for_reactions: str, stock_solution_list: list):
-    wb_excel = load_workbook(path_for_reactions)
-    ws = wb_excel['stock_solutions']
-    for row in tuple(ws.rows)[1:]:  # exclude the header
-        if row[0].value is not None:
-            for solution in stock_solution_list:
-                if row[0].value == solution['substance_name']:
-                    row[6].value = solution['volume']
-                    row[7].value = solution['liquid_surface_height']
-    wb_excel.save(path_for_reactions)
-
-
-def add_stock_solutions_to_containers(stock_solution_list: list) -> list:
-    containers_for_stock = []
-
-    for solution in stock_solution_list:
-        solution_container = brb.plate_list[solution['plate_id']].containers[solution['container_id']]
-        solution_container.substance = solution['substance_name']
-        solution_container.substance_density = solution['density']
-        solution_container.solvent = solution['solvent']
-
-        solution_container.liquid_surface_height, solution_container.liquid_volume\
-            = pt.check_volume_in_container(container=solution_container,liquidClassTableIndex=12,change_tip_after_each_check=True)
-
-        containers_for_stock.append(brb.plate_list[solution['plate_id']].containers[solution['container_id']])
-
-    logger.info(f"Stock solutions are added to containers: {containers_for_stock}")
-
-    # update the stock solution list
-    for solution in stock_solution_list:
-        for container in containers_for_stock:
-            if solution['substance_name'] == container.substance:
-                solution['volume'] = container.liquid_volume
-                solution['liquid_surface_height'] = container.liquid_surface_height
-
-    return containers_for_stock
-
-    ## safety check
 
 
 def assign_stock_solutions_to_containers_and_check_volume(excel_path:str, check_volume_by_pipetter: bool = True):
@@ -235,84 +166,6 @@ def turn_off_lld(event_list):
         event.asp_lld = 0
 
 
-## this is manually rising the liquid level in the stock containers. Works for SN1 on  07052023
-def modify_events_for_DMF():
-        for event in event_list_chem:
-            if event.substance == 'DMF' or event.substance == 'DMF1':
-                event.asp_liquidSurface -= 500
-                event.asp_lldSearchPosition -= 500
-
-            else:
-                event.asp_liquidSurface -= 200
-                event.asp_lldSearchPosition -= 200
-
-            if event.asp_lldSearchPosition < 900:
-                event.asp_lldSearchPosition = 900
-
-
-def extract_reactions_df_to_run(excel_path_for_reactions):
-    ## read the excel file
-    df_reactions_all = pd.read_excel(excel_path_for_reactions, sheet_name='reactions_with_run_info')
-
-    ## get the sequence of substance addition
-    columns_all = df_reactions_all.columns.tolist()
-    substance_addition_sequence = [column for column in columns_all if 'vol#' in column]
-    # print(f"substance_addition_sequence: {substance_addition_sequence}")
-    logger.info(f"substance_addition_sequence: {substance_addition_sequence}")
-
-    ## extract the rows where the status_of_reaction is "not_started", save it as df_reactions_to_run
-    reaction_status = \
-        [json.loads(i)['status'][0] for i in df_reactions_all['status_of_reaction']]
-    mask_on_status_of_reaction = [i == 'not_started' for i in reaction_status]
-    df_reactions_to_run = df_reactions_all[mask_on_status_of_reaction]
-
-    ## the df_reactions_to_run should not be empty or longer than df_reactions_all
-    assert len(df_reactions_to_run) > 0, "df_reactions_to_run is empty"
-    assert len(df_reactions_to_run) <= len(df_reactions_all), "df_reactions_to_run is longer than df_reactions_all"
-
-    ## check if the reactions to run is a continuation of the previous run
-    if len(df_reactions_to_run) < len(df_reactions_all):
-        ## prompt a pysimplegui windwon to ask if this is a continuation of the previous run
-        layout = [[sg.Text('Is this a continuation of the previous run?')],
-                    [sg.Button('Yes'), sg.Button('No')]]
-        window = sg.Window('Continue previous run?', layout)
-        event, values = window.read()
-        window.close()
-        if event != 'Yes':
-            raise ValueError("The run is not a continuation of the previous run. Please check the excel file.")
-
-    ## group the reactions by plate id, is this meaningful?
-    split_index = []
-    for index in range(1, len(df_reactions_to_run)):
-        if df_reactions_to_run.iloc[index]["plate_barcode"] != df_reactions_to_run.iloc[index-1]['plate_barcode']:
-            split_index.append(index)
-    # print(split_index)
-    df_reactions_grouped_by_plate_id = np.split(df_reactions_to_run, split_index)
-    # print(f"(df_reactions_grouped_by_plate_id): {(df_reactions_grouped_by_plate_id)}")
-
-    return df_reactions_grouped_by_plate_id, substance_addition_sequence
-
-
-def generate_event_list(df_reactions_grouped_by_plate_id,
-                        substance_addition_sequence,
-                        stock_solution_containers):
-    pipetting_to_balance = False
-    ## create a list of events
-    event_list = []
-    for df_reactions in df_reactions_grouped_by_plate_id:
-        for substance in substance_addition_sequence:
-            for index, df_row in df_reactions.iterrows():
-                ## pass the row to the Event class only if the substance volume is not 0
-                if df_row[substance] != 0:
-                    # print(f'in plate {df_row["plate_barcode"]}, substance {substance}')
-                    event = pln.Event(event_dataframe=df_row,
-                                      column_to_generate_event=substance,
-                                      pipeting_to_balance=pipetting_to_balance,
-                                      stock_solution_containers=stock_solution_containers)
-                    event_list.append(event)
-    return event_list
-
-
 def sort_events_by_substance_volume(event_list):
     event_list_sorted = []
 
@@ -334,7 +187,7 @@ def sort_events_by_substance_volume(event_list):
 if __name__ == '__main__':
 
     ## initiate hardware
-    # zm, gt, pt = initiate_hardware()
+    zm, gt, pt = initiate_hardware()
 
     excel_path_before_treatment, \
     plate_barcodes, \
@@ -346,32 +199,32 @@ if __name__ == '__main__':
     f"reaction_temperature: {reaction_temperature}\n" \
     f"plate_barcode_for_dilution: {plate_barcode_for_dilution}")
 
-    excel_path_for_reactions, _ = prep.prepare_excel_file_for_reaction(reaction_temperature=reaction_temperature,
-                                                                    excel_path=excel_path_before_treatment,
-                                                                    plate_barcodes=plate_barcodes,
-                                                                    plate_barcodes_for_dilution=plate_barcode_for_dilution)
+    excel_path_for_conditions, _ = prep.prepare_excel_file_for_reaction(reaction_temperature=reaction_temperature,
+                                                                        excel_path=excel_path_before_treatment,
+                                                                        plate_barcodes=plate_barcodes,
+                                                                        plate_barcodes_for_dilution=plate_barcode_for_dilution)
 
-    stock_solution_containers = assign_stock_solutions_to_containers_and_check_volume(excel_path = excel_path_for_reactions,
-                                                                        check_volume_by_pipetter = False)
+    stock_solution_containers = assign_stock_solutions_to_containers_and_check_volume(excel_path = excel_path_for_conditions,
+                                                                                      check_volume_by_pipetter = False)
 
-    df_reactions_grouped_by_plate_id,  substance_addition_sequence = extract_reactions_df_to_run(excel_path_for_reactions)
+    df_reactions_grouped_by_plate_id,  substance_addition_sequence = prep.extract_reactions_df_to_run(excel_path_for_conditions)
 
 
-    event_list_to_run = generate_event_list(
+    event_list_to_run = pln.generate_event_list_new(excel_path_for_conditions = excel_path_for_conditions,
                         df_reactions_grouped_by_plate_id = df_reactions_grouped_by_plate_id,
                         substance_addition_sequence = substance_addition_sequence,
                         stock_solution_containers = stock_solution_containers)
 
     event_list_to_run_sorted = sort_events_by_substance_volume(event_list_to_run)
 
+    df_test = df_reactions_grouped_by_plate_id[0]
 
+    aa = df_test. at[ 'KEMKw3tQdtHLUW3ZXcsRs9', 'full_status']
 
     # do multicomponent reactions
-    pln.run_events_chem(zm=zm, pt=pt, logger=logger,
+    pln.run_events_chem(zm=zm, pt=pt,
                         event_list= event_list_to_run_sorted,
-                        prewet_tip=True,
-                        excel_path=excel_path_for_reactions,
-                        plate_code_list=plate_code_list,
+                        prewet_tip=False,
                         pause_after_every_plate_min = 0)
 
 

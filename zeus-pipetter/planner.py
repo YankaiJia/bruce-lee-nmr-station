@@ -278,13 +278,15 @@ class Event:
     def __init__(self, event_dataframe: pd.DataFrame,
                  column_to_generate_event:str,
                  stock_solution_containers: list,
+                 excel_path_for_conditions,
                  pipeting_to_balance: bool = False,
                  asp_lld : int = 1):
 
-        self.reaction_uuid: str = event_dataframe['reaction_uuid']
+        self.condition_uuid: str = event_dataframe['uuid']
         self.plate_barcode: str = event_dataframe['plate_barcode']
-
+        self.excel_path_for_conditions = excel_path_for_conditions
         self.substance: str = column_to_generate_event[4:] # remove "vol#"
+        self.event_label: str = self.condition_uuid + '_' + self.substance
 
         self.source_container: object = [container for container in stock_solution_containers
                                          if container.substance == self.substance][0]
@@ -293,7 +295,7 @@ class Event:
         if pipeting_to_balance:
             self.destination_container: object = brb.balance_cuvette
         else:
-            breadboard_plate_id = event_dataframe['breadboard_plate_id']
+            breadboard_plate_id = event_dataframe['slot_id']
             container_id = event_dataframe['container_id']
             self.destination_container: object = brb.plate_list[breadboard_plate_id].containers[container_id]
 
@@ -382,39 +384,39 @@ class Event:
         elif transfer_volume > 300 and transfer_volume < 2000:
             return "1000ul"
         else:
-            raise ValueError(f'Transfer volume is out of range! at {self.reaction_uuid}, {self.substance}')
+            raise ValueError(f'Transfer volume is out of range! at {self.condition_uuid}, {self.substance}')
 
-    def execute_event(self, excel_path_for_reactions: str):
+    def execute_event(self):
 
-        self.source_container.liquid_volume -= self.aspirationVolume
-        self.destination_container.liquid_volume += self.aspirationVolume
+        self.source_container.liquid_volume -= self.transfer_volume
+        self.destination_container.liquid_volume += self.transfer_volume
 
 
-        self.source_container.liquid_surface_height += ceil((self.aspirationVolume / self.source_container.area)*10)
-        self.destination_container.liquid_surface_height -= ceil((self.aspirationVolume / self.destination_container.area)*10)
+        self.source_container.liquid_surface_height += ceil((self.transfer_volume / self.source_container.area)*10)
+        self.destination_container.liquid_surface_height -= ceil((self.transfer_volume / self.destination_container.area)*10)
 
         self.is_event_conducted = True
         self.event_finish_time = round(time.time())
 
         ## change the reaction/substance status in the excel file.
-        df_reactions = pd.read_excel(excel_path_for_reactions, sheet_name=config.sheet_name_for_run_info)
+        df_reactions = pd.read_excel(self.excel_path_for_conditions, sheet_name=config.sheet_name_for_run_info)
         # change the status of the substance
-        dict_substance = json.loads(df_reactions.loc[df_reactions['reaction_uuid'] == \
-                                    self.reaction_uuid, 'status_of_substances'])
+        dict_substance = json.loads(df_reactions.at[self.condition_uuid, 'full_status'])
+
         dict_substance[self.substance] = ['completed', self.event_finish_time]
         dict_substance_after = json.dumps(dict_substance)
-        df_reactions.loc[df_reactions['reaction_uuid'] == self.reaction_uuid, 'status_of_substances']\
+        df_reactions.loc[df_reactions['uuid'] == self.condition_uuid, 'full_status']\
             = dict_substance_after
 
         # change the status of the reaction if necessary
         substance_addition_sequence = [i[4:] for i in df_reactions.columns if "vol#" in i]
         if self.substance == substance_addition_sequence[-1]:
-            dict_here = json.dumps({'status_of_reactions': ['completed', self.event_finish_time]})
-            df_reactions.loc[df_reactions['reaction_uuid'] == self.reaction_uuid, 'status_of_reactions']\
+            dict_here = json.dumps({'status': ['completed', self.event_finish_time]})
+            df_reactions.loc[df_reactions['uuid'] == self.condition_uuid, 'status']\
                 = dict_here
         # save the dataframe to excel file
-        with  pd.ExcelWriter(excel_path_for_reactions, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
-            df_reactions.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='reaction_uuid')
+        with  pd.ExcelWriter(self.excel_path_for_conditions, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
+            df_reactions.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='uuid')
 
 def interprete_events_from_excel_to_dataframe(dataframe_filename: str,
                                               is_for_bio: bool) -> pd.DataFrame:
@@ -433,38 +435,6 @@ def interprete_events_from_excel_to_dataframe(dataframe_filename: str,
     module_logger.info(f'event_dataframe is saved as event_dataframe_{datetime.now().strftime("%Y_%m_%d_%H_%M")}.json')
 
     return event_dataframes.pd_output
-
-
-def generate_event_list(event_dataframe: pd.DataFrame,containers_for_stock, pipeting_to_balance: bool = False) -> list:
-    """
-    IMPORTANT: The source and destination containers in the event_list are not copied, but referenced to the brb.plate_list.
-    So, change the liquid_volume in the event_list will also change the liquid_volume in the brb.plate_list, and vice versa.
-    You can check their by the following example code:
-    >> id(event_list[0].source_container) == id(brb.plate_list[x].containers[y]) # x, y correspond to the brb container index.
-    True
-    >> id(event_list[0].destination_container) == id(brb.plate_list[x].containers[y])
-    True
-    """
-
-    event_list = []
-    for i in range(len(event_dataframe.index)):
-        # print(i)
-        event = TransferEventConstructor(event_dataframe=event_dataframe.iloc[i],
-                                         pipeting_to_balance=pipeting_to_balance,
-                                         containers_for_stock=containers_for_stock)
-        # print(event.source_container.container_id, event.destination_container.container_id)
-        # print(f'event_substance: {event.substance_name}')
-        # event_list.append(copy.deepcopy(event))  # use deepcopy to avoid the reference problem
-        event_list.append(event)
-
-        # volume update
-        # event.source_container.liquid_volume = event.source_container.liquid_volume - event.aspirationVolume
-        # event.destination_container.liquid_volume = event.destination_container.liquid_volume + event.dispensingVolume
-        # pprint(vars(event))
-
-    module_logger.info(f'Event_list is generated with {len(event_list)} events.')
-
-    return event_list
 
 
 def generate_event_object(logger: object, excel_to_generate_dataframe: str,containers_for_stock,
@@ -488,12 +458,27 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,conta
     return event_dataframe, event_list
 
 
-def generate_event_object_v1(excel_pathe_for_reactions,
-                            containers_for_stock,
-                            logger=module_logger,
-                            is_pipeting_to_balance=False,
-                            is_for_bio=False):
-    pass
+def generate_event_list_new(df_reactions_grouped_by_plate_id,
+                        substance_addition_sequence,
+                        stock_solution_containers,
+                        excel_path_for_conditions: str):
+    pipetting_to_balance = False
+    ## create a list of events
+    event_list = []
+    for df_reactions in df_reactions_grouped_by_plate_id:
+        for substance in substance_addition_sequence:
+            for index, df_row in df_reactions.iterrows():
+                ## pass the row to the Event class only if the substance volume is not 0
+                if df_row[substance] != 0:
+                    # print(f'in plate {df_row["plate_barcode"]}, substance {substance}')
+                    event = Event(event_dataframe=df_row,
+                                  column_to_generate_event=substance,
+                                  pipeting_to_balance=pipetting_to_balance,
+                                  stock_solution_containers=stock_solution_containers,
+                                  excel_path_for_conditions=excel_path_for_conditions)
+                    event_list.append(event)
+    return event_list
+
 
 def do_calibration_on_events(zm: object, pt: object, logger: object,
                              calibration_event_list: list[object],
@@ -577,7 +562,7 @@ def run_events_bio(zm: object, pt: object, logger: object, event_list: list[obje
 
     return liquid_surface_height_from_zeus
 
-def prewet_new_tip( zm: object, pt: object, logger: object, pipetting_event: object ):
+def prewet_new_tip( zm: object, pt: object , pipetting_event: object ):
 
     event_adjusted = copy.deepcopy(pipetting_event)
 
@@ -586,10 +571,9 @@ def prewet_new_tip( zm: object, pt: object, logger: object, pipetting_event: obj
     event_adjusted.destination_container = event_adjusted.source_container
     event_adjusted.disp_liquidSurface = 1650
 
-
-    logger.info(f'Prewetting tip with {max_volume}ul of {event_adjusted.substance_name}')
+    module_logger.info(f'Prewetting tip with {max_volume}ul of {event_adjusted.substance}')
     pt.transfer_liquid(event_adjusted)
-    logger.info('Prewet done! Continue with pipetting...')
+    module_logger.info('Prewet done! Continue with pipetting...')
 
 
 def beep():
@@ -605,130 +589,77 @@ def beep_n():
     for i in range(10):
         winsound.Beep(freq, duration)
 
+def run_one_event_chem(pt: object, event=None):
+    # pt.transfer_liquid(event)
+    time.sleep(2)
+    event.execute_event()
+    beep()
+
 ## TODO change this function 20230721
-def run_events_chem(zm: object, pt: object, logger: object,
-                    excel_path, plate_code_list,
+## TODO assgin uuid to each event?
+def run_events_chem(zm: object, pt: object,
                     event_list=None,
                     change_tip_after_every_pipetting: bool = False,
                     prewet_tip: bool = True,
                     pause_after_every_plate_min: int = 0,
                     ):
 
-    liquid_surface_height_from_zeus = {}
-    excel_file_name = excel_path.split('/')[-1].split('.')[0]  # get the Excel file name
-
-    # record the events in this plate
-    pipetter_io_info = os.path.dirname(excel_path) + '\\pipetter_io\\'
-    if not os.path.exists(pipetter_io_info):
-        os.makedirs(pipetter_io_info)
-
-    run_info_header = '#version: 1.00\n'
-    with open(pipetter_io_info + 'run_info.csv', 'a') as f:
-        f.write(run_info_header)
-
+    # discard tip if there is one on the pipetter
     if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
         pt.discard_tip()
 
+    # group all events by plate_id
     split_index = []
     for index in range(1, len(event_list)):
-        if event_list[index].destination_container.id['plate_id'] != \
-                event_list[index - 1].destination_container.id['plate_id']:
+        if event_list[index].plate_barcode != event_list[index - 1].plate_barcode:
             split_index.append(index)
-    # group event by mask
     events_grouped_by_plate_id = np.split(event_list, split_index)
 
+    # run events in each plate
     for plate_index, events_in_one_plate in enumerate(events_grouped_by_plate_id):
 
-        start_time_unix = int(time.time())
-        start_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         pt.home_xy()
-        logger.info(f'Gantry is homed at {start_time_datetime}, before {plate_index} plates')
+        start_time_datetime = datetime.now()
+        module_logger.info(f'Gantry is homed at {start_time_datetime}, before a new plate is processed.')
 
-        for event_index in range(len(events_in_one_plate)):
-
-            if zm.tip_on_zeus != events_in_one_plate[event_index].tip_type:
-                pt.change_tip(events_in_one_plate[event_index].tip_type)
-                logger.info(f'The tip is changed to : {events_in_one_plate[event_index].tip_type}')
+        for index, event in enumerate(events_in_one_plate):
+            # change tip if needed
+            if zm.tip_on_zeus != event.tip_type:
+                pt.change_tip(event.tip_type)
+                module_logger.info(f'The tip is changed to : {event.tip_type}')
                 time.sleep(0.5)
 
                 # do prewet every time a new tip is taken
                 if prewet_tip:
-                    prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=events_in_one_plate[event_index])
-
+                    prewet_new_tip(zm=zm, pt=pt, pipetting_event=event)
 
             try:
-                liquid_surface_height_from_zeus_here = pt.transfer_liquid(events_in_one_plate[event_index])
-                events_in_one_plate[event_index].execute_event() ## this is to record the liquid surface, liquid volume and pipetting time
-                update_event_info_to_excel(excel_path, events_in_one_plate[event_index])
-                beep()
+                run_one_event_chem(pt= pt, event= event)
 
             except Exception as e:
-                logger.error(f'Error in transfer liquid.\n')
+                module_logger.error(f'Error in transfer liquid.\n')
+                module_logger.error(f"The run is stopped at event {event}.\n")
                 pt.discard_tip()
+                raise e
 
-                return liquid_surface_height_from_zeus
+            module_logger.info(f"Performed one event: event_label {event.event_label}, "
+                        f"{event.transfer_volume}uL,"
+                        f'slot: {event.destination_container.id["plate_id"]},'
+                        f'plate_code: {event.plate_barcode}')
 
-            # calculate volume and liquid height
-            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance + '_height'] = \
-                liquid_surface_height_from_zeus_here
-            volume_here = (-liquid_surface_height_from_zeus_here + events_in_one_plate[event_index].source_container.bottomPosition) \
-                          * events_in_one_plate[event_index].source_container.area / 10  # in uL
-            liquid_surface_height_from_zeus[events_in_one_plate[event_index].substance + '_volume'] = round(volume_here, 1)
-
-            time.sleep(0.05)
-
-            logger.info(f"Performed one event: event_number {event_index}, "
-                        f"{events_in_one_plate[event_index].event_label},"
-                        f'{events_in_one_plate[event_index].destination_container.id},'
-                        f'plate_code: {plate_code_list[plate_index]}')
-
-            # save this event to local pickle file
-            # pickle_folder = os.path.dirname(excel_path) + '\\pipetter_io\\run_log\\'
-
-            # this is changed on 2023-07-11 to exclude the pickles from Dropbox sync
-            pickle_folder = 'C:\\Yankai\\pickles_from_pipetter\\'
-            # build a new folder if not exist
-            if not os.path.exists(pickle_folder):
-                os.makedirs(pickle_folder)
-            # pickle_folder  = 'C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\pickle_files\\'
-            with open(pickle_folder + f'{datetime.now().strftime("%m_%d_%H_%M_%S")}'
-                                      f'_id_{event_index}'
-                                      f'_{events_in_one_plate[event_index].substance}'
-                                      f'_{events_in_one_plate[event_index].aspirationVolume}_ul'
-                                      f'_barcode_{plate_code_list[plate_index]}.pickle', 'wb') as f:
-                pickle.dump(events_in_one_plate[event_index], f)
-
-            # check tip when the next event is different substance
-            if event_index != len(events_in_one_plate) - 1:  # check if this is the last event.
-                if events_in_one_plate[event_index].substance != events_in_one_plate[event_index + 1].substance:
-                    # pt.change_tip(event_list[event_index + 1].tip_type)
+            ## change tip when the substance changed
+            if events_in_one_plate[index].substance != events_in_one_plate[index + 1].substance and \
+                    index != len(events_in_one_plate) - 1:
                     pt.discard_tip()
+
             time.sleep(0.5)
+
             #  change tip after every pipetting if specified
             if change_tip_after_every_pipetting:
                 pt.discard_tip()
                 time.sleep(0.5)
 
-        finish_time_unix = int(time.time())
-        finish_time_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        run_info = f"{plate_code_list[plate_index]}," \
-                   f"{excel_file_name}," \
-                   f"{start_time_unix}," \
-                   f"{start_time_datetime}," \
-                   f"{finish_time_unix}," \
-                   f"{finish_time_datetime}," \
-                   f"\n"
-        with open(pipetter_io_info + 'run_info.csv', 'a') as f:
-            f.write(run_info)
-
-        #plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, reaction_id, excel_path, note
-        #17, 2023_04_12_run01, 1681309257, 2023-04-12 23:20:57, 1681310983, 2023-04-12 23:49:43, '0-134', 0-26,"""
-
         pt.discard_tip()
-
-        # TODO: write to the excel that this plate is finished.
 
         ## play some sound to notify the user
         beep_n()
@@ -738,8 +669,6 @@ def run_events_chem(zm: object, pt: object, logger: object,
 
         ## pause after each plate
         time.sleep(pause_after_every_plate_min * 60)
-
-    return liquid_surface_height_from_zeus
 
 
 def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: int,
@@ -768,7 +697,7 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
             # do prewet every time a new tip is taken
             time.sleep(0.5)
             if prewet_tip:
-                prewet_new_tip(zm=zm, pt=pt, logger=logger, pipetting_event=event_list[event_index])
+                prewet_new_tip(zm=zm, pt=pt, pipetting_event=event_list[event_index])
 
         # record start time
         event_start_time = int(time.time())  # unix time

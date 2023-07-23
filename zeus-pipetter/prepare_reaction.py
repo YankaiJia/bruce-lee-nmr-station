@@ -1,4 +1,4 @@
-import json, math, os, openpyxl, pandas as pd, shortuuid, PySimpleGUI as sg, logging
+import json, math, os, openpyxl, pandas as pd, shortuuid, PySimpleGUI as sg, logging, numpy as np
 
 import config
 
@@ -17,9 +17,9 @@ def GUI_get_excel_path_plate_barcodes_temperature_etc():
                sg.FileBrowse(initial_folder=data_folder,
                              file_types=(("Excel Files", "*.xlsx"), ("All Files", "*.*")))],
               [sg.Text('Enter plate barcodes for pipetting, e.g.:50, 51, 52')],
-              [sg.InputText('11,22,33', key="-PLATE_BARCODES-")],
+              [sg.InputText('11,22,33,12', key="-PLATE_BARCODES-")],
               [sg.Text('Enter plate barcodes for dilution accordingly. The ORDER is essential.')],
-              [sg.InputText( '44,55,66', key="-PLATE_DILUTION-")],
+              [sg.InputText( '44,55,66,34', key="-PLATE_DILUTION-")],
               [sg.Text('Enter the reaction temperature, e.g. 26')],
               [sg.InputText('26',key="-REACTION_TEMPERATURE-")],
               [sg.Submit(), sg.Cancel()]]
@@ -45,10 +45,10 @@ def GUI_get_excel_path_plate_barcodes_temperature_etc():
     str_for_plate_barcodes = ''
     for index, plate_barcode in enumerate(plate_barcodes):
         if index < 3:
-            str_for_plate_barcodes += f'{plate_barcode} @ breadboard slot {index}, dilute to {plate_barcodes_for_dilution[index]}\n'
+            str_for_plate_barcodes += f'{plate_barcode} is at slot_id: {index}, dilute to {plate_barcodes_for_dilution[index]}\n\n'
         elif index >=3:
-            str_for_plate_barcodes += f'{plate_barcode} @ breadboard slot {index},dilute to {plate_barcodes_for_dilution[index]}' \
-                                      f', this is for the second round.\n'
+            str_for_plate_barcodes += f'{plate_barcode} will be at slot_id:  {index-3},dilute to {plate_barcodes_for_dilution[index]}' \
+                                      f', this is for the second round.\n\n'
     for  index in range(len(plate_barcodes), 6):
             str_for_plate_barcodes += f'Nothing @ slot {index}\n'
 
@@ -57,13 +57,15 @@ def GUI_get_excel_path_plate_barcodes_temperature_etc():
             [sg.Text(f'excel_path: {excel_path}', font=("Helvetica", 8))],
             [sg.Text('2. Please check the plate_barcodes', text_color= 'red')],
             [sg.Text(str_for_plate_barcodes)],
-            [sg.Text(f'3. Please check the reaction_temperature: {reaction_temperature}', text_color= 'red')],
-            [sg.Text('Is the input correct?', size=(20, 1), font=("Helvetica", 25), text_color='red',
+            [sg.Text(f'3. Please check the reaction_temperature', text_color= 'red')],
+            [sg.Text(f'temperature: {reaction_temperature}\n', font=("Helvetica", 18))],
+            [sg.Text('Is the input correct?\n', size=(20, 1), font=("Helvetica", 25), text_color='red',
                      justification='center')],
-            [sg.Button('Yes, proceed'), sg.Button('No, re-enter')]]
+            [sg.Button('Yes, proceed'), sg.Button('No, re-enter')]
+            ]
 
     window1 = sg.Window('Check the input', layout1,
-                        size=(800, 500),
+                        size=(750, 800),
                         font=('Helvetica', 18))
     ## show window1 and read the values
     event, values = window1.read()
@@ -91,26 +93,30 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
     if 'reactions_backup' not in wb.sheetnames:
         target = wb.copy_worksheet(reaction_sheet)
         target.title = 'reactions_backup'
-        wb.save(excel_path)
-        # close the Excel file
-        wb.close()
+    # if there is no "version" sheet,create one
+    if 'version' not in wb.sheetnames:
+        wb.create_sheet('version')
+        version_sheet = wb['version']
+        version_sheet['A1'] = config.version_of_excel_file
+    wb.save(excel_path)
+    wb.close()
 
     ## open the 'reactions_with_run_info' sheet, and assign a uuid to each reaction
     df = pd.read_excel(excel_path, sheet_name=sheet_name_for_run_info, engine='openpyxl')
 
     ## set reaction_uuid and assign as index
-    if 'reaction_uuid' not in df.columns:
+    if 'uuid' not in df.columns:
         ## assign a uuid to each reaction
-        df['reaction_uuid'] = df['reactions'].map(lambda x: str(shortuuid.uuid()))
+        df['uuid'] = df['local_index'].map(lambda x: str(shortuuid.uuid()))
         ## set 'unique_reaction_id' as index
         # ## print the index of the dataframe
         # print(df.index)
     else:
         # print('The reaction_uuid column already exists. Overwriting is not allowed.')
-        module_logger.info('The reaction_uuid column already exists. Overwriting is not allowed.')
+        module_logger.info('The uuid column already exists. Overwriting is not allowed.')
 
     # set the index
-    df.set_index('reaction_uuid', inplace=True)
+    df.set_index('uuid', inplace=True)
 
     ## preserve the original order of the columns
     columns_all = df.columns.tolist()
@@ -118,19 +124,20 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
     # print(f'substance_addition_sequence: {substance_addition_sequence}')
 
     # creat new columns
-    columns_to_append = ['temperature','breadboard_plate_id','plate_barcode',
-                         'container_id', 'status_of_substances',
-                         'status_of_reaction',
-                         'plate_barcodes_for_dilution']
+    columns_to_append = ['temperature','slot_id','plate_barcode',
+                         'container_id', 'full_status',
+                         'status',
+                         'plate_barcodes_for_dilution',
+                         'timestamp']
     for column in columns_to_append:
         if column not in df.columns:
-            if column == 'status_of_reaction':
+            if column == 'status':
                 ## use json.dumps to convert a dict to a json string
-                df[column] = [json.dumps({"status": ("not_started", 0)}) for i in range(len(df))]
+                df[column] = ["not_started" for i in range(len(df))]
             elif column == 'temperature':
                 df[column] = reaction_temperature
             else:
-                df[column] = None
+                df[column] = 0
             # df[column] = None if column != 'status_of_reaction' else tuple(('not_started',0)) # set the 'status_of_reaction' to 'not_started'
             print('column: ', column, ' is created.')
             module_logger.info(f'column: {column} is created.')
@@ -140,7 +147,7 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
     module_logger.info(f'substances_to_be_transferred: {[i.split("#")[1] for i in df.columns if "vol#" in i]}')
 
     for index, row in df.iterrows():
-        df.at[index, 'status_of_substances'] = json.dumps({column[4:]: ("not_started", 0) for column in df.columns if 'vol#' in column
+        df.at[index, 'full_status'] = json.dumps({column[4:]: ("not_started", 0) for column in df.columns if 'vol#' in column
                                                and df.at[index, column] != 0})
 
     ##ensure the number of plate barcodes provided is sufficient
@@ -152,7 +159,7 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
         for j in range(54):
             if i * 54 + j < len(df):
                 df.at[df.index[i * 54 + j], 'plate_barcode'] = plate_barcodes[i]
-                df.at[df.index[i * 54 + j], 'breadboard_plate_id'] = breadboard_plate_id[i]
+                df.at[df.index[i * 54 + j], 'slot_id'] = breadboard_plate_id[i]
                 df.at[df.index[i * 54 + j], 'container_id'] = j
                 df.at[df.index[i * 54 + j], 'plate_barcodes_for_dilution'] = plate_barcodes_for_dilution[i]
             else:
@@ -163,12 +170,56 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
 
     ## dave df to excel sheet. "if_sheet_exists=" this argument is important to only overwrite one sheet
     with pd.ExcelWriter(excel_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
-        df.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='reaction_uuid')
+        df.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='uuid')
 
     # print('The excel file is prepared for the reaction.')
     module_logger.info('The excel file is prepared for the reaction.')
 
     return excel_path, df
+
+
+def extract_reactions_df_to_run(excel_path_for_reactions):
+    ## read the excel file
+    df_reactions_all = pd.read_excel(excel_path_for_reactions, sheet_name='reactions_with_run_info')
+
+    ## get the sequence of substance addition
+    columns_all = df_reactions_all.columns.tolist()
+    substance_addition_sequence = [column for column in columns_all if 'vol#' in column]
+    # print(f"substance_addition_sequence: {substance_addition_sequence}")
+    module_logger.info(f"substance_addition_sequence: {substance_addition_sequence}")
+
+    ## extract the rows where the status_of_reaction is "not_started", save it as df_reactions_to_run
+    mask_on_status_of_reaction = [i == 'not_started' for i in df_reactions_all['status']]
+    df_reactions_to_run = df_reactions_all[mask_on_status_of_reaction]
+
+    ## the df_reactions_to_run should not be empty or longer than df_reactions_all
+    assert len(df_reactions_to_run) > 0, "df_reactions_to_run is empty"
+    assert len(df_reactions_to_run) <= len(df_reactions_all), "df_reactions_to_run is longer than df_reactions_all"
+
+    ## check if the reactions to run is a continuation of the previous run
+    if len(df_reactions_to_run) < len(df_reactions_all):
+        ## prompt a pysimplegui windwon to ask if this is a continuation of the previous run
+        layout = [[sg.Text('Is this a continuation of the previous run?')],
+                    [sg.Button('Yes'), sg.Button('No')]]
+        window = sg.Window('Continue previous run?', layout)
+        event, values = window.read()
+        window.close()
+        if event != 'Yes':
+            raise ValueError("The run is not a continuation of the previous run. Please check the excel file.")
+
+    ## group the reactions by plate id, is this meaningful?
+    split_index = []
+    for index in range(1, len(df_reactions_to_run)):
+        if df_reactions_to_run.iloc[index]["plate_barcode"] != df_reactions_to_run.iloc[index-1]['plate_barcode']:
+            split_index.append(index)
+    # print(split_index)
+    df_reactions_grouped_by_plate_id = np.split(df_reactions_to_run, split_index)
+    # print(f"(df_reactions_grouped_by_plate_id): {(df_reactions_grouped_by_plate_id)}")
+
+    return df_reactions_grouped_by_plate_id, substance_addition_sequence
+
+
+
 if __name__ == '__main__':
     excel_path, plate_barcodes, reaction_temperature, plate_barcodes_for_dilution\
         = GUI_get_excel_path_plate_barcodes_temperature_etc()
