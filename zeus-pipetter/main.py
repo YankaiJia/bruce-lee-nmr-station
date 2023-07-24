@@ -217,10 +217,6 @@ if __name__ == '__main__':
 
     event_list_to_run_sorted = sort_events_by_substance_volume(event_list_to_run)
 
-    df_test = df_reactions_grouped_by_plate_id[0]
-
-    aa = df_test. at[ 'KEMKw3tQdtHLUW3ZXcsRs9', 'full_status']
-
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt,
                         event_list= event_list_to_run_sorted,
@@ -231,9 +227,11 @@ if __name__ == '__main__':
 
 
 
-
-
-
+    # aa = \
+    #     df_reactions_grouped_by_plate_id[0]
+    # for index, row in aa.iterrows():
+    #     print(row['full_status'])
+    #
 
 
 

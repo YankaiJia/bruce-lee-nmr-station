@@ -401,22 +401,27 @@ class Event:
         ## change the reaction/substance status in the excel file.
         df_reactions = pd.read_excel(self.excel_path_for_conditions, sheet_name=config.sheet_name_for_run_info)
         # change the status of the substance
-        dict_substance = json.loads(df_reactions.at[self.condition_uuid, 'full_status'])
-
+        # print(f'condition_uuid: {self.condition_uuid}')
+        # print('full_status: ', df_reactions[df_reactions['uuid']==self.condition_uuid]['full_status'].item())
+        dict_substance = json.loads(df_reactions[df_reactions['uuid']==self.condition_uuid]['full_status'].item())
         dict_substance[self.substance] = ['completed', self.event_finish_time]
         dict_substance_after = json.dumps(dict_substance)
         df_reactions.loc[df_reactions['uuid'] == self.condition_uuid, 'full_status']\
             = dict_substance_after
 
         # change the status of the reaction if necessary
-        substance_addition_sequence = [i[4:] for i in df_reactions.columns if "vol#" in i]
-        if self.substance == substance_addition_sequence[-1]:
-            dict_here = json.dumps({'status': ['completed', self.event_finish_time]})
+        substances_for_this_condition = list(dict_substance.keys())  ## after python 3.6, dict is ordered.
+        if self.substance in substances_for_this_condition[:-1]:
             df_reactions.loc[df_reactions['uuid'] == self.condition_uuid, 'status']\
-                = dict_here
+                = 'not_completed'
+        elif self.substance == substances_for_this_condition[-1]:
+            df_reactions.loc[df_reactions['uuid'] == self.condition_uuid, 'status']\
+                = 'completed'
+            df_reactions.loc[df_reactions['uuid'] == self.condition_uuid, 'timestamp']\
+                = self.event_finish_time
         # save the dataframe to excel file
         with  pd.ExcelWriter(self.excel_path_for_conditions, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
-            df_reactions.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='uuid')
+            df_reactions.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=False)
 
 def interprete_events_from_excel_to_dataframe(dataframe_filename: str,
                                               is_for_bio: bool) -> pd.DataFrame:
@@ -467,16 +472,35 @@ def generate_event_list_new(df_reactions_grouped_by_plate_id,
     event_list = []
     for df_reactions in df_reactions_grouped_by_plate_id:
         for substance in substance_addition_sequence:
+            ## substance: vol#Dioxane
             for index, df_row in df_reactions.iterrows():
                 ## pass the row to the Event class only if the substance volume is not 0
-                if df_row[substance] != 0:
-                    # print(f'in plate {df_row["plate_barcode"]}, substance {substance}')
-                    event = Event(event_dataframe=df_row,
-                                  column_to_generate_event=substance,
-                                  pipeting_to_balance=pipetting_to_balance,
-                                  stock_solution_containers=stock_solution_containers,
-                                  excel_path_for_conditions=excel_path_for_conditions)
-                    event_list.append(event)
+                ## AND IMPORTANTLY: the full_status of this substance should be "not_started"
+                # full_status_dict = json.loads(df_reactions[df_reactions['uuid'] == df_reactions.condition_uuid]['full_status'].item())
+                full_status_dict = json.loads(df_row['full_status'])
+                # print(f'substance: {substance}, full_status_dict: {full_status_dict}')
+                # print(f'substance[4:]: {substance}')
+                # print(f'full_status_dict[substance[4:]]: {full_status_dict[substance[4:]]}')
+                # print(f'full_status_dict[substance[4:]][0]: {full_status_dict[substance[4:]][0]}')
+                # print(f'event.condition_uuid: {df_row["uuid"]}')
+                # if df_row[substance] != 0 and full_status_dict[substance[4:]][0] == 'not_started':
+                # print(f'substance: {substance}, substance to be added: {full_status_dict.keys()}')
+                if  substance[4:] in full_status_dict.keys():
+                    # print(f'substance: {substance}, full_status_dict: {full_status_dict[substance[4:]][0]}, event.condition_uuid: {df_row["uuid"]}')
+                    if full_status_dict[substance[4:]][0] == 'not_started':
+                        event = Event(event_dataframe=df_row,
+                                      column_to_generate_event=substance,
+                                      pipeting_to_balance=pipetting_to_balance,
+                                      stock_solution_containers=stock_solution_containers,
+                                      excel_path_for_conditions=excel_path_for_conditions)
+                        # print(f'event: {event.event_label}. volume: {event.transfer_volume}')
+                        event_list.append(event)
+                    elif full_status_dict[substance[4:]][0] == 'completed':
+                        module_logger.info(f'{substance} for {df_row["uuid"]} was done in previous run. skip this event.')
+                    else:
+                        raise ValueError(f'{substance} for {event.condition_uuid} is not "not_started" or "completed".\n'
+                                         f'check the EXCEL file.')
+
     return event_list
 
 
@@ -591,7 +615,7 @@ def beep_n():
 
 def run_one_event_chem(pt: object, event=None):
     # pt.transfer_liquid(event)
-    time.sleep(2)
+    time.sleep(0.5)
     event.execute_event()
     beep()
 
@@ -648,9 +672,9 @@ def run_events_chem(zm: object, pt: object,
                         f'plate_code: {event.plate_barcode}')
 
             ## change tip when the substance changed
-            if events_in_one_plate[index].substance != events_in_one_plate[index + 1].substance and \
-                    index != len(events_in_one_plate) - 1:
-                    pt.discard_tip()
+            if index < len(events_in_one_plate)-1:
+                if events_in_one_plate[index].substance != events_in_one_plate[index + 1].substance:
+                        pt.discard_tip()
 
             time.sleep(0.5)
 

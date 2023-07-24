@@ -30,6 +30,9 @@ def GUI_get_excel_path_plate_barcodes_temperature_etc():
 
     event, values = window.read()
     window.close()
+    if event == 'Cancel':
+        print('Cancel clicked')
+        exit()
 
     excel_path = values['-FILE_PATH-']
     plate_barcodes = tuple([int(i) for i in values['-PLATE_BARCODES-'].split(',') if i!=''])
@@ -125,7 +128,7 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
 
     # creat new columns
     columns_to_append = ['temperature','slot_id','plate_barcode',
-                         'container_id', 'full_status',
+                         'container_id',
                          'status',
                          'plate_barcodes_for_dilution',
                          'timestamp']
@@ -139,16 +142,19 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
             else:
                 df[column] = 0
             # df[column] = None if column != 'status_of_reaction' else tuple(('not_started',0)) # set the 'status_of_reaction' to 'not_started'
-            print('column: ', column, ' is created.')
+            # print('column: ', column, ' is created.')
             module_logger.info(f'column: {column} is created.')
 
     # set the 'status_of_substance' to a json string: '{"substance1": ("not_started", timestamp), "substance2": ("not_started", timestamp)}'
     # print('substances_to_be_transferred: ', [i.split("#")[1] for i in df.columns if "vol#" in i])
     module_logger.info(f'substances_to_be_transferred: {[i.split("#")[1] for i in df.columns if "vol#" in i]}')
 
-    for index, row in df.iterrows():
-        df.at[index, 'full_status'] = json.dumps({column[4:]: ("not_started", 0) for column in df.columns if 'vol#' in column
-                                               and df.at[index, column] != 0})
+    ## check if the column 'full_status' exists
+    if 'full_status' not in df.columns:
+        df['full_status'] = None
+        for index, row in df.iterrows():
+            df.at[index, 'full_status'] = json.dumps({column[4:]: ("not_started", 0) for column in df.columns if 'vol#' in column
+                                                   and df.at[index, column] != 0})
 
     ##ensure the number of plate barcodes provided is sufficient
     assert len(plate_barcodes) >= math.ceil(len(df) / 54), 'The number of plates provided is not sufficient. '
@@ -181,6 +187,7 @@ def prepare_excel_file_for_reaction(reaction_temperature ,
 def extract_reactions_df_to_run(excel_path_for_reactions):
     ## read the excel file
     df_reactions_all = pd.read_excel(excel_path_for_reactions, sheet_name='reactions_with_run_info')
+    # print(f"df_reactions_all: {df_reactions_all['full_status']}")
 
     ## get the sequence of substance addition
     columns_all = df_reactions_all.columns.tolist()
@@ -188,33 +195,39 @@ def extract_reactions_df_to_run(excel_path_for_reactions):
     # print(f"substance_addition_sequence: {substance_addition_sequence}")
     module_logger.info(f"substance_addition_sequence: {substance_addition_sequence}")
 
+    ## check if each row of the status of df_reaction_all is 'completed'
+    for index, row in df_reactions_all.iterrows():
+        if row['status'] == 'completed':
+            module_logger.info(f'The condition with uuid: {row["uuid"]} was done from previous run. ')
     ## extract the rows where the status_of_reaction is "not_started", save it as df_reactions_to_run
-    mask_on_status_of_reaction = [i == 'not_started' for i in df_reactions_all['status']]
+    mask_on_status_of_reaction = [i != 'completed' for i in df_reactions_all['status']]
+    # print(f'mask_on_status_of_reaction: {mask_on_status_of_reaction}')
     df_reactions_to_run = df_reactions_all[mask_on_status_of_reaction]
 
     ## the df_reactions_to_run should not be empty or longer than df_reactions_all
-    assert len(df_reactions_to_run) > 0, "df_reactions_to_run is empty"
+    assert len(df_reactions_to_run) > 0, "df_reactions_to_run is empty. **This list has already been run.**"
     assert len(df_reactions_to_run) <= len(df_reactions_all), "df_reactions_to_run is longer than df_reactions_all"
 
     ## check if the reactions to run is a continuation of the previous run
     if len(df_reactions_to_run) < len(df_reactions_all):
         ## prompt a pysimplegui windwon to ask if this is a continuation of the previous run
-        layout = [[sg.Text('Is this a continuation of the previous run?')],
+        layout = [[sg.Text('Is this a continuation of the previous run?', font=('Helvetica', 20))],
                     [sg.Button('Yes'), sg.Button('No')]]
-        window = sg.Window('Continue previous run?', layout)
+        window = sg.Window('Continue previous run?', layout, size=(800, 150), font=('Helvetica', 20), element_justification='c')
         event, values = window.read()
         window.close()
+
         if event != 'Yes':
             raise ValueError("The run is not a continuation of the previous run. Please check the excel file.")
 
-    ## group the reactions by plate id, is this meaningful?
+    ## group the reactions by plate id, is this meaningful? Yes!
     split_index = []
     for index in range(1, len(df_reactions_to_run)):
         if df_reactions_to_run.iloc[index]["plate_barcode"] != df_reactions_to_run.iloc[index-1]['plate_barcode']:
             split_index.append(index)
     # print(split_index)
     df_reactions_grouped_by_plate_id = np.split(df_reactions_to_run, split_index)
-    # print(f"(df_reactions_grouped_by_plate_id): {(df_reactions_grouped_by_plate_id)}")
+    # print(f"(df_reactions_grouped_by_plate_id): {(df_reactions_grouped_by_plate_id[0]['full_status'])}")
 
     return df_reactions_grouped_by_plate_id, substance_addition_sequence
 

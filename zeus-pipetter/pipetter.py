@@ -283,6 +283,7 @@ class Pipetter():
         if self.zeus.tip_on_zeus != '':
             self.discard_tip()
         self.pick_tip(tip_rack)
+        # self.zeus.wait_until_zeus_responds_with_string('GUid')
 
     def check_volume_in_container(self, container: object,
                                   liquidClassTableIndex: int = 26, lld: int = 1,
