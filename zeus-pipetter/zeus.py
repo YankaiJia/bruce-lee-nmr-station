@@ -1543,7 +1543,6 @@ if __name__ == '__main__':
     # load container parameters
     zm = ZeusModule(id=1)
 
-    # #
     #
     # #run this ONLY when changing new tip rack.
     # brb.load_new_tip_rack(rack_reload ='300ul')

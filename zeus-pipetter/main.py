@@ -205,7 +205,7 @@ if __name__ == '__main__':
                                                                         plate_barcodes_for_dilution=plate_barcode_for_dilution)
 
     stock_solution_containers = assign_stock_solutions_to_containers_and_check_volume(excel_path = excel_path_for_conditions,
-                                                                                      check_volume_by_pipetter = False)
+                                                                                      check_volume_by_pipetter = True)
 
     df_reactions_grouped_by_plate_id,  substance_addition_sequence = prep.extract_reactions_df_to_run(excel_path_for_conditions)
 
@@ -213,7 +213,8 @@ if __name__ == '__main__':
     event_list_to_run = pln.generate_event_list_new(excel_path_for_conditions = excel_path_for_conditions,
                         df_reactions_grouped_by_plate_id = df_reactions_grouped_by_plate_id,
                         substance_addition_sequence = substance_addition_sequence,
-                        stock_solution_containers = stock_solution_containers)
+                        stock_solution_containers = stock_solution_containers,
+                        asp_lld = 0)
 
     event_list_to_run_sorted = sort_events_by_substance_volume(event_list_to_run)
 
@@ -222,52 +223,3 @@ if __name__ == '__main__':
                         event_list= event_list_to_run_sorted,
                         prewet_tip=False,
                         pause_after_every_plate_min = 0)
-
-
-
-
-
-    # aa = \
-    #     df_reactions_grouped_by_plate_id[0]
-    # for index, row in aa.iterrows():
-    #     print(row['full_status'])
-    #
-
-
-
-
-
-
-
-
-    #
-    # ## this is for Dioxane
-    # turn_off_lld(event_list_chem)
-    # ## Do this for every run
-    # check_if_event_list_legit(event_list_chem)
-    #
-    #
-    # starting_id = 0
-    # event_for_run = event_list_chem[starting_id:]
-    # event_for_run_sorted = sort_events_according_to_aspiration_volume(event_for_run)
-    #
-    # # save the event list in pickle file and later load from this file
-    # pickle_folder = data_folder + 'multicomp-reactions\\pipetter_io\\daily_pickle_output\\'
-    # pickle_file = pickle_folder + f'event_list_before_run_{datetime.now().strftime("%m_%d_%H_%M")}.pickle'
-    #
-    # with open(pickle_file, 'wb') as f:
-    #     pickle.dump(event_for_run_sorted, f)
-    #
-    #
-    # # use input to Y/N to confirm the event list
-    # if input("Run pipetting? Y/N") not in  ['Y', 'y']:
-    #     raise Exception("The event list is not confirmed!")
-    #
-    # # do multicomponent reactions
-    # pln.run_events_chem(zm=zm, pt=pt, logger=logger,
-    #                     event_list= event_for_run_sorted,
-    #                     prewet_tip=True,
-    #                     excel_path=excel_path_for_reactions,
-    #                     plate_code_list=plate_code_list,
-    #                     pause_after_every_plate_min = 0)
-

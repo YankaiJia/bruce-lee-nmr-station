@@ -1,4 +1,5 @@
 import json, math, os, openpyxl, pandas as pd, shortuuid, PySimpleGUI as sg, logging, numpy as np
+import sys
 
 import config
 
@@ -203,6 +204,32 @@ def extract_reactions_df_to_run(excel_path_for_reactions):
     mask_on_status_of_reaction = [i != 'completed' for i in df_reactions_all['status']]
     # print(f'mask_on_status_of_reaction: {mask_on_status_of_reaction}')
     df_reactions_to_run = df_reactions_all[mask_on_status_of_reaction]
+
+    ## check if the df_reactions_to_run is empty, and delete the columns and rerun the function
+    if len(df_reactions_to_run) == 0:
+        # print('All the reactions have been run. ')
+        module_logger.info('All the reactions have been run. ')
+        ## make a pysimplegui window to ask if the user wants to rerun the reactions
+        layout = [[sg.Text('All the reactions have been run. Do you want to rerun the reactions?', font = ('Helvetica', 20))],
+                  [sg.Button('Yes'), sg.Button('No')]]
+        window = sg.Window('All the reactions have been run. ', layout, size=(600, 200), element_justification='c')
+        event, values = window.read()
+        window.close()
+        if event == 'Yes':
+            module_logger.info('The user wants to rerun the reactions. \n'
+                               'The Excel will be reconstructed: only substance columns will be kept')
+            ## only save the column startign with 'vol#'
+            columns_to_keep = [column for column in df_reactions_all.columns if 'vol#' in column]
+            df_reactions_all = df_reactions_all[columns_to_keep]
+            ## save the df_reactions_all to excel
+            with pd.ExcelWriter(excel_path_for_reactions, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
+                df_reactions_all.to_excel(writer, sheet_name='reactions_with_run_info', index=True, index_label='local_index')
+            print("The Excel file is reconstructed. You should rerun main.py.")
+            module_logger.info("The Excel file is reconstructed. You should rerun main.py.")
+            sys.exit()
+        elif event == 'No':
+            module_logger.error("df_reactions_to_run is empty. **This list has already been run.**")
+            raise Exception("df_reactions_to_run is empty. **This list has already been run.**")
 
     ## the df_reactions_to_run should not be empty or longer than df_reactions_all
     assert len(df_reactions_to_run) > 0, "df_reactions_to_run is empty. **This list has already been run.**"

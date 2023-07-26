@@ -337,25 +337,24 @@ class Pipetter():
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.source_container.xy)
 
-        liquid_surface_in_source_container = transfer_event.source_container.liquid_surface_height
 
         for retry in range(n_retries):
             try:
                 # print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
-                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.aspirationVolume * 10)), # volume in 0.1 ul
+                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.transfer_volume * 10)), # volume in 0.1 ul
                                      containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
                                      deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
-                                     liquidClassTableIndex=transfer_event.asp_liquidClassTableIndex,
+                                     liquidClassTableIndex=transfer_event.liquidClassTableIndex,
                                      qpm=transfer_event.asp_qpm,
                                      lld=transfer_event.asp_lld,
-                                     liquidSurface = liquid_surface_in_source_container,
-                                     lldSearchPosition= liquid_surface_in_source_container - 50,
+                                     liquidSurface = transfer_event.source_container.liquid_surface_height,
+                                     lldSearchPosition= transfer_event.source_container.liquid_surface_height - 50,
                                      mixVolume=transfer_event.asp_mixVolume,
                                      mixFlowRate=transfer_event.asp_mixFlowRate,
                                      mixCycles=transfer_event.asp_mixCycles)
-                print(f'DEBUG:draw_liquid:():: asp_liquidSurface: {liquid_surface_in_source_container} ')
+                print(f'DEBUG:liquid surface height in source container: {transfer_event.source_container.liquid_surface_height} ')
 
-                # TODO: Replace this sleep with a proper check. Why do you even need a sleep if next function is zeus.wait_until...???
+                # Replace this sleep with a proper check. Why do you even need a sleep if next function is zeus.wait_until...???
                 # time.sleep(2)
                 self.zeus.wait_until_zeus_responds_with_string('GAid')
                 return True
@@ -379,18 +378,13 @@ class Pipetter():
         self.zeus.move_zeus_to_traverse_height()
         self.gantry.move_xy(transfer_event.destination_container.xy)
 
-        # # check if container is full.
-        # if transfer_event.destination_container.liquid_volume >= transfer_event.destination_container.volume_max:
-        #     logging.warning("The target container is full. Dispensing is aborted.")
-        #     return
-
-        self.zeus.dispensing(dispensingVolume=int(round(transfer_event.dispensingVolume * 10)),
+        self.zeus.dispensing(dispensingVolume=int(round(transfer_event.transfer_volume * 10)),
                              containerGeometryTableIndex=transfer_event.disp_containerGeometryTableIndex,
                              deckGeometryTableIndex=transfer_event.disp_deckGeometryTableIndex,
-                             liquidClassTableIndex=transfer_event.disp_liquidClassTableIndex,
+                             liquidClassTableIndex=transfer_event.liquidClassTableIndex,
                              lld=transfer_event.disp_lld,
-                             lldSearchPosition=transfer_event.disp_lldSearchPosition,
-                             liquidSurface=transfer_event.disp_liquidSurface,
+                             lldSearchPosition=transfer_event.destination_container.liquid_surface_height - 50,
+                             liquidSurface=transfer_event.destination_container.liquid_surface_height,
                              searchBottomMode=transfer_event.searchBottomMode,
                              mixVolume=transfer_event.disp_mixVolume,
                              mixFlowRate=transfer_event.disp_mixVolume,
@@ -412,14 +406,14 @@ class Pipetter():
         #     raise ValueError('The target container is full. Dispensing is aborted')
 
         # if it exceeds max_volume, then do several pipettings
-        N_max_vol_pipettings = int(transfer_event.aspirationVolume // max_volume)
+        N_max_vol_pipettings = int(transfer_event.transfer_volume // max_volume)
         # print(f'N_max_vol_pipettings: {N_max_vol_pipettings}')
 
         for i in range(N_max_vol_pipettings):
             # print(f'Pipetting {i+1} of {N_max_vol_pipettings}')
             _split_event_1 = copy.deepcopy(transfer_event)
-            _split_event_1.aspirationVolume = max_volume # volume in ul
-            _split_event_1.dispensingVolume = max_volume # volume in ul
+            _split_event_1.transfer_volume = max_volume # volume in ul
+            _split_event_1.transfer_volume = max_volume # volume in ul
             # print(f'Aspiration volume: {_split_event_1.aspirationVolume}ul ')
             # print(f'Dispensing volume: {_split_event_1.dispensingVolume}ul ')
             self.draw_liquid(_split_event_1)
@@ -427,11 +421,11 @@ class Pipetter():
             liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_1)
 
-        volume_of_last_pipetting = transfer_event.aspirationVolume % max_volume
+        volume_of_last_pipetting = transfer_event.transfer_volume % max_volume
         if volume_of_last_pipetting:
             _split_event_2 = copy.deepcopy(transfer_event)
-            _split_event_2.aspirationVolume = volume_of_last_pipetting
-            _split_event_2.dispensingVolume = volume_of_last_pipetting
+            _split_event_2.transfer_volume = volume_of_last_pipetting
+            _split_event_2.transfer_volume = volume_of_last_pipetting
             self.draw_liquid(_split_event_2)
             liquid_surface_height_from_zeus = self.detect_liquid_surface()
             self.dispense_liquid(_split_event_2)

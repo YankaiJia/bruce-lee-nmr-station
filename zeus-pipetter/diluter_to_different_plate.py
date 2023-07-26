@@ -1,102 +1,51 @@
-
 import logging
-
-
-def setup_logger():
-    # better logging format in console
-    class CustomFormatter(logging.Formatter):
-        grey = "\x1b[38;20m"
-        yellow = "\x1b[33;20m"
-        red = "\x1b[31;20m"
-        bold_red = "\x1b[31;1m"
-        reset = "\x1b[0m"
-        format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
-
-        FORMATS = {
-            logging.DEBUG: grey + format + reset,
-            logging.INFO: yellow + format + reset,
-            logging.WARNING: yellow + format + reset,
-            logging.ERROR: red + format + reset,
-            logging.CRITICAL: bold_red + format + reset
-        }
-
-        def format(self, record):
-            log_fmt = self.FORMATS.get(record.levelno)
-            formatter = logging.Formatter(log_fmt)
-            return formatter.format(record)
-
-    # create logger with 'main'
-    logger = logging.getLogger('main')
-    logger.setLevel(logging.DEBUG)
-    # create file handler which logs even debug messages
-    fh = logging.FileHandler('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\main.log')
-    fh.setLevel(logging.INFO)
-    # create console handler with a higher log level
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(CustomFormatter())
-    # add the handlers to the logger
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    return logger
-
-
-logger = setup_logger()
-
-
-import copy, time, pickle, re, importlib, json, os
-from datetime import datetime
-from typing import List
-from openpyxl import Workbook
-from openpyxl import load_workbook
-import PySimpleGUI as sg
-import pandas as pd
-
-import zeus
-import pipetter
-import planner as pln
-import breadboard as brb
-
+module_logger = logging.getLogger('main.diluter_to_different_plate')
+import copy, time, pickle, re, importlib, json, os, PySimpleGUI as sg
+import zeus , pipetter, planner as pln, breadboard as brb, prepare_reaction as prep
 
 ## TODO 2023-03-21:
 # 1. module_logger is not working;
 # 2. dispensing height is not adjustable, no idea what is wrong.
 # 3. coordinates need to be further optimized.
 
-
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
-
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
     zm = zeus.ZeusModule(id=1)
     time.sleep(3)
-    logger.info("zeus is loaded as: zm")
+    module_logger.info("zeus is loaded as: zm")
 
     # initiate gantry
     gt = pipetter.Gantry(zeus=zm)
     time.sleep(3)
-    logger.info("gantry is loaded as: gt")
+    module_logger.info("gantry is loaded as: gt")
     # gt.configure_grbl() # This only need to be done once.
     gt.home_xy()
     if gt.xy_position == (0, 0):
-        logger.info("gantry is homed")
+        module_logger.info("gantry is homed")
 
     # initiate pipetter
     pt = pipetter.Pipetter(zeus=zm, gantry=gt)
     time.sleep(2)
-    logger.info("pipetter is loaded as: pt")
+    module_logger.info("pipetter is loaded as: pt")
 
     return zm, gt, pt
 
-## initiate hardware
-zm, gt, pt = initiate_hardware()
-time.sleep(1)
 
-## note: sometimes the arduino port fails to initiate, restart the computer to fix it.
-## better way need to be found.
+## make a function to load the path for Excel file with run info by pysimplegui
+def load_excel_path_by_pysimplegui():
+
+    layout = [
+        [sg.Text('Please select the Excel file with run info')],
+        [sg.Text('Excel file', size=(8, 1)), sg.Input(), sg.FileBrowse()],
+        [sg.Submit(), sg.Cancel()]
+    ]
+    window = sg.Window('Excel file', layout)
+    event, values = window.read()
+    window.close()
+    excel_path = values[0]
+    module_logger.info(f'Excel file path: {excel_path}')
+    print(f'Excel file path: {excel_path}')
+    return excel_path
 
 ##  generate_dilution_events()
 # step1: dilution original reactions, adding volume: 1400ul
@@ -108,16 +57,7 @@ time.sleep(1)
 # 2. 200ul, 1400ul, 20ul, 480ul
 # 3. 200ul, 1000ul, 15ul, 485ul ## this one is now used, 2023-03-22 14:23
 
-# specify volumes for dilution
-volume_added_to_old_vial = 1000
-volume_transfered_from_old_to_new_vial = 15
-volume_added_to_new_vial = 485
 
-event_list_dilute_old_vial = []
-event_list_dilution_old_to_new = []
-event_list_dilute_new_vial = []
-
-event_list_transfer_to_54_vials = []
 
 def generate_dilution_event(source_container: object = None,
                             destination_container: object = None,
@@ -234,6 +174,26 @@ def dilute_new_vial(starting_index=0, skip_vial_id = ()): # diluting volume 485u
 
 
 if __name__ == '__main__':
+
+    # specify volumes for dilution
+    volume_added_to_old_vial = 1000
+    volume_transfered_from_old_to_new_vial = 15
+    volume_added_to_new_vial = 485
+
+    event_list_dilute_old_vial,\
+    event_list_dilution_old_to_new,\
+    event_list_dilute_new_vial, \
+    event_list_transfer_to_54_vials = [],[],[],[]
+
+    run_info_path = load_excel_path_by_pysimplegui()
+
+
+
+    data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+    ## initiate hardware
+    zm, gt, pt = initiate_hardware()
+    time.sleep(1)
+
     mins_to_wait = 0
     print(f'Waiting for {mins_to_wait} minutes')
     time.sleep(60 * mins_to_wait)

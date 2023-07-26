@@ -3,6 +3,7 @@ import logging, os, pickle, json, numpy as np, winsound, copy, math, re, pandas 
 from math import ceil
 from datetime import datetime
 from typing import Dict, Any
+import PySimpleGUI as sg
 
 module_logger = logging.getLogger('main.planner')
 
@@ -280,7 +281,7 @@ class Event:
                  stock_solution_containers: list,
                  excel_path_for_conditions,
                  pipeting_to_balance: bool = False,
-                 asp_lld : int = 1):
+                 asp_lld : int = 0,):
 
         self.condition_uuid: str = event_dataframe['uuid']
         self.plate_barcode: str = event_dataframe['plate_barcode']
@@ -316,14 +317,8 @@ class Event:
                                                                       mode=self.source_container.mode,tip_type=self.tip_type)
         assert self.liquidClassTableIndex in range(100), f"liquid class is invalid: {self.liquidClassTableIndex}"
 
-        # self.asp_liquidSurface: int = self.get_liquid_surface(self.source_container)
-        self.asp_liquidSurface: int = self.source_container.liquid_surface_height
-        self.asp_lldSearchPosition: int = self.asp_liquidSurface - 50
-
         self.disp_containerGeometryTableIndex: int = self.destination_container.containerGeometryTableIndex
         self.disp_deckGeometryTableIndex: int = self.asp_deckGeometryTableIndex
-        self.disp_liquidSurface: int = self.destination_container.liquid_surface_height
-        self.disp_lldSearchPosition: int = self.disp_liquidSurface - 50
 
         # default values
         self.asp_qpm: int = 1
@@ -466,7 +461,7 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,conta
 def generate_event_list_new(df_reactions_grouped_by_plate_id,
                         substance_addition_sequence,
                         stock_solution_containers,
-                        excel_path_for_conditions: str):
+                        excel_path_for_conditions: str, asp_lld):
     pipetting_to_balance = False
     ## create a list of events
     event_list = []
@@ -492,7 +487,8 @@ def generate_event_list_new(df_reactions_grouped_by_plate_id,
                                       column_to_generate_event=substance,
                                       pipeting_to_balance=pipetting_to_balance,
                                       stock_solution_containers=stock_solution_containers,
-                                      excel_path_for_conditions=excel_path_for_conditions)
+                                      excel_path_for_conditions=excel_path_for_conditions,
+                                      asp_lld=asp_lld)
                         # print(f'event: {event.event_label}. volume: {event.transfer_volume}')
                         event_list.append(event)
                     elif full_status_dict[substance[4:]][0] == 'completed':
@@ -614,7 +610,7 @@ def beep_n():
         winsound.Beep(freq, duration)
 
 def run_one_event_chem(pt: object, event=None):
-    # pt.transfer_liquid(event)
+    pt.transfer_liquid(event)
     time.sleep(0.5)
     event.execute_event()
     beep()
@@ -625,8 +621,7 @@ def run_events_chem(zm: object, pt: object,
                     event_list=None,
                     change_tip_after_every_pipetting: bool = False,
                     prewet_tip: bool = True,
-                    pause_after_every_plate_min: int = 0,
-                    ):
+                    pause_after_every_plate_min: int = 0,):
 
     # discard tip if there is one on the pipetter
     if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
@@ -666,7 +661,7 @@ def run_events_chem(zm: object, pt: object,
                 pt.discard_tip()
                 raise e
 
-            module_logger.info(f"Performed one event: event_label {event.event_label}, "
+            module_logger.info(f"Event has been performed: {event.event_label}, "
                         f"{event.transfer_volume}uL,"
                         f'slot: {event.destination_container.id["plate_id"]},'
                         f'plate_code: {event.plate_barcode}')
@@ -682,6 +677,16 @@ def run_events_chem(zm: object, pt: object,
             if change_tip_after_every_pipetting:
                 pt.discard_tip()
                 time.sleep(0.5)
+
+            ## check if this is the last event in the plate
+            if index == len(events_in_one_plate)-1:
+                module_logger.info(f'This is the last event in this plate: {event.event_label}. plate_barcode: {event.plate_barcode}.')
+                ## check if this is the last plate
+                if plate_index == len(events_grouped_by_plate_id)-1:
+                    ## prommp a pysimplegui window for completion
+                    sg.popup_ok('All events are done. Please remove the plate and click OK to finish.')
+                else:
+                    continue
 
         pt.discard_tip()
 
