@@ -276,10 +276,10 @@ class TransferEventConstructor:
 
 class Event:
 
-    def __init__(self, event_dataframe: pd.DataFrame,
-                 column_to_generate_event:str,
-                 stock_solution_containers: list,
-                 excel_path_for_conditions,
+    def __init__(self, event_dataframe: pd.DataFrame = None,
+                 column_to_generate_event:str = None,
+                 stock_solution_containers: list = None,
+                 excel_path_for_conditions: str = None,
                  pipeting_to_balance: bool = False,
                  asp_lld : int = 0,):
 
@@ -680,21 +680,27 @@ def run_events_chem(zm: object, pt: object,
 
             ## check if this is the last event in the plate
             if index == len(events_in_one_plate)-1:
+
+                ## play some sound to notify the user
+                beep_n()
+                time.sleep(2)
+                beep_n()
+                time.sleep(2)
+
                 module_logger.info(f'This is the last event in this plate: {event.event_label}. plate_barcode: {event.plate_barcode}.')
                 ## check if this is the last plate
                 if plate_index == len(events_grouped_by_plate_id)-1:
+                    ## play some sound to notify the user
+                    beep_n()
+                    time.sleep(2)
+                    beep_n()
+                    time.sleep(2)
                     ## prommp a pysimplegui window for completion
                     sg.popup_ok('All events are done. Please remove the plate and click OK to finish.')
                 else:
                     continue
 
         pt.discard_tip()
-
-        ## play some sound to notify the user
-        beep_n()
-        time.sleep(2)
-        beep_n()
-        time.sleep(2)
 
         ## pause after each plate
         time.sleep(pause_after_every_plate_min * 60)
@@ -790,13 +796,11 @@ def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: 
 
 def run_events_chem_dilution(zm: object, pt: object, logger: object,
                              start_event_id: int, skip_vial_id: tuple = (),
-                             event_list_path=None, event_list=None,
-                             change_tip_after_every_pipetting: bool = False):
+                             event_list=None,
+                             change_tip_after_every_pipetting: bool = False,
+                             log_to_excel: bool=False, excel_path: str=None,
+                             barcode_of_plate_for_reactions: int = None,):
 
-    # for event list, specify either a path or a list. Only specify one of them.
-    if event_list_path is not None:
-        with open(event_list_path, 'rb') as f:
-            event_list = pickle.load(f)
 
 
     if zm.tip_on_zeus:
@@ -815,6 +819,8 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
 
         try:
             pt.transfer_liquid(event_list[event_index])
+            event_list[event_index].source_container.liquid_surface_height += \
+                ceil((event_list[event_index].transfer_volume / event_list[event_index].source_container.area) * 10)
             beep()
 
         except Exception as e:
@@ -826,17 +832,29 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
             pt.discard_tip() # discard the tip to trash bin if there is an error
             raise e # raise the error to stop the program
 
-        # time.sleep(0.05)
 
         logger.info(f"Performed one pipetting for dilution: event_number {event_index}, "
-                    f"volume: {event_list[event_index].aspirationVolume},"
+                    f"volume: {event_list[event_index].transfer_volume},"
                     f"from {event_list[event_index].source_container.id},"
                     f"to {event_list[event_index].destination_container.id},")
 
-        print(f"Performed one pipetting for dilution: event_number {event_index}, "
-                    f"volume: {event_list[event_index].aspirationVolume},"
-                    f"from {event_list[event_index].source_container.id},"
-                    f"to {event_list[event_index].destination_container.id},")
+        if log_to_excel:
+            df = pd.read_excel(excel_path, sheet_name=config.sheet_name_for_run_info, engine='openpyxl')
+            ## add a column called "timestamp_dilution" to the dataframe
+            if "timestamp_dilution" not in df.columns:
+                df["timestamp_dilution"] = "0"
+            ## write the timestamp to the dataframe
+            ## locat the cell by plate barcode and the container id
+            print(f'barcode_of_plate_for_reactions: {barcode_of_plate_for_reactions}')
+            print(f'event_list[event_index].source_container.id[container_id]: {event_list[event_index].source_container.id["container_id"]}')
+
+            df.loc[(df['plate_barcode'] == barcode_of_plate_for_reactions)&(df['container_id']== event_list[event_index].destination_container.id['container_id']), 'timestamp_dilution'] \
+                = int(time.time())
+
+            ## write the dataframe to the excel file
+            with pd.ExcelWriter(excel_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
+                df.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index= False)
+
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
