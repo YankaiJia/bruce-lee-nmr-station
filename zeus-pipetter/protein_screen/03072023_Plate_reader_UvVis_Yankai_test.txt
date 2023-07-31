@@ -1,6 +1,0 @@
-substance, container, volume, solvent, density
-DMEM plate_5_container7 20ml serum_empty 1.0
-FBS_100% plate_5_container0 12ml serum_empty 1.0
-FBS_2%_1 plate_5_container1 12ml water_empty 1.0
-FBS_2%_2 plate_5_container1 12ml water_empty 1.0
-NPs plate_7_container2 1.5ml water_empty 1.0

@@ -1,6 +1,0 @@
-substance, container, volume, solvent, density
-DMF plate_4_container0 20ml DMF_empty 0.944
-ald001 plate_4_container1 5ml DMF_empty 0.944
-ptsa plate_4_container2 5ml DMF_empty 0.944
-am001 plate_4_container3 5ml DMF_empty 0.944
-ic001 plate_4_container4 5ml DMF_empty 0.944

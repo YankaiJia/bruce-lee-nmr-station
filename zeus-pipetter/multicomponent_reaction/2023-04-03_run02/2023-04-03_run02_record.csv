@@ -1,2 +1,0 @@
-plate_code, experiment_name, start_time_unix, start_time_datetime, finish_time_unix, finish_time_datetime, pipetting_event_id, reaction_id, excel_path, note
-6, multicomponent_0320, 1680516407, 2023-04-03 19:06:47, 1680517952, 2023-04-03 19:32:32, '0-134', 539,

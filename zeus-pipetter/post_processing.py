@@ -44,7 +44,7 @@ def get_run_info(df_in_one_plate, excel_name):
     start_time_datetime = pd.to_datetime(start_time_unix, unit='s')
     end_time_unix = df_in_one_plate.iloc[-1]['timestamp']
     end_time_datetime = pd.to_datetime(end_time_unix, unit='s')
-    return f'{plate_barcode},{excel_name},{start_time_unix},{start_time_datetime},{end_time_unix},{end_time_datetime}\n'
+    return f'{plate_barcode},{excel_name},{start_time_unix},{start_time_datetime},{end_time_unix},{end_time_datetime},,\n'
 
 
 def get_dilution_info(df_in_one_plate):
