@@ -286,7 +286,7 @@ class Pipetter():
         # self.zeus.wait_until_zeus_responds_with_string('GUid')
 
     def check_volume_in_container(self, container: object,
-                                  liquidClassTableIndex: int = 26, lld: int = 1,
+                                  liquidClassTableIndex: int = 13, lld: int = 1,
                                   lldSearchPosition: int = 1300, liquidSurface: int = 1300,
                                   tip_for_volume_check: str = '300ul',
                                   change_tip_after_each_check: bool = True):

@@ -703,7 +703,9 @@ def run_events_chem(zm: object, pt: object,
         pt.discard_tip()
 
         ## pause after each plate
-        time.sleep(pause_after_every_plate_min * 60)
+        if pause_after_every_plate_min > 0:
+            ## make a pysimplegui window to
+            time.sleep(pause_after_every_plate_min * 60)
 
 
 def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: int,

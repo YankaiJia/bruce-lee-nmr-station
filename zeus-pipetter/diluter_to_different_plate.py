@@ -125,6 +125,8 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
         event, values = window.read()
         window.close()
 
+        return barcode_of_plate_for_reactions, barcode_of_plate_for_dilution
+
     else:
         ## make a pysimplegui window to tell the user the barcodes are incorrect ana ask for options from three buttons
         layout = [
@@ -309,7 +311,7 @@ def generate_events_for_transferring_liquid_from_old_vials_to_new(solvent): # tr
     event_list_dilution_old_to_new = []
     for vial_index in range(54):
         source_container = brb.plate_list[1].containers[vial_index]
-        source_container.liquid_surface_height = 2170
+        source_container.liquid_surface_height = 2050
         destination_container = brb.plate_list[2].containers[vial_index]
         destination_container.liquid_surface_height = 2100
         event_temp = generate_dilution_event(source_container=source_container,

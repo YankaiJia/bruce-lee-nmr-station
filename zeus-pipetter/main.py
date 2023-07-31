@@ -205,7 +205,7 @@ if __name__ == '__main__':
                                                                         plate_barcodes_for_dilution=plate_barcode_for_dilution)
 
     stock_solution_containers = assign_stock_solutions_to_containers_and_check_volume(excel_path = excel_path_for_conditions,
-                                                                                      check_volume_by_pipetter = False)
+                                                                                      check_volume_by_pipetter = True)
 
     df_reactions_grouped_by_plate_id,  substance_addition_sequence = prep.extract_reactions_df_to_run(excel_path_for_conditions)
 
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     pln.run_events_chem(zm=zm, pt=pt,
                         event_list= event_list_to_run_sorted,
                         prewet_tip=False,
-                        pause_after_every_plate_min = 0)
+                        pause_after_every_plate_min = 30)
 
 
     ## save a event to local pickle file
