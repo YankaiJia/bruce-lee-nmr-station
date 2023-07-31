@@ -110,7 +110,7 @@ def load_df_from_run_info(path_to_run_info_file):
     # take care of the version of run_info:
     if first_line.startswith('#version'):
         if first_line.startswith('#version: 1.00'):
-            df_pipetter = pd.read_csv(path_to_run_info_file, delimiter=',', header=0,
+            df_pipetter = pd.read_csv(path_to_run_info_file, delimiter=',', header=0, index_col= False,
                                       names=['plate_code', 'experiment_name', 'start_time_unix',
                                              'start_time_string', 'finish_time_unix', 'finish_time_string', 'note'])
         else:
@@ -377,12 +377,14 @@ def merge_repeated_outliers(original_run, outlier_runs,
 
 
 if __name__ == '__main__':
-    list_of_runs = tuple(['2023-07-05-run01',
+    list_of_runs = tuple([
+                          '2023-07-05-run01',
                           '2023-07-06-run01',
                           '2023-07-07-run01',
                           '2023-07-10-run01',
                           '2023-07-10-run02',
                           '2023-07-11-run01',
                           '2023-07-11-run02',
-                          '2023-07-13-run01'])
+                          # '2023-07-13-run01' # this run should not be included.
+                          ])
     check_run_data_consistency([f'simple-reactions/{run_name}/' for run_name in list_of_runs])
