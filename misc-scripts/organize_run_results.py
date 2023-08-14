@@ -396,7 +396,11 @@ if __name__ == '__main__':
                           # '2023-07-11-run01',
                           # '2023-07-11-run02',
                           # '2023-07-13-run01' # this run should not be included.
-                        '2023-07-26-run01', '2023-07-26-run02', '2023-07-27-run01', '2023-07-27-run02', '2023-07-28-run01'
+                            '2023-07-26-run01',
+                            '2023-07-26-run02',
+                            '2023-07-27-run01',
+                            '2023-07-27-run02',
+                            '2023-07-28-run01'
 
                           ])
     check_run_data_consistency([f'simple-reactionsSN1OH03/{run_name}/' for run_name in list_of_runs])

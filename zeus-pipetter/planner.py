@@ -289,6 +289,9 @@ class Event:
         self.substance: str = column_to_generate_event[4:] # remove "vol#"
         self.event_label: str = self.condition_uuid + '_' + self.substance
 
+        print(f'self.substance: {self.substance}')
+        # TODO: assert
+
         self.source_container: object = [container for container in stock_solution_containers
                                          if container.substance == self.substance][0]
         assert self.source_container.substance == self.substance, "substance name not match"
@@ -589,7 +592,7 @@ def prewet_new_tip( zm: object, pt: object , pipetting_event: object ):
     max_volume = int(re.findall(r'\d+', zm.tip_on_zeus)[0])
     event_adjusted.aspirationVolume = max_volume
     event_adjusted.destination_container = event_adjusted.source_container
-    event_adjusted.disp_liquidSurface = 1650
+    event_adjusted.disp_liquidSurface = 1800
 
     module_logger.info(f'Prewetting tip with {max_volume}ul of {event_adjusted.substance}')
     pt.transfer_liquid(event_adjusted)
@@ -704,8 +707,9 @@ def run_events_chem(zm: object, pt: object,
 
         ## pause after each plate
         if pause_after_every_plate_min > 0:
-            ## make a pysimplegui window to
+            ## make a pysimplegui window to show the pause time
             time.sleep(pause_after_every_plate_min * 60)
+
 
 
 def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: int,

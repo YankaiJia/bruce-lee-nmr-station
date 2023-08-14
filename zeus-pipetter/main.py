@@ -225,7 +225,7 @@ if __name__ == '__main__':
                         pause_after_every_plate_min = 30)
 
 
-    ## save a event to local pickle file
-    event_temp = event_list_to_run_sorted[0]
-    with open('event_temp.pickle', 'wb') as f:
-        pickle.dump(event_temp, f)
+    # ## save a event to local pickle file
+    # event_temp = event_list_to_run_sorted[0]
+    # with open('event_temp.pickle', 'wb') as f:
+    #     pickle.dump(event_temp, f)
