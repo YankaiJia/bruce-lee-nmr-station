@@ -5,7 +5,7 @@ import serial, time
 class Nanodrop:
     def __init__(self):
         try:
-            self.serial = serial.Serial('COM6', 9600, timeout=1)
+            self.serial = serial.Serial('COM4', 9600, timeout=1)
         except:
             print("Arduino not connected")
 
@@ -19,3 +19,4 @@ class Nanodrop:
 
 if '__name__' ==  '__main__':
     nd = Nanodrop()
+    print(1)
