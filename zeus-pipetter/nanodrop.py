@@ -1,5 +1,6 @@
 ##  connect to arduino and send commands "1" and "0"
 import serial, time
+# import main as mn
 
 # make a class for nanodrop
 class Nanodrop:
@@ -9,14 +10,31 @@ class Nanodrop:
         except:
             print("Arduino not connected")
 
-    def lid_open(self):
+    def open_lid(self):
         self.serial.write(b'1')
 
-    def lid_close(self):
+    def close_lid(self):
         self.serial.write(b'0')
 
+    def open_liquid(self):
+        self.serial.write(b'40')
+    def close_liquid(self):
+        self.serial.write(b'41')
+
+    def open_air(self):
+        self.serial.write(b'30')
+    def close_air(self):
+        self.serial.write(b'31')
+
+    def open_vacumm(self):
+        self.serial.write(b'20')
+
+    def close_vacumm(self):
+        self.serial.write(b'21')
 
 
-if '__name__' ==  '__main__':
+
+if __name__ ==  '__main__':
     nd = Nanodrop()
+    # zm, gt, pt = mn.initiate_hardware()
     print(1)

@@ -2,18 +2,12 @@ import logging
 module_logger = logging.getLogger('main.zeus')
 
 import can
-import signal
 import time
 from time import sleep
 from colorama import init, Fore, Back, Style
 from threading import Thread, Lock
 import codecs
 import json
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-
-import sys
-import pprint
 
 DEBUG = 0
 INFO = 1
@@ -408,7 +402,7 @@ class ZeusModule:
         self.r = remoteFrameListener(self)
         self.remoteFrameNotifier = can.Notifier(self.CANBus, [self.r])
 
-        with open('data/liquid_class_table_para_ALL.json') as json_file:
+        with open('config/liquid_class_table_para_ALL.json') as json_file:
             liquid_class_table_para = json.load(json_file)
 
         self.liquid_class_table_para = liquid_class_table_para
@@ -1438,12 +1432,12 @@ class ZeusModule:
 
     def update_liquid_dict_from_classvar_to_json(self):
         # update json file
-        with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
+        with open('config/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
             json.dump(self.liquid_class_table_para, f, ensure_ascii=False, indent=4)
 
     def update_liquid_dict_from_json_to_classvar(self):
         # update json file
-        with open('data/liquid_class_table_para_ALL.json', 'r', encoding='utf-8') as f:
+        with open('config/liquid_class_table_para_ALL.json', 'r', encoding='utf-8') as f:
             self.liquid_class_table_para = json.load(f)
 
     def set_liquid_class_to_zeus(self, liquid_index):
@@ -1536,7 +1530,7 @@ class ZeusModule:
 
 
 if __name__ == '__main__':
-    import breadboard as brb
+    # import breadboard as brb
 
     print('This is main of zeus.py')
 

@@ -1,6 +1,6 @@
 /zeus-pipetter/token_DO_NOT_COMMIT.txt
 /zeus-pipetter/logs/main.log
-/zeus-pipetter/data/tip_rack.json
+/zeus-pipetter/config/tip_rack.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -86,8 +86,8 @@ def GUI_get_excel_path_plate_barcodes_temperature_etc():
     return excel_path, plate_barcodes, reaction_temperature, plate_barcodes_for_dilution
 
 ## from gui the following paras should be obtained: excel_path, plate_barcodes, temperature
-def prepare_excel_file_for_reaction(reaction_temperature ,
-                                    excel_path: str ,
+def prepare_excel_file_for_reaction(reaction_temperature,
+                                    excel_path: str,
                                     plate_barcodes: tuple,
                                     plate_barcodes_for_dilution: tuple,
                                     sheet_name_for_run_info:str = config.sheet_name_for_run_info):
@@ -265,7 +265,7 @@ if __name__ == '__main__':
         = GUI_get_excel_path_plate_barcodes_temperature_etc()
 
     _, df = prepare_excel_file_for_reaction(reaction_temperature=reaction_temperature,
-                                    excel_path=excel_path,
-                                    plate_barcodes=plate_barcodes,
-                                    plate_barcodes_for_dilution=plate_barcodes_for_dilution,
-                                    sheet_name_for_run_info=config.sheet_name_for_run_info)
+                                            excel_path=excel_path,
+                                            plate_barcodes=plate_barcodes,
+                                            plate_barcodes_for_dilution=plate_barcodes_for_dilution,
+                                            sheet_name_for_run_info=config.sheet_name_for_run_info)

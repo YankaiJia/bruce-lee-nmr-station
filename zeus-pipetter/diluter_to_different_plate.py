@@ -41,7 +41,7 @@ def setup_logger():
     return logger
 module_logger = setup_logger()
 
-import copy, time, pickle, re, importlib, json, os, sys, PySimpleGUI as sg, pandas as pd
+import time, pickle, sys, PySimpleGUI as sg, pandas as pd
 import zeus, pipetter, planner as pln, breadboard as brb, config
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):

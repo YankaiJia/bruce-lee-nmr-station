@@ -12,14 +12,53 @@ plates plate0: vial_2ml, 54 vials
 
 """
 import logging
+import time
+
 # create logger
 module_logger = logging.getLogger('pipette_calibration.breadboard')
 
 from dataclasses import dataclass
-import numpy as np
-import copy
-import json
-import re
+import numpy as np, copy, json, re
+
+def choose_robot_by_pysimplegui():
+    import PySimpleGUI as sg
+    sg.theme('DarkAmber')  # Add a touch of color
+    # All the stuff inside your window.
+    layout = [[sg.Text('Choose a robot', size=(50, 1), font=("Helvetica", 30), justification='center')],
+              [sg.Button('Roboski#1', size=(20, 1), font=("Helvetica", 25, "bold")),sg.Button('Roboski#2', size=(20, 1), font=("Helvetica", 25, "bold"))],
+              [sg.Button('Cancel', size=(10, 1), font=("Helvetica", 25, "bold"))]
+             ]
+    # Create the Window
+    window = sg.Window('Choose a robot', layout, auto_size_text= True, auto_size_buttons= True,size = (800, 300), element_justification='c')
+    # Event Loop to process "events" and get the "values" of the inputs
+    while True:
+        event, values = window.read()
+        # print(event, values)
+        if event == sg.WIN_CLOSED or event == 'Cancel':  # if user closes window or clicks cancel
+            window.close()
+            return None
+        elif event == 'Roboski#1':
+            window.close()
+            return 'Roboski#1'
+        elif event == 'Roboski#2':
+            window.close()
+            return 'Roboski#2'
+
+robot_name = choose_robot_by_pysimplegui()
+
+if robot_name == 'Roboski#1':
+    CONFIG_PATH = 'config//roboski1//'
+elif robot_name == 'Roboski#2':
+    CONFIG_PATH = 'config//roboski2//'
+else:
+    raise ValueError('No robot is chosen. Please choose a robot.')
+
+print(f'CONFIG_PATH = {CONFIG_PATH}')
+assert CONFIG_PATH in ['config//roboski1//','config//roboski2//'], 'CONFIG_PATH is not correct.'
+
+# load config file from json
+with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
+    config_brb = json.load(config_file)
 
 floor_z = 2220
 ZeusTraversePosition = 880
@@ -228,7 +267,7 @@ balance_cuvette = Container(
     top_z=70,
     safety_margin_for_lldsearch_position=40,
     solvent='water',
-    xy=(-820, -240),  # coordinate
+    xy=config_brb['balance_cuvette_xy'],# for balance: xy=(-820, -240),  # coordinate
     substance='water',
     substance_density= 1.0,
     container_id='balance_cuvette',
@@ -260,97 +299,47 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
     return coordinates
 
 
-#
-# corner_coordinates = {
-#     'plate0': { 'top_left': (-3, -232),
-#                 'top_right': (-107, -231),
-#                 'bottom_left': (-3.0, -297.0),
-#                 'bottom_right': (-107.5, -296)},
-#     'plate1': { 'top_left': (-153, -232),
-#                 'top_right': (-257, -231),
-#                 'bottom_left': (-153.5, -296.5),
-#                 'bottom_right': (-258.0, -297)},
-#     'plate2': { 'top_left': (-303, -232),
-#                 'top_right': (-407, -231),
-#                 'bottom_left': (-303.5, -296.5),
-#                 'bottom_right': (-408.0, -297)},
-#     'plate3': { 'top_left': (-453, -232),
-#                 'top_right': (-557, -231),
-#                 'bottom_left': (-453.5, -296.5),
-#                 'bottom_right': (-558.0, -297)},
-#     'plate4': { 'top_left': (-603, -232),
-#                 'top_right': (-707, -231),
-#                 'bottom_left': (-603.5, -296.5),
-#                 'bottom_right': (-708.0, -297)},
-#     'plate5': { 'top_left': (-753, -232),
-#                 'top_right': (-857, -231),
-#                 'bottom_left': (-753.5, -296.5),
-#                 'bottom_right': (-858.0, -297)},
-#
-#     'plate6': { 'jar1': (-322, -165),
-#                 'jar2': (-385, -165)},
-#
-#     'plate7': { 'top_left': (-1053, -232),
-#                 'top_right': (-1157, -231),
-#                 'bottom_left': (-1053.5, -296.5),
-#                 'bottom_right': (-1158.0, -297)},
-#     }
-#
-# ## save coordinates to json file
-# with open('data\\corner_coordinates.json', 'w') as f:
-#     json.dump(corner_coordinates, f, indent=4)
-
-## load coordinates from json file
-with open('data\\corner_coordinates.json', 'r') as f:
-    corner_coordinates = json.load(f)
-
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=corner_coordinates['plate0']['top_left'],
-                                                             topright=corner_coordinates['plate0']['top_right'],
-                                                             bottomleft=corner_coordinates['plate0']['bottom_left'],
-                                                             bottomright=corner_coordinates['plate0']['bottom_right'])
+                                                             topleft=config_brb['plate0'][0],
+                                                             topright=config_brb['plate0'][1],
+                                                             bottomleft=config_brb['plate0'][2],
+                                                             bottomright=config_brb['plate0'][3])
 
 
 plate1_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=corner_coordinates['plate1']['top_left'],
-                                                             topright=corner_coordinates['plate1']['top_right'],
-                                                             bottomleft=corner_coordinates['plate1']['bottom_left'],
-                                                             bottomright=corner_coordinates['plate1']['bottom_right'])
+                                                             topleft=config_brb['plate1'][0],
+                                                             topright=config_brb['plate1'][1],
+                                                             bottomleft=config_brb['plate1'][2],
+                                                             bottomright=config_brb['plate1'][3])
 
 plate2_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                             topleft=corner_coordinates['plate2']['top_left'],
-                                                             topright=corner_coordinates['plate2']['top_right'],
-                                                             bottomleft=corner_coordinates['plate2']['bottom_left'],
-                                                             bottomright=corner_coordinates['plate2']['bottom_right'])
+                                                             topleft=config_brb['plate2'][0],
+                                                             topright=config_brb['plate2'][1],
+                                                             bottomleft=config_brb['plate2'][2],
+                                                             bottomright=config_brb['plate2'][3])
 
-plate3_well_bio_coordinates = generate_container_coordinates(Nwells=(8, 12),
-                                                             topleft=corner_coordinates['plate3']['top_left'],
-                                                             topright=corner_coordinates['plate3']['top_right'],
-                                                             bottomleft=corner_coordinates['plate3']['bottom_left'],
-                                                             bottomright=corner_coordinates['plate3']['bottom_right'])
+plate3_well_bio_coordinates = generate_container_coordinates(Nwells=(6, 9),
+                                                             topleft=config_brb['plate3'][0],
+                                                             topright=config_brb['plate3'][1],
+                                                             bottomleft=config_brb['plate3'][2],
+                                                             bottomright=config_brb['plate3'][3])
 
 plate4_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
-                                                                topleft=corner_coordinates['plate4']['top_left'],
-                                                                topright=corner_coordinates['plate4']['top_right'],
-                                                                bottomleft=corner_coordinates['plate4']['bottom_left'],
-                                                                bottomright=corner_coordinates['plate4']['bottom_right'])
-
+                                                             topleft=config_brb['plate4'][0],
+                                                             topright=config_brb['plate4'][1],
+                                                             bottomleft=config_brb['plate4'][2],
+                                                             bottomright=config_brb['plate4'][3])
 
 
 plate5_bottle_20ml_coordinates = generate_container_coordinates(Nwells=(2, 4),
-                                                                topleft=corner_coordinates['plate5']['top_left'],
-                                                                topright=corner_coordinates['plate5']['top_right'],
-                                                                bottomleft=corner_coordinates['plate5']['bottom_left'],
-                                                                bottomright=corner_coordinates['plate5']['bottom_right'])
+                                                                topleft=config_brb['plate5'][0],
+                                                                topright=config_brb['plate5'][1],
+                                                                bottomleft=config_brb['plate5'][2],
+                                                                bottomright=config_brb['plate5'][3])
 
-plate6_jar_100ml_coordinates = [corner_coordinates['plate6']['jar1'], corner_coordinates[ 'plate6']['jar2']]
+plate6_jar_100ml_coordinates = [config_brb['plate6'][0],config_brb['plate6'][1]]
 
-
-plate7_tube_1500ul_coordinates = generate_container_coordinates(Nwells=(4, 5),
-                                                                topleft=corner_coordinates['plate7']['top_left'],
-                                                                topright=corner_coordinates['plate7']['top_right'],
-                                                                bottomleft=corner_coordinates['plate7']['bottom_left'],
-                                                                bottomright=corner_coordinates['plate7']['bottom_right'])
+plate7_tube_1500ul_coordinates = [config_brb['plate7'][0],config_brb['plate7'][1]]
 
 # return a list of container(object) in one plate.
 # this function puts geometry and coordinate of containers together into one specific plate
@@ -449,16 +438,16 @@ class Deck_para:
     positionofTipDepositProcess: int
 
 deckgeom_300ul = Deck_para(deckGeometryTableIndex=0, endTraversePosition=ZeusTraversePosition,
-                      beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
+                      beginningofTipPickingPosition=config_brb['beginningofTipPickingPosition'], positionofTipDepositProcess=config_brb['positionofTipDepositProcess'])
 
 deckgeom_1000ul = Deck_para(deckGeometryTableIndex=1, endTraversePosition=ZeusTraversePosition,
-                       beginningofTipPickingPosition=1500, positionofTipDepositProcess=1650)
+                       beginningofTipPickingPosition=config_brb['beginningofTipPickingPosition'], positionofTipDepositProcess=config_brb['positionofTipDepositProcess'])
 
 deckgeom_balance = Deck_para(deckGeometryTableIndex=2, endTraversePosition=balance_traverse_height,
-                        beginningofTipPickingPosition=1530, positionofTipDepositProcess=2217)
+                        beginningofTipPickingPosition=config_brb['beginningofTipPickingPosition_for_balance'], positionofTipDepositProcess=config_brb['positionofTipDepositProcess_for_balance'])
 
 deckgeom_50ul = Deck_para(deckGeometryTableIndex=3, endTraversePosition=ZeusTraversePosition,
-                     beginningofTipPickingPosition=1500,positionofTipDepositProcess=1650)  # this is the same as 300ul tips
+                     beginningofTipPickingPosition=config_brb['beginningofTipPickingPosition'],positionofTipDepositProcess=config_brb['positionofTipDepositProcess'])  # this is the same as 300ul tips
 
 
 deckGeometryTableIndex = {'300ul': deckgeom_300ul.deckGeometryTableIndex,
@@ -499,11 +488,11 @@ def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomrigh
 
 def load_new_tip_rack(rack_reload):
     # tip_rack = {}
-    with open('data/tip_rack.json') as json_file:
+    with open('config/tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
 
     tip = {'300ul': {'tip_vol': 300,
-                     'xy': (300, -100),
+                     'xy': (300, -100), # dummie coordinates
                      'tipTypeTableIndex': 4,
                      'deckGeometryTableIndex': 0,
                      'ZeusTraversePosition': 880,
@@ -511,7 +500,7 @@ def load_new_tip_rack(rack_reload):
                      'substance': 'None'
                      },
            '1000ul': {'tip_vol': 1000,
-                      'xy': (-296.5, -32.5),
+                      'xy': (-296.5, -32.5), # dummie coordinates
                       'tipTypeTableIndex': 6,
                       'deckGeometryTableIndex': 1,
                       'ZeusTraversePosition': 880,
@@ -519,7 +508,7 @@ def load_new_tip_rack(rack_reload):
                       'substance': 'None'
                       },
            '50ul': {'tip_vol': 50,
-                    'xy': (300, -100),
+                    'xy': (300, -100), # dummie coordinates
                     'tipTypeTableIndex': 2,
                     'deckGeometryTableIndex': 0,
                     'ZeusTraversePosition': 880,
@@ -531,37 +520,54 @@ def load_new_tip_rack(rack_reload):
 
         tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
                                        Nwells=(8, 12),
-                                       topleft=(-27, -23),
-                                       topright=(-126, -22.5),
-                                       bottomleft=(-35.5+9, -86),
-                                       bottomright=(-125.7, -85.5)
+                                       topleft=config_brb['rack_50ul'][0],
+                                       topright=config_brb['rack_50ul'][1],
+                                       bottomleft=config_brb['rack_50ul'][2],
+                                       bottomright=config_brb['rack_50ul'][3],
                                        )
 
     if rack_reload == '300ul':
 
         tip_rack['300ul'] = create_deck(template_well=tip['300ul'],
                                         Nwells=(8, 12),
-                                        topleft=(-161.0+9, -23.5),
-                                        topright=(-251, -22.5),
-                                        bottomleft=(-160.5+9, -86.5),
-                                        bottomright=(-260.5+9, -86)
+                                        topleft=config_brb['rack_300ul'][0],
+                                        topright=config_brb['rack_300ul'][1],
+                                        bottomleft=config_brb['rack_300ul'][2],
+                                        bottomright=config_brb['rack_300ul'][3],
                                         )
     if rack_reload == '1000ul':
 
         tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
                                          Nwells=(8, 12),
-                                         topleft=(-299.5+9, -11),
-                                         topright= (-398.5+9, -11),
-                                         bottomleft=(-298.5+9, -73.5),
-                                         bottomright=((-397.5+9, -73.5))
+                                         topleft=config_brb['rack_1000ul'][0],
+                                         topright= config_brb['rack_1000ul'][1],
+                                         bottomleft=config_brb['rack_1000ul'][2],
+                                         bottomright=config_brb['rack_1000ul'][3],
                                          )
 
-    with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
+    with open('config/tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
     return tip_rack
 
-with open('data/tip_rack.json') as json_file:
+def mark_next_n_tip_as_used(tip_type, n):
+    with open('config/tip_rack.json') as json_file:
+        tip_rack = json.load(json_file)
+    i = 0
+
+    while i < n:
+        for tip in tip_rack[tip_type]['tips']:
+            if tip['exists'] == True:
+                tip['exists'] = False
+                break
+        i+=1
+
+    # save the revised tip_rack to jason
+    with open('config/tip_rack.json', 'w', encoding='utf-8') as f:
+        json.dump(tip_rack, f, ensure_ascii=False, indent=4)
+
+
+with open('config/tip_rack.json') as json_file:
     tip_rack = json.load(json_file)
 
 tip_rack_50ul = tip_rack['50ul']
@@ -585,8 +591,8 @@ if __name__ == "__main__":
     print('This is main.')
 
     # #run this ONLY when changing new tip rack.
-    load_new_tip_rack(rack_reload ='300ul')
-    module_logger.info('New tip rack: 300ul is loaded.')
+    # load_new_tip_rack(rack_reload ='300ul')
+    # module_logger.info('New tip rack: 300ul is loaded.')
     #
     # load_new_tip_rack(rack_reload ='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')

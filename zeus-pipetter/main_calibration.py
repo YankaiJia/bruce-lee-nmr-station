@@ -36,7 +36,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\main.log')
+    fh = logging.FileHandler('C:\\Yankai\\Dropbox\\robochem\\pipetter_files\\main.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -66,9 +66,10 @@ import pipetter
 import planner as pln
 import breadboard as brb
 
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+# data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 # data_folder  = 'C:/Users/Chemiluminescence/Dropbox/robochem/data/'
-
+#
+data_folder = "C:\\Yankai\\Dropbox\\robochem\\pipetter_files"
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
     zm = zeus.ZeusModule(id=1)
@@ -87,6 +88,7 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
     # initiate pipetter
     pt = pipetter.Pipetter(zeus=zm, gantry=gt)
     time.sleep(2)
+    pt.close_balance_door()
     logger.info("pipetter is loaded as: pt")
 
     return zm, gt, pt
@@ -157,9 +159,12 @@ def update_stock_solution_list_to_excel(path_for_reactions: str, stock_solution_
                     row[7].value = solution['liquid_surface_height']
     wb_excel.save(path_for_reactions)
 
-def add_stock_solutions_to_containers(stock_solution_list: list) -> list:
+def add_stock_solutions_to_containers(stock_solution_list: list, lld_type: str = "clld") -> list:
     containers_for_stock = []
-
+    if lld_type == 'clld':
+        liquid_class = 1
+    elif lld_type == 'plld':
+        liquid_class = 12
     for solution in stock_solution_list:
         solution_container = brb.plate_list[solution['plate_id']].containers[solution['container_id']]
         solution_container.substance = solution['substance_name']
@@ -167,7 +172,8 @@ def add_stock_solutions_to_containers(stock_solution_list: list) -> list:
         solution_container.solvent = solution['solvent']
 
         solution_container.liquid_surface_height, solution_container.liquid_volume\
-            = pt.check_volume_in_container(container=solution_container,liquidClassTableIndex=26,change_tip_after_each_check=True)
+            = pt.check_volume_in_container(container=solution_container,liquidClassTableIndex=liquid_class,change_tip_after_each_check=True,
+                                           tip_for_volume_check = '50ul')
 
         containers_for_stock.append(solution_container)
 
@@ -196,7 +202,7 @@ if __name__ == '__main__':
 
     stock_solution_list = load_stock_solutions_from_excel(path=path_for_reactions)
     # check the volume in stock containers and add stock solutions to containers
-    containers_for_stock = add_stock_solutions_to_containers(stock_solution_list)
+    containers_for_stock = add_stock_solutions_to_containers(stock_solution_list, lld_type = "plld")
 
     # update the stock solution list
     for solution in stock_solution_list:
@@ -214,8 +220,8 @@ if __name__ == '__main__':
     event_dataframe_chem, calibration_event_list = \
         pln.generate_event_object(logger=logger,
                                   excel_to_generate_dataframe=path_for_reactions,
-                                  sheet_name='Reactions_0612', usecols='B',
-                                  is_pipeting_to_balance=True, is_for_bio=False, containers_for_stock=containers_for_stock)
+                                  is_pipeting_to_balance=True, is_for_bio=False,
+                                  containers_for_stock=containers_for_stock)
     time.sleep(1)
 
 
@@ -245,7 +251,7 @@ def specify_tip_and_liquidClassIndex_for_calibration(event_list: list = calibrat
         event.disp_liquidClassTableIndex = 1
         event.asp_lld = 0
         event.asp_liquidSurface = 2000
-        event.disp_liquidSurface = 1500
+        event.disp_liquidSurface = 1700
         event.aspirationVolume = 200
         event.dispensingVolume = 200
         event.tip_type = '300ul'
@@ -253,25 +259,40 @@ def specify_tip_and_liquidClassIndex_for_calibration(event_list: list = calibrat
 
     return event_list
 
+
 # calibration_event_list_adjust = specify_tip_and_liquidClassIndex_for_calibration()
 #########################################################################
 
 
-calibration_event_list_reversed = calibration_event_list[::-1] # reverse the list. pipetting from large volume
 
-calibration_event_list_reversed = calibration_event_list_reversed[::-1]
-for event in calibration_event_list_reversed:
-    event.asp_liquidSurface = 1600
-    event.asp_lldSearchPosition = 1600
-    event.disp_liquidSurface = 1500
-    print(event)
+#############the below is for checking pipetting volume in 54 vials#################
+# calibration_event_list_reversed = calibration_event_list[::-1] # reverse the list. pipetting from large volume
 
+# for event in calibration_event_list_reversed:
+#     event.asp_liquidSurface = 1800
+#     event.asp_lldSearchPosition = 1800
+#     print(event)
+#
+# calib_list = [calibration_event_list[i] for i in [0]*54 ]
+# calib_list_run = []
+#
+# for i,event in enumerate(calib_list):
+#     event.asp_liquidSurface = 1800
+#     event.asp_lldSearchPosition = 1800
+#     event.source_container = brb.plate1.containers[i]
+#     calib_list_run.append(copy.deepcopy(event))
+#
+# calib_list_run = [[calib_list_run]]
+##########################################
+for event in calibration_event_list:
+    event.asp_lld = 0
+    event.tip_type = '1000ul'
+    event.asp_liquidClassTableIndex = 29
+    event.disp_liquidClassTableIndex = 29
+
+# calibration_event_list = [[calibration_event_list]]
 # do_calibration
-weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
-                                                calibration_event_list= calibration_event_list_reversed,
-                                               change_tip_after_every_pipetting= False,
-                                               repeat_n_times= 10)
-
-# save the weighing result to json file
-with open('data\\weighing_result.json', 'w') as f:
-    json.dump(weighing_result, f, indent=4)
+# weighing_result = pln.do_calibration_on_events(zm=zm, pt=pt, logger=logger,
+#                                                calibration_event_list= calibration_event_list,
+#                                                change_tip_after_every_pipetting= False,
+#                                                repeat_n_times= 5, starting_index= 0)

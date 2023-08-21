@@ -8,20 +8,16 @@ import logging
 
 pipetter_logger = logging.getLogger('main.pipetter')
 
-import copy
-import json
-import time
-import numpy as np
-import serial
-import importlib
-import re
-
+import copy, json, time, numpy as np, serial, re, winsound
 
 import breadboard as brb
 
+CONFIG_PATH = brb.CONFIG_PATH
+# load config file from json
+with open(CONFIG_PATH + 'pipetter.json', 'r') as config_file:
+    config_pt = json.load(config_file)
 
 class Gantry():
-
     """
     The xy gantry moves with Zeus on it.
 
@@ -33,13 +29,13 @@ class Gantry():
 
     def __init__(self,
                  zeus: object, # pass the zeus module to gantry, this is for checking traverse height,
-                 max_x: int = -820,
-                 max_y: int = -360,
-                 horiz_speed: int = 200*60,# horizontal speed in mm / min
-                 xy_offset: tuple = (-2.5, 0),# offsets in x and y, negative to right, closer; positive, to left, further
-                 zeus_traverse_position: int = 880,
-                 trash_xy: tuple = (-500, -70),
-                 idle_xy: tuple = (-500, -220),
+                 max_x: int = config_pt['gantry']['max_x'], # -820,
+                 max_y: int = config_pt['gantry']['max_y'], #-360,
+                 horiz_speed: int = config_pt['gantry']['horiz_speed'],#200*60,# horizontal speed in mm / min
+                 xy_offset: tuple = config_pt['gantry']['xy_offset'], #(-2.5, 0),# offsets in x and y, negative to right, closer; positive, to left, further
+                 zeus_traverse_position: int = config_pt['gantry']['zeus_traverse_position'], #880,
+                 trash_xy: tuple = config_pt['gantry']['trash_xy'], #(-500, -70),
+                 idle_xy: tuple = config_pt['gantry']['idle_xy'], #(-500, -220),
 
                  ):
         self.logger = logging.getLogger('main.gantry.Gantry')
@@ -91,7 +87,7 @@ class Gantry():
                     break
 
     def configure_grbl(self) -> None:
-        with open("grbl_source_code\\grbl_settings.txt", 'r') as grbl_config_file:
+        with open(CONFIG_PATH + "\\grbl_settings.txt", 'r') as grbl_config_file:
             for line in grbl_config_file:
                self.send_to_xy_stage(command = line.split('    (')[0], read_all= True, verbose= True)
         print("XY stage configured!")
@@ -123,20 +119,28 @@ class Gantry():
 
     def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
                 use_time_estimate=True) -> None:
+
+        # print(f'Moving to {xy}...')
+
         if xy[0] < self.max_x or xy[0] > 0:
             self.logger.error(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
-            return
+            raise ValueError(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
+
         if xy[1] < self.max_y or xy[1] > 0:
             self.logger.error(f'XY STAGE ERROR: target Y is beyond the limit ({self.max_y}, 0). Motion aborted.')
-            return
+            raise ValueError(f'XY STAGE ERROR: target Y is beyond the limit ({self.max_y}, 0). Motion aborted.')
+
         # avoid collision with the balance
-        if xy[0] < -760 and (xy[1] > -200 or xy[1] < -250):
+        left = config_pt['gantry']['balance_left_boundary']
+        upper = config_pt['gantry']['balance_chamber_upper_boundary']
+        lower = config_pt['gantry']['balance_chamber_lower_boundary']
+        if xy[0] < left and (xy[1] > -upper or xy[1] < -lower):
             self.logger.error('XY STAGE ERROR: gantry is going to collide with the balance. Motion aborted.')
             return
 
         # if move from inside the balance to outside, or vice verse, move to the idle position first
-        if (self.xy_position[0] < -760 and xy[1] > -200) or\
-                (self. xy_position[1] > -200 and xy[0] < -760 ):
+        if (self.xy_position[0] < left and xy[1] > upper) or\
+                (self. xy_position[1] > upper and xy[0] < left ):
             self.send_to_xy_stage(
                 command='G0 X{0:.3f} Y{1:.3f}'.format(self.idle_xy[0], self.idle_xy[1]),
                 read_all=False, ensure_traverse_height=ensure_traverse_height)
@@ -214,14 +218,16 @@ class Pipetter():
     def __init__(self,
                  zeus: object,
                  gantry: object,
+                 is_balance_involved: bool = False
                  ):
         self.zeus = zeus
         self.gantry = gantry
-        self.balance = serial.Serial(port='COM4',
-                                     baudrate=19200,
-                                     stopbits=serial.STOPBITS_ONE,
-                                     parity=serial.PARITY_NONE,
-                                     timeout=0.2)
+        if is_balance_involved:
+            self.balance = serial.Serial(port=config_pt["balance_port"]["port"],
+                                         baudrate=config_pt["balance_port"]["baudrate"],
+                                         stopbits=serial.STOPBITS_ONE,
+                                         parity=serial.PARITY_NONE,
+                                         timeout=config_pt["balance_port"]["timeout"])
 
         self.logger = logging.getLogger('main.pipetter.Pipetter')
         self.logger.info('creating an instance of Pepetter')
@@ -229,16 +235,24 @@ class Pipetter():
     def home_xy(self):
         self.gantry.home_xy()
 
+    def beep_n(self):
+        duration = 600  # milliseconds
+        freq = 1000  # Hz
+        # time.sleep(0.2)
+        for i in range(10):
+            winsound.Beep(freq, duration)
+
     def pick_tip(self, tip_type: str):
 
-        with open('data/tip_rack.json') as json_file:
+        with open('config/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
-        self.zeus.move_z(self.zeus.ZeusTraversePosition)
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
         self.zeus.wait_until_zeus_reaches_traverse_height()
 
         # if the rack is empty then ask user to reload
         if not any(item['exists'] for item in tip_rack[tip_type]['tips']):
+            # beep_n()
             input(f'ERROR: The tip rack is empty. Please reload the tip rack and hit enter.')
             tip_rack = brb.load_new_tip_rack(rack_reload=tip_type)
 
@@ -260,7 +274,7 @@ class Pipetter():
                     item['exists'] = False
                     # wait_until_zeus_reaches_traverse_height()
                     # update json file
-                    with open('data/tip_rack.json', 'w', encoding='utf-8') as f:
+                    with open('config/tip_rack.json', 'w', encoding='utf-8') as f:
                         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
                 else:
                     raise ValueError('No tip is picked up.')
@@ -269,9 +283,8 @@ class Pipetter():
         raise Exception
 
     def discard_tip(self):
-        self.zeus.move_z(self.zeus.ZeusTraversePosition)
-        time.sleep(0.2)
-        # self.zeus.wait_until_zeus_reaches_traverse_height()
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
+        self.zeus.wait_until_zeus_reaches_traverse_height()
         self.gantry.move_xy(self.gantry.trash_xy)
         self.zeus.discardTip(deckGeometryTableIndex=1)
         self.zeus.tip_on_zeus = ''
@@ -297,7 +310,7 @@ class Pipetter():
             if self.zeus.tip_on_zeus != tip_for_volume_check:
                 self.change_tip(tip_for_volume_check)
 
-        self.zeus.move_z(self.zeus.ZeusTraversePosition, raise_exception=False)
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'], raise_exception=False)
         time.sleep(1)
         self.gantry.move_xy(container.xy)
 
@@ -326,15 +339,17 @@ class Pipetter():
             print(f'Liquid level not detected')
             liquid_surface = 0
             volume = 0
-            self.zeus.move_z(self.zeus.ZeusTraversePosition, raise_exception=False)
-            self.change_tip(tip_for_volume_check, raise_exception=False)
+            self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'], raise_exception=False)
+            # self.change_tip(tip_for_volume_check, raise_exception=False)
+            self.change_tip(tip_for_volume_check)
+
         print(f'Volume Check done! liquid_surface: {liquid_surface}, volume: {volume}')
         return (int(liquid_surface), float(int(volume) / 10))  # after / 10, volume is in ul
 
 
     def draw_liquid(self, transfer_event: object, n_retries=3) -> bool:
 
-        self.zeus.move_zeus_to_traverse_height()
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
         self.gantry.move_xy(transfer_event.source_container.xy)
 
 
@@ -364,7 +379,7 @@ class Pipetter():
                     # Empty tube detected during aspiration
                     self.logger.info('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
                     time.sleep(2)
-                    self.zeus.move_z(self.zeus.ZeusTraversePosition)
+                    self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
                     time.sleep(2)
                     self.dispense_liquid(transfer_event)
                     time.sleep(2)
@@ -375,7 +390,7 @@ class Pipetter():
 
     def dispense_liquid(self, transfer_event: object) -> None:
 
-        self.zeus.move_zeus_to_traverse_height()
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
         self.gantry.move_xy(transfer_event.destination_container.xy)
 
         self.zeus.dispensing(dispensingVolume=int(round(transfer_event.transfer_volume * 10)),
@@ -521,7 +536,7 @@ class Pipetter():
 
     def move_to_balance(self, xy: tuple = brb.balance_cuvette.xy):
         self.open_balance_door()
-        self.zeus.move_z(self.zeus.ZeusTraversePosition)
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
         self.gantry.move_xy(xy)
 
     def pipetting_to_balance_and_weight(self, transfer_event, timedelay= 5):
@@ -538,17 +553,18 @@ class Pipetter():
         # self.balance_zero(verbose=False)
         # print('Balance zeroed.')
         weight_before = self.balance_value()
-        print(f'weight_before: {weight_before} g')
+        # print(f'weight_before: {weight_before} g')
         self.open_balance_door()
-        print('Waiting for liquid transfer...')
+        # print('Waiting for liquid transfer...')
         self.transfer_liquid(transfer_event=transfer_event)
+        transfer_event.excute_event()
 
         time.sleep(0.5)
         self.gantry.move_to_idle_position()
         self.close_balance_door()
         time.sleep(timedelay)
         weight_after = self.balance_value()
-        print(f'weight_after: {weight_after} g')
+        # print(f'weight_after: {weight_after} g')
 
         pipetting_weight = round((weight_after - weight_before) * 1000, 6)  # mg
         pipetting_volume = round(pipetting_weight / transfer_event.source_container.substance_density, 2)
@@ -578,6 +594,29 @@ class Pipetter():
             temp_dict['volume'].append(volume)
             temp_dict['liquid_class_index'].append(transfer_event.asp_liquidClassTableIndex)
             temp_dict['tip_type'].append(transfer_event.tip_type)
+
+        print(dict_for_one_event)
+        return dict_for_one_event
+
+    def pipetting_to_balance_and_weight_n_times_from_different_stock_vials(self, transfer_event, n_times=54,
+                                                                           change_tip_after_every_pipetting:bool = False):
+        # print(f'this is transfer_event: {transfer_event[0]}')
+        dict_for_one_event = {}
+        dict_for_one_event[f'{transfer_event[0][0].substance_name}_{transfer_event[0][0].aspirationVolume}ul'] = \
+            {'weight': [], 'volume': [], 'liquid_class_index': [], 'tip_type': []}
+        temp_dict = dict_for_one_event[f'{transfer_event[0][0].substance_name}_{transfer_event[0][0].aspirationVolume}ul']
+        for i in range(n_times):
+            print(f'this is n_times: {i}')
+            print(transfer_event[0][0].event_label)
+            weight, volume = self.pipetting_to_balance_and_weight(transfer_event=transfer_event[0][i])
+            if change_tip_after_every_pipetting:
+                self.change_tip(transfer_event[0][0].tip_type)
+                time.sleep(0.5)
+                print(f'Changed tip to {transfer_event[0][0].tip_type} after {i}th pipetting.')
+            temp_dict['weight'].append(weight)
+            temp_dict['volume'].append(volume)
+            temp_dict['liquid_class_index'].append(transfer_event[0][0].asp_liquidClassTableIndex)
+            temp_dict['tip_type'].append(transfer_event[0][0].tip_type)
 
         print(dict_for_one_event)
         return dict_for_one_event

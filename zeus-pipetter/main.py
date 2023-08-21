@@ -37,7 +37,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\main.log')
+    fh = logging.FileHandler('C:\\yankai\\Dropbox\\robochem\\pipetter_files\\main.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -229,3 +229,18 @@ if __name__ == '__main__':
     # event_temp = event_list_to_run_sorted[0]
     # with open('event_temp.pickle', 'wb') as f:
     #     pickle.dump(event_temp, f)
+
+    # ## load a event from local pickle file
+    # nd.close_lid()
+    # time.sleep(1)
+    # gt.move_xy((-144, -339))
+    # zm.move_z(600)
+    nd.open_lid()
+    time.sleep(1)
+    gt.move_xy((-544, -339))
+    zm.move_z(800)
+    time.sleep(1)
+    zm.move_z(600)
+    time.sleep(0.5)
+    gt.move_xy((-144, -339))
+    nd.close_lid()

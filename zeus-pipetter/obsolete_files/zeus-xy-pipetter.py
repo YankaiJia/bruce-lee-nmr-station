@@ -61,7 +61,7 @@ def build_param_dict():
         'calibration': {'aspiration': {}, 'dispensing': {}},
         'qpm': {'aspiration': {}, 'dispensing': {}}
     }
-    with open('../data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
+    with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
         json.dump(liquid_class_table_para, f, ensure_ascii=False, indent=4)
     return liquid_class_table_para
 
@@ -307,7 +307,7 @@ jar = generated_jar_container()
 
 def load_new_tip_tack(rack_reload ):
     # tip_rack = {}
-    with open('../data/tip_rack.json') as json_file:
+    with open('../config/tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
 
     tip = {'300ul': {'tip_vol': 300,
@@ -358,7 +358,7 @@ def load_new_tip_tack(rack_reload ):
                                               bottomright=(-132.5, -107))
 
 
-    with open('../data/tip_rack.json', 'w', encoding='utf-8') as f:
+    with open('../config/tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
     return tip_rack
@@ -619,7 +619,7 @@ def lld_search_position(container):
 
 def pick_tip(tip_type):
     global tip_on_zeus
-    with open('../data/tip_rack.json') as json_file:
+    with open('../config/tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
 
     move_z(tip_rack[str(tip_type)+'ul']['wells'][0]['ZeusTraversePosition'])
@@ -636,7 +636,7 @@ def pick_tip(tip_type):
             # wait_until_zeus_reaches_traverse_height()
             wait_until_zeus_responds_with_string('GTid')
             # update json file
-            with open('../data/tip_rack.json', 'w', encoding='utf-8') as f:
+            with open('../config/tip_rack.json', 'w', encoding='utf-8') as f:
                 json.dump(tip_rack, f, ensure_ascii=False, indent=4)
             return True
     print('ERROR: No tips in rack.')
