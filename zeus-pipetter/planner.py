@@ -1,8 +1,8 @@
 
-import logging, pickle, json, numpy as np, winsound, copy, math, re, pandas as pd, time
+import logging, os, pickle, json, numpy as np, winsound, copy, math, re, pandas as pd, time
 from math import ceil
 from datetime import datetime
-from typing import Any
+from typing import Dict, Any
 import PySimpleGUI as sg
 
 module_logger = logging.getLogger('main.planner')
@@ -318,6 +318,7 @@ class Event:
 
         self.liquidClassTableIndex: int = self.get_liquid_class_index(solvent=self.source_container.solvent,
                                                                       mode=self.source_container.mode,tip_type=self.tip_type)
+
         assert self.liquidClassTableIndex in range(100), f"liquid class is invalid: {self.liquidClassTableIndex}"
 
         self.disp_containerGeometryTableIndex: int = self.destination_container.containerGeometryTableIndex
@@ -365,6 +366,9 @@ class Event:
             'Dioxane_empty_50ul_plld': 27,
             'Dioxane_empty_300ul_plld': 28,
             'Dioxane_empty_1000ul_plld': 29,
+            'hbrhac1v1_empty_300ul_clld': 31,
+            'hbrhac1v1_empty_50ul_clld': 31,
+            'hbrhac1v1_empty_1000ul_clld': 31
         }
         solvent_para = {solvent, mode, tip_type}  # define a set of paras
         for liquid_class, index in liquid_class_dict.items():
@@ -452,7 +456,7 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,conta
     logger.info(f"All events are generated to dataframes from excel here: {excel_to_generate_dataframe}")
 
     # generate event list
-    event_list = generate_event_list(event_dataframe=event_dataframe,
+    event_list = generate_event_list_new(event_dataframe=event_dataframe,
                                      pipeting_to_balance=is_pipeting_to_balance,
                                      containers_for_stock=containers_for_stock)
 
@@ -612,9 +616,56 @@ def beep_n():
     for i in range(10):
         winsound.Beep(freq, duration)
 
+
+def assign_stock_solutions_to_containers_and_check_volume(excel_path:str, pt, check_volume_by_pipetter: bool = True):
+    sheet_name_for_stock_solutions = 'stock_solutions'
+    stock_solution_containers = []
+    ## load stock solutions from excel
+    df_stock_solutions = pd.read_excel(excel_path, sheet_name=sheet_name_for_stock_solutions, engine='openpyxl')
+
+    for index, row in df_stock_solutions.iterrows():
+    # ## print out the column names
+    #     columns = df_stock_solutions.columns
+    #     print(f"columns: {columns}")
+    ## assign stock solutions to containers
+        substance_name, \
+        plate_id,\
+        container_id, \
+        solvent, \
+        density, \
+        volume_ml, \
+        liquid_surface_height,\
+        mode= row['substance'], row['breadboard_plate_id'], row['container_id'], row['solvent'], row['density'], row['volume'], row['liquid_surface_height'], row['pipetting_mode']
+        container_for_this_stock_solution = brb.plate_list[plate_id].containers[container_id]
+        container_for_this_stock_solution.substance = substance_name
+        container_for_this_stock_solution.substance_density = density
+        container_for_this_stock_solution.solvent = solvent
+        container_for_this_stock_solution.pipetting_mode = mode
+        if not check_volume_by_pipetter:
+            container_for_this_stock_solution.liquid_surface_height = liquid_surface_height
+            container_for_this_stock_solution.liquid_volume = volume_ml
+        else:
+            container_for_this_stock_solution.liquid_surface_height, \
+            container_for_this_stock_solution.liquid_volume = \
+                pt.check_volume_in_container(container=container_for_this_stock_solution,
+                                             liquidClassTableIndex=12,change_tip_after_each_check=True)
+
+        stock_solution_containers.append(container_for_this_stock_solution)
+
+        ## update the excel after checking the volume
+        if check_volume_by_pipetter:
+            df_stock_solutions.loc[index, 'volume'] = container_for_this_stock_solution.liquid_volume
+            df_stock_solutions.loc[index, 'liquid_surface_height'] = container_for_this_stock_solution.liquid_surface_height
+            with pd.ExcelWriter(excel_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
+                df_stock_solutions.to_excel(writer, sheet_name=sheet_name_for_stock_solutions, index=False)
+
+    return stock_solution_containers
+
+
+
 def run_one_event_chem(pt: object, event=None):
     pt.transfer_liquid(event)
-    time.sleep(0.5)
+    time.sleep(0.1)
     event.execute_event()
     beep()
 
@@ -624,10 +675,11 @@ def run_events_chem(zm: object, pt: object,
                     event_list=None,
                     change_tip_after_every_pipetting: bool = False,
                     prewet_tip: bool = True,
-                    pause_after_every_plate_min: int = 0,):
-
+                    pause_after_every_plate_min: int = 0,
+                    test_mode: bool = False,
+                    ):
     # discard tip if there is one on the pipetter
-    if zm.tip_on_zeus: # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
+    if zm.tip_on_zeus != '': # tip_on_zeus: '' or '50ul' or '300ul' or '1000ul'
         pt.discard_tip()
 
     # group all events by plate_id
@@ -647,7 +699,7 @@ def run_events_chem(zm: object, pt: object,
         for index, event in enumerate(events_in_one_plate):
             # change tip if needed
             if zm.tip_on_zeus != event.tip_type:
-                pt.change_tip(event.tip_type)
+                pt.change_tip(event.tip_type) if not test_mode else print("this is test mode.")
                 module_logger.info(f'The tip is changed to : {event.tip_type}')
                 time.sleep(0.5)
 
@@ -656,7 +708,10 @@ def run_events_chem(zm: object, pt: object,
                     prewet_new_tip(zm=zm, pt=pt, pipetting_event=event)
 
             try:
-                run_one_event_chem(pt= pt, event= event)
+                if not test_mode:
+                    run_one_event_chem(pt= pt, event= event)
+                else:
+                    print(f"Test mode one done: {event.event_label}")
 
             except Exception as e:
                 module_logger.error(f'Error in transfer liquid.\n')
@@ -674,14 +729,14 @@ def run_events_chem(zm: object, pt: object,
                 if events_in_one_plate[index].substance != events_in_one_plate[index + 1].substance:
                         pt.discard_tip()
 
-            time.sleep(0.5)
+            # time.sleep(0.5)
 
             #  change tip after every pipetting if specified
             if change_tip_after_every_pipetting:
                 pt.discard_tip()
                 time.sleep(0.5)
 
-            ## check if this is the last event in the plate
+            # check if this is the last event in the plate
             if index == len(events_in_one_plate)-1:
 
                 ## play some sound to notify the user
@@ -691,6 +746,7 @@ def run_events_chem(zm: object, pt: object,
                 time.sleep(2)
 
                 module_logger.info(f'This is the last event in this plate: {event.event_label}. plate_barcode: {event.plate_barcode}.')
+
                 ## check if this is the last plate
                 if plate_index == len(events_grouped_by_plate_id)-1:
                     ## play some sound to notify the user
@@ -710,6 +766,11 @@ def run_events_chem(zm: object, pt: object,
             ## make a pysimplegui window to show the pause time
             time.sleep(pause_after_every_plate_min * 60)
 
+        # check if this plate is the last plate and re-measure the liquid surface height if not
+        if plate_index != len(events_grouped_by_plate_id)-1:
+            # measure the liquid surface height again and update the value to the stock container
+            assign_stock_solutions_to_containers_and_check_volume(excel_path=event.excel_path_for_conditions,
+                                                                 check_volume_by_pipetter=True, pt=pt)
 
 
 def run_events_chem_nps(zm: object, pt: object, logger: object, start_event_id: int,

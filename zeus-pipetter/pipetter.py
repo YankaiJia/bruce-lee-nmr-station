@@ -12,7 +12,11 @@ import copy, json, time, numpy as np, serial, re, winsound
 
 import breadboard as brb
 
+
+## get config file path from breadboard
 CONFIG_PATH = brb.CONFIG_PATH
+STATUS_PATH = brb.STATUS_PATH
+
 # load config file from json
 with open(CONFIG_PATH + 'pipetter.json', 'r') as config_file:
     config_pt = json.load(config_file)
@@ -52,6 +56,9 @@ class Gantry():
         self.zm = zeus
         self.zeus_traverse_position = zeus_traverse_position
         # self.home_xy()
+        self.left_balance = config_pt['gantry']['balance_left_boundary']
+        self.upper_balance = config_pt['gantry']['balance_chamber_upper_boundary']
+        self.lower_balance = config_pt['gantry']['balance_chamber_lower_boundary']
 
     def send_to_xy_stage(self, command, wait_for_ok=True, verbose=False, read_all=False,
                          ensure_traverse_height=True) -> None:
@@ -131,16 +138,14 @@ class Gantry():
             raise ValueError(f'XY STAGE ERROR: target Y is beyond the limit ({self.max_y}, 0). Motion aborted.')
 
         # avoid collision with the balance
-        left = config_pt['gantry']['balance_left_boundary']
-        upper = config_pt['gantry']['balance_chamber_upper_boundary']
-        lower = config_pt['gantry']['balance_chamber_lower_boundary']
-        if xy[0] < left and (xy[1] > -upper or xy[1] < -lower):
+
+        if xy[0] < self.left_balance and (xy[1] > -self.upper_balance or xy[1] < -self.lower_balance):
             self.logger.error('XY STAGE ERROR: gantry is going to collide with the balance. Motion aborted.')
             return
 
         # if move from inside the balance to outside, or vice verse, move to the idle position first
-        if (self.xy_position[0] < left and xy[1] > upper) or\
-                (self. xy_position[1] > upper and xy[0] < left ):
+        if (self.xy_position[0] < -350 and xy[1] > -200) or\
+                (self. xy_position[1] > -200 and xy[0] < -350 ):
             self.send_to_xy_stage(
                 command='G0 X{0:.3f} Y{1:.3f}'.format(self.idle_xy[0], self.idle_xy[1]),
                 read_all=False, ensure_traverse_height=ensure_traverse_height)
@@ -244,7 +249,7 @@ class Pipetter():
 
     def pick_tip(self, tip_type: str):
 
-        with open('config/tip_rack.json') as json_file:
+        with open(STATUS_PATH + 'tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
         self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
@@ -274,7 +279,7 @@ class Pipetter():
                     item['exists'] = False
                     # wait_until_zeus_reaches_traverse_height()
                     # update json file
-                    with open('config/tip_rack.json', 'w', encoding='utf-8') as f:
+                    with open(STATUS_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
                         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
                 else:
                     raise ValueError('No tip is picked up.')

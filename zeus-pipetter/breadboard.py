@@ -12,14 +12,16 @@ plates plate0: vial_2ml, 54 vials
 
 """
 import logging
-import time
 
 # create logger
 module_logger = logging.getLogger('pipette_calibration.breadboard')
 
 from dataclasses import dataclass
-import numpy as np, copy, json, re
+import numpy as np, copy, json, os
 
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+
+## choose a robot from pysimplegui
 def choose_robot_by_pysimplegui():
     import PySimpleGUI as sg
     sg.theme('DarkAmber')  # Add a touch of color
@@ -44,12 +46,14 @@ def choose_robot_by_pysimplegui():
             window.close()
             return 'Roboski#2'
 
+# the variables robot_name, CONFIG_PATH  and STATUS_PATH are global and are used in other modules.
 robot_name = choose_robot_by_pysimplegui()
-
 if robot_name == 'Roboski#1':
     CONFIG_PATH = 'config//roboski1//'
+    STATUS_PATH = data_folder + "\\pipetter_files\\roboski1\\"
 elif robot_name == 'Roboski#2':
     CONFIG_PATH = 'config//roboski2//'
+    STATUS_PATH = data_folder + "\\pipetter_files\\roboski2\\"
 else:
     raise ValueError('No robot is chosen. Please choose a robot.')
 
@@ -488,7 +492,7 @@ def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomrigh
 
 def load_new_tip_rack(rack_reload):
     # tip_rack = {}
-    with open('config/tip_rack.json') as json_file:
+    with open(STATUS_PATH + 'tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
 
     tip = {'300ul': {'tip_vol': 300,
@@ -545,13 +549,13 @@ def load_new_tip_rack(rack_reload):
                                          bottomright=config_brb['rack_1000ul'][3],
                                          )
 
-    with open('config/tip_rack.json', 'w', encoding='utf-8') as f:
+    with open(STATUS_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
     return tip_rack
 
 def mark_next_n_tip_as_used(tip_type, n):
-    with open('config/tip_rack.json') as json_file:
+    with open(STATUS_PATH + 'tip_rack.json') as json_file:
         tip_rack = json.load(json_file)
     i = 0
 
@@ -563,11 +567,11 @@ def mark_next_n_tip_as_used(tip_type, n):
         i+=1
 
     # save the revised tip_rack to jason
-    with open('config/tip_rack.json', 'w', encoding='utf-8') as f:
+    with open(STATUS_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
 
-with open('config/tip_rack.json') as json_file:
+with open(STATUS_PATH + 'tip_rack.json') as json_file:
     tip_rack = json.load(json_file)
 
 tip_rack_50ul = tip_rack['50ul']

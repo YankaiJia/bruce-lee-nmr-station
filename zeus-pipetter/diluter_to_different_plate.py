@@ -1,5 +1,9 @@
-import logging
+import logging, time, pickle, sys, PySimpleGUI as sg, pandas as pd, os
+import zeus, pipetter, planner as pln, breadboard as brb, config
+
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 def setup_logger():
+
     # better logging format in console
     class CustomFormatter(logging.Formatter):
         grey = "\x1b[38;20m"
@@ -26,7 +30,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\main_roboski2.log')
+    fh = logging.FileHandler(brb.STATUS_PATH + 'main.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -40,9 +44,6 @@ def setup_logger():
     logger.addHandler(ch)
     return logger
 module_logger = setup_logger()
-
-import time, pickle, sys, PySimpleGUI as sg, pandas as pd
-import zeus, pipetter, planner as pln, breadboard as brb, config
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
@@ -166,7 +167,6 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
             sys.exit()
 
 
-
 ##  generate_dilution_events()
 # step1: dilution original reactions, adding volume: 1400ul
 # step2: transfer liquid from original reaction to new vial, transfer volume: 20ul
@@ -220,7 +220,7 @@ def generate_dilution_event(source_container: object,
                             solvent:str):
 
     ## load a Event object as template
-    with open('C:\\Users\\Chemiluminescence\\Dropbox\\robochem\\pipetter_files\\event_template.pickle', 'rb') as f:
+    with open(data_folder + 'pipetter_files\\event_template.pickle', 'rb') as f:
         event = pickle.load(f)
 
     ## this is the content of the event_template.pickle
@@ -291,6 +291,7 @@ def generate_events_for_diluting_old_vial(solvent, rows_to_dilute=(0, 9, 18, 27,
     source_container = brb.plate_list[6].containers[0]
     source_container.liquid_surface_height, source_container.liquid_volume \
     = pt.check_volume_in_container(container=source_container)
+
     for i in rows_to_dilute:
         for vial_index in range(i, i+9):
             destination_container = brb.plate_list[1].containers[vial_index]

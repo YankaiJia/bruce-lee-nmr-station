@@ -8,8 +8,8 @@
     "xy_offset": [0,0],
     "zeus_traverse_position": 880,
     "trash_xy": [-400,-160],
-    "idle_xy": [-400,-300],
-    "balance_left_boundary": -460,
+    "idle_xy": [-300,-350],
+    "balance_left_boundary": -600,
     "balance_chamber_upper_boundary": -280,
-    "balance_chamber_lower_boundary": -340  }
+    "balance_chamber_lower_boundary": -360  }
 }

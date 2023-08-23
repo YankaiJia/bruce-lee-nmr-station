@@ -85,9 +85,23 @@ def GUI_get_excel_path_plate_barcodes_temperature_etc():
 
     return excel_path, plate_barcodes, reaction_temperature, plate_barcodes_for_dilution
 
+def GUI_choose_if_check_surface_height():
+    sg.theme('DarkAmber')  # Add a touch of color
+    layout = [[sg.Text('Check the surface height of stock solutions by pipetter?', font = ('Helvetica', 30))],[sg.Text('', font = ('Helvetica', 20))],
+              [sg.Button('Yes, check and write to the Excel', font = ('Helvetica', 30))],[sg.Text('', font = ('Helvetica', 20))],
+              [sg.Button('No, use the values in the Excel', font = ('Helvetica', 30))]
+             ]
+    window = sg.Window('Check surface height?', layout, size=(1000, 400), element_justification='c')
+    event, values = window.read()
+    window.close()
+    if event == 'Yes':
+        return True
+    elif event == 'No':
+        return False
+
 ## from gui the following paras should be obtained: excel_path, plate_barcodes, temperature
-def prepare_excel_file_for_reaction(reaction_temperature,
-                                    excel_path: str,
+def prepare_excel_file_for_reaction(reaction_temperature ,
+                                    excel_path: str ,
                                     plate_barcodes: tuple,
                                     plate_barcodes_for_dilution: tuple,
                                     sheet_name_for_run_info:str = config.sheet_name_for_run_info):
@@ -261,11 +275,13 @@ def extract_reactions_df_to_run(excel_path_for_reactions):
 
 
 if __name__ == '__main__':
-    excel_path, plate_barcodes, reaction_temperature, plate_barcodes_for_dilution\
-        = GUI_get_excel_path_plate_barcodes_temperature_etc()
+    # excel_path, plate_barcodes, reaction_temperature, plate_barcodes_for_dilution\
+    #     = GUI_get_excel_path_plate_barcodes_temperature_etc()
+    #
+    # _, df = prepare_excel_file_for_reaction(reaction_temperature=reaction_temperature,
+    #                                 excel_path=excel_path,
+    #                                 plate_barcodes=plate_barcodes,
+    #                                 plate_barcodes_for_dilution=plate_barcodes_for_dilution,
+    #                                 sheet_name_for_run_info=config.sheet_name_for_run_info)
 
-    _, df = prepare_excel_file_for_reaction(reaction_temperature=reaction_temperature,
-                                            excel_path=excel_path,
-                                            plate_barcodes=plate_barcodes,
-                                            plate_barcodes_for_dilution=plate_barcodes_for_dilution,
-                                            sheet_name_for_run_info=config.sheet_name_for_run_info)
+    GUI_choose_if_check_surface_height()
