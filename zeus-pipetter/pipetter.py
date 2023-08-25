@@ -144,11 +144,36 @@ class Gantry():
             return
 
         # if move from inside the balance to outside, or vice verse, move to the idle position first
-        if (self.xy_position[0] < -350 and xy[1] > -200) or\
-                (self. xy_position[1] > -200 and xy[0] < -350 ):
+        if (self.xy_position[0] < -550 and xy[1] > -200) or\
+                (self. xy_position[1] > -200 and xy[0] < -550 ):
             self.send_to_xy_stage(
                 command='G0 X{0:.3f} Y{1:.3f}'.format(self.idle_xy[0], self.idle_xy[1]),
                 read_all=False, ensure_traverse_height=ensure_traverse_height)
+            if block_until_motion_is_completed:
+                if use_time_estimate:
+                    time.sleep(self.time_that_xy_motion_takes(dx=xy[0] - self.xy_position[0],
+                                                              dy=xy[1] - self.xy_position[1]))
+                else:
+                    t0 = time.time()
+                    time.sleep(0.1)
+                    finished_moving = False
+                    for i in range(100):
+                        if finished_moving:
+                            break
+                        if verbose:
+                            print(f'Status read {i}')
+                        self.serial.write(str.encode('?' + '\r\n'))
+                        while True:
+                            line = self.serial.readline()
+                            if verbose:
+                                print(line)
+                            if b'Idle' in line:
+                                finished_moving = True
+                            if line == b'':
+                                break
+                    # print(f'{time.time() - t0}')
+                    if verbose:
+                        print('Finished moving xy stage')
 
         zeus_at_traverse_height = self.zm.pos <= self.zeus_traverse_position
         if ensure_traverse_height and not zeus_at_traverse_height:
@@ -266,6 +291,7 @@ class Pipetter():
             if item['exists']:
                 # pick up tip
                 self.gantry.move_xy(item['xy'], ensure_traverse_height=True)
+                time.sleep(0.5)
                 self.zeus.pickUpTip(tipTypeTableIndex=item['tipTypeTableIndex'],
                                     deckGeometryTableIndex=item['deckGeometryTableIndex'])
 

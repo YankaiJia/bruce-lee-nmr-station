@@ -1530,7 +1530,7 @@ class ZeusModule:
 
 
 if __name__ == '__main__':
-    # import breadboard as brb
+    import breadboard as brb
 
     print('This is main of zeus.py')
 
@@ -1565,6 +1565,11 @@ if __name__ == '__main__':
     # zm.setContainerGeometryParameters(brb.tube_1500ul)
     # print('ContainerGeometryParameters::tube_1500ul is loaded.')
     # time.sleep(2)
+
+    ## container_geometry_parameters = 6 for nanodrop_pedestal
+    zm.setContainerGeometryParameters(brb.nanodrop_pedestal)
+    print('ContainerGeometryParameters::nanodrop_pedestal is loaded.')
+    time.sleep(2)
 
     # # load deck parameters
     # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)

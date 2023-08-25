@@ -74,6 +74,7 @@ bottom_z_of_bottle_20ml = 2175
 bottom_z_of_jar_100ml = 2120
 bottom_z_of_tube_1500ul = 2190
 bottom_z_of_balance_cuvette = 1930
+bottom_z_of_nanodrop_pedestal = 1300
 
 source_substance_containers: list = []
 
@@ -276,6 +277,33 @@ balance_cuvette = Container(
     substance_density= 1.0,
     container_id='balance_cuvette',
     liquid_surface_height = bottom_z_of_balance_cuvette - 100)
+
+nanodrop_pedestal = Container(
+    name='nanodrop_pedestal',
+    containerGeometryTableIndex=6,
+    container_shape='cylindrical',
+    diameter=400,  # ID of tube
+    bottomHeight=0,
+    bottomSection=10000,
+    bottomPosition=bottom_z_of_nanodrop_pedestal,
+    immersionDepth=20,
+    leavingHeight=20,
+    jetHeight=0,
+    startOfHeightBottomSearch=30,
+    dispenseHeightAfterBottomSearch=100,
+
+    liquid_volume=0,
+    volume_max=80000,
+    area=40*40, # in mm^2
+    min_z=(floor_z - 1590) / 10,
+    top_z=70,
+    safety_margin_for_lldsearch_position=40,
+    solvent='water',
+    xy=config_brb['nanodrop_pedestal_xy'],# for balance: xy=(-820, -240),  # coordinate
+    substance='water',
+    substance_density= 1.0,
+    container_id='nanodrop_pedestal',
+    liquid_surface_height = 1230)
 
 def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a  plate from coordinates of corner wells.'''

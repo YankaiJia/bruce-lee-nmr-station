@@ -13,7 +13,8 @@
   "beginningofTipPickingPosition":1230,
   "positionofTipDepositProcess": 1350,
   "beginningofTipPickingPosition_for_balance": 1530,
-  "positionofTipDepositProcess_for_balance": 2217
+  "positionofTipDepositProcess_for_balance": 2217,
+  "nanodrop_pedestal_xy": [-601, -348.5]
 
 }
 

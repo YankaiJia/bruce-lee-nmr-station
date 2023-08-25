@@ -1,6 +1,5 @@
 ##  connect to arduino and send commands "1" and "0"
 import serial, time
-import main as mn
 
 # make a class for nanodrop
 class Nanodrop:
@@ -10,7 +9,14 @@ class Nanodrop:
         except:
             print("Arduino not connected")
 
+        self.flush_time = 4
+        self.dry_time = 8
+
     def open_lid(self):
+        self.close_vacumm()
+        time.sleep(0.2)
+        self.open_air()
+        time.sleep(0.2)
         self.serial.write(b'1')
 
     def close_lid(self):
@@ -45,23 +51,36 @@ class Nanodrop:
 
 
     def flush_pedestal(self):
+        time_stamp = time.time()
         self.open_vacumm()
         time.sleep(0.2)
         self.close_air()
         time.sleep(0.2)
-        self.open_liquid()
+        while time.time() - time_stamp < self.flush_time:
+            self.open_liquid()
+            time.sleep(0.2)
+        self.close_liquid()
         time.sleep(0.2)
+        self.close_vacumm()
+        time.sleep(0.2)
+        return True
 
     def dry_pedestal(self):
+        time_stamp = time.time()
         self.open_vacumm()
         time.sleep(0.2)
         self.close_liquid()
         time.sleep(0.2)
+        while time.time() - time_stamp < self.dry_time:
+            self.open_air()
+            time.sleep(0.2)
+        self.close_vacumm()
+        time.sleep(0.2)
         self.open_air()
         time.sleep(0.2)
+        return True
 
 
 if __name__ ==  '__main__':
     nd = Nanodrop()
-    zm, gt, pt = mn.initiate_hardware()
     print(1)
