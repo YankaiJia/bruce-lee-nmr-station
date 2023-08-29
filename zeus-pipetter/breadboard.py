@@ -47,7 +47,13 @@ def choose_robot_by_pysimplegui():
             return 'Roboski#2'
 
 # the variables robot_name, CONFIG_PATH  and STATUS_PATH are global and are used in other modules.
-robot_name = choose_robot_by_pysimplegui()
+# robot_name = choose_robot_by_pysimplegui()
+try:
+    robot_name = os.environ['PIPETTER_NAME']
+except KeyError:
+    raise ValueError('Environment variable PIPETTER_NAME is not set. Choose robowski by GUI.')
+    robot_name = choose_robot_by_pysimplegui()
+
 if robot_name == 'Roboski#1':
     CONFIG_PATH = 'config//roboski1//'
     STATUS_PATH = data_folder + "\\pipetter_files\\roboski1\\"
