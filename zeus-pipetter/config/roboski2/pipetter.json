@@ -5,7 +5,7 @@
     "max_x": -800,
     "max_y": -450,
     "horiz_speed": 12000,
-    "xy_offset": [0,-5],
+    "xy_offset": [0,0],
     "zeus_traverse_position": 880,
     "trash_xy": [-400,-160],
     "idle_xy": [-300,-350],

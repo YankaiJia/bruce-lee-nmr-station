@@ -4,6 +4,7 @@ The pipetter module combines gantry and zeus, and deals with actions including p
 dispense_liquid, transfer_liquid and so on.
 
 """
+import asyncio
 import logging
 
 pipetter_logger = logging.getLogger('main.pipetter')
@@ -383,6 +384,47 @@ class Pipetter():
         self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
         self.gantry.move_xy(transfer_event.source_container.xy)
 
+        for retry in range(n_retries):
+            try:
+                # print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
+                self.zeus.aspiration(aspirationVolume=int(round(transfer_event.transfer_volume * 10)), # volume in 0.1 ul
+                                     containerGeometryTableIndex=transfer_event.asp_containerGeometryTableIndex,
+                                     deckGeometryTableIndex=transfer_event.asp_deckGeometryTableIndex,
+                                     liquidClassTableIndex=transfer_event.liquidClassTableIndex,
+                                     qpm=transfer_event.asp_qpm,
+                                     lld=transfer_event.asp_lld,
+                                     liquidSurface = transfer_event.source_container.liquid_surface_height,
+                                     lldSearchPosition= transfer_event.source_container.liquid_surface_height - 50,
+                                     mixVolume=transfer_event.asp_mixVolume,
+                                     mixFlowRate=transfer_event.asp_mixFlowRate,
+                                     mixCycles=transfer_event.asp_mixCycles)
+                print(f'DEBUG:liquid surface height in source container: {transfer_event.source_container.liquid_surface_height} ')
+
+                # Replace this sleep with a proper check. Why do you even need a sleep if next function is zeus.wait_until...???
+                # time.sleep(2)
+                self.zeus.wait_until_zeus_responds_with_string('GAid')
+                return True
+
+            except ZeusError:
+                if self.zeus.zeus_error_code(self.zeus.r.received_msg) == '81':
+                    # Empty tube detected during aspiration
+                    self.logger.info('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
+                    time.sleep(2)
+                    self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
+                    time.sleep(2)
+                    self.dispense_liquid(transfer_event)
+                    time.sleep(2)
+                    continue
+
+        self.logger.info(f'Tried {n_retries} but zeus error is still there')
+        raise Exception
+
+    async def draw_liquid_async(self, transfer_event: object, n_retries=3) -> bool:
+
+        self.zeus.move_z(config_pt['gantry']['zeus_traverse_position'])
+        self.gantry.move_xy(transfer_event.source_container.xy)
+
+        await asyncio.sleep(1)
 
         for retry in range(n_retries):
             try:
