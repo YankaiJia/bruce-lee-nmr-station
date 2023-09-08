@@ -1,9 +1,9 @@
 import importlib
+import pickle
 from distutils import dir_util
 import pandas as pd
 from pytest import fixture
 import os
-
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 
 
@@ -90,3 +90,38 @@ def test_join_data_from_runs(datadir):
                                                       'multicomp-reactions/2023-06-21-run02/'
                                                      ]),
             pd.read_pickle('expected_outputs/joined_data_from_runs.pkl'))
+
+
+def test_get_excel_file_version(datadir):
+    with datadir.as_cwd():
+        assert organize_run_results.get_excel_file_version(
+            'simple-reactions/2023-08-21-run01/2023-08-21-run01.xlsx') == 1
+        assert organize_run_results.get_excel_file_version(
+            'simple-reactions/2023-07-16-run01/2023-07-16-run01.xlsx') == 0
+
+
+def test_locate_condition_by_operation_datetime_and_plate_id(datadir):
+    with datadir.as_cwd():
+        df_conditions = pd.read_excel('simple-reactions/2099-99-99-run01/2099-99-99-run01.xlsx',
+                                      sheet_name='reactions_with_run_info')
+        d = pickle.load(open('expected_outputs/locate_condition_by_operation_datetime_and_plate_id.pkl', 'rb'))
+    for timestamp in d.keys():
+        res = organize_run_results.locate_condition_by_operation_datetime_and_plate_id(
+            timestamp=timestamp,
+            plate_id=51,
+            dataframe_with_conditions=df_conditions,
+            column_namd_for_plate_id='plate_barcodes_for_dilution',
+            column_name_for_timestamp='timestamp_dilution',
+            column_name_for_container_id='container_id'
+        )
+        assert res == tuple(d[timestamp])
+
+    res = organize_run_results.locate_condition_by_operation_datetime_and_plate_id(
+        timestamp=timestamp,
+        plate_id=152,
+        dataframe_with_conditions=df_conditions,
+        column_namd_for_plate_id='plate_barcodes_for_dilution',
+        column_name_for_timestamp='timestamp_dilution',
+        column_name_for_container_id='container_id'
+    )
+    assert res == tuple([])
