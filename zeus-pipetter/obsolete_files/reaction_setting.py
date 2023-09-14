@@ -21,7 +21,7 @@ def do_calibration_on_events(zm,pt,calibration_event_list,logger):
         logger.info(f'Result: {result}')
         # check tip type and change the tip if needed
         if event_index != len(calibration_event_list) - 1:  # check if this is the last event.
-            if calibration_event_list[event_index].substance_name != calibration_event_list[event_index + 1].substance_name:
+            if calibration_event_list[event_index].substance != calibration_event_list[event_index + 1].substance:
                 pt.discard_tip()
         time.sleep(0.5)
     pt.discard_tip()
@@ -45,7 +45,7 @@ def run_events_bio(zm, pt, logger, event_list):
 
         # check tip type and change tip if needed
         if event_index != len(event_list) - 1:  # check if this is the last event.
-            if event_list[event_index].substance_name != event_list[event_index + 1].substance_name:
+            if event_list[event_index].substance != event_list[event_index + 1].substance:
                 pt.change_tip(event_list[event_index + 1].tip_type)
         time.sleep(0.5)
     pt.discard_tip()

@@ -1,4 +1,0 @@
-substance, container, volume, solvent, density
-Substance_A plate_4_container0 4ml ethanol_empty 0.789
-Substance_B plate_4_container1 4ml ethanol_empty 0.789
-Substance_C plate_4_container2 4ml ethanol_empty 0.789

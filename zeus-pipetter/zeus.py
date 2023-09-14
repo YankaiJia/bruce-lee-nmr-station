@@ -2,22 +2,16 @@ import logging
 module_logger = logging.getLogger('main.zeus')
 
 import can
-import signal
 import time
 from time import sleep
 from colorama import init, Fore, Back, Style
 from threading import Thread, Lock
 import codecs
 import json
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-
-import sys
-import pprint
 
 DEBUG = 0
-INFO = 0
-WARNING = 0
+INFO = 1
+WARNING = 1
 ERROR = 1
 # KICK_MASK = 0x0400
 KICK_MASK = 0b10000000000
@@ -77,8 +71,10 @@ class Unbuffered(object):
 def printMSG(type, msg):
     ts = time.time()  # Timestamp
     if (type == 'info' and INFO == 1):
-        print(
-            Fore.WHITE + "(" + "{0:f}".format(ts) + ") INFO: " + msg + Style.RESET_ALL)
+        pass
+        # print('OK!')
+        # print(
+        #     Fore.WHITE + "(" + "{0:f}".format(ts) + ") INFO: " + msg + Style.RESET_ALL)
 
     elif (type == 'debug' and DEBUG == 1):
         print(Fore.MAGENTA +
@@ -161,258 +157,6 @@ class LiquidClass(object):
         self.flowRateTransportVolume = flowRateTransportVolume
 
 
-# class ZeusLiquidClass:
-#     """
-#     This Class is for reading and setting liquid class parametes to Zeus.
-#
-#     Working steps:
-#         1 extract all the parameters for the built-in liquid classes.
-#         2 store all the extracted parameters to a dictionary. step 1 and 2 need to be done only once.
-#             ## extract_all_built_in_liquid_class_parameters_to_a_dict()
-#         3 name your new liquid class from index 21, because the first 20 index are read only. Copy one of the liquid class
-#           parameters to your new liquid class.
-#             ## copy_para_from_to(index_from, index_to)
-#         4 modify your new liquid class by setting new parameters
-#             ## liquid_class_table_para['21']['lld'] = 1
-#             ## liquid_class_table_para['21']['plldSensitivity'] = 3
-#         5 update your local dictionary, i.e., Json file.
-#             ## update_liquid_dict()
-#         6 set your new liquid class to zeus
-#             ## set_liquid_class_to_zeus( liquid_index)
-#         7 check your liquid class parameters from zeus
-#             ## request_parameters_from_zeus(liquid_index):
-#
-#     Notes
-#         1 do not forget the space between parameters when sending it the zeus
-#         2 there is one glitch with 'GG' and 'GH' commands. See inside function: set_liquid_class_to_zeus( liquid_index)
-#
-#     Yankai Jia 2023/01/23
-#     """
-#
-#     def __init__(self, zm):
-#
-#         with open('data/liquid_class_table_para_ALL.json') as json_file:
-#             liquid_class_table_para = json.load(json_file)
-#
-#         self.zm = zm
-#         self.liquid_class_table_para = liquid_class_table_para
-#
-#     def import_from_json(self):
-#         return self.liquid_class_table_para
-#
-#     def extract_liquid_class_parameter(self, liquid_index, id='0001'):
-#         cmd = 'GMid' + id + 'lq' + str(liquid_index).zfill(2)
-#         print(f'cmd send is : {cmd}')
-#         self.zm.sendCommand(cmd)
-#         time.sleep(1)# This delay is IMPORTANT. Without this delay, the msg will return the previous data.
-#                         # This value should be larger than 0.1s.
-#         msg_received_from_Zeus = self.zm.r.received_msg
-#         print(f'msg_received_from_Zeus len is : {len(msg_received_from_Zeus)}')
-#         return msg_received_from_Zeus
-#
-#     def extract_calibration_aspiration(self, liquid_index, id='0001'):
-#
-#         cmd = 'GEid' + id + 'gg' + str(liquid_index).zfill(2)
-#         print(f'cmd send is : {cmd}')
-#         self.zm.sendCommand(cmd)
-#         time.sleep(0.5) # This delay is IMPORTANT. Without this delay, the msg will return the previous data.
-#                         # This value should be larger than 0.1s.
-#         msg_received_from_Zeus = self.zm.r.received_msg
-#         print(f'msg_received_from_Zeus for calibration_aspiration is : {msg_received_from_Zeus}')
-#         return msg_received_from_Zeus
-#
-#     def extract_calibration_dispensing(self, liquid_index, id='0001'):
-#         cmd = 'GIid' + id + 'gh' + str(liquid_index).zfill(2)
-#         print(f'cmd send is : {cmd}')
-#         self.zm.sendCommand(cmd)
-#         time.sleep(0.5)
-#         msg_received_from_Zeus = self.zm.r.received_msg
-#         print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
-#         return msg_received_from_Zeus
-#
-#     def extract_qpm_aspiration(self, liquid_index, id='0001'):
-#         cmd = 'GSid' + id + 'gv' + str(liquid_index).zfill(2)
-#         print(f'cmd send is : {cmd}')
-#         self.zm.sendCommand(cmd)
-#         time.sleep(0.5)
-#         msg_received_from_Zeus = self.zm.r.received_msg
-#         print(f'msg_received_from_Zeus for qpm_aspiration is : {msg_received_from_Zeus}')
-#         return msg_received_from_Zeus
-#
-#     def extract_qpm_dispensing(self, liquid_index, id='0001'):
-#         cmd = 'GWid' + id + 'gp' + str(liquid_index).zfill(2)
-#         print(f'cmd send is : {cmd}')
-#         self.zm.sendCommand(cmd)
-#         time.sleep(1)
-#         msg_received_from_Zeus = self.zm.r.received_msg
-#         print(f'msg_received_from_Zeus for qpm_dispensing is : {msg_received_from_Zeus}')
-#         return msg_received_from_Zeus
-#
-#     def fill_one_liquid_class_parameter(self, liquid_index, id='0001'):
-#         msg = self.extract_liquid_class_parameter(id=id, liquid_index=liquid_index)
-#         para_container = ''.join(i for i in msg if i.isdigit())
-#         # print(para_container)
-#         # global liquid_class_table_para
-#         var_dict = {'id': 4,
-#                     'index': 2,
-#                     'liquidClassForFilterTips': 1,
-#                     'aspirationMode': 1,
-#                     'aspirationFlowRate': 5,
-#                     'overAspiratedVolume': 4,
-#                     'aspirationTransportVolume': 5,
-#                     'blowoutAirVolume': 5,
-#                     'aspirationSwapSpeed': 4,
-#                     'aspirationSettlingTime': 3,
-#                     'lld': 1,
-#                     'clldSensitivity': 1,
-#                     'plldSensitivity': 1,
-#                     'adc': 1,
-#                     'dispensingMode': 1,
-#                     'dispensingFlowRate': 5,
-#                     'stopFlowRate': 5,
-#                     'stopBackVolume': 3,
-#                     'dispensingTransportVolume': 5,
-#                     'acceleration': 3,
-#                     'dispensingSwapSpeed': 4,
-#                     'dispensingSettlingTime': 3,
-#                     'flowRateTransportVolume': 5}  # store variables and its len
-#         # if not sum(var_dict.values()) +  ==  len (para_container):
-#         #     print("Msg string length does not match the needed length!")
-#         #     return
-#         n = 0
-#         for i in var_dict:
-#             # print(f'liquid index is : {liquid_index}')
-#             self.liquid_class_table_para['liquid_class_para'][liquid_index][i] = int(para_container[n:n + var_dict[i]])
-#             n += var_dict[i]
-#         return self.liquid_class_table_para
-#
-#     def extract_all_built_in_liquid_class_parameters_to_a_dict(self):
-#         # global liquid_class_table_para
-#         for i in range(31):
-#             liquid_index = str(i).zfill(2)
-#
-#             self.liquid_class_table_para['liquid_class_para'][liquid_index] = {}
-#             self.fill_one_liquid_class_parameter(liquid_index, id='0001')
-#
-#             self.liquid_class_table_para['calibration']['aspiration'][liquid_index] = {}
-#             string1 = self.extract_calibration_aspiration(liquid_index, id='0001')
-#             self.liquid_class_table_para['calibration']['aspiration'][liquid_index] = string1[:-3]
-#
-#             self.liquid_class_table_para['calibration']['dispensing'][liquid_index] = {}
-#             string2 = self.extract_calibration_dispensing(liquid_index, id='0001')
-#             self.liquid_class_table_para['calibration']['dispensing'][liquid_index] = string2[:-3]
-#
-#             self.liquid_class_table_para['qpm']['aspiration'][liquid_index] = {}
-#             string3 = self.extract_qpm_aspiration(liquid_index, id='0001')
-#             self.liquid_class_table_para['qpm']['aspiration'][liquid_index] = string3[:-4]
-#
-#             self.liquid_class_table_para['qpm']['dispensing'][liquid_index] = {}
-#             string4 = self.extract_qpm_dispensing(liquid_index, id='0001')
-#             self.liquid_class_table_para['qpm']['dispensing'][liquid_index] = string4
-#
-#     # extract_all_built_in_liquid_class_parameters_to_a_dict() # Do this only when needed
-#
-#     def copy_para_from_to(self, index_from, index_to):
-#         self.liquid_class_table_para['liquid_class_para'][str(index_to).zfill(2)] = \
-#             self.liquid_class_table_para['liquid_class_para'][str(index_from).zfill(2)]
-#         self.liquid_class_table_para['liquid_class_para'][str(index_to).zfill(2)][
-#             'index'] = index_to  # Update new liquid index
-#
-#         string1 = self.liquid_class_table_para['calibration']['aspiration'][str(index_from).zfill(2)]
-#         new_string1 = 'GGid0001gg' + str(index_to).zfill(2) + string1[
-#                                                               12:]  # Update new liquid index and change GE (reequest) to GG (set)
-#         self.liquid_class_table_para['calibration']['aspiration'][str(index_to).zfill(2)] = new_string1
-#
-#         string2 = self.liquid_class_table_para['calibration']['dispensing'][str(index_from).zfill(2)]
-#         new_string2 = 'GHid0001gh' + str(index_to).zfill(2) + string2[
-#                                                               12:]  # Update new liquid index and change GI(reequest) to GH (set)
-#         self.liquid_class_table_para['calibration']['dispensing'][str(index_to).zfill(2)] = new_string2
-#
-#         string3 = self.liquid_class_table_para['qpm']['aspiration'][str(index_from).zfill(2)]
-#         new_string3 = 'GQid0001gv' + str(index_to).zfill(2) + string3[
-#                                                               12:]  # Update new liquid index and change GS (reequest) to GQ (set)
-#         self.liquid_class_table_para['qpm']['aspiration'][str(index_to).zfill(2)] = new_string3
-#
-#         string4 = self.liquid_class_table_para['qpm']['dispensing'][str(index_from).zfill(2)]
-#         new_string4 = 'GVid0001gp' + str(index_to).zfill(2) + string4[
-#                                                               12:]  # Update new liquid index and change GW (reequest) to Gv (set)
-#         self.liquid_class_table_para['qpm']['dispensing'][str(index_to).zfill(2)] = new_string4
-#
-#         self.update_liquid_dict()
-#
-#     def update_liquid_dict(self):
-#         # update json file
-#         with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
-#             json.dump(self.liquid_class_table_para, f, ensure_ascii=False, indent=4)
-#
-#     def set_liquid_class_to_zeus(self, liquid_index):
-#         # write liquid class parameters
-#         para1 = self.liquid_class_table_para['liquid_class_para'][str(liquid_index).zfill(2)]
-#         lc_param = LiquidClass(**para1)
-#         self.zm.setLiquidClassParameters(lc_param)
-#         time.sleep(0.5)
-#
-#         ## write calibration curve
-#         # aspiration
-#         para2 = self.liquid_class_table_para['calibration']['aspiration'][str(liquid_index).zfill(2)]
-#         ## There is a firmware malfuction here. Instead of send the string: GGid0001gg21ck + parameters. You should remove
-#         ## gg21 from the string and send this:GGid0001ck + parameters. But before send this, you should do this:
-#         ## zm.sendCommand('GHid0001gh21') and zm.sendCommand('RAid0000ragh'). Yaroslav figured this out. There was a lot of frustration
-#         ## before this was figured out.
-#         self.zm.sendCommand('GGid0001gg' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#         self.zm.sendCommand('RAid0000ragg')
-#         time.sleep(0.5)
-#         para2_new = para2[:8] + para2[12:]
-#         self.zm.sendCommand(para2_new)
-#         time.sleep(0.5)
-#         # dispensing
-#         para3 = self.liquid_class_table_para['calibration']['dispensing'][str(liquid_index).zfill(2)]
-#         self.zm.sendCommand('GHid0001gh' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#         self.zm.sendCommand('RAid0000ragh')
-#         time.sleep(0.5)
-#         para3_new = para3[:8] + para3[12:]
-#         self.zm.sendCommand(para3_new)
-#         time.sleep(0.5)
-#         #
-#         # set_liquid_class_to_zeus(liquid_index = 21)
-#         # set_liquid_class_to_zeus(liquid_index = 22)
-#         ## write qpm
-#         # aspiration
-#         para4 = self.liquid_class_table_para['qpm']['aspiration'][str(liquid_index).zfill(2)]
-#         self.zm.sendCommand(para4)
-#         time.sleep(0.5)
-#         # dispensing
-#         para5 = self.liquid_class_table_para['qpm']['dispensing'][str(liquid_index).zfill(2)]
-#         self.zm.sendCommand(para5)
-#         time.sleep(0.5)
-#
-#     def request_parameters_from_zeus(self, liquid_index):
-#
-#         # liquid parameters
-#         self.zm.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#
-#         # calibrations
-#         self.zm.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#         self.zm.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#
-#         # qpm
-#         self.zm.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#         self.zm.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
-#         time.sleep(0.5)
-#
-#     # set_liquid_class_to_zeus( liquid_index =23 )
-#     # time.sleep(1)
-#     # request_parameters_from_zeus(liquid_index = 23)
-#
-#     # request_parameters_from_zeus(liquid_index = 22)
-#
-
 class remoteFrameListener(can.Listener):
 
     def __init__(self, p):
@@ -433,14 +177,13 @@ class remoteFrameListener(can.Listener):
     def on_message_received(self, msg):
         printMSG(
             "debug", f'Received message: arbitration id = {msg.arbitration_id:X}')
-
         # REMOTE FRAME ACTION
         if (msg.is_remote_frame == True):
             #  if((msg.arbitration_id == 0x0000) or (msg.arbitration_id == 0x0020)):
             #  return
             if (self.getRemoteFlag() == 0):
                 self.setRemoteFlag(1)
-                printMSG("info", "Received remote frame with ID = {}, DLC = {}.".format(
+                printMSG("debug", "Received remote frame with ID = {}, DLC = {}.".format(
                     self.parseMsgID(msg.arbitration_id, "s"), msg.dlc))
                 #  print(Fore.BLUE + "{}".format(msg) + Style.RESET_ALL)
             return
@@ -461,7 +204,7 @@ class remoteFrameListener(can.Listener):
                 return
             if (self.getKickFlag() == 0):
                 self.setKickFlag(1)
-                printMSG("info", "Received Kick.")
+                printMSG("debug", "Received Kick.")
                 #  print(Fore.BLUE + "{}".format(msg) + Style.RESET_ALL)
                 if self.parent.auto_response:
                     self.parent.sendRemoteFrame(1)
@@ -486,17 +229,18 @@ class remoteFrameListener(can.Listener):
                     self.parent.sendRemoteFrame(8)
             else:
                 self.msg_complete_flag = 1
-                printMSG(
-                    "debug", "Assembled message {}".format(self.received_msg))
+                # printMSG(
+                #     "debug", "Assembled message {}".format(self.received_msg))
                 #  if self.parent.auto_response:
                 #  self.parent.sendRemoteFrame(8)
 
                 # I'm really not sure whether the kick flag should be reset here
                 self.setKickFlag(0)
-                printMSG("debug", 'Kick flag is set to 0.')
+                # printMSG("debug", 'Kick flag is set to 0.')
 
                 ret = self.parent.parseErrors(self.received_msg)
-                if (ret != "NONE"):
+                # TODO: Figure out why sometimes it's "NONE" (capitals) and sometimes "None" and unify the format
+                if (str(ret) != "None") and (str(ret) != "NONE"):
                     printMSG("error", "{}".format(ret))
                     return ret
 
@@ -538,8 +282,8 @@ class remoteFrameListener(can.Listener):
     def msg_is_last(self, msg):
         size = len(msg.data)
         if (size > 0):
-            #  printMSG(
-            #  "warning", "control byte length = {}".format(len(msg.data)))
+            printMSG(
+             "debug", "control byte length = {}".format(len(msg.data)))
             control_byte = msg.data[(len(msg.data) - 1)]
             if ((control_byte & EOM_MASK) > 0):
                 return 1
@@ -590,7 +334,7 @@ class ZeusError(Exception):
 
 class ZeusModule:
     CANBus = None
-    transmission_retries = 5
+    transmission_retries = 10
     remote_timeout = 1
     errorTable = {
         "20": "No communication to EEPROM.",
@@ -658,7 +402,7 @@ class ZeusModule:
         self.r = remoteFrameListener(self)
         self.remoteFrameNotifier = can.Notifier(self.CANBus, [self.r])
 
-        with open('data/liquid_class_table_para_ALL.json') as json_file:
+        with open('config/liquid_class_table_para_ALL.json') as json_file:
             liquid_class_table_para = json.load(json_file)
 
         self.liquid_class_table_para = liquid_class_table_para
@@ -666,6 +410,7 @@ class ZeusModule:
         self.logger.info(f"ZeusModule {self.id} is initializing...")
 
         if init_module:
+            # self.getFirmwareVersion()
             self.initZDrive()
             printMSG("debug", 'sleeping before initDosingDrive')
             sleep(3)
@@ -699,7 +444,7 @@ class ZeusModule:
             arbitration_id=0x0020)
         msg.dlc = dlc
         printMSG(
-            "info", "ZeusModule {}: sending remote frame with dlc = {}...".format(self.id, msg.dlc))
+            "debug", "ZeusModule {}: sending remote frame with dlc = {}...".format(self.id, msg.dlc))
         # print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
         try:
             self.CANBus.send(msg)
@@ -727,9 +472,9 @@ class ZeusModule:
         msg = can.Message(
             is_extended_id=False,
             arbitration_id=self.assembleIdentifier('kick'), data=0)
-        printMSG("info",
+        printMSG("debug",
                  "ZeusModule, {}: sending kick frame...".format(self.id))
-        #  print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
+        # print(Fore.GREEN + "{}".format(msg) + Style.RESET_ALL)
         while (n < self.transmission_retries):
             try:
                 self.CANBus.send(msg)
@@ -768,7 +513,7 @@ class ZeusModule:
     def sendDataObject(self, i, cmd_len, data):
         byte = 0
         printMSG(
-            "info", "ZeusModule {}: sending data frame {} of {}...".format(self.id, i + 1, cmd_len))
+            "debug", "ZeusModule {}: sending data frame {} of {}...".format(self.id, i + 1, cmd_len))
         printMSG('debug', "Outstring = {}".format(data))
         printMSG(
             # "debug", "data pre append = {}".format(data.encode('hex')))
@@ -821,8 +566,10 @@ class ZeusModule:
         data = list(split_by_n(cmd, 7))
         # print(f'The split list sent is : {data}')
         cmd_len = len(data)
+        # printMSG(
+        #     "debug", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
         printMSG(
-            "info", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
+            "debug", "ZeusModule {}: sending packet {} in {} data frame(s)...".format(self.id, cmd, cmd_len))
 
         # Send kick frame and wait for remote response
         self.sendKickFrame()
@@ -915,6 +662,25 @@ class ZeusModule:
         # cmd = self.cmdHeader(string)
         self.sendCommand(string)
 
+    def volumeCheck(self, containerGeometryTableIndex, deckGeometryTableIndex,
+                    liquidClassTableIndex, lld, lldSearchPosition, liquidSurface):
+        # print(f'containerGeometryTableIndex is {containerGeometryTableIndex}')
+        # print(f'deckGeometryTableIndex is {deckGeometryTableIndex}')
+        # print(f'liquidClassTableIndex is {liquidClassTableIndex}')
+        # print(f'lld is {lld}')
+        # print(f'lldSearchPosition is {lldSearchPosition}')
+        # print(f'liquidSurface is {liquidSurface}')
+
+        cmd = self.cmdHeader('GJ')
+        cmd = cmd +\
+                'ge' + str(containerGeometryTableIndex).zfill(2) + \
+                'go' + str(deckGeometryTableIndex).zfill(2) + \
+                'lq' + str(liquidClassTableIndex).zfill(2) + \
+                'lb' + str(lld) + \
+                'zp' + str(lldSearchPosition).zfill(4) + \
+                'cf' + str(liquidSurface).zfill(4)
+        self.sendCommand(cmd)
+
     def aspiration(self, aspirationVolume=0, containerGeometryTableIndex=0,
                    deckGeometryTableIndex=0, liquidClassTableIndex=0, qpm=0,
                    lld=0, lldSearchPosition=0, liquidSurface=0, mixVolume=0,
@@ -951,6 +717,8 @@ class ZeusModule:
               'ma' + str(mixVolume).zfill(5) + \
               'mb' + str(mixFlowRate).zfill(5) + \
               'dn' + str(mixCycles).zfill(2)
+        # print(f"DEBUG: zeus.dispensing():: The command sent to Zeus is : {cmd}")
+        # print(f"DEBUG: zeus.dispensing():: liquidSurface is : {liquidSurface}")
         self.sendCommand(cmd)
 
     def switchOff(self):
@@ -1122,7 +890,7 @@ class ZeusModule:
 
     def setDeckGeometryParameters(self, deckGeometryParameters):
         cmd = self.cmdHeader('GO')
-        cmd = cmd + 'go' + str(deckGeometryParameters.index).zfill(2) + \
+        cmd = cmd + 'go' + str(deckGeometryParameters.deckGeometryTableIndex).zfill(2) + \
               'te' + str(deckGeometryParameters.endTraversePosition).zfill(4) + \
               'tm' + \
               str(deckGeometryParameters.beginningofTipPickingPosition).zfill(4) + \
@@ -1185,7 +953,7 @@ class ZeusModule:
         if errorString == "":
             return "NONE"
 
-        printMSG("warning", "ErrorString = {}".format(errorString))
+        printMSG("info", "Message from Zeus: {}".format(errorString))
 
         #  else:
         # print(Fore.MAGENTA + "DEBUG: Received error string '{}' with
@@ -1404,7 +1172,9 @@ class ZeusModule:
         for i in range(n_retries):
             # print(f'Waiting for Zeus to get back to traverse height: attempt {i}')
             self.getAbsoluteZPosition()
-            time.sleep(0.5)
+
+            time.sleep(0.15)
+
             idx = self.r.received_msg.find("gy")
             if idx == -1:
                 # this means that there is an error. Retry
@@ -1440,7 +1210,7 @@ class ZeusModule:
         return str(errorString[(eidx + 2): (eidx + 4)])
 
     def wait_until_zeus_responds_with_string(self, search_pattern, n_retries=200):
-        time.sleep(0.5)
+        # time.sleep(0.5)
         # print(f'Waiting for Zeus to respond')
         for i in range(n_retries):
             # print(f'Waiting for Zeus to respond: attempt {i}')
@@ -1467,9 +1237,10 @@ class ZeusModule:
         raise Exception
         return False
 
-    def move_z(self, z):
+    def move_z(self, z, raise_exception=True):
         self.moveZDrive(z, 'fast')
-        self.wait_until_zeus_responds_with_string('GZid')
+        if raise_exception:
+            self.wait_until_zeus_responds_with_string('GZid')
 
     def zeus_is_at_traverese_height(self):
         if self.pos <= self.ZeusTraversePosition:
@@ -1546,7 +1317,7 @@ class ZeusModule:
         self.sendCommand(cmd)
         time.sleep(0.5)
         msg_received_from_Zeus = self.r.received_msg
-        print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
+        # print(f'msg_received_from_Zeus for calibration_dispensing is : {msg_received_from_Zeus}')
         return msg_received_from_Zeus
 
     def extract_qpm_aspiration(self, liquid_index, id='0001'):
@@ -1661,12 +1432,12 @@ class ZeusModule:
 
     def update_liquid_dict_from_classvar_to_json(self):
         # update json file
-        with open('data/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
+        with open('config/liquid_class_table_para_ALL.json', 'w', encoding='utf-8') as f:
             json.dump(self.liquid_class_table_para, f, ensure_ascii=False, indent=4)
 
     def update_liquid_dict_from_json_to_classvar(self):
         # update json file
-        with open('data/liquid_class_table_para_ALL.json', 'r', encoding='utf-8') as f:
+        with open('config/liquid_class_table_para_ALL.json', 'r', encoding='utf-8') as f:
             self.liquid_class_table_para = json.load(f)
 
     def set_liquid_class_to_zeus(self, liquid_index):
@@ -1726,27 +1497,34 @@ class ZeusModule:
 
         # liquid parameters
         self.sendCommand('GMid0001lq' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"liquid parameters: {self.r.received_msg}")
+        print(f"liquid parameters: {self.r.received_msg}")
 
         # calibrations
         self.sendCommand('GEid0001gg' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"calibration_asp {self.r.received_msg}")
+        print(f"calibration_asp {self.r.received_msg}")
 
         self.sendCommand('GIid0001gh' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"calibration_disp {self.r.received_msg}")
+        print(f"calibration_disp {self.r.received_msg}")
 
 
         # qpm
         self.sendCommand('GSid0001gv' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"qpm_asp {self.r.received_msg}")
+        time.sleep(2)
+
+        # print(f"qpm_asp {self.r.received_msg}")
 
         self.sendCommand('GWid0001gp' + str(liquid_index).zfill(2))
-        time.sleep(0.5)
+        time.sleep(2)
         self.logger.info(f"qpm_asp {self.r.received_msg}")
+        print(f"qpm_asp {self.r.received_msg}")
 
     # set_liquid_class_to_zeus( liquid_index =23 )
 
@@ -1756,29 +1534,61 @@ if __name__ == '__main__':
 
     print('This is main of zeus.py')
 
-    # load liquid classes
-    # load deck parameters
-
     # load container parameters
-    zm = ZeusModule(id = 1)
+    zm = ZeusModule(id=1)
+
+    #
+    # #run this ONLY when changing new tip rack.
+    # brb.load_new_tip_rack(rack_reload ='300ul')
+    # print('New tip rack: 300ul is loaded.')
+    #
+    # brb.load_new_tip_rack(rack_reload ='1000ul')
+    # print('New tip rack: 1000ul is loaded.')
+    #
+    # brb.load_new_tip_rack(rack_reload ='50ul')
+    # print('New tip rack: 50ul is loaded.')
+
+    # # #
+    # # # reset Container Geometry Parameters
     # zm.setContainerGeometryParameters(brb.vial_2ml)
+    # print('ContainerGeometryParameters::vial_2ml is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.well_bio)
+    # print('ContainerGeometryParameters::well_bio is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.bottle_20ml)
+    # print('ContainerGeometryParameters::bottle_20ml is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.jar_100ml)
+    # print('ContainerGeometryParameters::jar_100ml is loaded.')
     # time.sleep(2)
     # zm.setContainerGeometryParameters(brb.tube_1500ul)
+    # print('ContainerGeometryParameters::tube_1500ul is loaded.')
+    # time.sleep(2)
+
+    ## container_geometry_parameters = 6 for nanodrop_pedestal
+    zm.setContainerGeometryParameters(brb.nanodrop_pedestal)
+    print('ContainerGeometryParameters::nanodrop_pedestal is loaded.')
+    time.sleep(2)
 
     # # load deck parameters
     # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
+    # print('DeckGeometryParameters::deckgeom_300ul is loaded.')
     # time.sleep(1)
     # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_1000ul)
+    # print('DeckGeometryParameters::deckgeom_1000ul is loaded.')
     # time.sleep(1)
     # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_balance)
+    # print('DeckGeometryParameters::deckgeom_balance is loaded.')
     # time.sleep(1)
     # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_50ul)
+    # print('DeckGeometryParameters::deckgeom_50ul is loaded.')
     # time.sleep(1)
 
-    # lc = ZeusLiquidClass(zm = zm)
+    # # load liquid class parameters
+    # zm.request_parameters_from_zeus()
+    # time.sleep(1)
+    # zm.set_liquid_class_to_zeus()
+    # time.sleep(1)
+    #
+
