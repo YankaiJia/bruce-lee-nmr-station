@@ -93,8 +93,10 @@ def join_data_from_runs(run_names, round_on_columns=('ic001', 'am001', 'ald001',
         df_temporary = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
         if 'Unnamed: 0' in df_temporary.columns:
             df_temporary.drop('Unnamed: 0', inplace=True, axis=1)
-        df_temporary = round_to_nearest(df_temporary, df_result, round_on_columns)
+        if round_on_columns is not None:
+            df_temporary = round_to_nearest(df_temporary, df_result, round_on_columns)
         df_result = df_result.append(df_temporary, ignore_index=True)
+
     return df_result
 
 
@@ -459,6 +461,8 @@ def organize_run_structure_v3_00(experiment_name):
         f"Excel file version is not compatible with this function. " \
         f"Compatible versions are: {compatible_versions_of_excel_file}"
     df_structure = pd.read_excel(path_to_excel_file, sheet_name=0)
+    # drop columns that contain 'Unnamed'
+    df_structure = df_structure.loc[:, ~df_structure.columns.str.contains('^Unnamed')]
     df_structure['is_outlier'] = 0
 
     # if there is a file 'outVandC/stock_solutions.xlsx', load it and use to determine concentrations
@@ -517,7 +521,7 @@ def organize_run_structure_v3_00(experiment_name):
             df_structure.loc[indices, 'nanodrop_filepath'] = experiment_name + 'nanodrop_spectra/' + filename
             df_structure.loc[indices, 'timestamp_nanodrop'] = unix_timestamp
 
-                             # save the dataframe as csv
+    # save the dataframe as csv
     structure_csv_filepath = data_folder + experiment_name + 'results/run_structure.csv'
     with open(structure_csv_filepath, 'w') as f:
         f.write(f'version: {output_version}\n')
@@ -544,6 +548,10 @@ def load_run_structure(experiment_name):
         df = pd.read_csv(path_to_file, skiprows=1)
     else:
         df = pd.read_csv(path_to_file)
+    # if there are columns containing string "Unnamed", remove them
+    for column in df.columns:
+        if 'Unnamed' in column:
+            df.drop(column, axis=1, inplace=True)
     return df
 
 
@@ -727,21 +735,23 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
 
 
 if __name__ == '__main__':
+    pass
     # experiment_name = 'simple-reactions/2023-08-21-run01/'
     # df_structure = organize_run_structure(experiment_name, version='3.00')
 
-    list_of_runs = tuple([
-                          '2023-09-06-run01'])
-    for run_shortname in list_of_runs:
-        organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
+    # list_of_runs = tuple([
+    #                       '2023-09-06-run01'])
+    # for run_shortname in list_of_runs:
+    #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
 
     # list_of_runs = tuple([
-    #                       '2023-08-21-run01',
+    #                       # '2023-08-21-run01',
     #                       '2023-08-22-run01',
     #                       '2023-08-22-run02',
     #                       '2023-08-28-run01',
     #                       '2023-08-29-run01',
-    #                       '2023-08-29-run02'])
+    #                       '2023-08-29-run02'
+    # ])
     # for run_shortname in list_of_runs:
     #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
 
@@ -768,3 +778,11 @@ if __name__ == '__main__':
     #                       # '2023-07-13-run01' # this run should not be included.
     #                       ])
     # check_run_data_consistency([f'simple-reactions/{run_name}/' for run_name in list_of_runs])
+
+    # ############################# E1
+    # list_of_runs = tuple([
+    #                       '2023-09-06-run01',
+    #                       '2023-09-07-run01'
+    # ])
+    # for run_shortname in list_of_runs:
+    #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
