@@ -1,5 +1,4 @@
 import logging
-import math
 import os
 import numpy as np
 import pandas as pd
@@ -174,7 +173,6 @@ def check_run_data_consistency(list_of_runs):
         if row['timestamp'] < 1686989327:
             continue
         # check if the existing folder corresponds to the experiment_name
-        print(row['exp_name'], row['folder'])
         assert row['exp_name'] in row['folder'], \
             'The exp_name is not in folder name.'
         # check that the folder actually exists on the disk
@@ -209,21 +207,15 @@ def check_run_data_consistency(list_of_runs):
             df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic_dil)].copy().reset_index()
         else:
             df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic)].copy().reset_index()
-
         assert len(
             df_craic) > 0, f"No plates found in CRAIC database for {experiment_name}. Good luck learning to type."
         # logging.info(f'Found {len(df_craic)} plates in CRAIC database for {experiment_name}: '
         #              f'plate IDs: {df_craic["plate_id"].values}')
 
-        print(f'len(df_dilution):{len(df_dilution)}')
-        print(f'len(df_pipetter):{len(df_pipetter)}')
-        print(f'len(df_structure):{len(df_structure) / 54}')
-        print(f'len(df_craic):{len(df_craic)}')
-        assert len(df_dilution) == len(df_pipetter) == math.ceil(len(df_structure) / 54) == len(df_craic), \
+        assert len(df_dilution) == len(df_pipetter) == len(df_structure) / 54 == len(df_craic), \
             'numbers of rows in the dataframes are inconsistent'
 
-
-        # assert len(df_structure) % 54 == 0, 'number of conditions is not divisible by 54' ## this is uncommented by Yankai
+        assert len(df_structure) % 54 == 0, 'number of conditions is not divisible by 54'
 
         # iterate over the plates of df_pipetter
         for row_id, row in enumerate(df_pipetter.itertuples()):
@@ -388,19 +380,13 @@ def merge_repeated_outliers(original_run, outlier_runs,
 
 if __name__ == '__main__':
     list_of_runs = tuple([
-                          # '2023-07-05-run01',
-                          # '2023-07-06-run01',
-                          # '2023-07-07-run01',
-                          # '2023-07-10-run01',
-                          # '2023-07-10-run02',
-                          # '2023-07-11-run01',
-                          # '2023-07-11-run02',
+                          '2023-07-05-run01',
+                          '2023-07-06-run01',
+                          '2023-07-07-run01',
+                          '2023-07-10-run01',
+                          '2023-07-10-run02',
+                          '2023-07-11-run01',
+                          '2023-07-11-run02',
                           # '2023-07-13-run01' # this run should not be included.
-                            '2023-07-26-run01',
-                            '2023-07-26-run02',
-                            '2023-07-27-run01',
-                            '2023-07-27-run02',
-                            '2023-07-28-run01'
-
                           ])
-    check_run_data_consistency([f'simple-reactionsSN1OH03/{run_name}/' for run_name in list_of_runs])
+    check_run_data_consistency([f'simple-reactions/{run_name}/' for run_name in list_of_runs])
