@@ -45,11 +45,11 @@ def process_run_by_shortname(run_shortname):
         concentrations_here = sp.concentrations_for_one_plate(experiment_folder=data_folder + run_name,
                                                               plate_folder=data_folder + nanodrop_filepath,
                                                               calibration_folder=data_folder + 'simple-reactions/2023-08-21-run01/' + 'microspectrometer_data/calibration/',
-                                                              calibrant_shortnames=[product_name, byproduct_name],
+                                                              calibrant_shortnames=[product_name, byproduct_name, 'HBr'],
                                                               background_model_folder=data_folder + 'simple-reactions/2023-08-21-run01/microspectrometer_data/background_model/',
-                                                              calibrant_upper_bounds=[np.inf, np.inf],
-                                                              do_plot=False, return_all_substances=True, cut_from=50,
-                                                              ignore_abs_threshold=True)
+                                                              calibrant_upper_bounds=[np.inf, np.inf, 0.01],
+                                                              do_plot=False, return_all_substances=True, cut_from=42, cut_to=180,
+                                                              ignore_abs_threshold=True, ignore_pca_bkg=True)
         concentrations_here = concentrations_here * dilution_factor
         for vial_id, product_concentrations in enumerate(concentrations_here):
             # index of this vial in the concentrations_df dataframe
@@ -63,6 +63,7 @@ def process_run_by_shortname(run_shortname):
 
             df_structure.loc[index_of_this_vial, f'pc#{product_name}'] = product_concentrations[0]
             df_structure.loc[index_of_this_vial, f'pc#{byproduct_name}'] = product_concentrations[1]
+            df_structure.loc[index_of_this_vial, f'pc#HBr'] = product_concentrations[2]
 
     concentrations_df = df_structure[df_structure[f'pc#{product_name}'].notna()]
 
@@ -82,6 +83,10 @@ def process_run_by_shortname(run_shortname):
                          substrate_concentration_before_reaction
             # if conversion is below 0 or above 1, replace with 0 or 1, respectively, and write to the dataframe
             concentrations_df.loc[index, 'conversion'] = np.clip(conversion, 0, 1)
+            if concentrations_df.loc[index, f'c#HBr'] == 0:
+                concentrations_df.loc[index, 'HBr_relative_change'] = 1
+            else:
+                concentrations_df.loc[index, 'HBr_relative_change'] = concentrations_df.loc[index, f'pc#HBr'] / concentrations_df.loc[index, f'c#HBr']
 
     concentrations_df.to_csv(data_folder + run_name + 'results/' + 'product_concentration.csv', index=False)
 

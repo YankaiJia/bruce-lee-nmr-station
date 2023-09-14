@@ -65,7 +65,7 @@ reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum, 
 concentrations = sorted(one_calibrant_df[concentration_column_name].to_list())
 process_wellplate_spectra.create_folder_unless_it_exists(calibration_folder + f'references/{calibrant_shortname}/concentration_fits')
 # cut_from = 115
-cut_from=50
+cut_from=42
 coeffs = []
 coeff_errs = []
 for concentration in concentrations:

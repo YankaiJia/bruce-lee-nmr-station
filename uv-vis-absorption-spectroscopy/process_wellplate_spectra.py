@@ -11,7 +11,8 @@ from scipy import interpolate
 from scipy.optimize import curve_fit
 import matplotlib.ticker as mticker
 
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
+plt.ioff()
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
@@ -519,10 +520,7 @@ class SpectraProcessor:
                                   background_model_folder,
                                   lower_limit_of_absorbance=-0.2, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
                                   upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
-                                  cut_to = False): #upper_bounds=[np.inf, np.inf]
-        # make sure there are two calibrants specified
-        # assert len(calibrant_shortnames) == 2
-
+                                  cut_to = False, ignore_pca_bkg=False): #upper_bounds=[np.inf, np.inf]
         calibrants = []
         for calibrant_shortname in calibrant_shortnames:
             dict_here = dict()
@@ -534,8 +532,6 @@ class SpectraProcessor:
         bkg_spectrum = calibrants[0]['bkg_spectrum']
         wavelengths = bkg_spectrum[:, 0]
         target_spectrum = target_spectrum_input - bkg_spectrum[:, 1]
-
-        # cut_from = 115
         wavelength_indices = np.arange(calibrants[0]['bkg_spectrum'].shape[0])
 
         thresh_w_indices = [0, 25, 127, 2000]
@@ -567,44 +563,59 @@ class SpectraProcessor:
             def func(xs, a, b, c, d, e, f):
                 return a * calibrants[0]['reference_interpolator'](xs) + b * calibrants[1]['reference_interpolator'](xs) + c \
                        + d*xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
+        elif len(calibrant_shortnames) == 3:
+            def func(xs, a1, a2, a3, c, d, e, f):
+                return a1 * calibrants[0]['reference_interpolator'](xs) + \
+                       a2 * calibrants[1]['reference_interpolator'](xs) + \
+                       a3 * calibrants[2]['reference_interpolator'](xs)\
+                       + c + d * xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
         else:
             raise NotImplementedError
 
-        p0 = (0.5 if upper_bounds[0] is np.inf else upper_bounds[0],
-              0.5 if upper_bounds[1] is np.inf else upper_bounds[1],
-              0,
-              0,
-              0,
-              0)
+        # p0 = tuple(0.5 if upper_bounds[0] is np.inf else upper_bounds[0],
+        #       0.5 if upper_bounds[1] is np.inf else upper_bounds[1],
+        #       0,
+        #       0,
+        #       0,
+        #       0)
+        p0 = tuple([0.5 if upper_bound is np.inf else upper_bound for upper_bound in upper_bounds] + [0] * 4)
         if use_line:
             linebounds = [-np.inf, np.inf]
         else:
             linebounds = [-1e-15, 1e-15]
 
-        bkg_comp_limit = np.inf
-        bounds = ([-1e-20, -1e-20, -np.inf, linebounds[0], -1*bkg_comp_limit, -1*bkg_comp_limit],
-                  [upper_bounds[0], upper_bounds[1], np.inf, linebounds[1], bkg_comp_limit, bkg_comp_limit])
+        if ignore_pca_bkg:
+            bkg_comp_limit = 1e-12
+        else:
+            bkg_comp_limit = np.inf
+        bounds = ([-1e-20] * len(calibrant_shortnames) + [-np.inf, linebounds[0], -1*bkg_comp_limit, -1*bkg_comp_limit],
+                  upper_bounds + [np.inf, linebounds[1], bkg_comp_limit, bkg_comp_limit])
         popt, pcov = curve_fit(func, wavelength_indices[mask], target_spectrum[mask],
                                p0=p0, bounds=bounds)
         perr = np.sqrt(np.diag(pcov))  # errors of the fitted coefficients
 
         concentrations_here = [calibrants[calibrant_index]['coeff_to_concentration_interpolator'](fitted_coeff)
-                               for calibrant_index, fitted_coeff in enumerate(popt[:2])]
+                               for calibrant_index, fitted_coeff in enumerate(popt[:-4])]
 
         fig1, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
         ax = ax1
         ax.plot(wavelengths, target_spectrum_input, label='Raw data', color='grey', alpha=0.2)
-        ax.plot(wavelengths, target_spectrum, label='Data minus bkg.', color='C0', alpha=0.5)
+        ax.plot(wavelengths, target_spectrum, label='Data minus bkg.', color='black', alpha=0.5)
         mask_illustration = np.ones_like(target_spectrum) * np.max(target_spectrum)
         mask_illustration[mask] = 0
         ax.fill_between(x=wavelengths, y1=0, y2=mask_illustration, color='yellow', alpha=0.3,
                          label='Masked data')
         ax.plot(wavelengths, func(wavelength_indices, *popt), color='r', label='Fit', alpha=0.5)
-        ax.plot(wavelengths, func(wavelength_indices, popt[0], 0, 0, 0, 0, 0), color='C1', label=calibrant_shortnames[0], alpha=0.5)
-        ax.plot(wavelengths, func(wavelength_indices, 0, popt[1], 0, 0, 0, 0), color='C2', label=calibrant_shortnames[1], alpha=0.5)
-        ax.plot(wavelengths, func(wavelength_indices, 0, 0, 0, popt[3], 0, 0), color='C3', label='Line', alpha=0.5)
-        ax.plot(wavelengths, func(wavelength_indices, 0, 0, 0, 0, popt[4], 0), color='C4', label='Bkg. PC1', alpha=0.5)
-        ax.plot(wavelengths, func(wavelength_indices, 0, 0, 0, 0, 0, popt[5]), color='C5', label='Bkg. PC2', alpha=0.5)
+        for calibrant_index in range(len(calibrant_shortnames)):
+            cpopt = [x if i == calibrant_index else 0 for i, x in enumerate(popt)]
+            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label=calibrant_shortnames[calibrant_index], alpha=0.5)
+        # make a list where only the third from the end item is the same as in popt, while the other ones are zero
+        cpopt = [x if i == len(popt) - 3 else 0 for i, x in enumerate(popt)]
+        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Line', alpha=0.5)
+        cpopt = [x if i == len(popt) - 2 else 0 for i, x in enumerate(popt)]
+        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC1', alpha=0.5)
+        cpopt = [x if i == len(popt) - 1 else 0 for i, x in enumerate(popt)]
+        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC2', alpha=0.5)
         # plt.ylim(-0.3,
         #          np.max((func(wavelength_indices, *popt)[mask])) * 3)
         title_str = f'Concentrations:\n'
@@ -634,7 +645,7 @@ class SpectraProcessor:
     def concentrations_for_one_plate(self, experiment_folder, plate_folder,
                                       calibration_folder, calibrant_shortnames, calibrant_upper_bounds,
                                      background_model_folder, do_plot=False, return_all_substances=False,
-                                     cut_from = 200, cut_to=False, ignore_abs_threshold=False):
+                                     cut_from = 200, cut_to=False, ignore_abs_threshold=False, ignore_pca_bkg=False):
         plate_name = plate_folder.split('/')[-1]
         create_folder_unless_it_exists(experiment_folder + 'results')
         create_folder_unless_it_exists(experiment_folder + f'results/uv-vis-fits')
@@ -671,7 +682,8 @@ class SpectraProcessor:
                                                                  background_model_folder=background_model_folder,
                                                                  upper_bounds=calibrant_upper_bounds, cut_from=cut_from,
                                                                  cut_to=cut_to,
-                                                                 ignore_abs_threshold=ignore_abs_threshold)
+                                                                 ignore_abs_threshold=ignore_abs_threshold,
+                                                                 ignore_pca_bkg=ignore_pca_bkg)
             if return_all_substances:
                 concentrations.append(concentrations_here)
             else:
@@ -883,25 +895,45 @@ if __name__ == '__main__':
     #                                                             wavelength_id=98,
     #                                                             ref_wavelength_id=198)
 
-
-
     ###################### SIMPLE SN1 REACTIONS ######################
 
-    # plate_folder = data_folder + 'nanodrop-spectrometer-measurements/background_test/2023-08-29_13-47-39_2023_08_29_UV-Vis_background_measurement_dioxaneX54.csv'
-    # # sp.show_all_spectra(data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
-    # #                     specific_well_ids=range(10))
-    # sp.show_all_spectra(plate_folder)
+    # plate_folder = data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/2023-09-07_22-46-02_E1_ref_and_etoh_hbr_aac.csv'
+    # # # sp.show_all_spectra(data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
+    # # #                     specific_well_ids=range(10))
+    # sp.show_all_spectra(plate_folder, specific_well_ids=range(7, 14, 1))
+    # plt.legend()
     # plt.show()
 
 
-    run_name = 'simple-reactions/2023-08-21-run01/'
-    concentrations_here = sp.concentrations_for_one_plate(experiment_folder=data_folder + run_name,
-                                                          plate_folder=data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
-                                                          calibration_folder=data_folder + 'simple-reactions/2023-08-21-run01/' + 'microspectrometer_data/calibration/',
-                                                          calibrant_shortnames=['SN1Br03', 'SN1OH03'],
-                                                          background_model_folder=data_folder + 'simple-reactions/2023-08-21-run01/microspectrometer_data/background_model/',
-                                                          calibrant_upper_bounds=[np.inf, np.inf],
-                                                          do_plot=True, return_all_substances=True,
-                                                          cut_from=50, cut_to=False,
-                                                          ignore_abs_threshold=True)
-    print(concentrations_here)
+    # run_name = 'simple-reactions/2023-08-21-run01/'
+    # concentrations_here = sp.concentrations_for_one_plate(experiment_folder=data_folder + run_name,
+    #                                                       plate_folder=data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-52-13_plate_51.csv',
+    #                                                       calibration_folder=data_folder + 'simple-reactions/2023-08-21-run01/' + 'microspectrometer_data/calibration/',
+    #                                                       calibrant_shortnames=['SN1Br03', 'SN1OH03', 'HBr'],
+    #                                                       background_model_folder=data_folder + 'simple-reactions/2023-08-21-run01/microspectrometer_data/background_model/',
+    #                                                       calibrant_upper_bounds=[np.inf, np.inf, np.inf],
+    #                                                       do_plot=True, return_all_substances=True,
+    #                                                       cut_from=50, cut_to=False,
+    #                                                       ignore_abs_threshold=True)
+    # print(concentrations_here)
+
+    ###################### E1 REACTIONS ######################
+
+    # run_name = 'simple-reactions/2023-09-06-run01/'
+    # concentrations_here = sp.concentrations_for_one_plate(experiment_folder=data_folder + run_name,
+    #                                                       plate_folder=data_folder + 'simple-reactions/2023-09-06-run01/nanodrop_spectra/2023-09-06_20-29-24_plate_50.csv',
+    #                                                       calibration_folder=data_folder + 'simple-reactions/2023-09-06-run01/' + 'microspectrometer_data/calibration/',
+    #                                                       calibrant_shortnames=['E1DB02', 'E1OH02'],
+    #                                                       background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+    #                                                       calibrant_upper_bounds=[np.inf, np.inf],
+    #                                                       do_plot=True, return_all_substances=True,
+    #                                                       cut_from=50, cut_to=False,
+    #                                                       ignore_abs_threshold=True, ignore_pca_bkg=True)
+    # print(concentrations_here)
+
+    ## JC
+    sp.nanodrop_lower_cutoff_of_wavelengths = 230
+    plate_folder = 'D:/Docs/Science/UNIST/Projects/useless-random-shit/nanodrop_spectra/' + 'raw_calibration_data/2023-09-11-PBAS-reference.csv'
+    sp.show_all_spectra(plate_folder)
+    plt.legend()
+    plt.show()
