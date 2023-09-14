@@ -201,8 +201,6 @@ def check_run_data_consistency(list_of_runs):
         df_craic = pd.read_csv(craic_folder + 'database_about_these_folders.csv')
         exp_names_craic = [f'{run_type.replace("-", "_")}_{run_name}']
         exp_names_craic_dil = [f'{run_type.replace("-", "_")}_{run_name}_dil']
-
-        print(f'df_craic["exp_name]:{df_craic["exp_name"].values}')
         if df_craic['exp_name'].isin(exp_names_craic_dil).any():
             df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic_dil)].copy().reset_index()
         else:
