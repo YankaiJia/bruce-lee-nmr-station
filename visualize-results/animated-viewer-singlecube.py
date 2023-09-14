@@ -10,6 +10,7 @@ from visualize_results import *
 import time
 from scipy.interpolate import LinearNDInterpolator
 from scipy.interpolate import interp1d
+organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 
 contourvalues = [0.5, 0.7, 0.9]
 indices_of_outliers = []
@@ -48,7 +49,7 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 experiment_name = 'simple-reactions/2023-04-15-run02/'
 # df_results = pd.read_csv(data_folder + experiment_name + f'results/timepoint{timepoint_id:03d}-reaction_results.csv')
 
-df_results = join_data_from_runs(['simple-reactions/2023-04-11-run01/',
+df_results = organize_run_results.join_data_from_runs(['simple-reactions/2023-04-11-run01/',
                             'simple-reactions/2023-04-12-run01/',
                             'simple-reactions/2023-04-14-run01/',
                             'simple-reactions/2023-04-14-run02/',

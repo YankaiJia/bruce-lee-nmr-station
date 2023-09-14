@@ -1,3 +1,6 @@
+import logging
+
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -6,7 +9,9 @@ import pandas as pd
 from scipy.signal import savgol_filter
 from scipy import interpolate
 from scipy.optimize import curve_fit
+import matplotlib.ticker as mticker
 
+# matplotlib.use('Agg')
 plt.ioff()
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
@@ -140,7 +145,7 @@ class SpectraProcessor:
     Correction is applied automatically every time a spectrum file is loaded.
     """
 
-    def __init__(self, folder_with_correction_dataset):
+    def __init__(self, folder_with_correction_dataset, spectrum_data_type='craic'):
         """
         Load the dataset for correcting the absorbance of CRAIC microspectrometer.
         This correction is based on dedicated experiments where certain neutral density optical filters were measured
@@ -153,9 +158,62 @@ class SpectraProcessor:
         """
         self.absorbance_correction_dataset = load_dataset_for_absorbance_correction(
             target_folder=folder_with_correction_dataset)
+        self.spectrum_data_type = spectrum_data_type
 
-    def load_msp_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False, ignore_second_repetition=False):
+        self.nanodrop_lower_cutoff_of_wavelengths = 250
+        self.nanodrop_upper_cutoff_of_wavelengths = 600
+
+    def load_nanodrop_csv_for_one_plate(self, plate_folder,
+                                        ):
+        """
+        Loads the csv file with the Nanodrop measurements into dataframe. First column is wavelength,.
+        the remaining columns are the absorbances for each sample (numerated as well/vial).
+
+        Returns
+        -------
+        nanodrop_df: pd.DataFrame
+            Dataframe with the Nanodrop measurements.
+        """
+        nanodrop_df = pd.read_csv(plate_folder)
+
+        # rename first column to "wavelength" and make it float type
+        nanodrop_df = nanodrop_df.rename(columns={nanodrop_df.columns[0]: "wavelength"})
+
+        # remove rows where wavelength is lower than nanodrop_lower_cutoff_of_wavelengths
+        nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] >= self.nanodrop_lower_cutoff_of_wavelengths]
+
+        # remove rows where wavelength is higher than nanodrop_upper_cutoff_of_wavelengths
+        nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] <= self.nanodrop_upper_cutoff_of_wavelengths]
+
+        nanodrop_df["wavelength"] = nanodrop_df["wavelength"].astype(float)
+        return nanodrop_df
+
+
+    def load_single_nanodrop_spectrum(self, plate_folder, well_id):
+        """
+        Loads the Nanodrop spectrum for a single well.
+
+        Parameters
+        ----------
+        plate_folder: str
+            Path to the folder with the Nanodrop measurements.
+        well_id: int
+            Number of the well.
+
+        Returns
+        -------
+        nanodrop_spectrum: np.array
+            Array with the Nanodrop spectrum.
+        """
+        nanodrop_df = self.load_nanodrop_csv_for_one_plate(plate_folder=plate_folder)
+        wavelengths = nanodrop_df["wavelength"].to_numpy()
+        absorbances = nanodrop_df[str(well_id)].to_numpy()
+        nanodrop_spectrum = np.array([wavelengths, absorbances]).T
+        return nanodrop_spectrum
+
+    def load_craic_spectrum_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False, ignore_second_repetition=False):
         spectrum = load_raw_msp_by_id(plate_folder=plate_folder, well_id=well_id, prefix=prefix)
+
         # if the file of the same name but suffix '_rep2' exists, then load it and apply the 'zero-dose extrapolation'
         # to correct for photobleaching
         if (not ignore_second_repetition) and \
@@ -176,13 +234,38 @@ class SpectraProcessor:
             plt.show()
         return spectrum
 
-    def load_all_spectra(self, plate_folder, prefix='spectrum_-'):
-        filelist = get_spectra_file_list(plate_folder)
-        return [self.load_msp_by_id(plate_folder, well_id) for well_id in range(len(filelist))]
+    def load_msp_by_id(self, plate_folder, well_id, prefix='spectrum_', do_show=False, ignore_second_repetition=False):
+        # if plate folder contains string "nanodrop", then treat the plate_folder as path to nanodrop CSV file
+        if 'nanodrop' in plate_folder:
+            spectrum = self.load_single_nanodrop_spectrum(plate_folder=plate_folder, well_id=well_id)
+        else: # plate_folder is a folder with CRAIC spectra. Use load_craic_spectrum_by_id and pass all args
+            spectrum = self.load_craic_spectrum_by_id(plate_folder=plate_folder, well_id=well_id, prefix=prefix,
+                                                      do_show=do_show, ignore_second_repetition=ignore_second_repetition)
+        return spectrum
 
-    def show_all_spectra(self, plate_folder, prefix='spectrum_-'):
+
+    def load_all_spectra(self, plate_folder, prefix='spectrum_-'):
+        if 'nanodrop' in plate_folder:
+            # load the nanodrop csv file and count the columns
+            nanodrop_df = self.load_nanodrop_csv_for_one_plate(plate_folder=plate_folder)
+            well_id = 0
+            resulting_array = []
+            while str(well_id) in nanodrop_df.columns:
+                resulting_array.append(self.load_msp_by_id(plate_folder, well_id))
+                well_id += 1
+            # make a warning if the length of resulting array is higher than 54
+            if len(resulting_array) > 54:
+                logging.warning(f'Warning: the number of wells is {len(resulting_array)}, '
+                             f'which is higher than 54. Check the Nanodrop file.')
+            return resulting_array
+        else:
+            filelist = get_spectra_file_list(plate_folder)
+            return [self.load_msp_by_id(plate_folder, well_id) for well_id in range(len(filelist))]
+
+    def show_all_spectra(self, plate_folder, prefix='spectrum_-', specific_well_ids=None):
         for well_id, spectrum in enumerate(self.load_all_spectra(plate_folder, prefix=prefix)):
-            plt.plot(spectrum[:, 0], spectrum[:, 1], alpha=0.3, label=f'{well_id}')
+            if specific_well_ids is None or well_id in specific_well_ids:
+                plt.plot(spectrum[:, 0], spectrum[:, 1], alpha=0.3, label=f'{well_id}')
             print(f'{well_id}: max {np.max(spectrum[:, 1])}, min {np.min(spectrum[:, 1])}')
         plt.ylabel('Absorbance')
         plt.xlabel('Wavelength, nm')
@@ -436,10 +519,8 @@ class SpectraProcessor:
     def spectrum_to_concentration(self, target_spectrum_input, calibration_folder, calibrant_shortnames,
                                   background_model_folder,
                                   lower_limit_of_absorbance=-0.2, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
-                                  upper_bounds=[np.inf, np.inf], use_line=False): #upper_bounds=[np.inf, np.inf]
-        # make sure there are two calibrants specified
-        assert len(calibrant_shortnames) == 2
-
+                                  upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
+                                  cut_to = False, ignore_pca_bkg=False): #upper_bounds=[np.inf, np.inf]
         calibrants = []
         for calibrant_shortname in calibrant_shortnames:
             dict_here = dict()
@@ -451,17 +532,21 @@ class SpectraProcessor:
         bkg_spectrum = calibrants[0]['bkg_spectrum']
         wavelengths = bkg_spectrum[:, 0]
         target_spectrum = target_spectrum_input - bkg_spectrum[:, 1]
-
-        # cut_from = 115
-        cut_from = 200
         wavelength_indices = np.arange(calibrants[0]['bkg_spectrum'].shape[0])
 
         thresh_w_indices = [0, 25, 127, 2000]
         thresh_as = [0.67, 0.75, 1.6, 1.6]
         threshold_interpolator = interpolate.interp1d(thresh_w_indices, thresh_as, fill_value='extrapolate')
 
-        mask = np.logical_and(target_spectrum < threshold_interpolator(wavelength_indices),
-                              wavelength_indices > cut_from)
+        if not ignore_abs_threshold:
+            mask = np.logical_and(target_spectrum < threshold_interpolator(wavelength_indices),
+                                  wavelength_indices > cut_from)
+        else:
+            mask = wavelength_indices > cut_from
+
+        if cut_to:
+            mask = np.logical_and(mask, wavelength_indices <= cut_to)
+
         mask = np.logical_and(mask,
                               target_spectrum > np.min(target_spectrum) + lower_limit_of_absorbance)
 
@@ -474,61 +559,94 @@ class SpectraProcessor:
             print('There is no data that is within mask. Returning zeros.')
             return [0 for i in range(4)]
 
-        def func(xs, a, b, c, d, e, f):
-            return a * calibrants[0]['reference_interpolator'](xs) + b * calibrants[1]['reference_interpolator'](xs) + c \
-                   + d*xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
+        if len(calibrant_shortnames) == 2:
+            def func(xs, a, b, c, d, e, f):
+                return a * calibrants[0]['reference_interpolator'](xs) + b * calibrants[1]['reference_interpolator'](xs) + c \
+                       + d*xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
+        elif len(calibrant_shortnames) == 3:
+            def func(xs, a1, a2, a3, c, d, e, f):
+                return a1 * calibrants[0]['reference_interpolator'](xs) + \
+                       a2 * calibrants[1]['reference_interpolator'](xs) + \
+                       a3 * calibrants[2]['reference_interpolator'](xs)\
+                       + c + d * xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
+        else:
+            raise NotImplementedError
 
-        p0 = (0.5 if upper_bounds[0] is np.inf else upper_bounds[0],
-              0.5 if upper_bounds[1] is np.inf else upper_bounds[1],
-              0,
-              0,
-              0,
-              0)
+        # p0 = tuple(0.5 if upper_bounds[0] is np.inf else upper_bounds[0],
+        #       0.5 if upper_bounds[1] is np.inf else upper_bounds[1],
+        #       0,
+        #       0,
+        #       0,
+        #       0)
+        p0 = tuple([0.5 if upper_bound is np.inf else upper_bound for upper_bound in upper_bounds] + [0] * 4)
         if use_line:
             linebounds = [-np.inf, np.inf]
         else:
             linebounds = [-1e-15, 1e-15]
 
-        bkg_comp_limit = np.inf
-        bounds = ([-1e-9, -1e-9, -np.inf, linebounds[0], -1*bkg_comp_limit, -1*bkg_comp_limit],
-                  [upper_bounds[0], upper_bounds[1], np.inf, linebounds[1], bkg_comp_limit, bkg_comp_limit])
+        if ignore_pca_bkg:
+            bkg_comp_limit = 1e-12
+        else:
+            bkg_comp_limit = np.inf
+        bounds = ([-1e-20] * len(calibrant_shortnames) + [-np.inf, linebounds[0], -1*bkg_comp_limit, -1*bkg_comp_limit],
+                  upper_bounds + [np.inf, linebounds[1], bkg_comp_limit, bkg_comp_limit])
         popt, pcov = curve_fit(func, wavelength_indices[mask], target_spectrum[mask],
                                p0=p0, bounds=bounds)
         perr = np.sqrt(np.diag(pcov))  # errors of the fitted coefficients
 
         concentrations_here = [calibrants[calibrant_index]['coeff_to_concentration_interpolator'](fitted_coeff)
-                               for calibrant_index, fitted_coeff in enumerate(popt[:2])]
+                               for calibrant_index, fitted_coeff in enumerate(popt[:-4])]
 
-        fig1 = plt.figure(1)
-        plt.plot(wavelengths, target_spectrum_input, label='raw_data', color='grey', alpha=0.2)
-        plt.plot(wavelengths, target_spectrum, label='data (minus bkg)', color='C0', alpha=0.5)
+        fig1, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
+        ax = ax1
+        ax.plot(wavelengths, target_spectrum_input, label='Raw data', color='grey', alpha=0.2)
+        ax.plot(wavelengths, target_spectrum, label='Data minus bkg.', color='black', alpha=0.5)
         mask_illustration = np.ones_like(target_spectrum) * np.max(target_spectrum)
         mask_illustration[mask] = 0
-        plt.fill_between(x=wavelengths, y1=0, y2=mask_illustration, color='yellow', alpha=0.3,
-                         label='ignored (masked) data')
-        plt.plot(wavelengths, func(wavelength_indices, *popt), color='r', label='fit', alpha=0.5)
-        plt.plot(wavelengths, func(wavelength_indices, popt[0], 0, 0, 0, 0, 0), color='C1', label=calibrant_shortnames[0], alpha=0.5)
-        plt.plot(wavelengths, func(wavelength_indices, 0, popt[1], 0, 0, 0, 0), color='C2', label=calibrant_shortnames[1], alpha=0.5)
-        plt.plot(wavelengths, func(wavelength_indices, 0, 0, 0, popt[3], 0, 0), color='C3', label='line', alpha=0.5)
-        plt.plot(wavelengths, func(wavelength_indices, 0, 0, 0, 0, popt[4], 0), color='C4', label='bkg0', alpha=0.5)
-        plt.plot(wavelengths, func(wavelength_indices, 0, 0, 0, 0, 0, popt[5]), color='C5', label='bkg1', alpha=0.5)
+        ax.fill_between(x=wavelengths, y1=0, y2=mask_illustration, color='yellow', alpha=0.3,
+                         label='Masked data')
+        ax.plot(wavelengths, func(wavelength_indices, *popt), color='r', label='Fit', alpha=0.5)
+        for calibrant_index in range(len(calibrant_shortnames)):
+            cpopt = [x if i == calibrant_index else 0 for i, x in enumerate(popt)]
+            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label=calibrant_shortnames[calibrant_index], alpha=0.5)
+        # make a list where only the third from the end item is the same as in popt, while the other ones are zero
+        cpopt = [x if i == len(popt) - 3 else 0 for i, x in enumerate(popt)]
+        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Line', alpha=0.5)
+        cpopt = [x if i == len(popt) - 2 else 0 for i, x in enumerate(popt)]
+        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC1', alpha=0.5)
+        cpopt = [x if i == len(popt) - 1 else 0 for i, x in enumerate(popt)]
+        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC2', alpha=0.5)
         # plt.ylim(-0.3,
         #          np.max((func(wavelength_indices, *popt)[mask])) * 3)
-        plt.xlabel('Wavelength, nm')
-        plt.title(f'Concentration here: {concentrations_here}')
-        plt.legend()
+        title_str = f'Concentrations:\n'
+        for i in range(len(concentrations_here)):
+            title_str += f'{np.array(concentrations_here)[i]:.6f} M ({calibrant_shortnames[i]})\n '
+        fig1.suptitle(title_str[:-2])
+        ax.set_ylabel('Absorbance')
+        ax.legend()
+        # Residuals subplot
+        ax = ax2
+        ax.plot(wavelengths[mask], target_spectrum[mask] - func(wavelength_indices[mask], *popt), color='black', alpha=0.5,
+                label='residuals')
+        ax.legend()
+        ax.set_xlabel('Wavelength, nm')
+        ax.set_ylabel('Absorbance')
         fig1.savefig(f"{fig_filename}.png")
+
         if do_plot:
             plt.show()
         else:
+            plt.close(fig1)
+            plt.close('all')
             plt.clf()
         return concentrations_here
 
 
     def concentrations_for_one_plate(self, experiment_folder, plate_folder,
                                       calibration_folder, calibrant_shortnames, calibrant_upper_bounds,
-                                     background_model_folder, do_plot=False):
-        plate_name = plate_folder.split('/')[-2]
+                                     background_model_folder, do_plot=False, return_all_substances=False,
+                                     cut_from = 200, cut_to=False, ignore_abs_threshold=False, ignore_pca_bkg=False):
+        plate_name = plate_folder.split('/')[-1]
         create_folder_unless_it_exists(experiment_folder + 'results')
         create_folder_unless_it_exists(experiment_folder + f'results/uv-vis-fits')
         # input_compositions = pd.read_csv(path_to_input_compositions_csv)
@@ -537,7 +655,22 @@ class SpectraProcessor:
         #     plate_id = index // 54
         #     well_id = index % 54
         #     print(f'{plate_id}-{well_id}')
-        for well_id in range(54):
+        if 'nanodrop' in plate_folder:
+            # load the nanodrop csv file and count the columns
+            nanodrop_df = self.load_nanodrop_csv_for_one_plate(plate_folder=plate_folder)
+            well_id = 0
+            range_of_wells = []
+            while str(well_id) in nanodrop_df.columns:
+                range_of_wells.append(well_id)
+                well_id += 1
+            # make a warning if the length of resulting array is higher than 54
+            if len(range_of_wells) > 54:
+                logging.warning(f'Warning: the number of wells is {len(range_of_wells)}, '
+                             f'which is higher than 54. Check the Nanodrop file.')
+        else:
+            range_of_wells = range(54)
+
+        for well_id in range_of_wells:
             spectrum = self.load_msp_by_id(
                 plate_folder=plate_folder,
                 well_id=well_id)[:, 1]
@@ -545,9 +678,16 @@ class SpectraProcessor:
                                                                  calibration_folder=calibration_folder,
                                                                  calibrant_shortnames=calibrant_shortnames,
                                                                  fig_filename=experiment_folder + f'results/uv-vis-fits/{plate_name}-well{well_id:02d}.png',
-                                                                 do_plot=do_plot, background_model_folder=background_model_folder,
-                                                                 upper_bounds=calibrant_upper_bounds)
-            concentrations.append(concentrations_here[0])
+                                                                 do_plot=do_plot,
+                                                                 background_model_folder=background_model_folder,
+                                                                 upper_bounds=calibrant_upper_bounds, cut_from=cut_from,
+                                                                 cut_to=cut_to,
+                                                                 ignore_abs_threshold=ignore_abs_threshold,
+                                                                 ignore_pca_bkg=ignore_pca_bkg)
+            if return_all_substances:
+                concentrations.append(concentrations_here)
+            else:
+                concentrations.append(concentrations_here[0])
         # input_compositions[calibrant_shortnames[0]] = concentrations
         # input_compositions.to_csv(
         #     data_folder + experiment_name + f'results/timepoint{timepoint_id:03d}-reaction_results.csv', index=False)
@@ -596,6 +736,9 @@ class SpectraProcessor:
             concentrations.append(spectrum[wavelength_id] - np.mean(np.array([spectrum[ref_wav] for ref_wav in ref_wavelength_id])))
         return np.array(concentrations)
 
+
+
+
 def plot_differential_absorbances_for_plate(craic_exp_name,
                                             wavelength,
                                             ref_wavelengths,
@@ -638,10 +781,17 @@ def plot_differential_absorbances_for_plate(craic_exp_name,
     plt.show()
     return diff
 
+
+
 if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
+
+    # sp.load_single_nanodrop_spectrum(plate_folder=data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
+    #                                  well_id=0)
+
+
     # process_run_by_shortname(run_name)
     # plot_differential_absorbances_for_plate(
     #         craic_exp_name='2023-06-14_21-11-36__plate0000036__four-dye-dil-2023-06-13-run01',
@@ -720,16 +870,24 @@ if __name__ == '__main__':
     #
     # concentrations_df.to_csv(data_folder + experiment_name + 'results/' + 'product_concentration.csv', index=False)
 
-    craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
-    sp.show_all_spectra(craic_folder + '2023-07-11_18-10-18__plate0000062__simple_reaction_2023-07-11_run01/')
-    # sp.show_all_spectra(craic_folder + '2023-07-11_00-48-50__plate0000057__simple_reaction_2023-07-10_run02/')
-    plt.legend()
+    # craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
+    # sp.show_all_spectra(craic_folder + '2023-05-23_01-14-40__plate0000018__simple-reactions-2023-05-22-run01_calibration/')
+    # sp.show_all_spectra(
+    #     craic_folder + '2023-05-23_01-36-33__plate0000019__simple-reactions-2023-05-22-run01_calibration/')
+    # sp.show_all_spectra(craic_folder + '2023-05-23_01-51-15__plate0000020__simple-reactions-2023-05-22-run01_calibration/')
+
+    # sp.show_all_spectra(craic_folder + '2023-07-05_19-25-51__plate0000057__simple_reactions_2023-07-05-run01_dil/')
+    # sp.show_all_spectra(craic_folder + '2023-07-05_18-02-13__plate0000054__simple_reactions_2023-07-05-run01/')
+    # sp.show_all_spectra(craic_folder + '2023-07-05_18-02-13__plate0000054__simple_reactions_2023-07-05-run01/')
+    # sp.show_all_spectra(craic_folder + '2023-07-05_18-02-13__plate0000054__simple_reactions_2023-07-05-run01/')
+    # sp.show_all_spectra(craic_folder + '2023-06-15_15-49-38__plate0000037__pure-dmf-bkg-test/', specific_well_ids=range(10))
+    # plt.legend()
 
     # sp.show_all_spectra(craic_folder + '2023-07-10_23-38-15__plate0000055__simple_reaction_2023-07-10_run02/')
     # sp.show_all_spectra(
     #     craic_folder + '2023-06-13_14-42-05__plate0000040__multicomponent-reactions-2023-06-13-pigments/')
     # sp.show_all_spectra(craic_folder + '2023-05-23_01-51-15__plate0000020__simple-reactions-2023-05-22-run01_calibration/')
-    plt.show()
+    # plt.show()
     # wavelengths = sp.load_msp_by_id(craic_folder + '2023-04-08_16-06-36__plate0000021__2023-04-07-run01-diluted/', well_id=0)[:, 0]
     # pass
 
@@ -737,5 +895,45 @@ if __name__ == '__main__':
     #                                                             wavelength_id=98,
     #                                                             ref_wavelength_id=198)
 
-    # w1 = get_absorbance_at_single_wavelength_for_one_plate()
+    ###################### SIMPLE SN1 REACTIONS ######################
 
+    # plate_folder = data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/2023-09-07_22-46-02_E1_ref_and_etoh_hbr_aac.csv'
+    # # # sp.show_all_spectra(data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
+    # # #                     specific_well_ids=range(10))
+    # sp.show_all_spectra(plate_folder, specific_well_ids=range(7, 14, 1))
+    # plt.legend()
+    # plt.show()
+
+
+    # run_name = 'simple-reactions/2023-08-21-run01/'
+    # concentrations_here = sp.concentrations_for_one_plate(experiment_folder=data_folder + run_name,
+    #                                                       plate_folder=data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-52-13_plate_51.csv',
+    #                                                       calibration_folder=data_folder + 'simple-reactions/2023-08-21-run01/' + 'microspectrometer_data/calibration/',
+    #                                                       calibrant_shortnames=['SN1Br03', 'SN1OH03', 'HBr'],
+    #                                                       background_model_folder=data_folder + 'simple-reactions/2023-08-21-run01/microspectrometer_data/background_model/',
+    #                                                       calibrant_upper_bounds=[np.inf, np.inf, np.inf],
+    #                                                       do_plot=True, return_all_substances=True,
+    #                                                       cut_from=50, cut_to=False,
+    #                                                       ignore_abs_threshold=True)
+    # print(concentrations_here)
+
+    ###################### E1 REACTIONS ######################
+
+    # run_name = 'simple-reactions/2023-09-06-run01/'
+    # concentrations_here = sp.concentrations_for_one_plate(experiment_folder=data_folder + run_name,
+    #                                                       plate_folder=data_folder + 'simple-reactions/2023-09-06-run01/nanodrop_spectra/2023-09-06_20-29-24_plate_50.csv',
+    #                                                       calibration_folder=data_folder + 'simple-reactions/2023-09-06-run01/' + 'microspectrometer_data/calibration/',
+    #                                                       calibrant_shortnames=['E1DB02', 'E1OH02'],
+    #                                                       background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+    #                                                       calibrant_upper_bounds=[np.inf, np.inf],
+    #                                                       do_plot=True, return_all_substances=True,
+    #                                                       cut_from=50, cut_to=False,
+    #                                                       ignore_abs_threshold=True, ignore_pca_bkg=True)
+    # print(concentrations_here)
+
+    ## JC
+    sp.nanodrop_lower_cutoff_of_wavelengths = 230
+    plate_folder = 'D:/Docs/Science/UNIST/Projects/useless-random-shit/nanodrop_spectra/' + 'raw_calibration_data/2023-09-11-PBAS-reference.csv'
+    sp.show_all_spectra(plate_folder)
+    plt.legend()
+    plt.show()
