@@ -13,6 +13,7 @@ list_of_runs = tuple([
     '2023-08-28-run01',
     '2023-08-29-run01',
     '2023-08-29-run02'])
+# column_to_plot = 'HBr_relative_change'
 column_to_plot = 'yield'
 
 substances = ['c#SN1OH03', 'c#HBr', 'temperature']
@@ -22,16 +23,28 @@ substrates = ['c#SN1OH03', 'c#HBr']
 df_results = organize_run_results.join_data_from_runs([f'simple-reactions/{x}/' for x in list_of_runs],
                                  round_on_columns=substances)
 
+# substances = ['c#acid-to-alcohol_ratio', 'c#HBr', 'temperature']
+# substance_titles = ['Acid-to-alcohol ratio', 'HBr', 'Temperature']
+# substrates = ['c#acid-to-alcohol_ratio', 'c#HBr']
+#
+# df_results['c#acid-to-alcohol_ratio'] = df_results['c#HBr'] / df_results['c#SN1OH03']
+
 # set yields to nan at the minimum of c#SN1OH01 column
-df_results.loc[df_results[substances[0]].round(4) == df_results[substances[0]].round(4).min(), column_to_plot] = np.nan
+# df_results.loc[df_results[substances[0]].round(4) == df_results[substances[0]].round(4).min(), column_to_plot] = np.nan
 
 # # set yields to nan where the temperature is 6 and yield is above 0.9
 # df_results.loc[(df_results['temperature'] == 6) & (df_results[column_to_plot] > 0.9), column_to_plot] = np.nan
 
+## drop rows where 'is_outlier' columns is equal to 1
+df_results.drop(df_results[df_results['is_outlier'] == 1].index, inplace=True)
+
 # remove all rows where 'yield' columns is nan
 df_results.dropna(subset=[column_to_plot], inplace=True)
+# remove all rows where 'yield' columns is inf
+df_results = df_results[~df_results[column_to_plot].isin([np.inf, -np.inf])]
 
 df_results[column_to_plot] = df_results[column_to_plot].apply(lambda x: x if x > 1e-10 else 0)
+df_results[column_to_plot] = df_results[column_to_plot].apply(lambda x: x if x <= 4 else 4)
 # df_results.drop(indices_of_outliers, inplace=True)
 
 # convert from mol/L to mM
