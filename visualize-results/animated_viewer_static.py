@@ -44,7 +44,8 @@ def create_folder_unless_it_exists(path):
 def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alcohol', 'HBr', 'Temperature'),
                             npoints=30, sparse_npoints=4, rbf_epsilon=0.01, rbf_smooth=0.001,
                             interpolator_choice='rbf', data_for_spheres='raw', colormap='blue-red', contours=5,
-                            colorbar_title="Yield", rbf_function="multiquadric", axes_ticks_format='%.2f', axes_font_factor=0.83):
+                            colorbar_title="Yield", rbf_function="multiquadric", axes_ticks_format='%.2f', axes_font_factor=0.83,
+                            contour_opacity=1):
     xs0 = (x_raw - np.min(x_raw)) / (np.max(x_raw) - np.min(x_raw))
     ys0 = (y_raw - np.min(y_raw)) / (np.max(y_raw) - np.min(y_raw))
     zs0 = (z_raw - np.min(z_raw)) / (np.max(z_raw) - np.min(z_raw))
@@ -89,7 +90,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     plot = mlab.contour3d(xnew, ynew, znew, wnew, extent=[np.min(xs0), max_xs0,
                                                           np.min(ys0), max_ys0,
                                                           np.min(zs0), max_zs0],
-                          contours=contours, opacity=1, vmin=0, vmax=max_ks0, colormap=colormap)
+                          contours=contours, opacity=contour_opacity, vmin=0, vmax=max_ks0, colormap=colormap)
     plot.actor.actor.property.ambient = 0.0
     # for i in range(3):
     #     start = np.array([np.min(xs0), np.min(ys0), np.min(zs0)])
