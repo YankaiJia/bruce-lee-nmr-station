@@ -10,8 +10,8 @@ class Nanodrop:
         except:
             print("Arduino not connected")
 
-        self.flush_time = 3
-        self.dry_time = 17
+        self.flush_time = 2
+        self.dry_time = 10
 
     def open_lid(self):
         self.close_vacumm()
@@ -97,13 +97,13 @@ class Nanodrop:
 
     def close_all(self):
         self.close_lid()
-        time.sleep(0.2)
+        time.sleep(0.5)
         self.close_vacumm()
-        time.sleep(0.2)
+        time.sleep(0.5)
         self.close_liquid()
-        time.sleep(0.2)
+        time.sleep(0.5)
         self.close_air()
-        time.sleep(0.2)
+        time.sleep(0.5)
 
     def close_serial(self):
         self.serial.close()

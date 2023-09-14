@@ -204,10 +204,19 @@ async def main(events = None, only_do_ids = ()):
             print("all measurements are done!!")
 
     print('cleaning pedestal...')
+    ## flush the pedestal
     await asyncio.gather(nd.flush_pedestal())
+    ## dry the pedestal
     await asyncio.gather(nd.dry_pedestal())
 
     print("all measurements are done!!")
+    nd.close_lid()
+    time.sleep(0.5)
+    nd.close_vacumm()
+    time.sleep(0.5)
+    nd.close_air()
+    time.sleep(0.5)
+
 
 
 if __name__ == '__main__':
@@ -215,10 +224,14 @@ if __name__ == '__main__':
     zm, gt, pt = initiate_hardware()
     events_for_measurement = construct_liquid_transfer_events_for_measurement()
 
+    # specify source containers, USE ONLY WHEN NECESSARY
+    # for event in events_for_measurement:
+    #     event.source_container = brb.plate_list[6].containers[1]
 
+    # only run after initiation of the nanodrop software and blanking
     asyncio.run(main(events = events_for_measurement,
-                     only_do_ids= tuple([])))
-    # asyncio.run(main(skip_id= list(set(range(53)).difference(set([3,5,17,24,26,31,40,41,45,52])))))
+                     only_do_ids= tuple([0] * 5 + [1] * 5)))
 
-    for event in events_for_measurement:
-        event.source_container = brb.plate_list[6].containers[1]
+    a = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8,9,9,9,9,9]
+
+
