@@ -50,7 +50,7 @@ def construct_liquid_transfer_events_for_measurement():
         event_here.transfer_volume = 4
         event_here.lld = 0
         event_here.tip_type = '50ul'
-        event_here.liquidClassTableIndex = 40 ## 40 is for nanodrop based 27 (dioxane)
+        event_here.liquidClassTableIndex = 40 ## LC 40 is only for nanodrop, it is based on 27 (dioxane)
         event_here.asp_containerGeometryTableIndex = 0 # this is for 2-ml vial
         event_here.disp_containerGeometryTableIndex = 6 # this is for nanodrop pedestal
 
@@ -228,10 +228,24 @@ if __name__ == '__main__':
     # for event in events_for_measurement:
     #     event.source_container = brb.plate_list[6].containers[1]
 
-    # only run after initiation of the nanodrop software and blanking
-    asyncio.run(main(events = events_for_measurement,
-                     only_do_ids= tuple([0] * 5 + [1] * 5)))
+    # a = []
+    # for i in range(27):
+    #     a.append(i)
+    #     a.append(i)
+    #     a.append(i)
 
-    a = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8,9,9,9,9,9]
+    # wash the nanodrop and dry it
+    ## flush the pedestal
+    #await asyncio.gather(nd.flush_pedestal())
+    #await asyncio.gather(nd.flush_pedestal())
+    ## dry the pedestal
+    #await asyncio.gather(nd.dry_pedestal())
+    #await asyncio.gather(nd.dry_pedestal())
+    #await asyncio.gather(nd.dry_pedestal())
+
+
+    # only run after initiation of the nanodrop software and blanking
+    # asyncio.run(main(events = events_for_measurement,
+    #                  only_do_ids= tuple()))
 
 

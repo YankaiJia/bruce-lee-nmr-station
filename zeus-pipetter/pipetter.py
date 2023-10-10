@@ -712,16 +712,16 @@ if __name__ == '__main__':
     #
     gt = Gantry(zeus=zm)
     time.sleep(2)
-
-    # gt.kill_alarm()
-    gt.home_xy()
-    time.sleep(5)
     #
-    pt = Pipetter(zeus=zm, gantry=gt)
-    time.sleep(2)
-    pt.close_balance_door()
-
-    print("Init done!")
+    # # gt.kill_alarm()
+    # gt.home_xy()
+    # time.sleep(5)
+    # #
+    # pt = Pipetter(zeus=zm, gantry=gt)
+    # time.sleep(2)
+    # pt.close_balance_door()
+    #
+    # print("Init done!")
 
     # pt.check_volume_in_container(container = brb.plate5.containers[0],
     #                              containerGeometryTableIndex = brb.bottle_20ml.containerGeometryTableIndex,
