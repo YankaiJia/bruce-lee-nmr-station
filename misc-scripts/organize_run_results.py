@@ -744,6 +744,17 @@ if __name__ == '__main__':
     # for run_shortname in list_of_runs:
     #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
 
+    list_of_runs = tuple([
+                          '2023-09-14-run01',
+                          '2023-09-15-run01',
+                          '2023-09-18-run01',
+                          '2023-09-19-run01',
+                          '2023-09-20-run01'
+    ])
+    for run_shortname in list_of_runs:
+        logging.info(f'Organizing run {run_shortname}')
+        organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
+
     # list_of_runs = tuple([
     #                       # '2023-08-21-run01',
     #                       '2023-08-22-run01',

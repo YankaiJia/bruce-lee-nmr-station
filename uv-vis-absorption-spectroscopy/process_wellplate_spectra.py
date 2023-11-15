@@ -520,7 +520,7 @@ class SpectraProcessor:
                                   background_model_folder,
                                   lower_limit_of_absorbance=-0.2, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
                                   upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
-                                  cut_to = False, ignore_pca_bkg=False): #upper_bounds=[np.inf, np.inf]
+                                  cut_to = False, ignore_pca_bkg=False, return_errors=False): #upper_bounds=[np.inf, np.inf]
         calibrants = []
         for calibrant_shortname in calibrant_shortnames:
             dict_here = dict()
@@ -550,10 +550,16 @@ class SpectraProcessor:
         mask = np.logical_and(mask,
                               target_spectrum > np.min(target_spectrum) + lower_limit_of_absorbance)
 
-        background_interpolators = [interpolate.interp1d(wavelength_indices,
-                                                      np.load(background_model_folder + f'component_{i}.npy'),
-                                                      fill_value='extrapolate')
-                                 for i in range(2)]
+        if not ignore_pca_bkg:
+            background_interpolators = [interpolate.interp1d(wavelength_indices,
+                                                          np.load(background_model_folder + f'component_{i}.npy'),
+                                                          fill_value='extrapolate')
+                                     for i in range(2)]
+        else:
+            background_interpolators = [interpolate.interp1d(wavelength_indices,
+                                                             np.ones_like(wavelength_indices),
+                                                             fill_value='extrapolate')
+                                        for i in range(2)]
 
         if len(wavelength_indices[mask]) == 0:
             print('There is no data that is within mask. Returning zeros.')
@@ -610,12 +616,14 @@ class SpectraProcessor:
             cpopt = [x if i == calibrant_index else 0 for i, x in enumerate(popt)]
             ax.plot(wavelengths, func(wavelength_indices, *cpopt), label=calibrant_shortnames[calibrant_index], alpha=0.5)
         # make a list where only the third from the end item is the same as in popt, while the other ones are zero
-        cpopt = [x if i == len(popt) - 3 else 0 for i, x in enumerate(popt)]
-        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Line', alpha=0.5)
-        cpopt = [x if i == len(popt) - 2 else 0 for i, x in enumerate(popt)]
-        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC1', alpha=0.5)
-        cpopt = [x if i == len(popt) - 1 else 0 for i, x in enumerate(popt)]
-        ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC2', alpha=0.5)
+        if use_line:
+            cpopt = [x if i == len(popt) - 3 else 0 for i, x in enumerate(popt)]
+            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Line', alpha=0.5)
+        if not ignore_pca_bkg:
+            cpopt = [x if i == len(popt) - 2 else 0 for i, x in enumerate(popt)]
+            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC1', alpha=0.5)
+            cpopt = [x if i == len(popt) - 1 else 0 for i, x in enumerate(popt)]
+            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC2', alpha=0.5)
         # plt.ylim(-0.3,
         #          np.max((func(wavelength_indices, *popt)[mask])) * 3)
         title_str = f'Concentrations:\n'
@@ -639,6 +647,14 @@ class SpectraProcessor:
             plt.close(fig1)
             plt.close('all')
             plt.clf()
+
+        if return_errors:
+            # convert coefficient errors into concentration errors
+            upper_confidence_limit = [calibrants[calibrant_index]['coeff_to_concentration_interpolator'](fitted_coeff + perr[calibrant_index])
+                               for calibrant_index, fitted_coeff in enumerate(popt[:-4])]
+            concentration_errors = [upper_confidence_limit[i] - concentrations_here[i] for i in range(len(concentrations_here))]
+            return concentrations_here, concentration_errors
+
         return concentrations_here
 
 
