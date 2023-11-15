@@ -10,7 +10,7 @@ class Nanodrop:
         except:
             print("Arduino not connected")
 
-        self.flush_time = 2
+        self.flush_time = 5
         self.dry_time = 10
 
     def open_lid(self):

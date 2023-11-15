@@ -145,8 +145,8 @@ class Gantry():
             return
 
         # if move from inside the balance to outside, or vice verse, move to the idle position first
-        if (self.xy_position[0] < -550 and xy[1] > -200) or\
-                (self. xy_position[1] > -200 and xy[0] < -550 ):
+        if (self.xy_position[0] < -600 and xy[1] > -200) or\
+                (self. xy_position[1] > -200 and xy[0] < -600 ):
             self.send_to_xy_stage(
                 command='G0 X{0:.3f} Y{1:.3f}'.format(self.idle_xy[0], self.idle_xy[1]),
                 read_all=False, ensure_traverse_height=ensure_traverse_height)
@@ -245,7 +245,6 @@ class Gantry():
 
 class Pipetter():
 
-
     def __init__(self,
                  zeus: object,
                  gantry: object,
@@ -259,6 +258,9 @@ class Pipetter():
                                          stopbits=serial.STOPBITS_ONE,
                                          parity=serial.PARITY_NONE,
                                          timeout=config_pt["balance_port"]["timeout"])
+            print('A balance is installed.')
+        else:
+            print('No balance is installed.')
 
         self.logger = logging.getLogger('main.pipetter.Pipetter')
         self.logger.info('creating an instance of Pepetter')
@@ -553,6 +555,7 @@ class Pipetter():
                 # print(f'Tare in progress. Response from balance. {line}')
             if line == b'':
                 if taring_complete:
+                    print('The balance is tared.')
                     break
 
     def balance_zero(self, verbose=True):
@@ -568,6 +571,7 @@ class Pipetter():
                 # pass
             if line == b'':
                 if zeroing_complete:
+                    print('The balanced is zeroed.')
                     break
             if time.time() - time_stamp > 10:
                 self.logger.error(f'Balance zeroing took more than 10 seconds. Aborting.')
@@ -630,11 +634,12 @@ class Pipetter():
         self.open_balance_door()
         # print('Waiting for liquid transfer...')
         self.transfer_liquid(transfer_event=transfer_event)
-        transfer_event.excute_event()
+
+        # transfer_event.excute_event()
 
         time.sleep(0.5)
         self.gantry.move_to_idle_position()
-        self.close_balance_door()
+        # self.close_balance_door()
         time.sleep(timedelay)
         weight_after = self.balance_value()
         # print(f'weight_after: {weight_after} g')
@@ -648,10 +653,11 @@ class Pipetter():
     def pipetting_to_balance_and_weight_n_times(self, transfer_event, n_times=3,
                                                 change_tip_after_every_pipetting:bool = False):
         print(f'this is transfer_event: {transfer_event}')
+        transfer_volume = transfer_event.transfer_volume
         dict_for_one_event = {}
-        dict_for_one_event[f'{transfer_event.substance}_{transfer_event.aspirationVolume}ul'] = \
+        dict_for_one_event[f'{transfer_event.substance}_{transfer_volume}ul'] = \
             {'weight': [], 'volume': [], 'liquid_class_index': [], 'tip_type': []}
-        temp_dict = dict_for_one_event[f'{transfer_event.substance}_{transfer_event.aspirationVolume}ul']
+        temp_dict = dict_for_one_event[f'{transfer_event.substance}_{transfer_volume}ul']
 
         for i in range(n_times):
             print(f'this is n_times: {i}/{n_times}')
@@ -665,7 +671,7 @@ class Pipetter():
                 print(f'Changed tip to {transfer_event.tip_type} after {i}th pipetting.')
             temp_dict['weight'].append(weight)
             temp_dict['volume'].append(volume)
-            temp_dict['liquid_class_index'].append(transfer_event.asp_liquidClassTableIndex)
+            temp_dict['liquid_class_index'].append(transfer_event.liquidClassTableIndex)
             temp_dict['tip_type'].append(transfer_event.tip_type)
 
         print(dict_for_one_event)

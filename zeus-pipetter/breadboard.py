@@ -47,7 +47,6 @@ def choose_robot_by_pysimplegui():
             return 'Roboski#2'
 
 # the variables robot_name, CONFIG_PATH  and STATUS_PATH are global and are used in other modules.
-# robot_name = choose_robot_by_pysimplegui()
 try:
     robot_name = os.environ['PIPETTER_NAME']
 except KeyError:
@@ -555,6 +554,7 @@ def load_new_tip_rack(rack_reload):
                     },
            }
     if rack_reload == '50ul':
+        print(f"the 50ul rack corner coords: {config_brb['rack_50ul'][0]},{config_brb['rack_50ul'][1]},{config_brb['rack_50ul'][2]},{config_brb['rack_50ul'][3]}")
 
         tip_rack['50ul'] = create_deck(template_well=tip['50ul'],
                                        Nwells=(8, 12),
@@ -566,6 +566,8 @@ def load_new_tip_rack(rack_reload):
 
     if rack_reload == '300ul':
 
+        print(f"the 300ul rack corner coords: {config_brb['rack_300ul'][0]},{config_brb['rack_300ul'][1]},{config_brb['rack_300ul'][2]},{config_brb['rack_300ul'][3]}")
+
         tip_rack['300ul'] = create_deck(template_well=tip['300ul'],
                                         Nwells=(8, 12),
                                         topleft=config_brb['rack_300ul'][0],
@@ -574,6 +576,7 @@ def load_new_tip_rack(rack_reload):
                                         bottomright=config_brb['rack_300ul'][3],
                                         )
     if rack_reload == '1000ul':
+        print(f"the1000ul rack corner coords: {config_brb['rack_1000ul'][0]},{config_brb['rack_1000ul'][1]},{config_brb['rack_1000ul'][2]},{config_brb['rack_1000ul'][3]}")
 
         tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
                                          Nwells=(8, 12),
@@ -585,6 +588,7 @@ def load_new_tip_rack(rack_reload):
 
     with open(STATUS_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
+        print("tip_rack.json is updated.")
 
     return tip_rack
 
@@ -628,12 +632,12 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    # #run this ONLY when changing new tip rack.
+    #run this ONLY when changing new tip rack.
     # load_new_tip_rack(rack_reload ='300ul')
     # module_logger.info('New tip rack: 300ul is loaded.')
-    #
+    # #
     # load_new_tip_rack(rack_reload ='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')
-
+    #
     # load_new_tip_rack(rack_reload ='50ul')
     # module_logger.info('New tip rack: 50ul is loaded.')

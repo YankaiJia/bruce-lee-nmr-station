@@ -47,7 +47,7 @@ def construct_liquid_transfer_events_for_measurement():
         event_here = copy.deepcopy(event)
         event_here.source_container = container
         event_here.destination_container = brb.nanodrop_pedestal
-        event_here.transfer_volume = 4
+        event_here.transfer_volume = 4 # should be 4 generally, but changed to 6 for DCM
         event_here.lld = 0
         event_here.tip_type = '50ul'
         event_here.liquidClassTableIndex = 40 ## LC 40 is only for nanodrop, it is based on 27 (dioxane)
@@ -109,7 +109,7 @@ async def aspirate_next_sample(event=None):
 
     try:
         # print(f'Aspiration volume for zeus: {int(round(transfer_event.aspirationVolume * 10))}')
-        zm.aspiration(aspirationVolume=int(round(event.transfer_volume * 10)),  # volume in 0.1 ul
+        zm.aspiration(aspirationVolume=int(round(event.transfer_volume*5*10)),  # volume in 0.1 ul,## transfer_volume is doubled, this is to avoid bubbles.
                              containerGeometryTableIndex=event.asp_containerGeometryTableIndex,
                              deckGeometryTableIndex=event.asp_deckGeometryTableIndex,
                              liquidClassTableIndex=event.liquidClassTableIndex,
@@ -222,30 +222,35 @@ async def main(events = None, only_do_ids = ()):
 if __name__ == '__main__':
     nd = nanodrop.Nanodrop()
     zm, gt, pt = initiate_hardware()
+
     events_for_measurement = construct_liquid_transfer_events_for_measurement()
 
     # specify source containers, USE ONLY WHEN NECESSARY
     # for event in events_for_measurement:
     #     event.source_container = brb.plate_list[6].containers[1]
 
-    # a = []
-    # for i in range(27):
-    #     a.append(i)
-    #     a.append(i)
-    #     a.append(i)
+    # a = [0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14]
+    # #wash the nanodrop and dry it
+    # #flush the pedestal
+    # await asyncio.gather(nd.flush_pedestal())
+    # await asyncio.gather(nd.flush_pedestal())
+    # #dry the pedestal
+    # await asyncio.gather(nd.dry_pedestal())
+    # await asyncio.gather(nd.dry_pedestal())
+    # await asyncio.gather(nd.dry_pedestal())
 
-    # wash the nanodrop and dry it
-    ## flush the pedestal
-    #await asyncio.gather(nd.flush_pedestal())
-    #await asyncio.gather(nd.flush_pedestal())
-    ## dry the pedestal
-    #await asyncio.gather(nd.dry_pedestal())
-    #await asyncio.gather(nd.dry_pedestal())
-    #await asyncio.gather(nd.dry_pedestal())
-
-
-    # only run after initiation of the nanodrop software and blanking
+    #
+    # # # # only run after initiation of the nanodrop software and blanking
     # asyncio.run(main(events = events_for_measurement,
-    #                  only_do_ids= tuple()))
+    #                 only_do_ids= tuple(range(0,12))))
+    #
+    # asyncio.run(main(events=events_for_measurement,
+    #                  only_do_ids=tuple([4] * 30)))
 
+
+# for i in range(10):
+#     nd.close_lid()
+#     time.sleep(0.5)
+#     nd.open_lid()
+#     time.sleep(0.5)
 

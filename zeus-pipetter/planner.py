@@ -223,6 +223,7 @@ class TransferEventConstructor:
             'Dioxane_empty_50ul_plld': 27,
             'Dioxane_empty_300ul_plld': 28,
             'Dioxane_empty_1000ul_plld': 29,
+            'DCE_empty_300ul_plld': 37
         }
         solvent_para = {solvent, mode, tip_type}  # define a set of paras
         for liquid_class, index in liquid_class_dict.items():
@@ -341,6 +342,8 @@ class Event:
         self.event_finish_time: str = None  # time: (UTC time, local time)
 
     def get_liquid_class_index(self, solvent: str, mode: str, tip_type: str):
+
+        # print(f"solvent: {solvent}, mode: {mode}, tip_type: {tip_type}")
         liquid_class_dict = {
             'water_empty_50ul_clld': 21,
             'water_empty_300ul_clld': 1,
@@ -368,7 +371,10 @@ class Event:
             'Dioxane_empty_1000ul_plld': 29,
             'hbrhac1v1_empty_300ul_clld': 31,
             'hbrhac1v1_empty_50ul_clld': 31,
-            'hbrhac1v1_empty_1000ul_clld': 31
+            'hbrhac1v1_empty_1000ul_clld': 31,
+            'DCE_empty_50ul_clld': 36,
+            'DCE_empty_300ul_clld': 37,
+            'DCE_empty_1000ul_clld': 38,
         }
         solvent_para = {solvent, mode, tip_type}  # define a set of paras
         for liquid_class, index in liquid_class_dict.items():
@@ -458,7 +464,8 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,conta
     # generate event list
     event_list = generate_event_list_new(event_dataframe=event_dataframe,
                                      pipeting_to_balance=is_pipeting_to_balance,
-                                     containers_for_stock=containers_for_stock)
+                                     containers_for_stock=containers_for_stock,
+                                         )
 
     logger.info("All event objects are generated from dataframes.")
 
@@ -468,8 +475,10 @@ def generate_event_object(logger: object, excel_to_generate_dataframe: str,conta
 def generate_event_list_new(df_reactions_grouped_by_plate_id,
                         substance_addition_sequence,
                         stock_solution_containers,
-                        excel_path_for_conditions: str, asp_lld):
-    pipetting_to_balance = False
+                        excel_path_for_conditions: str,
+                        asp_lld,
+                        pipetting_to_balance = False):
+
     ## create a list of events
     event_list = []
     for df_reactions in df_reactions_grouped_by_plate_id:

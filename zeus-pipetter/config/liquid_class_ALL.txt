@@ -2,8 +2,8 @@
         "22": "DMF, based on water 01, tip 300ul",
         "23": "DMF, based on water 02, tip 1000ul",
         "25": "THF, based on ethanol 14, tip 1000ul",
+		"26": based on "21", but clld sensitivity = 2
         "31": "hbrhac1v1, based on water 01, tip 300ul",
         "32": "Water,based on water 02, tip 1000ul",
         "35": "BSA, based on water 06, tip 50ul"
-		"26": based on "21", but clld sensitivity = 2
 		"40": copied from 27, but calibation has changed, this is for nanodrop dispensing
