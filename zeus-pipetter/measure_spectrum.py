@@ -47,7 +47,14 @@ def construct_liquid_transfer_events_for_measurement():
         event_here = copy.deepcopy(event)
         event_here.source_container = container
         event_here.destination_container = brb.nanodrop_pedestal
-        event_here.transfer_volume = 4 # should be 4 generally, but changed to 6 for DCM
+
+        # event_here.transfer_volume = 4 # volume 4 ul generally,including ethanol, water
+        # event_here.transfer_volume = 6 # volume 6 ul for DCM
+        # event_here.transfer_volume = 2 # volume 3 ul for 1,2-DCE
+        event_here.transfer_volume = 30 # volume 30 ul for 1,2-DCE with O-ring
+
+
+
         event_here.lld = 0
         event_here.tip_type = '50ul'
         event_here.liquidClassTableIndex = 40 ## LC 40 is only for nanodrop, it is based on 27 (dioxane)
@@ -229,23 +236,33 @@ if __name__ == '__main__':
     # for event in events_for_measurement:
     #     event.source_container = brb.plate_list[6].containers[1]
 
-    # a = [0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14]
-    # #wash the nanodrop and dry it
-    # #flush the pedestal
+    # a = [0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,13
+    # #wash the nanodrop and d2
+    # #flush the ped1
     # await asyncio.gather(nd.flush_pedestal())
     # await asyncio.gather(nd.flush_pedestal())
-    # #dry the pedestal
+    # # dry the pedestal
     # await asyncio.gather(nd.dry_pedestal())
     # await asyncio.gather(nd.dry_pedestal())
     # await asyncio.gather(nd.dry_pedestal())
 
+
     #
     # # # # only run after initiation of the nanodrop software and blanking
     # asyncio.run(main(events = events_for_measurement,
-    #                 only_do_ids= tuple(range(0,12))))
+    #                 only_do_ids= tuple()))
     #
+    # This is for discrete index
     # asyncio.run(main(events=events_for_measurement,
-    #                  only_do_ids=tuple([4] * 30)))
+    #                  only_do_ids=tuple([4, 10, 16])))
+
+    # This is for continuous index
+    # starting_vial_num = 35
+    # ending_vial_num = 54
+    # only_do_ids = tuple(range(starting_vial_num, ending_vial_num))
+    # asyncio.run(main(events=events_for_measurement,
+    #                  only_do_ids= only_do_ids))
+
 
 
 # for i in range(10):
@@ -253,4 +270,7 @@ if __name__ == '__main__':
 #     time.sleep(0.5)
 #     nd.open_lid()
 #     time.sleep(0.5)
+
+# for event in events_for_measurement:
+#     event.transfer_volume = 10
 

@@ -467,6 +467,7 @@ plate_list = [plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7]
 
 
 
+
 @dataclass
 class Deck_para:
     deckGeometryTableIndex: int
@@ -632,12 +633,12 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    #run this ONLY when changing new tip rack.
+    ### run this ONLY when changing new tip rack.
     # load_new_tip_rack(rack_reload ='300ul')
     # module_logger.info('New tip rack: 300ul is loaded.')
     # #
     # load_new_tip_rack(rack_reload ='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')
     #
-    # load_new_tip_rack(rack_reload ='50ul')
-    # module_logger.info('New tip rack: 50ul is loaded.')
+    load_new_tip_rack(rack_reload ='50ul')
+    module_logger.info('New tip rack: 50ul is loaded.')
