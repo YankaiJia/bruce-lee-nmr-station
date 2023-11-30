@@ -102,7 +102,7 @@ def smooth_across_HBr_concentrations(x, y, fraction_of_outliers=0.15, do_plot=Tr
     # remove the 10% of the points furthest from the fit
     diff = np.abs(f(x) - y)
     indices_to_keep = np.argsort(diff)[:-int(len(diff) * fraction_of_outliers)]
-    # if point with lowest x is not in the rows_having_this_alcohol_and_temperature to keep, add it
+    # if point with lowest x is not in the indices to keep, add it
     if np.argmin(x) not in indices_to_keep:
         indices_to_keep = np.append(indices_to_keep, np.argmin(x))
     x2 = x[indices_to_keep]
@@ -134,11 +134,11 @@ df_results['c#HBr'] = df_results['c#HBr'].round(6)
 for alcohol_concentration in df_results['c#SN1OH03'].unique():
     for temperature in df_results['temperature'].unique():
         print(f'c#SN1OH03 = {alcohol_concentration}, temperature = {temperature}')
-        rows_having_this_alcohol_and_temperature = (df_results['c#SN1OH03'] == alcohol_concentration) & \
+        indices = (df_results['c#SN1OH03'] == alcohol_concentration) & \
                                                    (df_results['temperature'] == temperature)
-        df_results.loc[rows_having_this_alcohol_and_temperature, column_to_plot] = \
-            smooth_across_HBr_concentrations(df_results.loc[rows_having_this_alcohol_and_temperature, 'c#HBr'],
-                                             df_results.loc[rows_having_this_alcohol_and_temperature, column_to_plot]
+        df_results.loc[indices, column_to_plot] = \
+            smooth_across_HBr_concentrations(df_results.loc[indices, 'c#HBr'],
+                                             df_results.loc[indices, column_to_plot]
                                              )
 
 # convert from mol/L to mM

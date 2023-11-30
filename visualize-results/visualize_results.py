@@ -117,7 +117,7 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
                                          plot_savgol=True, spline_alpha=0.3, spline_linewidth=5):
     """
     Plots data across the catalyst range for a specific combination of non-catalyst substrate concentrations
-    (and perhaps other parameters) defined by the rows_having_this_alcohol_and_temperature in lists if unique values of the parameters.
+    (and perhaps other parameters) defined by the indices in lists if unique values of the parameters.
 
     For example, if param_values_by_data=(2, 0, 1) and column_names=('ic001', 'am001', 'ald001')
     then the function will plot the data from the dataset where the column `ic001` has the third unique value
@@ -131,7 +131,7 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
         column_to_plot, and all the columns in `column_names` list (or tuple).
 
     param_values_by_index: tuple
-        The rows_having_this_alcohol_and_temperature of the unique values of the parameters that will be used to select the data to be plotted.
+        The indices of the unique values of the parameters that will be used to select the data to be plotted.
 
     label: str
         The label of the plot. If None, the label will be the values of the parameters that were used to select

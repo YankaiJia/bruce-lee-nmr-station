@@ -122,7 +122,7 @@ def load_raw_msp_by_id(plate_folder, well_id, prefix='spectrum_', suffix=''):
     return data
 
 def diluted_vials_only(list_of_vials_on_plate):
-    """Returns the rows_having_this_alcohol_and_temperature of the vials on the plate that are diluted. Every second row of the plate was not
+    """Returns the indices of the vials on the plate that are diluted. Every second row of the plate was not
     filled with reaction mixtures and is later used hold a diluted reaction mixture.
 
     Parameters

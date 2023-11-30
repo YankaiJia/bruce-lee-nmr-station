@@ -632,7 +632,7 @@ def merge_repeated_outliers(original_run, outlier_runs,
                 continue
 
             if any([index_here in indices_that_were_processed for index_here in indices_that_match]):
-                print('Some of the rows_having_this_alcohol_and_temperature were already processed. Skipping.')
+                print('Some of the indices were already processed. Skipping.')
                 continue
 
             indices_that_were_processed.extend(indices_that_match.tolist())
@@ -708,7 +708,7 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
     Returns
     -------
     indices_of_found_conditions: list
-        List of dataframe rows_having_this_alcohol_and_temperature of conditions that correspond to each container of the plate that was operated on.
+        List of dataframe indices of conditions that correspond to each container of the plate that was operated on.
     """
     if plate_id in dataframe_with_conditions[column_namd_for_plate_id].unique():
         # get all rows for this particular plate
