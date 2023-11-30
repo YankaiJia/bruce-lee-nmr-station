@@ -9,11 +9,12 @@ import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 from sklearn.decomposition import PCA as pca
 import os
-from process_wellplate_spectra import SpectraProcessor
+import importlib
+process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
-sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
+sp = process_wellplate_spectra.SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                      '2022-12-01/interpolator-dataset/')
 
 # load background
@@ -43,11 +44,11 @@ print(wavelength_id_by_value(wavelengths, 416))
 print(wavelength_id_by_value(wavelengths, 438))
 
 # Load all spectra
-# plates = ['2023-04-08_11-09-22__plate0000006__2023-04-07-run01/',
-#           '2023-04-08_11-43-19__plate0000009__2023-04-07-run01/',
-#           '2023-04-08_12-56-26__plate0000011__2023-04-07-run01/'
-#           ]
-plates = ['2023-04-12_20-35-01__plate0000020__simple_reactions_2023-04-12-run01-diluted']
+plates = ['2023-04-08_11-09-22__plate0000006__2023-04-07-run01/',
+          '2023-04-08_11-43-19__plate0000009__2023-04-07-run01/',
+          '2023-04-08_12-56-26__plate0000011__2023-04-07-run01/'
+          ]
+# plates = ['2023-04-12_20-35-01__plate0000020__simple_reactions_2023-04-12-run01-diluted/']
 
 spectra = sp.load_all_spectra(craic_folder + plates[0])
 for i in range(1, len(plates)):
@@ -57,10 +58,12 @@ for i in range(1, len(plates)):
 empty_vial_mask = np.array([spectrum[-1, 1] < 0.3 for spectrum in spectra])
 spectra = [spectrum for spectrum in np.array(spectra)[empty_vial_mask, :, :]]
 
+# carbocat_mask = np.array([spectrum[interm_wav_id, 1] - spectrum[interm_wav_id2, 1] > 0.16 for spectrum in spectra])
 carbocat_mask = np.array([spectrum[interm_wav_id, 1] - spectrum[interm_wav_id2, 1] > 0.16 for spectrum in spectra])
 cut_from = 160
 spectra_masked = np.array(spectra)[carbocat_mask, :, :]
 spectra_masked = [spectrum for spectrum in spectra_masked]
+spectra_masked = spectra_masked[:-1]
 
 spectra_unmasked = np.array(spectra)[~carbocat_mask, :, :]
 spectra_unmasked = [spectrum for spectrum in spectra_unmasked]

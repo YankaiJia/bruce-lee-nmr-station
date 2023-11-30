@@ -473,8 +473,12 @@ def organize_run_structure_v3_00(experiment_name):
     for substance in df_stock.columns[1:]:
         df_structure[f'c#{substance}'] = 0
 
-    names_of_stock_solutions_used = [stock_solution_name.strip('vol#') for stock_solution_name
+    names_of_stock_solutions_used = [stock_solution_name.replace('vol#','') for stock_solution_name
                                      in df_structure.columns if 'vol#' in stock_solution_name]
+
+    for stock_solution_name in names_of_stock_solutions_used:
+        if stock_solution_name not in df_stock['stock_solution'].to_list():
+            raise ValueError(f"Stock solution {stock_solution_name} is used in conditions list but is not in the stock solutions table.")
     for index, row in df_structure.iterrows():
         total_volume = 0
         for stock_solution_name in names_of_stock_solutions_used:
@@ -484,7 +488,7 @@ def organize_run_structure_v3_00(experiment_name):
                 pipetted_volume_of_this_stock_solution = row[f'vol#{stock_solution_name}']
                 for substance in df_stock.columns[1:]:
                     concentration_of_this_substance = concentrations_of_substances_in_this_stock_solution[substance].iloc[0]
-                    df_structure.loc[index, f'c#{substance}'] += + pipetted_volume_of_this_stock_solution * concentration_of_this_substance
+                    df_structure.loc[index, f'c#{substance}'] += pipetted_volume_of_this_stock_solution * concentration_of_this_substance
                 total_volume += pipetted_volume_of_this_stock_solution
         for substance in df_stock.columns[1:]:
             df_structure.loc[index, f'c#{substance}'] = df_structure.loc[index, f'c#{substance}'] / total_volume
@@ -493,7 +497,12 @@ def organize_run_structure_v3_00(experiment_name):
     nanodrop_spectra_folder = data_folder + experiment_name + 'nanodrop_spectra/'
     # Use regular expressions to get the plate id and unix timestamp for each file by parsing the filename. For example,
     # filename '2023-08-23_23-52-13_plate_51.csv' means for 2023-08-23 date, 23-52-13 hour-minute-second, and plate 51
-    pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
+    ## Old regexp:
+    # pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
+
+    # Changing regexp because Yankai is very creative
+    pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:.*?)_plate_(?P<plate_id>\d+).csv',
+                         re.DOTALL)
     for filename in os.listdir(nanodrop_spectra_folder):
         if not filename.endswith('.csv'):
             continue
@@ -672,7 +681,7 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
     """
     Given the dataframe of conditions, the time of operation and the barcode of the plate, find the condition that
     correspond to each container on which the operation was performed. For example, if the operation is measurement
-    of spectra of containers in this plate, then it will find indices of conditions that correspond to each measured
+    of spectra of containers in this plate, then it will find rows of conditions that correspond to each measured
     container (vial, well) of the plate.
     The logic of this method is: for each container of a given plate (by plate barcode),
     the method finds the latest condition whose timestamp precedes the input timestamp.
@@ -736,6 +745,17 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
 
 if __name__ == '__main__':
     pass
+
+    list_of_runs = tuple([
+                          '2023-11-08-run01',
+                          '2023-11-13-run01',
+                          '2023-11-14-run01',
+                          '2023-11-21-run01'
+    ])
+    for run_shortname in list_of_runs:
+        logging.info(f'Organizing run {run_shortname}')
+        organize_run_structure(f'BPRF/{run_shortname}/', version='3.00')
+
     # experiment_name = 'simple-reactions/2023-08-21-run01/'
     # df_structure = organize_run_structure(experiment_name, version='3.00')
 
@@ -744,16 +764,16 @@ if __name__ == '__main__':
     # for run_shortname in list_of_runs:
     #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
 
-    list_of_runs = tuple([
-                          '2023-09-14-run01',
-                          '2023-09-15-run01',
-                          '2023-09-18-run01',
-                          '2023-09-19-run01',
-                          '2023-09-20-run01'
-    ])
-    for run_shortname in list_of_runs:
-        logging.info(f'Organizing run {run_shortname}')
-        organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
+    # list_of_runs = tuple([
+    #                       '2023-09-14-run01',
+    #                       '2023-09-15-run01',
+    #                       '2023-09-18-run01',
+    #                       '2023-09-19-run01',
+    #                       '2023-09-20-run01'
+    # ])
+    # for run_shortname in list_of_runs:
+    #     logging.info(f'Organizing run {run_shortname}')
+    #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
 
     # list_of_runs = tuple([
     #                       # '2023-08-21-run01',

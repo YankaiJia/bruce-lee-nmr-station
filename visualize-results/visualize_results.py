@@ -3,7 +3,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from scipy.interpolate import splev, splrep
-from savitzky_golay_werrors import savgol_filter_werror
+import importlib
+savitzky_golay_werrors = importlib.import_module("visualize-results.savitzky_golay_werrors")
 import importlib
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 
@@ -98,7 +99,7 @@ def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more
     xs = xs[permurations_that_sort_xs]
     ys = ys[permurations_that_sort_xs]
     ys = filter_outliers(ys, threshold=layout_threshold)
-    ys_sg = savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
+    ys_sg = savitzky_golay_werrors.savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
     if do_plot:
         plt.plot(xs, ys_sg, color='gold', linewidth=4, alpha=0.5)
     # add point on the left and on the right with same y value as the first and the last point

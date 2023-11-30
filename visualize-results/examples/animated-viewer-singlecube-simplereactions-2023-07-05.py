@@ -1,11 +1,16 @@
 from scipy.optimize import curve_fit
 
-from visualize_results import *
+# from visualize_results import *
 import time
 from scipy.interpolate import LinearNDInterpolator
 from scipy.interpolate import interp1d
+import importlib
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
-import animated_viewer_static as avs
+visualize_results = importlib.import_module("visualize-results.visualize_results")
+animated_viewer_static = importlib.import_module("visualize-results.animated_viewer_static")
+# import animated_viewer_static as avs
+import os
+import numpy as np
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
@@ -57,7 +62,7 @@ yields = df_results['yield'].to_numpy()
 print(f'Max concentrations of substrates: {[print(max(x)) for x in [xs0, ys0, zs0]]}')
 print(f'Yields - min: {min(yields)}, max: {max(yields)}')
 
-avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
+animated_viewer_static.plot_3d_dataset_as_cube(xs, ys, zs, yields,
                             substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
                             colorbar_title='Conversion:',
                             npoints=50, sparse_npoints=7, rbf_epsilon=1,
@@ -73,7 +78,7 @@ avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
 # df_results.loc[df_results['yield#SN1Br01s1'] > 1, 'yield#SN1Br01s1'] = 1
 # df_results.loc[df_results['c#SN1OH01'].round(4) == df_results['c#SN1OH01'].round(4).min(), 'yield#SN1Br01s1'] = 0
 #
-# avs.plot_3d_dataset_as_cube(xs, ys, zs, df_results['yield#SN1Br01s1'].to_numpy(),
+# animated_viewer_static.plot_3d_dataset_as_cube(xs, ys, zs, df_results['yield#SN1Br01s1'].to_numpy(),
 #                             substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
 #                             colorbar_title='yield of SN1Br01s1',
 #                             npoints=50, sparse_npoints=7, rbf_epsilon=1,
@@ -86,34 +91,34 @@ avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
 #                             contours=[0.15, 0.2])
 
 
-# # fit the kinetics
-# xdata = np.vstack((ys0.T, zs0.T))
-# ydata = yields.T
-#
-# def kinetics_yield(catalyst_C, temperature, a, b):
-#     return (1 - np.exp(-a*catalyst_C*np.exp(-b/(temperature + 273.15))))
-#
-# def func(x, a, b):
-#     return kinetics_yield(catalyst_C=x[0], temperature=x[1], a=a, b=b)
-#
-# popt, pcov = curve_fit(func, xdata, ydata, p0=[96079.4039589, 4371.26728913], ftol=1e-10)
-# print(popt)
-#
-# npoints = 20j
-# x_raw, y_raw, z_raw = np.mgrid[np.min(xs):np.max(xs):npoints,
-#                       np.min(ys):np.max(ys):npoints,
-#                       np.min(zs):np.max(zs):npoints]
-# # flatten all arrays
-# x_raw = x_raw.flatten()
-# y_raw = y_raw.flatten()
-# z_raw = z_raw.flatten()
-# # k_raw = x_raw * y_raw * z_raw
-# # k_raw = x_raw + y_raw + z_raw
-#
-#
-# fitted_yields = kinetics_yield(y_raw, z_raw, *popt)
-#
-# avs.plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, fitted_yields,
+# fit the kinetics
+xdata = np.vstack((ys0.T, zs0.T))
+ydata = yields.T
+
+def kinetics_yield(catalyst_C, temperature, a, b):
+    return (1 - np.exp(-a*catalyst_C*np.exp(-b/(temperature + 273.15))))
+
+def func(x, a, b):
+    return kinetics_yield(catalyst_C=x[0], temperature=x[1], a=a, b=b)
+
+popt, pcov = curve_fit(func, xdata, ydata, p0=[96079.4039589, 4371.26728913], ftol=1e-10)
+print(popt)
+
+npoints = 20j
+x_raw, y_raw, z_raw = np.mgrid[np.min(xs):np.max(xs):npoints,
+                      np.min(ys):np.max(ys):npoints,
+                      np.min(zs):np.max(zs):npoints]
+# flatten all arrays
+x_raw = x_raw.flatten()
+y_raw = y_raw.flatten()
+z_raw = z_raw.flatten()
+# k_raw = x_raw * y_raw * z_raw
+# k_raw = x_raw + y_raw + z_raw
+
+fitted_yields = kinetics_yield(y_raw, z_raw, *popt)
+
+
+# animated_viewer_static.plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, fitted_yields,
 #                             substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
 #                             colorbar_title='Conversion:',
 #                             npoints=50, sparse_npoints=7, rbf_epsilon=1,
