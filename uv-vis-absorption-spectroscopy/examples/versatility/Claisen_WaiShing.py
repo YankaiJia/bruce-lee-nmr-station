@@ -26,6 +26,8 @@ construct_calibrant(
     experiment_name=experiment_name,
 )
 
+plate_folder = 'D:\Docs\Dropbox\robochem\data\craic_microspectrometer_measurements\absorbance\2023-06-23_10-16-05__plate0000049__multicomp_reactions_2023-06-22-run02'
+
 sp = process_wellplate_spectra.SpectraProcessor(
     folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                    '2022-12-01/interpolator-dataset/')

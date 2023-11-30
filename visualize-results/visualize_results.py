@@ -3,7 +3,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 from scipy.interpolate import splev, splrep
-from savitzky_golay_werrors import savgol_filter_werror
+import importlib
+savitzky_golay_werrors = importlib.import_module("visualize-results.savitzky_golay_werrors")
 import importlib
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 
@@ -98,7 +99,7 @@ def make_spline(xs, ys, yerr, layout_threshold=0.04, more_error_savgol=0.4, more
     xs = xs[permurations_that_sort_xs]
     ys = ys[permurations_that_sort_xs]
     ys = filter_outliers(ys, threshold=layout_threshold)
-    ys_sg = savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
+    ys_sg = savitzky_golay_werrors.savgol_filter_werror(ys, window_length=5, degree=2, error=yerr + more_error_savgol)
     if do_plot:
         plt.plot(xs, ys_sg, color='gold', linewidth=4, alpha=0.5)
     # add point on the left and on the right with same y value as the first and the last point
@@ -116,7 +117,7 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
                                          plot_savgol=True, spline_alpha=0.3, spline_linewidth=5):
     """
     Plots data across the catalyst range for a specific combination of non-catalyst substrate concentrations
-    (and perhaps other parameters) defined by the indices in lists if unique values of the parameters.
+    (and perhaps other parameters) defined by the rows_having_this_alcohol_and_temperature in lists if unique values of the parameters.
 
     For example, if param_values_by_data=(2, 0, 1) and column_names=('ic001', 'am001', 'ald001')
     then the function will plot the data from the dataset where the column `ic001` has the third unique value
@@ -130,7 +131,7 @@ def plot_one_point_across_catalyst_range(df_data, param_values_by_index, label=N
         column_to_plot, and all the columns in `column_names` list (or tuple).
 
     param_values_by_index: tuple
-        The indices of the unique values of the parameters that will be used to select the data to be plotted.
+        The rows_having_this_alcohol_and_temperature of the unique values of the parameters that will be used to select the data to be plotted.
 
     label: str
         The label of the plot. If None, the label will be the values of the parameters that were used to select

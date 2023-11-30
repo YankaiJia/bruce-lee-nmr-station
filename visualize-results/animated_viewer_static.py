@@ -45,7 +45,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                             npoints=30, sparse_npoints=4, rbf_epsilon=0.01, rbf_smooth=0.001,
                             interpolator_choice='rbf', data_for_spheres='raw', colormap='blue-red', contours=5,
                             colorbar_title="Yield", rbf_function="multiquadric", axes_ticks_format='%.2f', axes_font_factor=0.83,
-                            contour_opacity=1):
+                            contour_opacity=1, single_size_of_points=False):
     xs0 = (x_raw - np.min(x_raw)) / (np.max(x_raw) - np.min(x_raw))
     ys0 = (y_raw - np.min(y_raw)) / (np.max(y_raw) - np.min(y_raw))
     zs0 = (z_raw - np.min(z_raw)) / (np.max(z_raw) - np.min(z_raw))
