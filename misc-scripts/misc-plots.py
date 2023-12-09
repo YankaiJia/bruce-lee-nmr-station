@@ -1,12 +1,41 @@
 import importlib
 import os
+
+import matplotlib.pyplot as plt
+
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
 
-experiment_name = 'multicomp-reactions/2023-07-04-run01/'
-df = organize_run_results.load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
-df.to_pickle('tests/test_organize_run_results/expected_outputs/run_info_v1.00.pkl')
+
+# make a bar plot with compositions from dictionary:
+composition = {'water': 22, 'dioxane': 10, 'acetic acid': 8, 'HBr':1}
+# make a stacked bar plot with compositions from dictionary:
+net_width = 0
+for key in ['water', 'dioxane', 'acetic acid', 'HBr']:
+    net_width += composition[key]
+    plt.barh(y=0, width=composition[key], height=0.5, left=net_width-composition[key])
+
+# annotate the plot with compositions:
+# net_width = 0
+# for key in ['water', 'dioxane', 'acetic acid', 'HBr']:
+#     net_width += composition[key]
+#     plt.annotate(key, (net_width-composition[key]/2, 0), ha='center', va='center', fontsize=12)
+plt.xlabel('Molar composition')
+# remove all axes
+plt.gca().axes.get_yaxis().set_visible(False)
+plt.gca().axes.get_xaxis().set_visible(False)
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+
+plt.show()
+
+
+
+
+# experiment_name = 'multicomp-reactions/2023-07-04-run01/'
+# df = organize_run_results.load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
+# df.to_pickle('tests/test_organize_run_results/expected_outputs/run_info_v1.00.pkl')
 # df = organize_run_results.load_df_from_dilution_info(experiment_name)
 
 # df = organize_run_results.join_data_from_runs(['multicomp-reactions/2023-06-20-run01/',
