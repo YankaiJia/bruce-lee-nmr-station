@@ -747,14 +747,25 @@ if __name__ == '__main__':
     pass
 
     list_of_runs = tuple([
-                          '2023-11-08-run01',
-                          '2023-11-13-run01',
-                          '2023-11-14-run01',
-                          '2023-11-21-run01'
-    ])
+                          '2023-11-28-run01',
+                          '2023-11-29-run01',
+                          '2023-11-29-run02',
+                          '2023-12-02-run01',
+                          '2023-12-04-run01',
+                          '2023-12-04-run02'])
     for run_shortname in list_of_runs:
         logging.info(f'Organizing run {run_shortname}')
-        organize_run_structure(f'BPRF/{run_shortname}/', version='3.00')
+        organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
+
+    # list_of_runs = tuple([
+    #                       '2023-11-08-run01',
+    #                       '2023-11-13-run01',
+    #                       '2023-11-14-run01',
+    #                       '2023-11-21-run01'
+    # ])
+    # for run_shortname in list_of_runs:
+    #     logging.info(f'Organizing run {run_shortname}')
+    #     organize_run_structure(f'BPRF/{run_shortname}/', version='3.00')
 
     # experiment_name = 'simple-reactions/2023-08-21-run01/'
     # df_structure = organize_run_structure(experiment_name, version='3.00')
