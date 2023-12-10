@@ -3,6 +3,8 @@ import sys
 import pandas as pd, os, glob, numpy as np, time, datetime
 from scipy.signal import savgol_filter
 import xml.etree.ElementTree as ET
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from labellines import labelLine, labelLines
 
@@ -21,7 +23,6 @@ def remove_unwanted_columns(df):
 def treat_one_file(xml_folder, xml_name, rename = True):
 
     global df
-
     xml_path = xml_folder + xml_name
     tree = ET.parse(xml_path)
     workbook = tree.getroot()
@@ -93,11 +94,12 @@ def treat_one_file(xml_folder, xml_name, rename = True):
     # rename xml and csv file
     if rename:
         # change xml file name
+
         # convert time stamp to unix time
         unix_time = time.mktime(datetime.datetime.strptime(time_stamps[0], "%m/%d/%Y %I:%M:%S %p").timetuple())
-        # convert unix time to human readable time
+        # convert unix time to human-readable time
         human_readable_time = datetime.datetime.fromtimestamp(unix_time).strftime('%Y-%m-%d_%H-%M-%S')
-        # rename the xml file name using the human readable time
+        # rename the xml file name using the human-readable time
         os.rename(xml_folder + xml_name, human_readable_time + '_' + xml_name)
 
         column_names = df.columns.values
@@ -150,12 +152,18 @@ if __name__ == "__main__":
         #            'reference_for_E1'
         #            '2023-09-06-run01',
         #              '2023-09-07-run01',
-        # 'Yanqiu'
-        # 'versatility_test/Suzuki_JC'
-        # 'versatility_test/Claisen_WaiShing'
-        # 'versatility_test/Ullman_BP'
-        'versatility_test/Glaser_WaiShing'
-              ]
+        #               'Yanqiu'
+        #               'versatility_test/Suzuki_JC'
+        #               'versatility_test/Claisen_WaiShing'
+        #               'versatility_test/Ullman_BP'
+        #               'versatility_test/Glaser_WaiShing'
+        #             '2023-11-28-run01',
+        #             '2023-11-29-run01',
+        #             '2023-11-29-run02',
+        #             '2023-12-02-run01'
+                    '2023-12-04-run02'
+
+    ]
 
     for folder in folders:
 
@@ -172,11 +180,15 @@ if __name__ == "__main__":
             print(f'xml_folder: {xml_folder}')
             print(f'xml_name: {xml_name}')
 
-            if "2023" not in xml_name:
-                df = treat_one_file(xml_folder=xml_folder,
-                                    xml_name=xml_name)
-            else:
-                print('This file has been processed already!')
+
+            df = treat_one_file(xml_folder=xml_folder,
+                            xml_name=xml_name)
+
+            # if "2023" not in xml_name:
+            #     df = treat_one_file(xml_folder=xml_folder,
+            #                         xml_name=xml_name)
+            # else:
+            #     print('This file has been processed already!')
             #
             # if 'EtOH' in xml_name:
             #     df = treat_one_file(xml_folder = xml_folder,
