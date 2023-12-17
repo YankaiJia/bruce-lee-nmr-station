@@ -10,23 +10,23 @@ class Nanodrop:
         except:
             print("Arduino not connected")
 
-        self.flush_time = 5
-        self.dry_time = 12
+        self.flush_time = 3
+        self.dry_time = 10
 
     def open_lid(self):
         self.close_vacumm()
         time.sleep(0.2)
-        self.open_air()
-        time.sleep(0.2)
+        # self.open_air()
+        # time.sleep(0.2)
         self.serial.write(b'1')
 
     def close_lid(self):
-        self.open_air()
-        time.sleep(0.2)
+        # self.open_air()
+        # time.sleep(0.2)
         self.serial.write(b'0')
         time.sleep(0.2)
-        self.close_air()
-        time.sleep(0.2)
+        # self.close_air()
+        # time.sleep(0.2)
 
     def open_liquid(self):
         self.serial.write(b'40')
@@ -46,9 +46,9 @@ class Nanodrop:
     async def flush_pedestal(self):
         time_stamp = time.time()
         self.open_vacumm()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.close_air()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.open_liquid()
         print("flushing...")
         time.sleep(self.flush_time)
@@ -60,16 +60,15 @@ class Nanodrop:
     async def dry_pedestal(self):
         time_stamp = time.time()
         self.open_vacumm()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.close_liquid()
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.open_air()
         print('drying pedestal...')
         await asyncio.sleep(self.dry_time)
         self.close_vacumm()
-        time.sleep(0.1)
-        self.open_air()
-        time.sleep(0.1)
+        time.sleep(0.3)
+        self.close_air()
 
     async def flush_then_dry_pedestal(self):
 
@@ -107,6 +106,8 @@ class Nanodrop:
 
     def close_serial(self):
         self.serial.close()
+
+
 
 if __name__ ==  '__main__':
     nd = Nanodrop()

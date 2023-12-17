@@ -11,7 +11,7 @@ pipetter_logger = logging.getLogger('main.pipetter')
 
 import copy, json, time, numpy as np, serial, re, winsound
 
-import breadboard as brb
+import breadboard as brb, sound
 
 
 ## get config file path from breadboard
@@ -285,7 +285,7 @@ class Pipetter():
 
         # if the rack is empty then ask user to reload
         if not any(item['exists'] for item in tip_rack[tip_type]['tips']):
-            # beep_n()
+            sound.beep_for_tip_changing()
             input(f'ERROR: The tip rack is empty. Please reload the tip rack and hit enter.')
             tip_rack = brb.load_new_tip_rack(rack_reload=tip_type)
 
@@ -720,11 +720,11 @@ if __name__ == '__main__':
     time.sleep(2)
     #
     # # gt.kill_alarm()
-    # gt.home_xy()
+    gt.home_xy()
     # time.sleep(5)
-    # #
-    # pt = Pipetter(zeus=zm, gantry=gt)
-    # time.sleep(2)
+    #
+    pt = Pipetter(zeus=zm, gantry=gt)
+    time.sleep(2)
     # pt.close_balance_door()
     #
     # print("Init done!")

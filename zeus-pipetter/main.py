@@ -6,7 +6,6 @@ workflow:
 4. generate event list for pipetting
 """
 import logging, copy, time, pickle, re, importlib, json, os, PySimpleGUI as sg, pandas as pd, numpy as np
-import zeus, pipetter, planner as pln, breadboard as brb, prepare_reaction as prep
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 # C:\Yankai\Dropbox\robochem
@@ -38,7 +37,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler(brb.STATUS_PATH + 'main.log')
+    fh = logging.FileHandler('C:\\Yankai\\Dropbox\\robochem\\pipetter_files\\main_roboski2.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -54,6 +53,11 @@ def setup_logger():
 
 logger = setup_logger()
 
+
+import zeus, pipetter, planner as pln, breadboard as brb, prepare_reaction as prep
+
+# import matplotlib
+# matplotlib.use('TKAgg')
 
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
@@ -77,6 +81,52 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
     logger.info("pipetter is loaded as: pt")
 
     return zm, gt, pt
+
+
+def assign_stock_solutions_to_containers_and_check_volume(excel_path:str, check_volume_by_pipetter: bool = True):
+    sheet_name_for_stock_solutions = 'stock_solutions'
+    stock_solution_containers = []
+    ## load stock solutions from excel
+    df_stock_solutions = pd.read_excel(excel_path, sheet_name=sheet_name_for_stock_solutions, engine='openpyxl')
+
+    for index, row in df_stock_solutions.iterrows():
+    # ## print out the column names
+    #     columns = df_stock_solutions.columns
+    #     print(f"columns: {columns}")
+    ## assign stock solutions to containers
+        substance_name, \
+        plate_id,\
+        container_id, \
+        solvent, \
+        density, \
+        volume_ml, \
+        liquid_surface_height,\
+        mode= row['substance'], row['breadboard_plate_id'], row['container_id'], row['solvent'], row['density'], row['volume'], row['liquid_surface_height'], row['pipetting_mode']
+        container_for_this_stock_solution = brb.plate_list[plate_id].containers[container_id]
+        container_for_this_stock_solution.substance = substance_name
+        container_for_this_stock_solution.substance_density = density
+        container_for_this_stock_solution.solvent = solvent
+        container_for_this_stock_solution.pipetting_mode = mode
+        if not check_volume_by_pipetter:
+            container_for_this_stock_solution.liquid_surface_height = liquid_surface_height
+            container_for_this_stock_solution.liquid_volume = volume_ml
+        else:
+            container_for_this_stock_solution.liquid_surface_height, \
+            container_for_this_stock_solution.liquid_volume = \
+                pt.check_volume_in_container(container=container_for_this_stock_solution,
+                                             liquidClassTableIndex=12,change_tip_after_each_check=True)
+
+        stock_solution_containers.append(container_for_this_stock_solution)
+
+        ## update the excel after checking the volume
+        if check_volume_by_pipetter:
+            df_stock_solutions.loc[index, 'volume'] = container_for_this_stock_solution.liquid_volume
+            df_stock_solutions.loc[index, 'liquid_surface_height'] = container_for_this_stock_solution.liquid_surface_height
+            with pd.ExcelWriter(excel_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
+                df_stock_solutions.to_excel(writer, sheet_name=sheet_name_for_stock_solutions, index=False)
+
+    return stock_solution_containers
+
 
 def sort_events_according_to_aspiration_volume(event_list_chem):
 
@@ -110,9 +160,11 @@ def sort_events_according_to_aspiration_volume(event_list_chem):
 
         return output_list
 
+
 def turn_off_lld(event_list):
     for event in event_list:
         event.asp_lld = 0
+
 
 def sort_events_by_substance_volume(event_list):
     event_list_sorted = []
@@ -132,6 +184,37 @@ def sort_events_by_substance_volume(event_list):
 
     return event_list_sorted
 
+## yes or no to check the volume in vials
+def check_volume_pysimplegui():
+    font_size = 20
+    custom_font = ('Any', font_size)
+    layout = [
+        [sg.Text('Check liquid surface height in vials?', font=custom_font)],
+        [sg.Radio('Yes', 'YN', key='yes', default=True, font=custom_font),
+         sg.Radio('No', 'YN', key='no', font=custom_font)],
+        [sg.Button('OK', font=custom_font)],
+    ]
+
+    window = sg.Window('Yes or No Input', layout, finalize=True, size= (1000, 300))
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED:
+            break
+        elif event == 'OK':
+            if values['yes']:
+                result = True
+            elif values['no']:
+                result = False
+            else:
+                result = None
+            break
+
+    window.close()
+
+    return result
+
+
 if __name__ == '__main__':
 
     ## initiate hardware
@@ -141,6 +224,7 @@ if __name__ == '__main__':
     plate_barcodes, \
     reaction_temperature,\
     plate_barcode_for_dilution = prep.GUI_get_excel_path_plate_barcodes_temperature_etc()
+
     logger.info(f"excel_path_before_treatment: {excel_path_before_treatment}\n" \
     f"plate_barcodes: {plate_barcodes}\n" \
     f"reaction_temperature: {reaction_temperature}\n" \
@@ -150,10 +234,12 @@ if __name__ == '__main__':
                                                                         excel_path=excel_path_before_treatment,
                                                                         plate_barcodes=plate_barcodes,
                                                                         plate_barcodes_for_dilution=plate_barcode_for_dilution)
-    # is_check_volume = prep.GUI_choose_if_check_surface_height()
+
+    check_volume_by_pipetter = check_volume_pysimplegui()
+
     stock_solution_containers = \
         pln.assign_stock_solutions_to_containers_and_check_volume(excel_path = excel_path_for_conditions,
-                                                                  check_volume_by_pipetter = True, pt=pt)
+                                                                  check_volume_by_pipetter = check_volume_by_pipetter, pt=pt)
 
     df_reactions_grouped_by_plate_id,  substance_addition_sequence = prep.extract_reactions_df_to_run(excel_path_for_conditions)
 
@@ -175,30 +261,27 @@ if __name__ == '__main__':
             event.liquidClassTableIndex=31
             event.tip_type='300ul'
             print(event.transfer_volume)
-    #
+
+        if event.liquidClassTableIndex == 2: ### built-in liquid class param 2 is corrupted.
+            event.liquidClassTableIndex = 32
+   #
     # do multicomponent reactions
     pln.run_events_chem(zm=zm, pt=pt,
                         event_list= event_list_to_run_sorted,
                         prewet_tip=False,
-                        pause_after_every_plate_min = 10, test_mode=False)
+                        pause_after_every_plate_min = 1, test_mode=False)
 
 
     # ## save a event to local pickle file
     # event_temp = event_list_to_run_sorted[0]
+    # 50, 54, 66
     # with open('event_temp.pickle', 'wb') as f:
     #     pickle.dump(event_temp, f)
+    #
+    # for num, event in enumerate(event_list_to_run_sorted):
+    #     event.destination_container = brb.plate_list[2].containers[num]
 
-    # ## load a event from local pickle file
-    # nd.close_lid()
-    # time.sleep(1)
-    # gt.move_xy((-144, -339))
-    # # zm.move_z(600)
-    # nd.open_lid()
-    # time.sleep(1)
-    # gt.move_xy((-544, -339))
-    # zm.move_z(800)
-    # time.sleep(1)
-    # zm.move_z(600)
-    # time.sleep(0.5)
-    # gt.move_xy((-144, -339))
-    # nd.close_lid()
+    # for event in event_list_to_run_sorted:
+    #     print(event.substance)
+
+    #

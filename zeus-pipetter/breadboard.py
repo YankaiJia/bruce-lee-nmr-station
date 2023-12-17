@@ -459,6 +459,7 @@ def plate_on_breadboard():
     plate7.assign_container_id(plate_id=7)
 
     module_logger.info('All plates in breadboard are created.')
+    print('All plates in breadboard are created/updated.')
 
     return plate0, plate1, plate2, plate3, plate4, plate5, plate6, plate7
 
@@ -633,12 +634,14 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    ### run this ONLY when changing new tip rack.
+    ## run this ONLY when changing new tip rack.
     # load_new_tip_rack(rack_reload ='300ul')
     # module_logger.info('New tip rack: 300ul is loaded.')
     # #
     # load_new_tip_rack(rack_reload ='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')
     #
-    load_new_tip_rack(rack_reload ='50ul')
-    module_logger.info('New tip rack: 50ul is loaded.')
+    # load_new_tip_rack(rack_reload ='50ul')
+    # module_logger.info('New tip rack: 50ul is loaded.')
+
+    plate_on_breadboard()

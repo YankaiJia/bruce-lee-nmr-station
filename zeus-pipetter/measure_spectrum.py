@@ -1,10 +1,11 @@
+import csv
 import logging, copy, asyncio
 import pyautogui, json
 
 # create logger
 module_logger = logging.getLogger('pipette_calibration.breadboard')
 
-import zeus, pipetter, planner as pln, breadboard as brb, prepare_reaction as prep, nanodrop
+import zeus, pipetter, planner as pln, sound, breadboard as brb, prepare_reaction as prep, nanodrop
 import time, os, pickle
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
@@ -48,10 +49,10 @@ def construct_liquid_transfer_events_for_measurement():
         event_here.source_container = container
         event_here.destination_container = brb.nanodrop_pedestal
 
-        # event_here.transfer_volume = 4 # volume 4 ul generally,including ethanol, water
+        event_here.transfer_volume = 2 # volume 4 ul generally,including ethanol, water
         # event_here.transfer_volume = 6 # volume 6 ul for DCM
         # event_here.transfer_volume = 2 # volume 3 ul for 1,2-DCE
-        event_here.transfer_volume = 30 # volume 30 ul for 1,2-DCE with O-ring
+        # event_here.transfer_volume = 30 # volume 30 ul for 1,2-DCE with O-ring
 
 
 
@@ -158,14 +159,12 @@ async def measure_one_spectrum_by_pyautogui(sample_name: str):
     ## activate nanodrop software window
     pyautogui.moveTo(2700, 510)  # Find where button.png appears on the screen and click it.
     pyautogui.click()
-
     # input sample name
     pyautogui.moveTo(4943, 168)
     pyautogui.click()
     pyautogui.press('backspace', presses=5)
     pyautogui.write(sample_name, interval=0.1)
     await asyncio.sleep(0.2)
-
     # start measurement
     pyautogui.moveTo(2604, 111)  # Find where button.png appears on the screen and click it.
     pyautogui.click()
@@ -182,49 +181,60 @@ async def main(events = None, only_do_ids = ()):
     else:
         events_for_measurement = events
 
-
     print('cleaning pedestal...')
     await asyncio.gather(nd.flush_pedestal())
     await asyncio.gather(nd.dry_pedestal())
-
     print('aspirating the first sample...')
-    await asyncio.gather(pick_tip(), aspirate_next_sample(events_for_measurement[0]))
+    await asyncio.gather(pick_tip(),
+                         aspirate_next_sample(events_for_measurement[0]))
 
     for num, event in enumerate(events_for_measurement):
 
         vial_id = event.source_container.id['container_id']
 
         nd.open_lid()
+        time.sleep(1)
+        nd.close_air()
         print('dispensing sample...')
         dispense_sample(event)
         print('Moving and closing...')
         gt.move_to_idle_position()
         nd.close_lid()
 
-        await asyncio.gather(measure_one_spectrum_by_pyautogui(str(vial_id)),
-                             pick_tip())
+        # To make sure the lid had enough time to close fully
+        #  and the wetting has equilibrated
+        # time.sleep(1)
+
+        await asyncio.gather(measure_one_spectrum_by_pyautogui(str(vial_id)))
+        await asyncio.gather(pick_tip())
+        time.sleep(3) # this is added for autolength measurements
         if num != len(events_for_measurement) - 1:
             await asyncio.gather(aspirate_next_sample(events_for_measurement[num+1]),
                                  nd.flush_pedestal(),
                                  nd.dry_pedestal())
         elif num == len(events_for_measurement) - 1:
             print("all measurements are done!!")
+        sound.beep_for_measurement()
 
     print('cleaning pedestal...')
     ## flush the pedestal
     await asyncio.gather(nd.flush_pedestal())
     ## dry the pedestal
     await asyncio.gather(nd.dry_pedestal())
+    await asyncio.gather(nd.dry_pedestal())
+    await asyncio.gather(nd.dry_pedestal())
+
+    for i in range(5):
+        sound.beep_for_measurement()
+        time.sleep(0.5)
 
     print("all measurements are done!!")
-    nd.close_lid()
-    time.sleep(0.5)
-    nd.close_vacumm()
-    time.sleep(0.5)
-    nd.close_air()
-    time.sleep(0.5)
+    nd.close_all()
 
-
+def gt_move_to_pedestal():
+    pd_xy = brb.nanodrop_pedestal.xy
+    nd.open_lid()
+    gt.move_xy(pd_xy)
 
 if __name__ == '__main__':
     nd = nanodrop.Nanodrop()
@@ -238,23 +248,22 @@ if __name__ == '__main__':
 
     # a = [0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,13
     # #wash the nanodrop and d2
-    # #flush the ped1
     # await asyncio.gather(nd.flush_pedestal())
     # await asyncio.gather(nd.flush_pedestal())
-    # # dry the pedestal
+    # # # dry the pedestal
     # await asyncio.gather(nd.dry_pedestal())
-    # await asyncio.gather(nd.dry_pedestal())
+    # time.sleep(0.5)
     # await asyncio.gather(nd.dry_pedestal())
 
 
     #
     # # # # only run after initiation of the nanodrop software and blanking
     # asyncio.run(main(events = events_for_measurement,
-    #                 only_do_ids= tuple()))
+    #                      only_do_ids= tuple()))
     #
     # This is for discrete index
     # asyncio.run(main(events=events_for_measurement,
-    #                  only_do_ids=tuple([4, 10, 16])))
+    #                  only_do_ids=tuple([0,1,2,3,4,5]*10)))
 
     # This is for continuous index
     # starting_vial_num = 35
@@ -266,11 +275,15 @@ if __name__ == '__main__':
 
 
 # for i in range(10):
-#     nd.close_lid()
-#     time.sleep(0.5)
 #     nd.open_lid()
 #     time.sleep(0.5)
+#     nd.close_lid()
+#     time.sleep(0.5)
 
-# for event in events_for_measurement:
-#     event.transfer_volume = 10
+for event in events_for_measurement:
+    event.transfer_volume = 3
+    event.liquidClassTableIndex = 40
 
+
+
+#

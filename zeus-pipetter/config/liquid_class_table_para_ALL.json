@@ -924,7 +924,7 @@
             "clldSensitivity": 3,
             "plldSensitivity": 3,
             "adc": 1,
-            "dispensingMode": 1,
+            "dispensingMode": 0,
             "dispensingFlowRate": 1500,
             "stopFlowRate": 2000,
             "stopBackVolume": 0,

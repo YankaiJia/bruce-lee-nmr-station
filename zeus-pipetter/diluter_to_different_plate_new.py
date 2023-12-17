@@ -1,9 +1,9 @@
-import logging, time, pickle, sys, PySimpleGUI as sg, pandas as pd, os
-import zeus, pipetter, planner as pln, breadboard as brb, config
+import logging
 
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+import winsound
+
+
 def setup_logger():
-
     # better logging format in console
     class CustomFormatter(logging.Formatter):
         grey = "\x1b[38;20m"
@@ -30,7 +30,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler(brb.STATUS_PATH + 'main.log')
+    fh = logging.FileHandler('C:\\Yankai\\Dropbox\\robochem\\pipetter_files\\main_roboski2.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -44,6 +44,11 @@ def setup_logger():
     logger.addHandler(ch)
     return logger
 module_logger = setup_logger()
+
+import copy, time, pickle, re, importlib, json, os, sys, PySimpleGUI as sg, pandas as pd
+import zeus, pipetter, planner as pln, breadboard as brb, config
+
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
     # initiate zeus
@@ -166,7 +171,6 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
         elif event == '3. Something is wrong, stop the program.':
             sys.exit()
 
-
 ##  generate_dilution_events()
 # step1: dilution original reactions, adding volume: 1400ul
 # step2: transfer liquid from original reaction to new vial, transfer volume: 20ul
@@ -203,6 +207,9 @@ def get_liquid_class_table_index(solvent: str,  tip_type: str, mode: str = 'empt
         'Dioxane_empty_50ul_plld': 27,
         'Dioxane_empty_300ul_plld': 28,
         'Dioxane_empty_1000ul_plld': 29,
+        'DCE_empty_50ul_clld': 36,
+        'DCE_empty_300ul_clld': 37,
+        'DCE_empty_1000ul_clld': 38,
     }
 
     solvent_para = {solvent, mode, tip_type}
@@ -291,10 +298,9 @@ def generate_events_for_diluting_old_vial(solvent, rows_to_dilute=(0, 9, 18, 27,
     source_container = brb.plate_list[6].containers[0]
     source_container.liquid_surface_height, source_container.liquid_volume \
     = pt.check_volume_in_container(container=source_container)
-
     for i in rows_to_dilute:
         for vial_index in range(i, i+9):
-            destination_container = brb.plate_list[1].containers[vial_index]
+            destination_container = brb.plate_list[0].containers[vial_index]
             destination_container.liquid_surface_height = 2100
             event_temp = generate_dilution_event(source_container=source_container,
                                                 destination_container=destination_container,
@@ -311,9 +317,9 @@ def generate_events_for_diluting_old_vial(solvent, rows_to_dilute=(0, 9, 18, 27,
 def generate_events_for_transferring_liquid_from_old_vials_to_new(solvent): # transfer volume 20ul
     event_list_dilution_old_to_new = []
     for vial_index in range(54):
-        source_container = brb.plate_list[1].containers[vial_index]
+        source_container = brb.plate_list[0].containers[vial_index]
         source_container.liquid_surface_height = 2050
-        destination_container = brb.plate_list[2].containers[vial_index]
+        destination_container = brb.plate_list[1].containers[vial_index]
         destination_container.liquid_surface_height = 2100
         event_temp = generate_dilution_event(source_container=source_container,
                                              destination_container=destination_container,
@@ -331,7 +337,7 @@ def generate_events_for_diluting_new_vial(solvent:str): # diluting volume 485ul
     source_container.liquid_surface_height, source_container.liquid_volume \
     = pt.check_volume_in_container(container=source_container)
     for vial_index in range(54):
-        destination_container = brb.plate_list[2].containers[vial_index]
+        destination_container = brb.plate_list[1].containers[vial_index]
         destination_container.liquid_surface_height = 2100
         event_temp = generate_dilution_event(source_container=source_container,
                                              destination_container=destination_container,
@@ -341,15 +347,43 @@ def generate_events_for_diluting_new_vial(solvent:str): # diluting volume 485ul
 
     return event_list_dilute_new_vial
 
+def beep_n():
+    duration = 600  # milliseconds
+    freq = 1000  # Hz
+    # time.sleep(0.2)
+    for i in range(10):
+        winsound.Beep(freq, duration)
+
 if __name__ == '__main__':
 
     # specify volumes for dilution
+
+    ## for multicomponent reaction, volume of reaction was 200 ul, and the final dilution factor was 200X.
+    # volume_added_to_old_vial = 1000
+    # volume_transfered_from_old_to_new_vial = 15
+    # volume_added_to_new_vial = 485
+
+    # for SN1,WSWC001 volume of reaction was 500 ul, and the final dilution factor was 100X.
     volume_added_to_old_vial = 1000
     volume_transfered_from_old_to_new_vial = 15
     volume_added_to_new_vial = 485
 
+    ## for Hantzsch volume of reaction was 500 ul, and the final dilution factor was 200X.
+    # volume_added_to_old_vial = 1000
+    # volume_transfered_from_old_to_new_vial = 15
+    # volume_added_to_new_vial = 985
+
+    ## for E1 , volume of reaction is 500 ul, and the final dilution factor is 30X
+    # volume_added_to_old_vial = 1000
+    # volume_transfered_from_old_to_new_vial = 40
+    # volume_added_to_new_vial = 360
+
     # specify solvent
+    ## for SN1, Dioxane was the solvent
     solvent = 'Dioxane'
+
+    ## for E1, MeCN was the solvent. However, ethanol is used in the code because their LC paras are almost the same.
+    # solvent = 'ethanol'
 
     # load excel path
     run_info_path = load_excel_path_by_pysimplegui()
@@ -365,18 +399,25 @@ if __name__ == '__main__':
     zm, gt, pt = initiate_hardware()
     time.sleep(1)
 
-
-    ## step1
     event_list_dilute_old_vial = generate_events_for_diluting_old_vial(solvent=solvent)
+    event_list_dilution_old_to_new = generate_events_for_transferring_liquid_from_old_vials_to_new(solvent=solvent)
+    event_list_dilute_new_vial = generate_events_for_diluting_new_vial(solvent=solvent)
+
+    #
+    # # step1
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list= event_list_dilute_old_vial,
                                  start_event_id= 0)
-    ## step2
-    event_list_dilution_old_to_new = generate_events_for_transferring_liquid_from_old_vials_to_new(solvent=solvent)
+    # step2
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilution_old_to_new,
-                                 start_event_id=0, change_tip_after_every_pipetting=True)
-    ## step3
-    event_list_dilute_new_vial = generate_events_for_diluting_new_vial(solvent=solvent)
+                                start_event_id=0, change_tip_after_every_pipetting=True)
+    # step3
     pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilute_new_vial,
                                  start_event_id=0, log_to_excel=True, excel_path=run_info_path,
                                  barcode_of_plate_for_reactions = barcode_of_plate_for_reactions,)
 
+    # for event in event_list_dilute_old_vial:
+    #     print(f"liquid_index: {event.liquidClassTableIndex}.")
+    beep_n()
+    time.sleep(3)
+    beep_n()
+    time.sleep(3)

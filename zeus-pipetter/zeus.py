@@ -1,3 +1,4 @@
+import csv
 import logging
 module_logger = logging.getLogger('main.zeus')
 
@@ -1537,6 +1538,21 @@ if __name__ == '__main__':
     # load container parameters
     zm = ZeusModule(id=1)
 
+    for i in range(80):
+        t1 = zm.extract_liquid_class_parameter(i)
+        t2 = zm.extract_calibration_aspiration(i)
+        t3 = zm.extract_calibration_dispensing(i)
+        t4 = zm.extract_qpm_aspiration(i)
+        t5 = zm.extract_qpm_dispensing(i)
+
+        with open('LC.txt', 'a', encoding= 'utf-8') as txtfile:
+            # Write each line to the file
+            txtfile.write(t1 + '\n')
+            txtfile.write(t2 + '\n')
+            txtfile.write(t3 + '\n')
+            txtfile.write(t4 + '\n')
+            txtfile.write(t5 + '\n')
+
     #
     # #run this ONLY when changing new tip rack.
     # brb.load_new_tip_rack(rack_reload ='300ul')
@@ -1567,9 +1583,9 @@ if __name__ == '__main__':
     # time.sleep(2)
 
     ## container_geometry_parameters = 6 for nanodrop_pedestal
-    zm.setContainerGeometryParameters(brb.nanodrop_pedestal)
-    print('ContainerGeometryParameters::nanodrop_pedestal is loaded.')
-    time.sleep(2)
+    # zm.setContainerGeometryParameters(brb.nanodrop_pedestal)
+    # print('ContainerGeometryParameters::nanodrop_pedestal is loaded.')
+    # time.sleep(2)
 
     # # load deck parameters
     # zm.setDeckGeometryParameters(deckGeometryParameters=brb.deckgeom_300ul)
