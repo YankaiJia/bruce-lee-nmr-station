@@ -565,18 +565,27 @@ class SpectraProcessor:
             print('There is no data that is within mask. Returning zeros.')
             return [0 for i in range(4)]
 
-        if len(calibrant_shortnames) == 2:
-            def func(xs, a, b, c, d, e, f):
-                return a * calibrants[0]['reference_interpolator'](xs) + b * calibrants[1]['reference_interpolator'](xs) + c \
-                       + d*xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
-        elif len(calibrant_shortnames) == 3:
-            def func(xs, a1, a2, a3, c, d, e, f):
-                return a1 * calibrants[0]['reference_interpolator'](xs) + \
-                       a2 * calibrants[1]['reference_interpolator'](xs) + \
-                       a3 * calibrants[2]['reference_interpolator'](xs)\
-                       + c + d * xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
-        else:
-            raise NotImplementedError
+        ## old implementation
+        # if len(calibrant_shortnames) == 2:
+        #     def func(xs, a, b, c, d, e, f):
+        #         return a * calibrants[0]['reference_interpolator'](xs) + b * calibrants[1]['reference_interpolator'](xs) + c \
+        #                + d*xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
+        # elif len(calibrant_shortnames) == 3:
+        #     def func(xs, a1, a2, a3, c, d, e, f):
+        #         return a1 * calibrants[0]['reference_interpolator'](xs) + \
+        #                a2 * calibrants[1]['reference_interpolator'](xs) + \
+        #                a3 * calibrants[2]['reference_interpolator'](xs)\
+        #                + c + d * xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
+        # else:
+        #     raise NotImplementedError
+
+        ## New implementation
+        def func(*args):
+            xs = args[0]
+            c,d,e,f = args[-4:]
+            calibrant_coefficients = args[1:-4]
+            return sum([calibrant_coefficients[i] * calibrants[i]['reference_interpolator'](xs) for i in range(len(calibrant_coefficients))]) \
+                      + c + d * xs + e * background_interpolators[0](xs) + f * background_interpolators[1](xs)
 
         # p0 = tuple(0.5 if upper_bounds[0] is np.inf else upper_bounds[0],
         #       0.5 if upper_bounds[1] is np.inf else upper_bounds[1],
