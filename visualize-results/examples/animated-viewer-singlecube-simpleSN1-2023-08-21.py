@@ -4,6 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+import matplotlib.ticker as mtick
 from scipy.optimize import curve_fit, brentq
 from scipy import interpolate
 
@@ -412,10 +413,10 @@ def fit_kinetic_model(indices_here, do_plot=False):
     colors_to_plot = df_results.loc[indices_here, 'c#SN1OH03'].apply(lambda x: colors[np.where(unique_alcohol_concentrations == x)[0][0]])
     xs_to_plot = df_results.loc[indices_here, 'c#HBr']
     measured_yields = df_results.loc[indices_here, 'yield']
-    plt.scatter(xs_to_plot, measured_yields, color='yellow', marker='o')
+    # plt.scatter(xs_to_plot, measured_yields, color='yellow', marker='o')
     f, keq_fit = produce_fit(indices_here, measured_yields)
     if do_plot:
-        plt.scatter(xs_to_plot, measured_yields, color=colors_to_plot)
+        plt.scatter(xs_to_plot, measured_yields, color=colors_to_plot, alpha=0.5)
         for c_alc in unique_alcohol_concentrations:
             color_here = colors[np.where(unique_alcohol_concentrations == c_alc)[0][0]]
             # find df_indices among indices_here where alcolhol concentration is c_alc
@@ -425,11 +426,11 @@ def fit_kinetic_model(indices_here, do_plot=False):
             ys_here = f(indices_here[indices_where_mask_is_true])
             # sort xs and ys by increasing xs
             xs_here, ys_here = zip(*sorted(zip(xs_here, ys_here)))
-            plt.plot(xs_here, ys_here, color=color_here, label=f'Initial alcohol: {c_alc} M')
+            plt.plot(xs_here, ys_here, color=color_here, label=f'{c_alc:.3f} M')
         # plt.scatter(xs_to_plot, ys_to_plot, color=colors_to_plot, marker='x')
         plt.ylabel('Yield')
         plt.xlabel('Initial concentration of HBr')
-        plt.legend()
+        plt.legend(title="Starting alcohol\nconcentration")
 
     return keq_fit
 
@@ -442,18 +443,23 @@ def fit_kinetic_model(indices_here, do_plot=False):
 #         indices_where_mask_is_true = df_results[mask].index.to_numpy()
 #         fit_kinetic_model(indices_where_mask_is_true, do_plot=True)
 
+do_plot = False
 keq_fits = []
 temperatures = df_results['temperature'].unique()
-# sort temperatures
 temperatures = np.sort(temperatures)
 for temperature in temperatures:
     print(f'Fitting model at temperature = {temperature}')
     mask = (df_results['temperature'] == temperature)
     indices_where_mask_is_true = df_results[mask].index.to_numpy()
     keq_fit = fit_kinetic_model(indices_where_mask_is_true, do_plot=True)
-    plt.title(f'Temperature = {temperature} C')
-    plt.show()
     keq_fits.append(keq_fit)
+    if do_plot:
+        plt.title(f'Temperature {temperature} °C')
+        plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+        plt.ylabel('Yield w.r.t. alcohol')
+        plt.xlabel('Starting concentration of HBr, M')
+        plt.gcf().savefig(f'{data_folder}simple-reactions/2023-11-28-run01/results/kinetics/figures/temperature_{temperature}C.png', dpi=300)
+        plt.show()
 
 xs = 1000/(273.15 + temperatures)
 ys = -1*np.log(keq_fits)
@@ -480,6 +486,20 @@ plt.scatter(xs[-1], ys[-1], color='red', marker='x')
 
 plt.show()
 
+# Computing the best-fit yields for the whole dataframe
+for temperature in temperatures:
+    # find the best-fit K_eq for this temperature
+    logK = -1 * f(1000/(273.15 + temperature))
+    K_eq = np.exp(logK)
+
+    print(f'Fitting model at temperature = {temperature}')
+    mask = (df_results['temperature'] == temperature)
+    indices_where_mask_is_true = df_results[mask].index.to_numpy()
+    for df_index in indices_where_mask_is_true:
+        df_results.loc[df_index, 'yield_model'] = model_of_yield_for_one_condition(df_index, K_eq)
+
+column_to_plot = 'yield_model'
+
 # convert from mol/L to mM
 for substrate in substrates:
     df_results[substrate] = df_results[substrate].apply(lambda x: x*1000 if x>1e-10 else 0)
@@ -496,14 +516,14 @@ print(f'Yields - min: {min(yields)}, max: {max(yields)}')
 avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
                             substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
                             colorbar_title=column_to_plot,
-                            npoints=50, sparse_npoints=7, rbf_epsilon=1,
+                            npoints=50, sparse_npoints=6, rbf_epsilon=1,
                             rbf_smooth=0.05,
                             interpolator_choice='rbf',
                             data_for_spheres='interpolated',
                             rbf_function='multiquadric',
                             axes_ticks_format='%.0f',
-                            axes_font_factor=1.3,
-                            contours=[0.1, 0.5, 0.9], contour_opacity=0.5) # [0.2, 0.4, 0.55, 0.7, 0.85]
+                            axes_font_factor=1.5,
+                            contours=[0.1, 0.5, 0.85, 0.97], contour_opacity=0.7) # [0.2, 0.4, 0.55, 0.7, 0.85]
 
 
 # df_results.loc[df_results['yield#SN1Br01s1'] < 0, 'yield#SN1Br01s1'] = 0
