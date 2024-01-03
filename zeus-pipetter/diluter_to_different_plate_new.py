@@ -2,7 +2,6 @@ import logging
 
 import winsound
 
-
 def setup_logger():
     # better logging format in console
     class CustomFormatter(logging.Formatter):
@@ -72,7 +71,7 @@ def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter)
 
     return zm, gt, pt
 
-## make a function to load the path for Excel file with run info by pysimplegui
+## Function to load the Excel file with run info by pysimplegui
 def load_excel_path_by_pysimplegui():
     # change the theme of the GUI
     sg.theme('DarkAmber')
@@ -87,6 +86,7 @@ def load_excel_path_by_pysimplegui():
     excel_path = values[0]
     module_logger.info(f'Excel file path: {excel_path}')
     print(f'Excel file path: {excel_path}')
+
     return excel_path
 
 def check_plate_barcodes_for_dilution(run_info_path: str):
@@ -107,6 +107,7 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
 
     barcode_of_plate_for_reactions = int(values[0])
     barcode_of_plate_for_dilution= int(values[1])
+
     print(f'barcode_of_plate_for_reactions: {barcode_of_plate_for_reactions}')
     print(f'barcode_of_plate_for_dilution you just specified: {barcode_of_plate_for_dilution}')
 
@@ -157,11 +158,10 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
 
         elif event == '2. I insist using the breadboard plate. Overwrite the plate barcode in the Excel.':
             ## overwrite the barcode in the dataframe and save back to the Excel
-            df_run_info.loc[df_run_info['plate_barcodes_for_dilution'] == barcode_of_plate_for_reactions_from_df, 'plate_barcodes_for_dilution'] \
-                = barcode_of_plate_for_dilution
+            df_run_info.loc[df_run_info['plate_barcodes_for_dilution'] == barcode_of_plate_for_reactions_from_df, 'plate_barcodes_for_dilution'] = barcode_of_plate_for_dilution
 
             with pd.ExcelWriter(run_info_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
-                df_run_info.to_excel(writer, sheet_name= config.sheet_name_for_run_info)
+                df_run_info.to_excel(writer, sheet_name= config.sheet_name_for_run_info, index=False)
 
             print(f'barcode of the plate for dilution is overwritten by user: from {barcode_of_plate_for_reactions_from_df} to {barcode_of_plate_for_dilution}')
             module_logger.info(f'barcode of the plate for dilution is overwritten by user: from {barcode_of_plate_for_reactions_from_df} to {barcode_of_plate_for_dilution}')
@@ -394,30 +394,30 @@ if __name__ == '__main__':
     # check if proper plates are placed in the breadboard
     barcode_of_plate_for_reactions, barcode_of_plate_for_dilution = \
     check_plate_barcodes_for_dilution(run_info_path = run_info_path)
-
-    ## initiate hardware
-    zm, gt, pt = initiate_hardware()
-    time.sleep(1)
-
-    event_list_dilute_old_vial = generate_events_for_diluting_old_vial(solvent=solvent)
-    event_list_dilution_old_to_new = generate_events_for_transferring_liquid_from_old_vials_to_new(solvent=solvent)
-    event_list_dilute_new_vial = generate_events_for_diluting_new_vial(solvent=solvent)
-
     #
-    # # step1
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list= event_list_dilute_old_vial,
-                                 start_event_id= 0)
-    # step2
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilution_old_to_new,
-                                start_event_id=0, change_tip_after_every_pipetting=True)
-    # step3
-    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilute_new_vial,
-                                 start_event_id=0, log_to_excel=True, excel_path=run_info_path,
-                                 barcode_of_plate_for_reactions = barcode_of_plate_for_reactions,)
-
-    # for event in event_list_dilute_old_vial:
-    #     print(f"liquid_index: {event.liquidClassTableIndex}.")
-    beep_n()
-    time.sleep(3)
-    beep_n()
-    time.sleep(3)
+    # ## initiate hardware
+    # zm, gt, pt = initiate_hardware()
+    # time.sleep(1)
+    #
+    # event_list_dilute_old_vial = generate_events_for_diluting_old_vial(solvent=solvent)
+    # event_list_dilution_old_to_new = generate_events_for_transferring_liquid_from_old_vials_to_new(solvent=solvent)
+    # event_list_dilute_new_vial = generate_events_for_diluting_new_vial(solvent=solvent)
+    #
+    # #
+    # # # step1
+    # pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list= event_list_dilute_old_vial,
+    #                              start_event_id= 0)
+    # # step2
+    # pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilution_old_to_new,
+    #                             start_event_id=0, change_tip_after_every_pipetting=True)
+    # # step3
+    # pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilute_new_vial,
+    #                              start_event_id=0, log_to_excel=True, excel_path=run_info_path,
+    #                              barcode_of_plate_for_reactions = barcode_of_plate_for_reactions,)
+    #
+    # # for event in event_list_dilute_old_vial:
+    # #     print(f"liquid_index: {event.liquidClassTableIndex}.")
+    # beep_n()
+    # time.sleep(3)
+    # beep_n()
+    # time.sleep(3)

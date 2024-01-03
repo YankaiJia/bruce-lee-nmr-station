@@ -59,18 +59,18 @@ else if(user_input == "40"){
 
 void close()
 {
-for(angle = 110; angle > 0; angle-=2)    
+for(angle = 100; angle >-10; angle-=1)    
 {                                
   servo.write(angle);           
-  delay(20); 
+  delay(10); 
 }
 }
 
 void open()
 {
-for(angle = 0; angle < 110; angle+=2)    
+for(angle = -10; angle < 100; angle+=1)    
 {                                
   servo.write(angle);           
-  delay(20); 
+  delay(10); 
 }
 }

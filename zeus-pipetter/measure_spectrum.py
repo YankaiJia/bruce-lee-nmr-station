@@ -1,6 +1,7 @@
 import csv
 import logging, copy, asyncio
 import pyautogui, json
+pyautogui.FAILSAFE = False
 
 # create logger
 module_logger = logging.getLogger('pipette_calibration.breadboard')
@@ -98,6 +99,7 @@ async def pick_tip():
         pt.pick_tip('50ul')
     elif zm.tip_on_zeus != '':
         pt.discard_tip()
+        time.sleep(2)
         pt.pick_tip('50ul')
 
     await asyncio.sleep(0.1)
@@ -149,7 +151,15 @@ async def aspirate_next_sample(event=None):
     await asyncio.sleep(0.1)
 
 def dispense_sample(event=None):
-    pt.dispense_liquid(event)
+    try:
+        pt.dispense_liquid(event)
+    except:
+        gt.move_to_idle_position()
+        print("Pipetting error happened!")
+        sound.beep_for_tip_changing()
+        sound.beep_for_tip_changing()
+        time.sleep(1)
+
 
     # event.execute_event()
     # beep()
@@ -200,6 +210,7 @@ async def main(events = None, only_do_ids = ()):
         print('Moving and closing...')
         gt.move_to_idle_position()
         nd.close_lid()
+        # time.sleep(1)
 
         # To make sure the lid had enough time to close fully
         #  and the wetting has equilibrated
@@ -219,6 +230,7 @@ async def main(events = None, only_do_ids = ()):
     print('cleaning pedestal...')
     ## flush the pedestal
     await asyncio.gather(nd.flush_pedestal())
+
     ## dry the pedestal
     await asyncio.gather(nd.dry_pedestal())
     await asyncio.gather(nd.dry_pedestal())
@@ -234,10 +246,14 @@ async def main(events = None, only_do_ids = ()):
 def gt_move_to_pedestal():
     pd_xy = brb.nanodrop_pedestal.xy
     nd.open_lid()
+    time.sleep(2)
     gt.move_xy(pd_xy)
 
 if __name__ == '__main__':
     nd = nanodrop.Nanodrop()
+    nd.close_lid()
+    time.sleep(2)
+
     zm, gt, pt = initiate_hardware()
 
     events_for_measurement = construct_liquid_transfer_events_for_measurement()
@@ -275,13 +291,14 @@ if __name__ == '__main__':
 
 
 # for i in range(10):
-#     nd.open_lid()
-#     time.sleep(0.5)
 #     nd.close_lid()
-#     time.sleep(0.5)
+#     time.sleep(1.5)
+#     nd.open_lid()
+#     time.sleep(1.5)
+
 
 for event in events_for_measurement:
-    event.transfer_volume = 3
+    event.transfer_volume = 2
     event.liquidClassTableIndex = 40
 
 
