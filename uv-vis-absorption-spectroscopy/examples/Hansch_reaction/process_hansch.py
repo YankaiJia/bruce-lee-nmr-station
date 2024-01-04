@@ -64,11 +64,14 @@ def process_run_by_shortname(run_shortname, cut_from=5, dilution_factor=200):
     concentrations_df.to_csv(data_folder + run_name + 'results/' + 'product_concentration.csv', index=False)
 
 if __name__ == '__main__':
-    list_of_runs = tuple([
-                          '2023-11-08-run01',
-                          '2023-11-13-run01',
-                          '2023-11-14-run01',
-                          '2023-11-21-run01'
-    ])
+    # list_of_runs = tuple([
+    #                       '2023-11-08-run01',
+    #                       '2023-11-13-run01',
+    #                       '2023-11-14-run01',
+    #                       '2023-11-21-run01'
+    # ])
+    list_of_runs = tuple(['2023-12-27-run01_100',
+                          '2023-12-27-run02_100',
+                          '2023-12-27-run03_100'])
     for i, run_shortname in enumerate(list_of_runs):
         process_run_by_shortname(run_shortname)
