@@ -5,58 +5,83 @@ import re
 
 import pandas as pd
 from icecream import ic
+#
+# data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+#
+# list_of_runs = tuple([
+#     '2023-08-21-run01',
+#     '2023-08-22-run01',
+#     '2023-08-22-run02',
+#     '2023-08-28-run01',
+#     '2023-08-29-run01',
+#     '2023-08-29-run02'] +
+# [
+#                           '2023-09-06-run01',
+#                           '2023-09-07-run01'
+#     ])
+#
+# def get_missing_for_one_folder(run_shortname):
+#     experiment_name = data_folder + 'simple-reactions/' + run_shortname + '/'
+#     nanodrop_spectra_folder = experiment_name + 'nanodrop_spectra/'
+#     pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
+#     for filename in os.listdir(nanodrop_spectra_folder):
+#         if not filename.endswith('.csv'):
+#             continue
+#         match = pattern.match(filename)
+#         if not match:
+#             logging.warning(f'Could not parse nanodrop spectrum filename {filename} for timestamp and id')
+#             continue
+#         nanodrop_spectrum_file = experiment_name + 'nanodrop_spectra/' + filename
+#         nanodrop_df = pd.read_csv(nanodrop_spectrum_file)
+#         columns = nanodrop_df.columns
+#         index_list = [str(x) for x in range(54)]
+#         flag_list = [x in columns for x in index_list]
+#         while flag_list[-1] == False:
+#             flag_list.pop()
+#         count_missing = flag_list.count(False)
+#         indices_of_missing = [i for i, x in enumerate(flag_list) if not x]
+#         missing_elements = [index_list[i] for i in indices_of_missing]
+#         if count_missing > 0:
+#             print(f'run {run_shortname} has {count_missing} missing column in {filename}, indices: {missing_elements}')
+#             # add a zero-filled column with missing label and write dataframe back to csv
+#             nanodrop_df = nanodrop_df.rename(columns={nanodrop_df.columns[0]: ""})
+#             nanodrop_df[missing_elements[0]] = 0
+#             nanodrop_df.to_csv(nanodrop_spectrum_file, index=False)
+#     return count_missing
+#
+# # for run_shortname in list_of_runs:
+# #     get_missing_for_one_folder(run_shortname)
+#
+# # get_missing_for_one_folder('2023-09-06-run01')
+#
+# d = {'key': {1: 'one'}}
+# ic(d['key'][1])
+#
+# class klass():
+#     attr = 'yep'
+# ic(klass.attr)
 
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-list_of_runs = tuple([
-    '2023-08-21-run01',
-    '2023-08-22-run01',
-    '2023-08-22-run02',
-    '2023-08-28-run01',
-    '2023-08-29-run01',
-    '2023-08-29-run02'] +
-[
-                          '2023-09-06-run01',
-                          '2023-09-07-run01'
-    ])
+def func(*args):
+    x = args[0]
+    params = args[1:]
+    result = 0
+    for i, param in enumerate(params):
+        result += param * x**i
+    return result
 
-def get_missing_for_one_folder(run_shortname):
-    experiment_name = data_folder + 'simple-reactions/' + run_shortname + '/'
-    nanodrop_spectra_folder = experiment_name + 'nanodrop_spectra/'
-    pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
-    for filename in os.listdir(nanodrop_spectra_folder):
-        if not filename.endswith('.csv'):
-            continue
-        match = pattern.match(filename)
-        if not match:
-            logging.warning(f'Could not parse nanodrop spectrum filename {filename} for timestamp and id')
-            continue
-        nanodrop_spectrum_file = experiment_name + 'nanodrop_spectra/' + filename
-        nanodrop_df = pd.read_csv(nanodrop_spectrum_file)
-        columns = nanodrop_df.columns
-        index_list = [str(x) for x in range(54)]
-        flag_list = [x in columns for x in index_list]
-        while flag_list[-1] == False:
-            flag_list.pop()
-        count_missing = flag_list.count(False)
-        indices_of_missing = [i for i, x in enumerate(flag_list) if not x]
-        missing_elements = [index_list[i] for i in indices_of_missing]
-        if count_missing > 0:
-            print(f'run {run_shortname} has {count_missing} missing column in {filename}, indices: {missing_elements}')
-            # add a zero-filled column with missing label and write dataframe back to csv
-            nanodrop_df = nanodrop_df.rename(columns={nanodrop_df.columns[0]: ""})
-            nanodrop_df[missing_elements[0]] = 0
-            nanodrop_df.to_csv(nanodrop_spectrum_file, index=False)
-    return count_missing
+# example of curve_fit
+from scipy.optimize import curve_fit
+xdata = np.linspace(0, 4, 50)
+y = func(xdata, 2.5, 1.3, 0.5, -0.2)
+ydata = y + 0.2 * np.random.normal(size=len(xdata))
+popt, pcov = curve_fit(func, xdata, ydata, p0=[0, 0, 0, 3])
+print(popt)
+print(pcov)
+# plot fitted curve
+import matplotlib.pyplot as plt
+plt.plot(xdata, ydata, 'b-', label='data')
+plt.plot(xdata, func(xdata, *popt), 'r-', label='fit')
+plt.legend()
+plt.show()
 
-# for run_shortname in list_of_runs:
-#     get_missing_for_one_folder(run_shortname)
-
-# get_missing_for_one_folder('2023-09-06-run01')
-
-d = {'key': {1: 'one'}}
-ic(d['key'][1])
-
-class klass():
-    attr = 'yep'
-ic(klass.attr)
