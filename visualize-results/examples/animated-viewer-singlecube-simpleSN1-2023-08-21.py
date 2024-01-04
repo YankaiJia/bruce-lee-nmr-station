@@ -161,15 +161,27 @@ def water_activity_function(do_plot=False):
 #     '2023-08-29-run01',
 #     '2023-08-29-run02'])
 
-experiment_name = 'simple-reactions/2023-11-28-run01/'
-# Christmas run
+# # The second batch from november
+# experiment_name = 'simple-reactions/2023-11-28-run01/'
+# # Christmas run
+# list_of_runs = tuple([
+#                       '2023-11-28-run01',
+#                       '2023-11-29-run01',
+#                       '2023-11-29-run02',
+#                       '2023-12-02-run01',
+#                       '2023-12-04-run01',
+#                       '2023-12-04-run02'])
+
+# Third batch from december
+experiment_name = 'simple-reactions/2023-12-11-run01/'
 list_of_runs = tuple([
-                      '2023-11-28-run01',
-                      '2023-11-29-run01',
-                      '2023-11-29-run02',
-                      '2023-12-02-run01',
-                      '2023-12-04-run01',
-                      '2023-12-04-run02'])
+    '2023-12-11-run01',
+    '2023-12-11-run02',
+    '2023-12-12-run01',
+    '2023-12-12-run02',
+    '2023-12-16-run01',
+    '2023-12-16-run02'])
+
 
 # column_to_plot = 'HBr_relative_change'
 column_to_plot = 'yield'
@@ -443,7 +455,7 @@ def fit_kinetic_model(indices_here, do_plot=False):
 #         indices_where_mask_is_true = df_results[mask].index.to_numpy()
 #         fit_kinetic_model(indices_where_mask_is_true, do_plot=True)
 
-do_plot = False
+do_plot = True
 keq_fits = []
 temperatures = df_results['temperature'].unique()
 temperatures = np.sort(temperatures)
@@ -464,6 +476,9 @@ for temperature in temperatures:
 xs = 1000/(273.15 + temperatures)
 ys = -1*np.log(keq_fits)
 
+np.savetxt(f'{data_folder}{experiment_name}results/kinetics/1000_over_t.txt', xs)
+np.savetxt(f'{data_folder}{experiment_name}results/kinetics/logK.txt', ys)
+
 # remove last points from xs and ys
 xs = xs[:-1]
 ys = ys[:-1]
@@ -482,6 +497,8 @@ plt.ylabel('ln K')
 # plot data of the last point
 xs = 1000/(273.15 + temperatures)
 ys = -1*np.log(keq_fits)
+# save to files
+
 plt.scatter(xs[-1], ys[-1], color='red', marker='x')
 
 plt.show()
