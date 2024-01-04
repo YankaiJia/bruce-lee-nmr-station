@@ -966,10 +966,11 @@ if __name__ == '__main__':
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
     sp.nanodrop_lower_cutoff_of_wavelengths = 220
-    well_id = 27
+    well_id = 44
     substances_for_fitting = ['methoxybenzaldehyde', 'HRP01']
     cut_from = 7
-    plate_folder = data_folder + 'BPRF/2023-12-27-run01_200/nanodrop_spectra/2023-12-29_10-58-57_UV-Vis_plate_91.csv'
+    # Condition 154
+    plate_folder = data_folder + 'BPRF/2023-12-27-run01_200/nanodrop_spectra/2023-12-29_13-50-21_UV-Vis_plate_67.csv'
     spectrum = sp.load_msp_by_id(
         plate_folder=plate_folder,
         well_id=well_id)[:, 1]
