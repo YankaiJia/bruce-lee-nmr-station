@@ -249,6 +249,14 @@ def gt_move_to_pedestal():
     time.sleep(2)
     gt.move_xy(pd_xy)
 
+def flush_and_dry():
+    await asyncio.gather(nd.flush_pedestal())
+    await asyncio.gather(nd.flush_pedestal())
+    # # dry the pedestal
+    await asyncio.gather(nd.dry_pedestal())
+    time.sleep(0.5)
+    await asyncio.gather(nd.dry_pedestal())
+
 if __name__ == '__main__':
     nd = nanodrop.Nanodrop()
     nd.close_lid()
@@ -270,6 +278,8 @@ if __name__ == '__main__':
     # await asyncio.gather(nd.dry_pedestal())
     # time.sleep(0.5)
     # await asyncio.gather(nd.dry_pedestal())
+
+    # flush_and_dry()
 
 
     #
@@ -297,9 +307,9 @@ if __name__ == '__main__':
 #     time.sleep(1.5)
 
 
-for event in events_for_measurement:
-    event.transfer_volume = 2
-    event.liquidClassTableIndex = 40
+# for event in events_for_measurement:
+#     event.transfer_volume = 3
+#     event.liquidClassTableIndex = 40
 
 
 

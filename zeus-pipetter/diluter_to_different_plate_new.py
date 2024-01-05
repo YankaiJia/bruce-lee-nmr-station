@@ -292,7 +292,7 @@ def generate_dilution_event(source_container: object,
     return event
 
 
-def generate_events_for_diluting_old_vial(solvent, rows_to_dilute=(0, 9, 18, 27, 36, 45)): # diluting volume 1400ul
+def generate_events_for_diluting_old_vial(solvent: str, volume_added_to_old_vial: float, rows_to_dilute: tuple=(0, 9, 18, 27, 36, 45)): # diluting volume 1400ul
     event_list_dilute_old_vial = []
     # generate dilution events
     source_container = brb.plate_list[6].containers[0]
@@ -314,7 +314,7 @@ def generate_events_for_diluting_old_vial(solvent, rows_to_dilute=(0, 9, 18, 27,
 
 
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
-def generate_events_for_transferring_liquid_from_old_vials_to_new(solvent): # transfer volume 20ul
+def generate_events_for_transferring_liquid_from_old_vials_to_new(solvent: str, volume_transfered_from_old_to_new_vial: float): # transfer volume 20ul
     event_list_dilution_old_to_new = []
     for vial_index in range(54):
         source_container = brb.plate_list[0].containers[vial_index]
@@ -330,7 +330,7 @@ def generate_events_for_transferring_liquid_from_old_vials_to_new(solvent): # tr
     return event_list_dilution_old_to_new
 
 # step3: dilution new vial, adding volume: 485ul
-def generate_events_for_diluting_new_vial(solvent:str): # diluting volume 485ul
+def generate_events_for_diluting_new_vial(solvent:str, volume_added_to_new_vial: float): # diluting volume 485ul
 
     event_list_dilute_new_vial = []
     source_container = brb.plate_list[6].containers[0]
@@ -346,6 +346,33 @@ def generate_events_for_diluting_new_vial(solvent:str): # diluting volume 485ul
         event_list_dilute_new_vial.append(event_temp)
 
     return event_list_dilute_new_vial
+def dilute(zm, pt, dilution_factor: int, volume_of_reaction: int, final_volume_of_dilution: int, first_step_dilution_factor: int = 3):
+
+    volume_added_to_old_vial = volume_of_reaction * (first_step_dilution_factor-1)
+    volume_transfered_from_old_to_new_vial = final_volume_of_dilution / ((dilution_factor/first_step_dilution_factor)-1)
+    volume_added_to_new_vial = final_volume_of_dilution - volume_transfered_from_old_to_new_vial
+
+    event_list_dilute_old_vial = generate_events_for_diluting_old_vial(solvent=solvent,
+                                                                       volume_added_to_old_vial=volume_added_to_old_vial)
+    event_list_dilution_old_to_new = generate_events_for_transferring_liquid_from_old_vials_to_new(solvent=solvent,
+                                                                                                   volume_transfered_from_old_to_new_vial=volume_transfered_from_old_to_new_vial)
+    event_list_dilute_new_vial = generate_events_for_diluting_new_vial(solvent=solvent,
+                                                                       volume_added_to_new_vial=volume_added_to_new_vial)
+    # step1
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list= event_list_dilute_old_vial,
+                                 start_event_id= 0)
+    # step2
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilution_old_to_new,
+                                 start_event_id=0, change_tip_after_every_pipetting=True)
+    # step3
+    pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilute_new_vial,
+                                    start_event_id=0, log_to_excel=True, excel_path=run_info_path,
+                                    barcode_of_plate_for_reactions = barcode_of_plate_for_reactions,)
+
+    return event_list_dilute_old_vial, event_list_dilution_old_to_new, event_list_dilute_new_vial
+
+
+
 
 def beep_n():
     duration = 600  # milliseconds
@@ -395,29 +422,13 @@ if __name__ == '__main__':
     barcode_of_plate_for_reactions, barcode_of_plate_for_dilution = \
     check_plate_barcodes_for_dilution(run_info_path = run_info_path)
     #
-    # ## initiate hardware
-    # zm, gt, pt = initiate_hardware()
-    # time.sleep(1)
-    #
-    # event_list_dilute_old_vial = generate_events_for_diluting_old_vial(solvent=solvent)
-    # event_list_dilution_old_to_new = generate_events_for_transferring_liquid_from_old_vials_to_new(solvent=solvent)
-    # event_list_dilute_new_vial = generate_events_for_diluting_new_vial(solvent=solvent)
-    #
-    # #
-    # # # step1
-    # pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list= event_list_dilute_old_vial,
-    #                              start_event_id= 0)
-    # # step2
-    # pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilution_old_to_new,
-    #                             start_event_id=0, change_tip_after_every_pipetting=True)
-    # # step3
-    # pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=event_list_dilute_new_vial,
-    #                              start_event_id=0, log_to_excel=True, excel_path=run_info_path,
-    #                              barcode_of_plate_for_reactions = barcode_of_plate_for_reactions,)
-    #
-    # # for event in event_list_dilute_old_vial:
-    # #     print(f"liquid_index: {event.liquidClassTableIndex}.")
-    # beep_n()
-    # time.sleep(3)
-    # beep_n()
-    # time.sleep(3)
+    ## initiate hardware
+    zm, gt, pt = initiate_hardware()
+    time.sleep(1)
+
+    event_list_dilute_old_vial, event_list_dilution_old_to_new, event_list_dilute_new_vial = \
+    dilute(zm=zm, pt=pt,
+           dilution_factor=100,
+           volume_of_reaction=500,
+           final_volume_of_dilution=1000,
+           first_step_dilution_factor=3)

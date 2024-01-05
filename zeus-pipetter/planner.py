@@ -929,7 +929,7 @@ def run_events_chem_dilution(zm: object, pt: object, logger: object,
 
             ## write the dataframe to the excel file
             with pd.ExcelWriter(excel_path, engine='openpyxl', mode='a', if_sheet_exists="replace") as writer:
-                df.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index= False)
+                df.to_excel(writer, sheet_name=config.sheet_name_for_run_info, index=True, index_label='uuid')
 
 
         # check tip type and change tip if needed
