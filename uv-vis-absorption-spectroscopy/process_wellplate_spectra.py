@@ -169,6 +169,13 @@ class SpectraProcessor:
         Loads the csv file with the Nanodrop measurements into dataframe. First column is wavelength,.
         the remaining columns are the absorbances for each sample (numerated as well/vial).
 
+        The code can also process the nanodrop's CSV files whose nanodrop column names are, for instance, like so:
+        `0_4BhYCtsRm6MY7wqCRnBh43,1_iEd9wJZKzJFfF63WizGXsJ,2_bicD5pn9i6yKwsuEwLX59r,3_cHXhtGgQtdSgyBZTx6942M, ...`
+        i.e. there is a UUID added after the underscore. In principle, this commit allows for any string to be can
+        be added after the underscore, it will be loaded successfully by this code.
+
+        The code retains reverse compatibility to old nanodrop's CSV files that don't contain underscores or UUIDs.
+
         Returns
         -------
         nanodrop_df: pd.DataFrame
@@ -198,6 +205,13 @@ class SpectraProcessor:
     def load_single_nanodrop_spectrum(self, plate_folder, well_id):
         """
         Loads the Nanodrop spectrum for a single well.
+
+        The code can also process the nanodrop's CSV files whose nanodrop column names are, for instance, like so:
+        `0_4BhYCtsRm6MY7wqCRnBh43,1_iEd9wJZKzJFfF63WizGXsJ,2_bicD5pn9i6yKwsuEwLX59r,3_cHXhtGgQtdSgyBZTx6942M, ...`
+        i.e. there is a UUID added after the underscore. In principle, this commit allows for any string to be can
+        be added after the underscore, it will be loaded successfully by this code.
+
+        The code retains reverse compatibility to old nanodrop's CSV files that don't contain underscores or UUIDs.
 
         Parameters
         ----------
