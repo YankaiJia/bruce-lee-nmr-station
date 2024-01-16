@@ -186,6 +186,12 @@ class SpectraProcessor:
         nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] <= self.nanodrop_upper_cutoff_of_wavelengths]
 
         nanodrop_df["wavelength"] = nanodrop_df["wavelength"].astype(float)
+
+        # Remove underscore from the column names and everything after it.
+        # This is because Yankai has added the UUID of each comdition into the column names -- a good idea, because
+        # it allows to cross-validate the relation between spectra and the list of conditions.
+        nanodrop_df.columns = nanodrop_df.columns.str.split('_').str[0]
+
         return nanodrop_df
 
 
@@ -207,7 +213,8 @@ class SpectraProcessor:
         """
         nanodrop_df = self.load_nanodrop_csv_for_one_plate(plate_folder=plate_folder)
         wavelengths = nanodrop_df["wavelength"].to_numpy()
-        absorbances = nanodrop_df[str(well_id)].to_numpy()
+        # get the column whose names starts with well_id, but can have underscore and anything after it
+        absorbances = nanodrop_df.filter(regex=f'^{well_id}_?').to_numpy().squeeze()
         nanodrop_spectrum = np.array([wavelengths, absorbances]).T
         return nanodrop_spectrum
 
@@ -921,36 +928,38 @@ if __name__ == '__main__':
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
     sp.nanodrop_lower_cutoff_of_wavelengths = 220
-    well_id = 44
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'EAB']
-    cut_from = 5
-    # Condition 154
-    plate_folder = data_folder + 'BPRF/2023-12-27-run01_200/nanodrop_spectra/2023-12-29_13-50-21_UV-Vis_plate_67.csv'
-    spectrum1 = sp.load_msp_by_id(
-        plate_folder=plate_folder,
-        well_id=well_id)[:, 1]
+    x = sp.load_nanodrop_csv_for_one_plate(plate_folder=data_folder + 'BPRF/2024-01-08-run01/nanodrop_spectra/2024-01-10_12-51-07_UV-Vis_plate_71.csv')
 
-    plate_folder = data_folder + 'BPRF/2023-12-27-run01_100/nanodrop_spectra/2023-12-29_14-38-46_UV-Vis_plate_73.csv'
-    spectrum2 = sp.load_msp_by_id(
-        plate_folder=plate_folder,
-        well_id=well_id)[:, 1]
-
-    # concentrations = sp.spectrum_to_concentration(target_spectrum_input=spectrum2,
+    # well_id = 44
+    # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'EAB']
+    # cut_from = 5
+    # # Condition 154
+    # plate_folder = data_folder + 'BPRF/2023-12-27-run01_200/nanodrop_spectra/2023-12-29_13-50-21_UV-Vis_plate_67.csv'
+    # spectrum1 = sp.load_msp_by_id(
+    #     plate_folder=plate_folder,
+    #     well_id=well_id)[:, 1]
+    #
+    # plate_folder = data_folder + 'BPRF/2023-12-27-run01_100/nanodrop_spectra/2023-12-29_14-38-46_UV-Vis_plate_73.csv'
+    # spectrum2 = sp.load_msp_by_id(
+    #     plate_folder=plate_folder,
+    #     well_id=well_id)[:, 1]
+    #
+    # # concentrations = sp.spectrum_to_concentration(target_spectrum_input=spectrum2,
+    # #                                                    calibration_folder=data_folder + 'BPRF/2023-11-08-run01/' + 'microspectrometer_data/calibration/',
+    # #                                                    calibrant_shortnames=substances_for_fitting,
+    # #                                                    background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+    # #                                                    upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
+    # #                                                    do_plot=True, cut_from=cut_from,
+    # #                                                    ignore_abs_threshold=True, ignore_pca_bkg=True)
+    #
+    # concentrations = sp.multispectrum_to_concentration(target_spectrum_input=[spectrum1, spectrum2],
+    #                                                    dilution_factors=[2, 1],
     #                                                    calibration_folder=data_folder + 'BPRF/2023-11-08-run01/' + 'microspectrometer_data/calibration/',
     #                                                    calibrant_shortnames=substances_for_fitting,
     #                                                    background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
     #                                                    upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
     #                                                    do_plot=True, cut_from=cut_from,
     #                                                    ignore_abs_threshold=True, ignore_pca_bkg=True)
-
-    concentrations = sp.multispectrum_to_concentration(target_spectrum_input=[spectrum1, spectrum2],
-                                                       dilution_factors=[2, 1],
-                                                       calibration_folder=data_folder + 'BPRF/2023-11-08-run01/' + 'microspectrometer_data/calibration/',
-                                                       calibrant_shortnames=substances_for_fitting,
-                                                       background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
-                                                       upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
-                                                       do_plot=True, cut_from=cut_from,
-                                                       ignore_abs_threshold=True, ignore_pca_bkg=True)
 
     # sp.load_single_nanodrop_spectrum(plate_folder=data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
     #                                  well_id=0)
