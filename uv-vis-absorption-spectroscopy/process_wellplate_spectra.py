@@ -762,8 +762,8 @@ class SpectraProcessor:
         return np.array(concentrations)
 
 
-    def multispectrum_to_concentration(self, target_spectrum_input, calibration_folder, calibrant_shortnames,
-                                  background_model_folder,
+    def multispectrum_to_concentration(self, target_spectrum_inputs, calibration_folder, calibrant_shortnames,
+                                  background_model_folder, dilution_factors,
                                   lower_limit_of_absorbance=-0.2, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
                                   upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
                                   cut_to = False, ignore_pca_bkg=False, return_errors=False): #upper_bounds=[np.inf, np.inf]
@@ -777,7 +777,7 @@ class SpectraProcessor:
 
         bkg_spectrum = calibrants[0]['bkg_spectrum']
         wavelengths = bkg_spectrum[:, 0]
-        target_spectrum = target_spectrum_input - bkg_spectrum[:, 1]
+        target_spectra = [target_spectrum_input - bkg_spectrum[:, 1] for target_spectrum_input in target_spectrum_inputs]
         wavelength_indices = np.arange(calibrants[0]['bkg_spectrum'].shape[0])
 
         thresh_w_indices = [0, 25, 127, 2000]
@@ -839,6 +839,8 @@ class SpectraProcessor:
         #       0,
         #       0,
         #       0)
+
+
         p0 = tuple([0.5 if upper_bound is np.inf else upper_bound for upper_bound in upper_bounds] + [0] * 4)
         if use_line:
             linebounds = [-np.inf, np.inf]
@@ -858,50 +860,6 @@ class SpectraProcessor:
         concentrations_here = [calibrants[calibrant_index]['coeff_to_concentration_interpolator'](fitted_coeff)
                                for calibrant_index, fitted_coeff in enumerate(popt[:-4])]
 
-        fig1, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
-        ax = ax1
-        ax.plot(wavelengths, target_spectrum_input, label='Raw data', color='grey', alpha=0.2)
-        ax.plot(wavelengths, target_spectrum, label='Data minus bkg.', color='black', alpha=0.5)
-        mask_illustration = np.ones_like(target_spectrum) * np.max(target_spectrum)
-        mask_illustration[mask] = 0
-        ax.fill_between(x=wavelengths, y1=0, y2=mask_illustration, color='yellow', alpha=0.3,
-                         label='Masked data')
-        ax.plot(wavelengths, func(wavelength_indices, *popt), color='r', label='Fit', alpha=0.5)
-        for calibrant_index in range(len(calibrant_shortnames)):
-            cpopt = [x if i == calibrant_index else 0 for i, x in enumerate(popt)]
-            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label=calibrant_shortnames[calibrant_index], alpha=0.5)
-        # make a list where only the third from the end item is the same as in popt, while the other ones are zero
-        if use_line:
-            cpopt = [x if i == len(popt) - 3 else 0 for i, x in enumerate(popt)]
-            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Line', alpha=0.5)
-        if not ignore_pca_bkg:
-            cpopt = [x if i == len(popt) - 2 else 0 for i, x in enumerate(popt)]
-            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC1', alpha=0.5)
-            cpopt = [x if i == len(popt) - 1 else 0 for i, x in enumerate(popt)]
-            ax.plot(wavelengths, func(wavelength_indices, *cpopt), label='Bkg. PC2', alpha=0.5)
-        # plt.ylim(-0.3,
-        #          np.max((func(wavelength_indices, *popt)[mask])) * 3)
-        title_str = f'Concentrations:\n'
-        for i in range(len(concentrations_here)):
-            title_str += f'{np.array(concentrations_here)[i]:.6f} M ({calibrant_shortnames[i]})\n '
-        fig1.suptitle(title_str[:-2])
-        ax.set_ylabel('Absorbance')
-        ax.legend()
-        # Residuals subplot
-        ax = ax2
-        ax.plot(wavelengths[mask], target_spectrum[mask] - func(wavelength_indices[mask], *popt), color='black', alpha=0.5,
-                label='residuals')
-        ax.legend()
-        ax.set_xlabel('Wavelength, nm')
-        ax.set_ylabel('Absorbance')
-        fig1.savefig(f"{fig_filename}.png")
-
-        if do_plot:
-            plt.show()
-        else:
-            plt.close(fig1)
-            plt.close('all')
-            plt.clf()
 
         if return_errors:
             # convert coefficient errors into concentration errors
@@ -958,27 +916,39 @@ def plot_differential_absorbances_for_plate(craic_exp_name,
     return diff
 
 
-
-
-
 if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
     sp.nanodrop_lower_cutoff_of_wavelengths = 220
     well_id = 44
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01']
-    cut_from = 7
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'EAB']
+    cut_from = 5
     # Condition 154
     plate_folder = data_folder + 'BPRF/2023-12-27-run01_200/nanodrop_spectra/2023-12-29_13-50-21_UV-Vis_plate_67.csv'
-    spectrum = sp.load_msp_by_id(
+    spectrum1 = sp.load_msp_by_id(
         plate_folder=plate_folder,
         well_id=well_id)[:, 1]
-    concentrations = sp.multispectrum_to_concentration(target_spectrum_input=spectrum,
+
+    plate_folder = data_folder + 'BPRF/2023-12-27-run01_100/nanodrop_spectra/2023-12-29_14-38-46_UV-Vis_plate_73.csv'
+    spectrum2 = sp.load_msp_by_id(
+        plate_folder=plate_folder,
+        well_id=well_id)[:, 1]
+
+    # concentrations = sp.spectrum_to_concentration(target_spectrum_input=spectrum2,
+    #                                                    calibration_folder=data_folder + 'BPRF/2023-11-08-run01/' + 'microspectrometer_data/calibration/',
+    #                                                    calibrant_shortnames=substances_for_fitting,
+    #                                                    background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+    #                                                    upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
+    #                                                    do_plot=True, cut_from=cut_from,
+    #                                                    ignore_abs_threshold=True, ignore_pca_bkg=True)
+
+    concentrations = sp.multispectrum_to_concentration(target_spectrum_input=[spectrum1, spectrum2],
+                                                       dilution_factors=[2, 1],
                                                        calibration_folder=data_folder + 'BPRF/2023-11-08-run01/' + 'microspectrometer_data/calibration/',
                                                        calibrant_shortnames=substances_for_fitting,
                                                        background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
-                                                       upper_bounds=[np.inf, np.inf],
+                                                       upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
                                                        do_plot=True, cut_from=cut_from,
                                                        ignore_abs_threshold=True, ignore_pca_bkg=True)
 
