@@ -63,6 +63,18 @@ def process_run_by_shortname(run_shortname, cut_from=5, dilution_factor=200):
 
     concentrations_df.to_csv(data_folder + run_name + 'results/' + 'product_concentration.csv', index=False)
 
+
+def plot_all_spectra_by_shortname(run_shortname):
+    run_name = f'BPRF/{run_shortname}/'
+
+    sp = process_wellplate_spectra.SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
+                                                         '2022-12-01/interpolator-dataset/')
+    sp.nanodrop_lower_cutoff_of_wavelengths = 220
+
+    df_structure = organize_run_results.load_run_structure(run_name)
+    for nanodrop_filepath in df_structure.nanodrop_filepath.unique():
+        sp.show_all_spectra(plate_folder=data_folder + nanodrop_filepath)
+
 if __name__ == '__main__':
     # list_of_runs = tuple([
     #                       '2023-11-08-run01',
@@ -70,8 +82,12 @@ if __name__ == '__main__':
     #                       '2023-11-14-run01',
     #                       '2023-11-21-run01'
     # ])
-    list_of_runs = tuple(['2023-12-27-run01_100',
-                          '2023-12-27-run02_100',
-                          '2023-12-27-run03_100'])
+    list_of_runs = tuple(['2023-12-27-run01_200',
+                          '2023-12-27-run02_200',
+                          '2023-12-27-run03_200'])
+
     for i, run_shortname in enumerate(list_of_runs):
-        process_run_by_shortname(run_shortname)
+        # process_run_by_shortname(run_shortname)
+        plot_all_spectra_by_shortname(run_shortname)
+
+    plt.show()
