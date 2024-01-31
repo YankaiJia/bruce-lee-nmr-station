@@ -11,7 +11,7 @@ pipetter_logger = logging.getLogger('main.pipetter')
 
 import copy, json, time, numpy as np, serial, re, winsound
 
-import breadboard as brb, sound
+# import breadboard as brb, sound
 
 
 ## get config file path from breadboard

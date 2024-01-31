@@ -105,6 +105,9 @@ def treat_one_file(xml_folder, xml_name, rename = True):
         column_names = df.columns.values
         uniques, counts = np.unique(column_names, return_counts=True)
 
+        xml_name_new = human_readable_time + '_' + xml_name
+        df.to_csv(xml_folder + xml_name_new[:-4] + '.csv')
+
         if len(column_names) == len(uniques):
             ## save csv file
             xml_name_new = human_readable_time + '_' + xml_name
@@ -117,7 +120,8 @@ def treat_one_file(xml_folder, xml_name, rename = True):
             print("There is at least one duplicating column." \
                   f"len of columns_names: {len(column_names)}. " \
                   f"len of unique_columns: {len(uniques)}.")
-            sys.exit(0)
+            raise ValueError("There is at least one duplicating column.")
+            # sys.exit(0)
 
     # # plot the spectra
     for column in df.columns:
@@ -139,57 +143,18 @@ if __name__ == "__main__":
 
     data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-    folders = [
-        #            '2023-08-21-run01',
-        #            '2023-08-22-run01',
-        #            '2023-08-22-run02',
-        #            '2023-08-28-run01',
-        #            '2023-08-29-run01',
-        #            '2023-08-29-run02',
-        #            'reproducibility_test',
-        #            'reference_for_simple_SN1',
-        #            'background_test',
-        #            'reference_for_E1'
-        #            '2023-09-06-run01',
-        #              '2023-09-07-run01',
-        #               'Yanqiu'
-        #               'versatility_test/Suzuki_JC'
-        #               'versatility_test/Claisen_WaiShing'
-        #               'versatility_test/Ullman_BP'
-        #               'versatility_test/Glaser_WaiShing'
-        #             '2023-11-28-run01',
-        #             '2023-11-29-run01',
-        #             '2023-11-29-run02',
-        #             '2023-12-02-run01'
-                    '2023-12-04-run02'
 
-    ]
+    xml_folder = 'D:\\Dropbox\\robochem\\data\\BPRF\\volume_check_20240119\\serial_dilution_manual_15-20-150-200\\'
+    os.chdir(xml_folder)
+    xml_files = glob.glob('*.xml')
 
-    for folder in folders:
-
-        if 'run' in folder:
-            xml_folder = data_folder + '/simple-reactions/' + folder + '/nanodrop_spectra/'
-        else:
-            xml_folder = data_folder + '/nanodrop-spectrometer-measurements/' + folder + '/'
-
-        os.chdir(xml_folder)
-        xml_files = glob.glob('*.xml')
-
-        for xml_name in xml_files:
-            print("Working on the following file: ")
-            print(f'xml_folder: {xml_folder}')
-            print(f'xml_name: {xml_name}')
+    for xml_name in xml_files:
+        print("Working on the following file: ")
+        print(f'xml_folder: {xml_folder}')
+        print(f'xml_name: {xml_name}')
 
 
-            df = treat_one_file(xml_folder=xml_folder,
-                            xml_name=xml_name)
+        df = treat_one_file(xml_folder=xml_folder,
+                        xml_name=xml_name)
 
-            # if "2023" not in xml_name:
-            #     df = treat_one_file(xml_folder=xml_folder,
-            #                         xml_name=xml_name)
-            # else:
-            #     print('This file has been processed already!')
-            #
-            # if 'EtOH' in xml_name:
-            #     df = treat_one_file(xml_folder = xml_folder,
-            #                    xml_name = xml_name)
+

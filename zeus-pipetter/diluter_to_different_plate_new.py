@@ -1,6 +1,4 @@
-import logging
-
-import winsound
+import logging, winsound
 
 def setup_logger():
     # better logging format in console
@@ -29,7 +27,7 @@ def setup_logger():
     logger = logging.getLogger('main')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler('C:\\Yankai\\Dropbox\\robochem\\pipetter_files\\main_roboski2.log')
+    fh = logging.FileHandler('D:\\Dropbox\\robochem\\pipetter_files\\main_roboski2.log')
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -45,31 +43,38 @@ def setup_logger():
 module_logger = setup_logger()
 
 import copy, time, pickle, re, importlib, json, os, sys, PySimpleGUI as sg, pandas as pd
-import zeus, pipetter, planner as pln, breadboard as brb, config
+import config
+# import breadboard as brb
+# import zeus, pipetter, planner as pln, breadboard as brb, config
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
-    # initiate zeus
-    zm = zeus.ZeusModule(id=1)
-    time.sleep(3)
-    module_logger.info("zeus is loaded as: zm")
+events_A_to_B = {0:[],1:[], 2:[]} # {dilution_step: events}
+event_A_to_C = {0:[],1:[], 2:[]}
+event_B_to_C = {0:[],1:[], 2:[]}
 
-    # initiate gantry
-    gt = pipetter.Gantry(zeus=zm)
-    time.sleep(3)
-    module_logger.info("gantry is loaded as: gt")
-    # gt.configure_grbl() # This only need to be done once.
-    gt.home_xy()
-    if gt.xy_position == (0, 0):
-        module_logger.info("gantry is homed")
 
-    # initiate pipetter
-    pt = pipetter.Pipetter(zeus=zm, gantry=gt)
-    time.sleep(2)
-    module_logger.info("pipetter is loaded as: pt")
-
-    return zm, gt, pt
+# def initiate_hardware() -> (zeus.ZeusModule, pipetter.Gantry, pipetter.Pipetter):
+#     # initiate zeus
+#     zm = zeus.ZeusModule(id=1)
+#     time.sleep(3)
+#     module_logger.info("zeus is loaded as: zm")
+#
+#     # initiate gantry
+#     gt = pipetter.Gantry(zeus=zm)
+#     time.sleep(3)
+#     module_logger.info("gantry is loaded as: gt")
+#     # gt.configure_grbl() # This only need to be done once.
+#     gt.home_xy()
+#     if gt.xy_position == (0, 0):
+#         module_logger.info("gantry is homed")
+#
+#     # initiate pipetter
+#     pt = pipetter.Pipetter(zeus=zm, gantry=gt)
+#     time.sleep(2)
+#     module_logger.info("pipetter is loaded as: pt")
+#
+#     return zm, gt, pt
 
 ## Function to load the Excel file with run info by pysimplegui
 def load_excel_path_by_pysimplegui():
@@ -112,6 +117,7 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
     print(f'barcode_of_plate_for_dilution you just specified: {barcode_of_plate_for_dilution}')
 
     barcode_of_plate_for_reactions_from_df = 0
+
     # get the barcodes of plates from the dataframe
     for index, row in df_run_info.iterrows():
         if row['plate_barcode'] == barcode_of_plate_for_reactions:
@@ -137,7 +143,7 @@ def check_plate_barcodes_for_dilution(run_info_path: str):
     else:
         ## make a pysimplegui window to tell the user the barcodes are incorrect ana ask for options from three buttons
         layout = [
-            [sg.Text('The barcodes do NOT match. Please proceed with one of the following options')],
+            [sg.Text('The barcodes for dilution do NOT match. What to do?')],
             [sg.Button('1. I will change the breadboard plate to match the Excel.'),],
             [sg.Button('2. I insist using the breadboard plate. Overwrite the plate barcode in the Excel.')],
             [sg.Button('3. Something is wrong, I will exit the program')]
@@ -312,7 +318,6 @@ def generate_events_for_diluting_old_vial(solvent: str, volume_added_to_old_vial
 
     return event_list_dilute_old_vial
 
-
 # step2: transfer liquid from original reaction to new vial, transfer volume: 15ul
 def generate_events_for_transferring_liquid_from_old_vials_to_new(solvent: str, volume_transfered_from_old_to_new_vial: float): # transfer volume 20ul
     event_list_dilution_old_to_new = []
@@ -371,6 +376,140 @@ def dilute(zm, pt, dilution_factor: int, volume_of_reaction: int, final_volume_o
 
     return event_list_dilute_old_vial, event_list_dilution_old_to_new, event_list_dilute_new_vial
 
+def dilute_one_container(excel_path: str,
+                        df_for_one_container: object,
+                        solvent: str,
+                        diluting_solvent_container: object,
+                        source_container: object,
+                        source_container_volume: float,
+                        destination_container: object,
+                        dilution_factor: float,
+                        final_volume: float,
+                        step_id: int,
+                        source_container_diluted_factor = 1,):
+    pass
+
+def generate_events_for_one_container(excel_path: str,
+                        df_for_one_container: object,
+                        solvent: str,
+                        diluting_solvent_container: object,
+                        source_container: object,
+                        source_container_volume: float,
+                        destination_container: object,
+                        dilution_factor: float,
+                        final_volume: float,
+                        step_id: int,
+                        source_container_diluted_factor = 1,):
+    event = source_container
+    return event
+def generate_events_for_one_plate(excel_path,
+                                  plate_barcode,
+                                  final_volume:float,
+                                  solvent: str,
+                                  diluting_solvent_container: object):
+
+    global events_A_to_B
+    global event_A_to_C
+    global event_B_to_C
+
+    df = pd.read_excel(excel_path, sheet_name=config.sheet_name_for_run_info, engine='openpyxl')
+    df_for_one_plate = df[df['plate_barcode'] == plate_barcode]
+
+    # plate A : the plate to be diluted. It can be the plate with reaction crude or the plate with diluted products.
+    # plate B or C : the target plate for dilution.
+    # dilution mode: A->B, A->C, or B->C
+
+    stock_solution_columns = [col for col in df_for_one_plate.columns if '#' in col]
+    plate_A_container_volume = df_for_one_plate[1][stock_solution_columns].sum()
+
+    num_dilutions = len([i for i in df_for_one_plate.columns if 'dilution_factor' in i])
+
+    plate_A_brb_id = brb.plate_list[0]
+    plate_B_brb_id = brb.plate_list[1]
+    plate_C_brb_id = brb.plate_list[2]
+
+    try:
+        dilution_factor_first = df_for_one_plate[0]['dilution_factor']
+    except:
+        print('dilution_factor is not found in the Excel.')
+        sys.exit()
+
+    try:
+        dilution_factor_second = df_for_one_plate[0]['dilution_factor_1']
+    except:
+        dilution_factor_second = 0
+
+    if num_dilutions >2:
+        print(f'num_dilutions is {num_dilutions}, which is not supported yet.')
+        sys.exit()
+
+    # first dilution: A->B
+    for i in range(3):
+        for index, row in df_for_one_plate.iterrows():
+            event_here = generate_events_for_one_container(excel_path=excel_path,
+                                             df_for_one_container = row,
+                                             solvent = solvent,
+                                             diluting_solvent_container = diluting_solvent_container,
+                                             source_container=plate_A_brb_id.containers[index],
+                                             source_container_volume=plate_A_container_volume,
+                                             source_container_diluted_factor=1,
+                                             destination_container=plate_B_brb_id.containers[index],
+                                             dilution_factor=dilution_factor_first,
+                                             final_volume=final_volume,
+                                             step_id=i)
+            events_A_to_B[i].append(event_here)
+
+    if num_dilutions == 1:
+        print('All events are generated.')
+        return 0
+
+    elif num_dilutions == 2:
+        # second dilution: A->C or B->C
+        dilution_mode = 'A->C' if dilution_factor_second <= 300 else 'B->C'
+
+        if dilution_mode == 'A->C':
+            for i in range(3):
+                for index, row in df_for_one_plate.iterrows():
+                    event_here = generate_events_for_one_container(excel_path=excel_path,
+                                         df_for_one_container=row,
+                                         solvent=solvent,
+                                         diluting_solvent_container = diluting_solvent_container,
+                                         source_container=plate_A_brb_id.containers[index],
+                                         source_container_volume=plate_A_container_volume,
+                                         source_container_diluted_factor=1,
+                                         destination_container=plate_C_brb_id.containers[index],
+                                         dilution_factor=dilution_factor_second,
+                                         final_volume=final_volume,
+                                         step_id=i)
+                    event_A_to_C[i].append(event_here)
+
+        elif dilution_mode == 'B->C':
+            for i in range(3):
+                for index, row in df_for_one_plate.iterrows():
+                    event_here = generate_events_for_one_container(excel_path=excel_path,
+                                         df_for_one_container = row,
+                                         solvent=solvent,
+                                         diluting_solvent_container=diluting_solvent_container,
+                                         source_container=plate_B_brb_id.containers[index],
+                                         source_container_volume=plate_A_container_volume,
+                                         source_container_diluted_factor=dilution_factor_first,
+                                         destination_container=plate_C_brb_id.containers[index],
+                                         dilution_factor=dilution_factor_second,
+                                         final_volume=final_volume,
+                                         step_id=i)
+                    event_B_to_C[i].append(event_here)
+
+        else:
+            raise ValueError(f'dilution_mode is {dilution_mode}, which is not supported yet.')
+
+        print('All events are generated.')
+        return 0
+
+def run_events_for_one_plate(events:list):
+    for i in range(3): # 3 steps
+        pln.run_events_chem_dilution(zm=zm, pt=pt, logger=module_logger, event_list=events[i],
+                                     start_event_id=0, log_to_excel=True, excel_path=run_info_path,
+                                     barcode_of_plate_for_reactions=barcode_of_plate_for_reactions,)
 
 
 
@@ -421,14 +560,22 @@ if __name__ == '__main__':
     # check if proper plates are placed in the breadboard
     barcode_of_plate_for_reactions, barcode_of_plate_for_dilution = \
     check_plate_barcodes_for_dilution(run_info_path = run_info_path)
-    #
-    ## initiate hardware
-    zm, gt, pt = initiate_hardware()
-    time.sleep(1)
 
-    event_list_dilute_old_vial, event_list_dilution_old_to_new, event_list_dilute_new_vial = \
-    dilute(zm=zm, pt=pt,
-           dilution_factor=100,
-           volume_of_reaction=500,
-           final_volume_of_dilution=1000,
-           first_step_dilution_factor=3)
+    generate_events_for_one_plate(excel_path=run_info_path,
+                                    plate_barcode=barcode_of_plate_for_reactions,
+                                    final_volume=1000,
+                                    solvent=solvent,
+                                    diluting_solvent_container=brb.plate_list[6].containers[0])
+    
+
+
+    ## initiate hardware
+    # zm, gt, pt = initiate_hardware()
+    # time.sleep(1)
+
+    # event_list_dilute_old_vial, event_list_dilution_old_to_new, event_list_dilute_new_vial = \
+    # dilute(zm=zm, pt=pt,
+    #        dilution_factor=100,
+    #        volume_of_reaction=500,
+    #        final_volume_of_dilution=1000,
+    #        first_step_dilution_factor=3)

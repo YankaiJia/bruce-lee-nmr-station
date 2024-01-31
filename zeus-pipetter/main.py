@@ -11,6 +11,7 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 # C:\Yankai\Dropbox\robochem
 
 def setup_logger():
+
     # better logging format in console
     class CustomFormatter(logging.Formatter):
         grey = "\x1b[38;20m"
