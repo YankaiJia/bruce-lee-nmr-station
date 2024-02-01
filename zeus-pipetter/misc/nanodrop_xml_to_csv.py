@@ -144,7 +144,7 @@ if __name__ == "__main__":
     data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 
-    xml_folder = 'D:\\Dropbox\\robochem\\data\\BPRF\\volume_check_20240119\\serial_dilution_manual_15-20-150-200\\'
+    xml_folder = 'D:\\Dropbox\\robochem\\data\\BPRF\\2024-01-29-run01\\nanodrop_spectra\\'
     os.chdir(xml_folder)
     xml_files = glob.glob('*.xml')
 
@@ -152,7 +152,6 @@ if __name__ == "__main__":
         print("Working on the following file: ")
         print(f'xml_folder: {xml_folder}')
         print(f'xml_name: {xml_name}')
-
 
         df = treat_one_file(xml_folder=xml_folder,
                         xml_name=xml_name)
