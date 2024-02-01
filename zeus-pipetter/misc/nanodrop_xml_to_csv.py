@@ -144,7 +144,7 @@ if __name__ == "__main__":
     data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 
-    xml_folder = 'D:\\Dropbox\\robochem\\data\\BPRF\\2024-01-29-run01\\nanodrop_spectra\\'
+    xml_folder = 'D:\\Dropbox\\robochem\\data\\BPRF\\2024-01-30-run01\\nanodrop_spectra\\'
     os.chdir(xml_folder)
     xml_files = glob.glob('*.xml')
 
