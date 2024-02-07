@@ -1,13 +1,8 @@
-import sys
-
 import pandas as pd, os, glob, numpy as np, time, datetime
-from scipy.signal import savgol_filter
 import xml.etree.ElementTree as ET
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from labellines import labelLine, labelLines
-
 
 def remove_unwanted_columns(df):
     for column in df.columns:
@@ -21,7 +16,6 @@ def remove_unwanted_columns(df):
 
 
 def treat_one_file(xml_folder, xml_name, rename = True):
-
     global df
     xml_path = xml_folder + xml_name
     tree = ET.parse(xml_path)
