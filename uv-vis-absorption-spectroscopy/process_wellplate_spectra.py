@@ -871,9 +871,11 @@ class SpectraProcessor:
 
         if plot_calibrant_references:
             for i, calibrant in enumerate(calibrants):
-                plt.plot(np.linspace(0, 400, 400), calibrant['reference_interpolator'](np.linspace(0, 400, 400)),
+                plt.plot(220+np.linspace(0, 400, 400), calibrant['reference_interpolator'](np.linspace(0, 400, 400)),
                          label=calibrant_shortnames[i])
             plt.legend()
+            plt.xlabel('Wavelength, nm')
+            plt.ylabel('Absorbance')
             plt.show()
 
         bkg_spectrum = np.mean(np.array([calibrant['bkg_spectrum'] for calibrant in calibrants]), axis=0)
@@ -1015,8 +1017,6 @@ class SpectraProcessor:
         return concentrations_here
 
 
-
-
 def plot_differential_absorbances_for_plate(craic_exp_name,
                                             wavelength,
                                             ref_wavelengths,
@@ -1069,8 +1069,8 @@ if __name__ == '__main__':
     # x = sp.load_nanodrop_csv_for_one_plate(plate_folder=data_folder + 'BPRF/2024-01-08-run01/nanodrop_spectra/2024-01-10_12-51-07_UV-Vis_plate_71.csv')
 
     # well_id = 44
-    well_id = 30
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017']
+    well_id = 10
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
     cut_from = 40
     # Condition 154
     plate_folder = data_folder + 'BPRF/2024-01-08-run01/nanodrop_spectra/2024-01-10_12-51-07_UV-Vis_plate_71.csv'
