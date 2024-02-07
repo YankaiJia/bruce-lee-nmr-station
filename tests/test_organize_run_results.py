@@ -110,7 +110,7 @@ def test_locate_condition_by_operation_datetime_and_plate_id(datadir):
             timestamp=timestamp,
             plate_id=51,
             dataframe_with_conditions=df_conditions,
-            column_namd_for_plate_id='plate_barcodes_for_dilution',
+            column_name_for_plate_id='plate_barcodes_for_dilution',
             column_name_for_timestamp='timestamp_dilution',
             column_name_for_container_id='container_id'
         )
@@ -120,8 +120,8 @@ def test_locate_condition_by_operation_datetime_and_plate_id(datadir):
         timestamp=timestamp,
         plate_id=152,
         dataframe_with_conditions=df_conditions,
-        column_namd_for_plate_id='plate_barcodes_for_dilution',
+        column_name_for_plate_id='plate_barcodes_for_dilution',
         column_name_for_timestamp='timestamp_dilution',
         column_name_for_container_id='container_id'
     )
-    assert res == tuple([])
+    assert len(res) == 0

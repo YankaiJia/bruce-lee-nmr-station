@@ -18,6 +18,14 @@ water_molar_mass = 18.01528  # g/mol
 hbr_molar_mass = 80.9119  # g/mol
 acetic_acid_molar_mass = 60.05  # g/mol
 
+
+def simpleaxis(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
+
 def make_interpolator_of_hbr_activity(do_plot=True):
     if do_plot:
         fig2 = plt.figure(2)
@@ -428,7 +436,7 @@ def fit_kinetic_model(indices_here, do_plot=False):
     # plt.scatter(xs_to_plot, measured_yields, color='yellow', marker='o')
     f, keq_fit = produce_fit(indices_here, measured_yields)
     if do_plot:
-        plt.scatter(xs_to_plot, measured_yields, color=colors_to_plot, alpha=0.5)
+        plt.scatter(xs_to_plot, measured_yields, s=10, color=colors_to_plot, alpha=0.5)
         for c_alc in unique_alcohol_concentrations:
             color_here = colors[np.where(unique_alcohol_concentrations == c_alc)[0][0]]
             # find df_indices among indices_here where alcolhol concentration is c_alc
@@ -442,7 +450,7 @@ def fit_kinetic_model(indices_here, do_plot=False):
         # plt.scatter(xs_to_plot, ys_to_plot, color=colors_to_plot, marker='x')
         plt.ylabel('Yield')
         plt.xlabel('Initial concentration of HBr')
-        plt.legend(title="Starting alcohol\nconcentration")
+        # plt.legend(title="Starting alcohol\nconcentration")
 
     return keq_fit
 
@@ -460,16 +468,25 @@ keq_fits = []
 temperatures = df_results['temperature'].unique()
 temperatures = np.sort(temperatures)
 for temperature in temperatures:
+    fig1 = plt.figure(figsize=(4, 3.9))
     print(f'Fitting model at temperature = {temperature}')
     mask = (df_results['temperature'] == temperature)
     indices_where_mask_is_true = df_results[mask].index.to_numpy()
     keq_fit = fit_kinetic_model(indices_where_mask_is_true, do_plot=True)
     keq_fits.append(keq_fit)
     if do_plot:
+        # plt.subplots_adjust(top=0.956,
+        #                     bottom=0.161,
+        #                     left=0.164,
+        #                     right=0.963,
+        #                     hspace=0.2,
+        #                     wspace=0.2)
         plt.title(f'Temperature {temperature} °C')
+        simpleaxis(plt.gca())
         plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-        plt.ylabel('Yield w.r.t. alcohol')
+        plt.ylabel('Yield with respect to alcohol')
         plt.xlabel('Starting concentration of HBr, M')
+        plt.tight_layout()
         plt.gcf().savefig(f'{data_folder}simple-reactions/2023-11-28-run01/results/kinetics/figures/temperature_{temperature}C.png', dpi=300)
         plt.show()
 

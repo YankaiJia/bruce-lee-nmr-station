@@ -212,19 +212,37 @@ plt.show()
 
 x = [concentrations_identical_capped_in_oven/(0.0249922896339447/0.21741)*100,
      concentrations_identical/(0.02295312069974119/0.212)*100]
-df = pd.DataFrame(x, index=[f'Repeated experimental condition, N=27, yield (21.7 ± 1.2)%',
-                            f'Repeated measurements of same crude, N=54, yield (21.2 ± 0.4)%'])
-figbox = plt.figure(69, figsize=(10,1.6))
+# df = pd.DataFrame(x, index=[f'Repeated experimental condition, N=27, yield (21.7 ± 1.2)%',
+#                             f'Repeated measurements of same crude, N=54, yield (21.2 ± 0.4)%'])
+df = pd.DataFrame(x, index=[f'Replicates',
+                            f'UV-VIS repeats'])
+figbox = plt.figure(69, figsize=(4.9*0.9,0.9*4.9/3*0.9), dpi=300)
 bp = df.T.boxplot(vert=False, patch_artist=True, widths=(0.6, 0.6), return_type='dict')
 for median in bp['medians']:
-    median.set_color('C1')
-    median.set_linewidth(5)
+    median.set_color('black')
+    median.set_linewidth(3)
 for box in bp['boxes']:
-    box.set_facecolor('C0')
-    box.set_alpha(0.5)
+    box.set_facecolor('grey')
+    box.set(color='black')
+    # change line oclors
+    box.set_alpha(0.3)
+for whisker in bp['whiskers']:
+    whisker.set(color="grey")
+
+plt.gca().grid(False)
+def simpleaxis(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+simpleaxis(plt.gca())
+
+for cap in bp['caps']:
+    cap.set(color="grey")
 plt.xlabel('Yield, %')
 # plt.subplots_adjust(left=0.25)
 plt.tight_layout()
+figbox.savefig('misc-scripts/figures/Figure_69.png', dpi=300)
 plt.show()
 
 concentrations_aluminum_plate_2023_06_07 = process_or_load_processed(nickname='concentrations_aluminum_plate_2023_06_07', plate_name='2023-06-08_12-41-45__plate0000006__multicomponent-reactions-2023-06-08-dil')

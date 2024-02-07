@@ -498,7 +498,7 @@ def organize_run_structure_v3_00(experiment_name):
     # Use regular expressions to get the plate id and unix timestamp for each file by parsing the filename. For example,
     # filename '2023-08-23_23-52-13_plate_51.csv' means for 2023-08-23 date, 23-52-13 hour-minute-second, and plate 51
     ## Old regexp:
-    # pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
+    # regexp_pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
 
     # Changing regexp because Yankai is very creative
     pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:.*?)_plate_(?P<plate_id>\d+).csv',
@@ -519,9 +519,9 @@ def organize_run_structure_v3_00(experiment_name):
         # locate the conditions in the df_structure for each file using the locate_condition_by_operation... function
         # and write the filepath into the df_structure column 'nanodrop_filepath"
         indices = locate_condition_by_operation_datetime_and_plate_id(unix_timestamp, plate_id, df_structure,
-                                                        column_namd_for_plate_id='plate_barcodes_for_dilution',
-                                                        column_name_for_timestamp='timestamp_dilution',
-                                                        column_name_for_container_id='container_id')
+                                                                      column_name_for_plate_id='plate_barcodes_for_dilution',
+                                                                      column_name_for_timestamp='timestamp_dilution',
+                                                                      column_name_for_container_id='container_id')
         if len(indices) == 0:
             logging.warning(f'Could not find conditions in run structure for nanodrop spectrum file {filename}')
             continue
@@ -675,7 +675,7 @@ def get_excel_file_version(excel_file_path):
 
 
 def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dataframe_with_conditions,
-                                                        column_namd_for_plate_id='plate_barcodes_for_dilution',
+                                                        column_name_for_plate_id='plate_barcodes_for_dilution',
                                                         column_name_for_timestamp='timestamp_dilution',
                                                         column_name_for_container_id='container_id') -> tuple:
     """
@@ -697,7 +697,7 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
         Barcode of the plate. This is normally an integer.
     dataframe_with_conditions: pd.DataFrame
         Dataframe with conditions. This dataframe should have columns with names specified in the next three arguments.
-    column_namd_for_plate_id: str
+    column_name_for_plate_id: str
         Name of the column in dataframe_with_conditions that contains plate barcodes.
     column_name_for_timestamp: str
         Name of the column in dataframe_with_conditions that contains UNIXTIME timestamps of operations that are
@@ -710,12 +710,12 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
     indices_of_found_conditions: list
         List of dataframe indices of conditions that correspond to each container of the plate that was operated on.
     """
-    if plate_id in dataframe_with_conditions[column_namd_for_plate_id].unique():
+    if plate_id in dataframe_with_conditions[column_name_for_plate_id].unique():
         # get all rows for this particular plate
-        df = dataframe_with_conditions[(dataframe_with_conditions[column_namd_for_plate_id] == plate_id)].copy()
+        df = dataframe_with_conditions[(dataframe_with_conditions[column_name_for_plate_id] == plate_id)].copy()
     else:
         logging.warning(f'Plate barcode {plate_id} is not found in the dataframe. Dataframe has plates '
-                        f'with barcodes {dataframe_with_conditions[column_namd_for_plate_id].unique()}')
+                        f'with barcodes {dataframe_with_conditions[column_name_for_plate_id].unique()}')
         return []
 
     # make sure that column_name_for_timestamp column is of integer type
@@ -729,7 +729,7 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
         df_container = df[df[column_name_for_container_id] == container_id].copy()
         # sort these rows df by column_name_for_timestamp column
         df_container.sort_values(by=column_name_for_timestamp, inplace=True)
-        # find the first row whose timestamp is earlier than the input timestamp
+        # find the position just before the insertion point for the input timestamp in the sorted array of timestamps
         i = df_container[column_name_for_timestamp].searchsorted(timestamp) - 1
         # if the input timestamp is earlier than the earliest timestamp in the dataframe, skip this container
         if i < 0:
@@ -743,19 +743,70 @@ def locate_condition_by_operation_datetime_and_plate_id(timestamp, plate_id, dat
     return tuple(indices_of_found_conditions)
 
 
-if __name__ == '__main__':
-    pass
+def find_measurement_files_and_compiile_a_table(target_folder, extension, regexp_pattern,
+                                                datetime_string_format='%Y-%m-%d_%H-%M-%S'):
+    # make an empty dateframe with columns for filename, plate_id, timestamp
+    df_files = pd.DataFrame(columns=['filename', 'plate_id', 'timestamp'])
+    for filename in os.listdir(target_folder):
+        if not filename.endswith(extension):
+            continue
+        match = regexp_pattern.match(filename)
+        if not match:
+            logging.warning(f'Could not parse measurement filename {filename} for timestamp and id')
+            continue
+        plate_id = int(match.group('plate_id'))
+        unix_timestamp = datetime.strptime(match.group('timestamp_string'), datetime_string_format).timestamp()
+        logging.info(f'Found measurement file {filename} with plate id {plate_id} and unix timestamp {unix_timestamp}')
+        df_files = df_files.append({'filename': filename, 'plate_id': plate_id, 'timestamp': unix_timestamp}, ignore_index=True)
+    return df_files
 
-    list_of_runs = tuple([
-                          '2023-11-28-run01',
-                          '2023-11-29-run01',
-                          '2023-11-29-run02',
-                          '2023-12-02-run01',
-                          '2023-12-04-run01',
-                          '2023-12-04-run02'])
-    for run_shortname in list_of_runs:
-        logging.info(f'Organizing run {run_shortname}')
-        organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
+
+def find_nanodrop_files_and_compiile_a_table(target_folder):
+    regexp_pattern = re.compile(
+        r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:.*?)_plate_(?P<plate_id>\d+).csv',
+        re.DOTALL)
+    return find_measurement_files_and_compiile_a_table(target_folder, extension='.csv', regexp_pattern=regexp_pattern)
+
+
+def locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp, plate_id):
+    df_files_single_plate = df_files[df_files['plate_id'] == plate_id].copy()
+    df_files_single_plate.sort_values(by='timestamp', inplace=True)
+    i = df_files_single_plate['timestamp'].searchsorted(condition_timestamp)
+    if i > len(df_files_single_plate) - 1:
+        # logging.error(f'No measurement file found for plate {plate_id} and condition timestamp {condition_timestamp}, which is later than the latest measurement file.')
+        raise ValueError(f'No measurement file found for plate {plate_id} and condition timestamp {condition_timestamp}, which is later than the latest measurement file.')
+    return df_files_single_plate.index.values[i]
+
+
+if __name__ == '__main__':
+
+    df_files = find_nanodrop_files_and_compiile_a_table(target_folder=data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra')
+    print(locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp=1705636817.00000, plate_id=71))
+
+    # df_conditions = pd.read_excel('tests/test_organize_run_results/simple-reactions/2099-99-99-run01/2099-99-99-run01.xlsx',
+    #                               sheet_name='reactions_with_run_info')
+    #
+    # timestamp = 1692793066 + 10
+    # res = locate_condition_by_operation_datetime_and_plate_id(
+    #     timestamp=timestamp,
+    #     plate_id=51,
+    #     dataframe_with_conditions=df_conditions,
+    #     column_name_for_plate_id='plate_barcodes_for_dilution',
+    #     column_name_for_timestamp='timestamp_dilution',
+    #     column_name_for_container_id='container_id'
+    # )
+    # print(res)
+
+    # list_of_runs = tuple([
+    #                       '2023-11-28-run01',
+    #                       '2023-11-29-run01',
+    #                       '2023-11-29-run02',
+    #                       '2023-12-02-run01',
+    #                       '2023-12-04-run01',
+    #                       '2023-12-04-run02'])
+    # for run_shortname in list_of_runs:
+    #     logging.info(f'Organizing run {run_shortname}')
+    #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='3.00')
 
     # list_of_runs = tuple([
     #                       '2023-11-08-run01',
