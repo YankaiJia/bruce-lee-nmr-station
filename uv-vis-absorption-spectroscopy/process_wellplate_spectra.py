@@ -163,11 +163,24 @@ class SpectraProcessor:
         self.nanodrop_lower_cutoff_of_wavelengths = 250
         self.nanodrop_upper_cutoff_of_wavelengths = 600
 
+        self.thresh_w_indices = [0, 2000]
+        # self.thresh_as = [100.0, 100.0]
+        self.thresh_as = [1.0, 1.0]
+        self.lower_limit_of_absorbance = 0
+
+
     def load_nanodrop_csv_for_one_plate(self, plate_folder,
                                         ):
         """
         Loads the csv file with the Nanodrop measurements into dataframe. First column is wavelength,.
         the remaining columns are the absorbances for each sample (numerated as well/vial).
+
+        The code can also process the nanodrop's CSV files whose nanodrop column names are, for instance, like so:
+        `0_4BhYCtsRm6MY7wqCRnBh43,1_iEd9wJZKzJFfF63WizGXsJ,2_bicD5pn9i6yKwsuEwLX59r,3_cHXhtGgQtdSgyBZTx6942M, ...`
+        i.e. there is a UUID added after the underscore. In principle, this commit allows for any string to be can
+        be added after the underscore, it will be loaded successfully by this code.
+
+        The code retains reverse compatibility to old nanodrop's CSV files that don't contain underscores or UUIDs.
 
         Returns
         -------
@@ -186,12 +199,25 @@ class SpectraProcessor:
         nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] <= self.nanodrop_upper_cutoff_of_wavelengths]
 
         nanodrop_df["wavelength"] = nanodrop_df["wavelength"].astype(float)
+
+        # Remove underscore from the column names and everything after it.
+        # This is because Yankai has added the UUID of each comdition into the column names -- a good idea, because
+        # it allows to cross-validate the relation between spectra and the list of conditions.
+        nanodrop_df.columns = nanodrop_df.columns.str.split('_').str[0]
+
         return nanodrop_df
 
 
     def load_single_nanodrop_spectrum(self, plate_folder, well_id):
         """
         Loads the Nanodrop spectrum for a single well.
+
+        The code can also process the nanodrop's CSV files whose nanodrop column names are, for instance, like so:
+        `0_4BhYCtsRm6MY7wqCRnBh43,1_iEd9wJZKzJFfF63WizGXsJ,2_bicD5pn9i6yKwsuEwLX59r,3_cHXhtGgQtdSgyBZTx6942M, ...`
+        i.e. there is a UUID added after the underscore. In principle, this commit allows for any string to be can
+        be added after the underscore, it will be loaded successfully by this code.
+
+        The code retains reverse compatibility to old nanodrop's CSV files that don't contain underscores or UUIDs.
 
         Parameters
         ----------
@@ -207,6 +233,7 @@ class SpectraProcessor:
         """
         nanodrop_df = self.load_nanodrop_csv_for_one_plate(plate_folder=plate_folder)
         wavelengths = nanodrop_df["wavelength"].to_numpy()
+        # get the column whose name is equal to well_id
         absorbances = nanodrop_df[str(well_id)].to_numpy()
         nanodrop_spectrum = np.array([wavelengths, absorbances]).T
         return nanodrop_spectrum
@@ -502,19 +529,61 @@ class SpectraProcessor:
 
         return coeff_to_concentration_interpolator, reference_interpolator, bkg_spectrum
 
-    def load_calibration_for_one_calibrant(self, calibrant_shortname, calibration_folder):
+    def load_calibration_for_one_calibrant(self, calibrant_shortname, calibration_folder, use_line_fit=False,
+                                           do_savgol_filtering=False):
+        bkg_spectrum = np.load(calibration_folder + f'references/{calibrant_shortname}/bkg_spectrum.npy')
+        assert len(bkg_spectrum) == 381
+
+        coeffs = np.load(calibration_folder + f'references/{calibrant_shortname}/interpolator_coeffs.npy')
+        concentrations = np.load(
+            calibration_folder + f'references/{calibrant_shortname}/interpolator_concentrations.npy')
+        if not use_line_fit:
+            coeff_to_concentration_interpolator = interpolate.interp1d(coeffs, concentrations,
+                                                                       fill_value='extrapolate')
+        else:
+            # make a line fit with zero intercept
+            xs = coeffs
+            ys = concentrations
+            popt, pcov = curve_fit(lambda x, a: a * x, xs, ys, p0=(1))
+            new_xs = np.array([0, 1])
+            new_ys = np.array([0, popt[0]])
+            coeff_to_concentration_interpolator = interpolate.interp1d(new_xs, new_ys,
+                                                                          fill_value='extrapolate')
+
+        ref_spectrum = np.load(calibration_folder + f'references/{calibrant_shortname}/ref_spectrum.npy')
+        assert len(ref_spectrum) == 381
+        wavelength_indices = np.arange(ref_spectrum.shape[0])
+        if do_savgol_filtering:
+            # plt.plot(ref_spectrum)
+            ref_spectrum = savgol_filter(ref_spectrum, 31, 4)
+            # plt.plot(ref_spectrum)
+            # plt.show()
+        reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum, fill_value='extrapolate')
+        return coeff_to_concentration_interpolator, reference_interpolator, bkg_spectrum
+
+    def load_concentration_to_coeff_for_one_calibrant(self, calibrant_shortname, calibration_folder, use_line_fit=False):
         bkg_spectrum = np.load(calibration_folder + f'references/{calibrant_shortname}/bkg_spectrum.npy')
 
         coeffs = np.load(calibration_folder + f'references/{calibrant_shortname}/interpolator_coeffs.npy')
         concentrations = np.load(
             calibration_folder + f'references/{calibrant_shortname}/interpolator_concentrations.npy')
-        coeff_to_concentration_interpolator = interpolate.interp1d(coeffs, concentrations,
-                                                                   fill_value='extrapolate')
+        if not use_line_fit:
+            concentration_to_coeff_interpolator = interpolate.interp1d(concentrations, coeffs,
+                                                                       fill_value='extrapolate')
+        else:
+            # make a line fit with zero intercept
+            xs = coeffs
+            ys = concentrations
+            popt, pcov = curve_fit(lambda x, a: a * x, xs, ys, p0=(1))
+            new_xs = np.array([0, 1])
+            new_ys = np.array([0, popt[0]])
+            concentration_to_coeff_interpolator = interpolate.interp1d(new_ys, new_xs,
+                                                                          fill_value='extrapolate')
 
         ref_spectrum = np.load(calibration_folder + f'references/{calibrant_shortname}/ref_spectrum.npy')
         wavelength_indices = np.arange(ref_spectrum.shape[0])
         reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum, fill_value='extrapolate')
-        return coeff_to_concentration_interpolator, reference_interpolator, bkg_spectrum
+        return concentration_to_coeff_interpolator, reference_interpolator, bkg_spectrum
 
     def spectrum_to_concentration(self, target_spectrum_input, calibration_folder, calibrant_shortnames,
                                   background_model_folder,
@@ -762,6 +831,190 @@ class SpectraProcessor:
         return np.array(concentrations)
 
 
+    def mask_the_spectrum(self, wavelength_indices, target_spectrum,
+                          cut_from, ignore_abs_threshold=False, cut_to=False):
+        threshold_interpolator = interpolate.interp1d(self.thresh_w_indices, self.thresh_as,
+                                                      fill_value='extrapolate')
+
+        if not ignore_abs_threshold:
+            mask = np.logical_and(target_spectrum < threshold_interpolator(wavelength_indices),
+                                  wavelength_indices > cut_from)
+        else:
+            mask = wavelength_indices > cut_from
+
+        if cut_to:
+            mask = np.logical_and(mask, wavelength_indices <= cut_to)
+
+        mask = np.logical_and(mask,
+                              target_spectrum > np.min(target_spectrum) + self.lower_limit_of_absorbance)
+
+        return wavelength_indices[mask], target_spectrum[mask]
+
+
+    def multispectrum_to_concentration(self, target_spectrum_inputs, calibration_folder, calibrant_shortnames,
+                                  background_model_folder, dilution_factors,
+                                  lower_limit_of_absorbance=-0.2, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
+                                  upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
+                                  cut_to = False, ignore_pca_bkg=False, return_errors=False,
+                                       use_linear_calibration=True, plot_calibrant_references=True): #upper_bounds=[np.inf, np.inf]
+        calibrants = []
+        for calibrant_shortname in calibrant_shortnames:
+            dict_here = dict()
+            dict_here['coeff_to_concentration_interpolator'], dict_here['reference_interpolator'], dict_here[
+                'bkg_spectrum'] = \
+                self.load_calibration_for_one_calibrant(calibrant_shortname, calibration_folder,
+                                                        use_line_fit=use_linear_calibration)
+            dict_here['concentration_to_coeff_interpolator'], _, _ = \
+                self.load_concentration_to_coeff_for_one_calibrant(calibrant_shortname, calibration_folder,
+                                                                     use_line_fit=use_linear_calibration)
+            calibrants.append(dict_here.copy())
+
+        if plot_calibrant_references:
+            for i, calibrant in enumerate(calibrants):
+                plt.plot(220+np.linspace(0, 400, 400), calibrant['reference_interpolator'](np.linspace(0, 400, 400)),
+                         label=calibrant_shortnames[i])
+            plt.legend()
+            plt.xlabel('Wavelength, nm')
+            plt.ylabel('Absorbance')
+            plt.show()
+
+        bkg_spectrum = np.mean(np.array([calibrant['bkg_spectrum'] for calibrant in calibrants]), axis=0)
+        for target_spectrum_input in target_spectrum_inputs:
+            assert len(bkg_spectrum) == len(target_spectrum_input), \
+                'Length of background spectrum is not the same as the length of the target spectrum.' \
+                'This may be because the wavelengths are not aligned.'
+
+        wavelengths = bkg_spectrum[:, 0]
+        target_spectra = [target_spectrum_input - bkg_spectrum[:, 1] for target_spectrum_input in target_spectrum_inputs]
+        wavelength_indices = np.arange(calibrants[0]['bkg_spectrum'].shape[0])
+
+        target_spectra_wavelength_indices_masked = []
+        target_spectra_amplitudes_masked = []
+        for i, target_spectrum in enumerate(target_spectra):
+            target_spectrum_wavelengths_masked, target_spectrum_amplitudes_masked = self.mask_the_spectrum(
+                wavelength_indices, target_spectrum, cut_from, ignore_abs_threshold=ignore_abs_threshold, cut_to=cut_to)
+            target_spectra_wavelength_indices_masked.append(target_spectrum_wavelengths_masked)
+            target_spectra_amplitudes_masked.append(target_spectrum_amplitudes_masked)
+
+            if len(target_spectrum_wavelengths_masked) == 0:
+                print(f'There is no data that is within mask for spectrum #{i}. Returning zeros.')
+                return [0 for i in range(len(calibrant_shortnames))]
+
+        # Multiply the spectra by the dilution factors
+        # TODO: Instead of doing this, forward interpolator from concentration to the coefficient should be used in the fitting function func() below.
+        # target_spectra_amplitudes_masked = [target_spectrum_amplitudes_masked * dilution_factor
+        #                                     for target_spectrum_amplitudes_masked, dilution_factor in
+        #                                     zip(target_spectra_amplitudes_masked, dilution_factors)]
+
+        comboX = np.concatenate(target_spectra_wavelength_indices_masked)
+        comboY = np.concatenate(target_spectra_amplitudes_masked)
+        # sigmas is based on dilution factors
+        # combo_sigmas = np.concatenate([np.ones_like(target_spectrum_amplitudes_masked) * np.sqrt(dilution_factor)
+        #                                 for target_spectrum_amplitudes_masked, dilution_factor in
+        #                                 zip(target_spectra_amplitudes_masked, dilution_factors)])
+
+        indices_for_splitting = np.cumsum([len(target_spectrum_wavelengths_masked) for target_spectrum_wavelengths_masked in target_spectra_wavelength_indices_masked])[:-1]
+        number_of_calibrants = len(calibrant_shortnames)
+        number_of_spectra = len(target_spectrum_inputs)
+
+        if not ignore_pca_bkg:
+            background_interpolators = [interpolate.interp1d(wavelength_indices,
+                                                          np.load(background_model_folder + f'component_{i}.npy'),
+                                                          fill_value='extrapolate')
+                                     for i in range(2)]
+        else:
+            background_interpolators = [interpolate.interp1d(wavelength_indices,
+                                                             np.ones_like(wavelength_indices),
+                                                             fill_value='extrapolate')
+                                        for i in range(2)]
+
+        def func(*args):
+            xs = args[0]
+            separate_spectra = np.split(xs, indices_for_splitting)
+            calibrants_concentrations = args[1:number_of_calibrants + 1]
+            dilutions_factors_here = [dilution_factors[0]] + list(args[number_of_calibrants + 1: number_of_calibrants + 1 + number_of_spectra - 1])
+            assert len(dilutions_factors_here) == number_of_spectra
+            offsets = args[number_of_calibrants + 1 + number_of_spectra - 1: number_of_calibrants + 1 + number_of_spectra - 1 + number_of_spectra]
+            separate_predicted_spectra = []
+            for spectrum_index, wavelengths in enumerate(separate_spectra):
+                dilution_factor_for_this_spectrum = dilutions_factors_here[spectrum_index]
+                calibrants_concentrations_for_this_spectrum = [x / dilution_factor_for_this_spectrum for x in calibrants_concentrations]
+                calibrants_coeffs_for_this_spectrum = [np.asscalar(calibrants[i]['concentration_to_coeff_interpolator'](calibrants_concentrations_for_this_spectrum[i]))
+                                                       for i in range(number_of_calibrants)]
+                predicted_spectrum = sum([calibrants_coeffs_for_this_spectrum[i] * calibrants[i]['reference_interpolator'](wavelengths)
+                                            for i in range(number_of_calibrants)]) \
+                                        + offsets[spectrum_index]
+                separate_predicted_spectra.append(predicted_spectrum)
+            comboY = np.concatenate(separate_predicted_spectra)
+            return comboY
+
+        p0 = []
+        lower_bounds = []
+        upper_bounds = []
+        for i in range(number_of_calibrants):
+            p0.append(1e-3)
+            lower_bounds.append(0)
+            upper_bounds.append(np.inf)
+        for i in range(number_of_spectra - 1):
+            p0.append(dilution_factors[i+1])
+            lower_bounds.append(0)
+            upper_bounds.append(np.inf)
+        for i in range(number_of_spectra):
+            p0.append(0)
+            lower_bounds.append(-np.inf)
+            upper_bounds.append(np.inf)
+
+        bounds = (lower_bounds, upper_bounds)
+        popt, pcov = curve_fit(func, comboX, comboY,
+                               p0=p0, bounds=bounds)
+        perr = np.sqrt(np.diag(pcov))  # errors of the fitted coefficients
+
+        concentrations_here = popt[0:number_of_calibrants]
+        fitted_dilution_factors = popt[number_of_calibrants: number_of_calibrants + number_of_spectra - 1]
+        fitted_offsets = popt[number_of_calibrants + number_of_spectra - 1: number_of_calibrants + number_of_spectra - 1 + number_of_spectra]
+        print('Fitted concentrations:', concentrations_here)
+        print('Fitted dilution factors:', fitted_dilution_factors)
+        print('Fitted offsets:', fitted_offsets)
+        print('Popt: ', popt)
+        print('p0: ', p0)
+
+        if return_errors:
+            # convert coefficient errors into concentration errors
+            upper_confidence_limit = [calibrants[calibrant_index]['coeff_to_concentration_interpolator'](fitted_coeff + perr[calibrant_index])
+                               for calibrant_index, fitted_coeff in enumerate(popt[:-4])]
+            concentration_errors = [upper_confidence_limit[i] - concentrations_here[i] for i in range(len(concentrations_here))]
+            return concentrations_here, concentration_errors
+
+
+        # plot the fit vs the data
+        if do_plot:
+            # make number of subplots equal to number of spectra
+            predicted_comboY = func(comboX, *popt)
+            separate_predicted_spectra = np.split(predicted_comboY, indices_for_splitting)
+            fig, axs = plt.subplots(len(target_spectrum_inputs), 1, figsize=(10, 10), sharex=True)
+            for spectrum_index in range(number_of_spectra):
+                axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index], target_spectra_amplitudes_masked[spectrum_index], label='data')
+                axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index], separate_predicted_spectra[spectrum_index], label='fit')
+                axs[spectrum_index].legend()
+            plt.xlabel('Wavelength, nm')
+            plt.ylabel('Absorbance')
+
+            # plt.legend()
+            plt.show()
+
+            plt.figure(figsize=(5, 10))
+            pcov_to_plot = pcov[:len(calibrant_shortnames), :len(calibrant_shortnames)]
+            plt.imshow(pcov_to_plot, vmin=-1*max(np.abs(pcov_to_plot).flatten()), vmax=max(np.abs(pcov_to_plot).flatten()),
+                       cmap='RdBu_r')
+            # make tick labels from calibrant_shortnames
+            plt.yticks(range(len(calibrant_shortnames)), calibrant_shortnames)
+            plt.xticks(range(len(calibrant_shortnames)), calibrant_shortnames, rotation=90)
+            plt.colorbar(orientation='vertical', fraction=0.046)
+            plt.tight_layout()
+            plt.show()
+
+
+        return concentrations_here
 
 
 def plot_differential_absorbances_for_plate(craic_exp_name,
@@ -807,11 +1060,58 @@ def plot_differential_absorbances_for_plate(craic_exp_name,
     return diff
 
 
-
 if __name__ == '__main__':
 
     sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
+    sp.nanodrop_lower_cutoff_of_wavelengths = 220
+
+    # x = sp.load_nanodrop_csv_for_one_plate(plate_folder=data_folder + 'BPRF/2024-01-08-run01/nanodrop_spectra/2024-01-10_12-51-07_UV-Vis_plate_71.csv')
+
+    # well_id = 44
+    well_id = 10
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
+    cut_from = 40
+    # Condition 154
+    plate_folder = data_folder + 'BPRF/2024-01-08-run01/nanodrop_spectra/2024-01-10_12-51-07_UV-Vis_plate_71.csv'
+    # plate_folder = data_folder + 'BPRF/2024-01-08-run02/nanodrop_spectra/2024-01-10_17-10-28_UV-Vis_plate_61.csv'
+    # plate_folder = data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra/2024-01-19_12-22-47_UV-Vis_plate_66.csv'
+    spectrum1 = sp.load_msp_by_id(
+        plate_folder=plate_folder,
+        well_id=well_id)[:, 1]
+
+    plate_folder = data_folder + 'BPRF/2024-01-08-run01/nanodrop_spectra/2024-01-10_13-48-13_UV-Vis_plate_73.csv'
+    # plate_folder = data_folder + 'BPRF/2024-01-08-run02/nanodrop_spectra/2024-01-10_17-55-20_UV-Vis_plate_66.csv'
+    # plate_folder = data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra/2024-01-19_13-00-17_UV-Vis_plate_67.csv'
+    spectrum2 = sp.load_msp_by_id(
+        plate_folder=plate_folder,
+        well_id=well_id)[:, 1]
+
+    plt.plot(spectrum1*20)
+    plt.plot(spectrum2*200)
+    # plt.plot(spectrum1)
+    # plt.plot(spectrum2)
+    print('len of spectrum1', len(spectrum1))
+    plt.show()
+
+    # spectrum1 = spectrum2 * 1.1
+
+    # concentrations = sp.spectrum_to_concentration(target_spectrum_input=spectrum2,
+    #                                                    calibration_folder=data_folder + 'BPRF/2023-11-08-run01/' + 'microspectrometer_data/calibration/',
+    #                                                    calibrant_shortnames=substances_for_fitting,
+    #                                                    background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+    #                                                    upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
+    #                                                    do_plot=True, cut_from=cut_from,
+    #                                                    ignore_abs_threshold=True, ignore_pca_bkg=True)
+
+    concentrations = sp.multispectrum_to_concentration(target_spectrum_inputs=[spectrum1, spectrum2],
+                                                       dilution_factors=[20, 150],
+                                                       calibration_folder=data_folder + 'BPRF/2024-01-17-run01/' + 'microspectrometer_data/calibration/',
+                                                       calibrant_shortnames=substances_for_fitting,
+                                                       background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+                                                       upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
+                                                       do_plot=True, cut_from=cut_from, cut_to=250,
+                                                       ignore_abs_threshold=False, ignore_pca_bkg=True)
 
     # sp.load_single_nanodrop_spectrum(plate_folder=data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
     #                                  well_id=0)
@@ -956,9 +1256,9 @@ if __name__ == '__main__':
     #                                                       ignore_abs_threshold=True, ignore_pca_bkg=True)
     # print(concentrations_here)
 
-    ## JC
-    sp.nanodrop_lower_cutoff_of_wavelengths = 230
-    plate_folder = 'D:/Docs/Science/UNIST/Projects/useless-random-shit/nanodrop_spectra/' + 'raw_calibration_data/2023-09-11-PBAS-reference.csv'
-    sp.show_all_spectra(plate_folder)
-    plt.legend()
-    plt.show()
+    # ## JC
+    # sp.nanodrop_lower_cutoff_of_wavelengths = 230
+    # plate_folder = 'D:/Docs/Science/UNIST/Projects/useless-random-shit/nanodrop_spectra/' + 'raw_calibration_data/2023-09-11-PBAS-reference.csv'
+    # sp.show_all_spectra(plate_folder)
+    # plt.legend()
+    # plt.show()
