@@ -533,7 +533,6 @@ for temperature in temperatures:
         df_results.loc[df_index, 'yield_model'] = model_of_yield_for_one_condition(df_index, K_eq)
 
 column_to_plot = 'yield_model'
-
 # convert from mol/L to mM
 for substrate in substrates:
     df_results[substrate] = df_results[substrate].apply(lambda x: x*1000 if x>1e-10 else 0)

@@ -1,5 +1,4 @@
 import logging
-
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -788,6 +787,72 @@ class SpectraProcessor:
         return np.array(concentrations)
 
 
+    def multispectrum_concentrations_for_one_plate(self, experiment_folder, plate_folder_1,
+                                                   plate_folder_2, dilution_factors,
+                                      calibration_folder, calibrant_shortnames, calibrant_upper_bounds,
+                                     background_model_folder, do_plot=False, return_all_substances=False,
+                                     cut_from = 200, cut_to=False, ignore_abs_threshold=False, ignore_pca_bkg=False,
+                                                   return_report=False):
+        plate_name = plate_folder_1.split('/')[-1]
+        create_folder_unless_it_exists(experiment_folder + 'results')
+        create_folder_unless_it_exists(experiment_folder + f'results/uv-vis-fits')
+        # input_compositions = pd.read_csv(path_to_input_compositions_csv)
+        concentrations = []
+        reports = []
+        # for index, row in input_compositions.iterrows():
+        #     plate_id = index // 54
+        #     well_id = index % 54
+        #     print(f'{plate_id}-{well_id}')
+        if 'nanodrop' in plate_folder_1:
+            # load the nanodrop csv file and count the columns
+            nanodrop_df = self.load_nanodrop_csv_for_one_plate(plate_folder=plate_folder_1)
+            well_id = 0
+            range_of_wells = []
+            while str(well_id) in nanodrop_df.columns:
+                range_of_wells.append(well_id)
+                well_id += 1
+            # make a warning if the length of resulting array is higher than 54
+            if len(range_of_wells) > 54:
+                logging.warning(f'Warning: the number of wells is {len(range_of_wells)}, '
+                             f'which is higher than 54. Check the Nanodrop file.')
+        else:
+            range_of_wells = range(54)
+
+        for well_id in range_of_wells:
+            spectrum_1 = self.load_msp_by_id(
+                plate_folder=plate_folder_1,
+                well_id=well_id)[:, 1]
+            spectrum_2 = self.load_msp_by_id(
+                plate_folder=plate_folder_2,
+                well_id=well_id)[:, 1]
+            concentrations_here = self.multispectrum_to_concentration(target_spectrum_inputs=[spectrum_1, spectrum_2],
+                                                                      dilution_factors=dilution_factors,
+                                                                 calibration_folder=calibration_folder,
+                                                                 calibrant_shortnames=calibrant_shortnames,
+                                                                 fig_filename=experiment_folder + f'results/uv-vis-fits/{plate_name}-well{well_id:02d}.png',
+                                                                 do_plot=do_plot,
+                                                                 background_model_folder=background_model_folder,
+                                                                 upper_bounds=calibrant_upper_bounds, cut_from=cut_from,
+                                                                 cut_to=cut_to,
+                                                                 ignore_abs_threshold=ignore_abs_threshold,
+                                                                 ignore_pca_bkg=ignore_pca_bkg,
+                                                                      return_report=return_report)
+            if return_report:
+                concentrations_here, report = concentrations_here
+                reports.append(report)
+
+            if return_all_substances:
+                concentrations.append(concentrations_here)
+            else:
+                concentrations.append(concentrations_here[0])
+        # input_compositions[calibrant_shortnames[0]] = concentrations
+        # input_compositions.to_csv(
+        #     data_folder + experiment_name + f'results/timepoint{timepoint_id:03d}-reaction_results.csv', index=False)
+        if not return_report:
+            return np.array(concentrations)
+        else:
+            return np.array(concentrations), reports
+
     def concentrations_for_all_plates(self, timepoint_id, experiment_folder,
                                       calibration_folder,
                                       calibrant_shortnames,
@@ -851,12 +916,33 @@ class SpectraProcessor:
         return wavelength_indices[mask], target_spectrum[mask]
 
 
+    def mask_multispectrum(self, wavelength_indices, target_spectrum,
+                           cut_from, ignore_abs_threshold=False, cut_to=False,
+                           upper_limit_of_absorbance=0.95,
+                           artefact_generating_upper_limit_of_absorbance=1.5):
+        mask = wavelength_indices > cut_from
+        if cut_to is not None:
+            mask = np.logical_and(mask, wavelength_indices < cut_to)
+        mask = np.logical_and(mask, target_spectrum < upper_limit_of_absorbance)
+
+        # find the largest index where target_spectrum is above the artefact_generating_upper_limit_of_absorbance
+        if len(np.where(target_spectrum > artefact_generating_upper_limit_of_absorbance)[0]) == 0:
+            largest_index_above_2 = -1
+        else:
+            largest_index_above_2 = np.max(np.where(target_spectrum > artefact_generating_upper_limit_of_absorbance)[0])
+        # mask all the indices smaller than largest_index_above_1.5
+        mask2 = wavelength_indices > largest_index_above_2
+        mask = np.logical_and(mask, mask2)
+
+        return wavelength_indices[mask], target_spectrum[mask]
+
     def multispectrum_to_concentration(self, target_spectrum_inputs, calibration_folder, calibrant_shortnames,
                                   background_model_folder, dilution_factors,
-                                  lower_limit_of_absorbance=-0.2, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
+                                  upper_limit_of_absorbance=1000, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
                                   upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
                                   cut_to = False, ignore_pca_bkg=False, return_errors=False,
-                                       use_linear_calibration=True, plot_calibrant_references=True): #upper_bounds=[np.inf, np.inf]
+                                       use_linear_calibration=True, plot_calibrant_references=False,
+                                       return_report=False): #upper_bounds=[np.inf, np.inf]
         calibrants = []
         for calibrant_shortname in calibrant_shortnames:
             dict_here = dict()
@@ -891,8 +977,8 @@ class SpectraProcessor:
         target_spectra_wavelength_indices_masked = []
         target_spectra_amplitudes_masked = []
         for i, target_spectrum in enumerate(target_spectra):
-            target_spectrum_wavelengths_masked, target_spectrum_amplitudes_masked = self.mask_the_spectrum(
-                wavelength_indices, target_spectrum, cut_from, ignore_abs_threshold=ignore_abs_threshold, cut_to=cut_to)
+            target_spectrum_wavelengths_masked, target_spectrum_amplitudes_masked = self.mask_multispectrum(
+                wavelength_indices, target_spectrum, cut_from, upper_limit_of_absorbance=upper_limit_of_absorbance, cut_to=cut_to)
             target_spectra_wavelength_indices_masked.append(target_spectrum_wavelengths_masked)
             target_spectra_amplitudes_masked.append(target_spectrum_amplitudes_masked)
 
@@ -900,11 +986,6 @@ class SpectraProcessor:
                 print(f'There is no data that is within mask for spectrum #{i}. Returning zeros.')
                 return [0 for i in range(len(calibrant_shortnames))]
 
-        # Multiply the spectra by the dilution factors
-        # TODO: Instead of doing this, forward interpolator from concentration to the coefficient should be used in the fitting function func() below.
-        # target_spectra_amplitudes_masked = [target_spectrum_amplitudes_masked * dilution_factor
-        #                                     for target_spectrum_amplitudes_masked, dilution_factor in
-        #                                     zip(target_spectra_amplitudes_masked, dilution_factors)]
 
         comboX = np.concatenate(target_spectra_wavelength_indices_masked)
         comboY = np.concatenate(target_spectra_amplitudes_masked)
@@ -972,11 +1053,11 @@ class SpectraProcessor:
         concentrations_here = popt[0:number_of_calibrants]
         fitted_dilution_factors = popt[number_of_calibrants: number_of_calibrants + number_of_spectra - 1]
         fitted_offsets = popt[number_of_calibrants + number_of_spectra - 1: number_of_calibrants + number_of_spectra - 1 + number_of_spectra]
-        print('Fitted concentrations:', concentrations_here)
-        print('Fitted dilution factors:', fitted_dilution_factors)
-        print('Fitted offsets:', fitted_offsets)
-        print('Popt: ', popt)
-        print('p0: ', p0)
+        logging.debug('Fitted concentrations:', concentrations_here)
+        logging.debug('Fitted dilution factors:', fitted_dilution_factors)
+        logging.debug('Fitted offsets:', fitted_offsets)
+        logging.debug('Popt: ', popt)
+        logging.debug('p0: ', p0)
 
         if return_errors:
             # convert coefficient errors into concentration errors
@@ -987,34 +1068,45 @@ class SpectraProcessor:
 
 
         # plot the fit vs the data
+
+        # make number of subplots equal to number of spectra
+        predicted_comboY = func(comboX, *popt)
+        separate_predicted_spectra = np.split(predicted_comboY, indices_for_splitting)
+        fig1, axs = plt.subplots(len(target_spectrum_inputs), 1, figsize=(10, 10), sharex=True)
+        for spectrum_index in range(number_of_spectra):
+            axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index], target_spectra_amplitudes_masked[spectrum_index], label='data')
+            axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index], separate_predicted_spectra[spectrum_index], label='fit')
+            axs[spectrum_index].legend()
+        plt.xlabel('Wavelength, nm')
+        plt.ylabel('Absorbance')
+
+        fit_report = dict()
+        fit_report['rmse'] = np.sqrt(np.mean((predicted_comboY - comboY) ** 2))
+        # # plt.legend()
+        # plt.show()
+        #
+        # plt.figure(figsize=(5, 10))
+        # pcov_to_plot = pcov[:len(calibrant_shortnames), :len(calibrant_shortnames)]
+        # plt.imshow(pcov_to_plot, vmin=-1*max(np.abs(pcov_to_plot).flatten()), vmax=max(np.abs(pcov_to_plot).flatten()),
+        #            cmap='RdBu_r')
+        # # make tick labels from calibrant_shortnames
+        # plt.yticks(range(len(calibrant_shortnames)), calibrant_shortnames)
+        # plt.xticks(range(len(calibrant_shortnames)), calibrant_shortnames, rotation=90)
+        # plt.colorbar(orientation='vertical', fraction=0.046)
+        # plt.tight_layout()
+
+        fig1.savefig(f"{fig_filename}.png")
         if do_plot:
-            # make number of subplots equal to number of spectra
-            predicted_comboY = func(comboX, *popt)
-            separate_predicted_spectra = np.split(predicted_comboY, indices_for_splitting)
-            fig, axs = plt.subplots(len(target_spectrum_inputs), 1, figsize=(10, 10), sharex=True)
-            for spectrum_index in range(number_of_spectra):
-                axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index], target_spectra_amplitudes_masked[spectrum_index], label='data')
-                axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index], separate_predicted_spectra[spectrum_index], label='fit')
-                axs[spectrum_index].legend()
-            plt.xlabel('Wavelength, nm')
-            plt.ylabel('Absorbance')
-
-            # plt.legend()
             plt.show()
+        else:
+            plt.close(fig1)
+            plt.close('all')
+            plt.clf()
 
-            plt.figure(figsize=(5, 10))
-            pcov_to_plot = pcov[:len(calibrant_shortnames), :len(calibrant_shortnames)]
-            plt.imshow(pcov_to_plot, vmin=-1*max(np.abs(pcov_to_plot).flatten()), vmax=max(np.abs(pcov_to_plot).flatten()),
-                       cmap='RdBu_r')
-            # make tick labels from calibrant_shortnames
-            plt.yticks(range(len(calibrant_shortnames)), calibrant_shortnames)
-            plt.xticks(range(len(calibrant_shortnames)), calibrant_shortnames, rotation=90)
-            plt.colorbar(orientation='vertical', fraction=0.046)
-            plt.tight_layout()
-            plt.show()
-
-
-        return concentrations_here
+        if return_report:
+            return concentrations_here, fit_report
+        else:
+            return concentrations_here
 
 
 def plot_differential_absorbances_for_plate(craic_exp_name,

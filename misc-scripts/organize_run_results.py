@@ -774,14 +774,145 @@ def locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condit
     i = df_files_single_plate['timestamp'].searchsorted(condition_timestamp)
     if i > len(df_files_single_plate) - 1:
         # logging.error(f'No measurement file found for plate {plate_id} and condition timestamp {condition_timestamp}, which is later than the latest measurement file.')
-        raise ValueError(f'No measurement file found for plate {plate_id} and condition timestamp {condition_timestamp}, which is later than the latest measurement file.')
+        raise ValueError(f'No measurement file found for plate {plate_id} and condition timestamp {condition_timestamp}, which is later than the latest measurement file ({df_files["timestamp"].max()})')
     return df_files_single_plate.index.values[i]
 
 
+def organize_run_structure_v4_00(experiment_name):
+    """
+    This function is for nanodrop spectrometer version. It takes the run_info.csv and dilution_info.csv files and
+    creates a run_structure.csv file that contains all the information about the run.
+
+     Parameters
+     ----------
+     experiment_name: str
+         The name of the experiment, e.g. `multicomp-reactions/2023-06-26-run01/`
+     """
+    compatible_versions_of_excel_file = [1.02]
+    output_version = '4.00'
+    global data_folder
+
+    run_name = experiment_name.split('/')[1]
+    run_type = experiment_name.split('/')[0]
+
+    # if there is not 'results' folder in the run folder, create it
+    target_folder = data_folder + experiment_name + 'results'
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+
+    # open the Excel file with the volumes, use first sheet
+    path_to_excel_file = data_folder + experiment_name + f'{run_name}.xlsx'
+    assert get_excel_file_version(path_to_excel_file) in compatible_versions_of_excel_file, \
+        f"Excel file version is not compatible with this function. " \
+        f"Compatible versions are: {compatible_versions_of_excel_file}"
+    df_structure = pd.read_excel(path_to_excel_file, sheet_name=0)
+    # drop columns that contain 'Unnamed'
+    df_structure = df_structure.loc[:, ~df_structure.columns.str.contains('^Unnamed')]
+    df_structure['is_outlier'] = 0
+
+    # if there is a file 'outVandC/stock_solutions.xlsx', load it and use to determine concentrations
+
+    # load excel table with stock solution compositions
+    df_stock = pd.read_excel(path_to_excel_file, sheet_name='stock_solutions_concentration', skiprows=[0])
+    # iterate over rows in df_excel
+    for substance in df_stock.columns[1:]:
+        df_structure[f'c#{substance}'] = 0
+
+    names_of_stock_solutions_used = [stock_solution_name.replace('vol#','') for stock_solution_name
+                                     in df_structure.columns if 'vol#' in stock_solution_name]
+
+    for stock_solution_name in names_of_stock_solutions_used:
+        if stock_solution_name not in df_stock['stock_solution'].to_list():
+            raise ValueError(f"Stock solution {stock_solution_name} is used in conditions list but is not in the stock solutions table.")
+    for index, row in df_structure.iterrows():
+        total_volume = 0
+        for stock_solution_name in names_of_stock_solutions_used:
+            # if this is a column with a stock solution
+            if stock_solution_name in df_stock['stock_solution'].to_list():
+                concentrations_of_substances_in_this_stock_solution = df_stock.loc[df_stock['stock_solution'] == stock_solution_name]
+                pipetted_volume_of_this_stock_solution = row[f'vol#{stock_solution_name}']
+                for substance in df_stock.columns[1:]:
+                    concentration_of_this_substance = concentrations_of_substances_in_this_stock_solution[substance].iloc[0]
+                    df_structure.loc[index, f'c#{substance}'] += pipetted_volume_of_this_stock_solution * concentration_of_this_substance
+                total_volume += pipetted_volume_of_this_stock_solution
+        for substance in df_stock.columns[1:]:
+            df_structure.loc[index, f'c#{substance}'] = df_structure.loc[index, f'c#{substance}'] / total_volume
+
+    # # assign the nanodrop spectra to rows of the df_structure based on plate id and well id
+    nanodrop_spectra_folder = data_folder + experiment_name + 'nanodrop_spectra/'
+    df_files = find_nanodrop_files_and_compiile_a_table(nanodrop_spectra_folder)
+    dilution_related_colnames = [['plate_barcodes_for_dilution', 'timestamp_dilution'],
+                                 ['plate_barcodes_for_dilution_2', 'timestamp_dilution_2']]
+    for dilution_id in range(len(dilution_related_colnames)):
+        this_dilution_plate_colname = dilution_related_colnames[dilution_id][0]
+        this_dilution_timestamp_colname = dilution_related_colnames[dilution_id][1]
+        suffix_for_dilution_id = f'_{dilution_id+1}' if dilution_id > 0 else ''
+        for index, row in df_structure.iterrows():
+            # try:
+            file_index = locate_measurement_file_by_condition_timestamp_and_plate_id(df_files,
+                                                                                     row[this_dilution_timestamp_colname],
+                                                                                     row[this_dilution_plate_colname])
+            df_structure.loc[index, f'nanodrop_filepath{suffix_for_dilution_id}'] = df_files.loc[file_index, 'filename']
+            # except ValueError:
+            #     df_structure.loc[index, f'nanodrop_filepath{suffix_for_dilution_id}'] = np.nan
+
+    # nanodrop_spectra_folder = data_folder + experiment_name + 'nanodrop_spectra/'
+    # # Use regular expressions to get the plate id and unix timestamp for each file by parsing the filename. For example,
+    # # filename '2023-08-23_23-52-13_plate_51.csv' means for 2023-08-23 date, 23-52-13 hour-minute-second, and plate 51
+    # ## Old regexp:
+    # # regexp_pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})_plate_(?P<plate_id>\d+).csv')
+    #
+    # # Changing regexp because Yankai is very creative
+    # pattern = re.compile(r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:.*?)_plate_(?P<plate_id>\d+).csv',
+    #                      re.DOTALL)
+    # for filename in os.listdir(nanodrop_spectra_folder):
+    #     if not filename.endswith('.csv'):
+    #         continue
+    #     match = pattern.match(filename)
+    #     if not match:
+    #         logging.warning(f'Could not parse nanodrop spectrum filename {filename} for timestamp and id')
+    #         continue
+    #     plate_id = int(match.group('plate_id'))
+    #     unix_timestamp = datetime.strptime(match.group('timestamp_string'), '%Y-%m-%d_%H-%M-%S').timestamp()
+    #     logging.info(
+    #         f'Found nanodrop spectrum file {filename} with plate id {plate_id} '
+    #         f'and unix timestamp {unix_timestamp}')
+    #
+    #     # locate the conditions in the df_structure for each file using the locate_condition_by_operation... function
+    #     # and write the filepath into the df_structure column 'nanodrop_filepath"
+    #     indices = locate_condition_by_operation_datetime_and_plate_id(unix_timestamp, plate_id, df_structure,
+    #                                                                   column_name_for_plate_id='plate_barcodes_for_dilution',
+    #                                                                   column_name_for_timestamp='timestamp_dilution',
+    #                                                                   column_name_for_container_id='container_id')
+    #     if len(indices) == 0:
+    #         logging.warning(f'Could not find conditions in run structure for nanodrop spectrum file {filename}')
+    #         continue
+    #     elif len(indices) > 0:
+    #         logging.info(f'Found {len(indices)} conditions in run structure for nanodrop spectrum file {filename}')
+    #         df_structure.loc[indices, 'nanodrop_filepath'] = experiment_name + 'nanodrop_spectra/' + filename
+    #         df_structure.loc[indices, 'timestamp_nanodrop'] = unix_timestamp
+
+    # save the dataframe as csv
+    structure_csv_filepath = data_folder + experiment_name + 'results/run_structure.csv'
+    with open(structure_csv_filepath, 'w') as f:
+        f.write(f'version: {output_version}\n')
+    df_structure.to_csv(structure_csv_filepath, index=False, mode='a')
+    return df_structure
+
 if __name__ == '__main__':
 
-    df_files = find_nanodrop_files_and_compiile_a_table(target_folder=data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra')
-    print(locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp=1705636817.00000, plate_id=71))
+    # df_files = find_nanodrop_files_and_compiile_a_table(target_folder=data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra')
+    # print(locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp=1705636817.00000, plate_id=71))
+
+    # target_folder = 'BPRF/2024-01-17-run01/'
+    # organize_run_structure_v4_00(experiment_name=target_folder)
+
+    list_of_runs = tuple(['2024-01-29-run01',
+                          '2024-01-29-run02',
+                          '2024-01-30-run01'])
+    for run in list_of_runs:
+        organize_run_structure_v4_00(experiment_name=f'BPRF/{run}/')
+
 
     # df_conditions = pd.read_excel('tests/test_organize_run_results/simple-reactions/2099-99-99-run01/2099-99-99-run01.xlsx',
     #                               sheet_name='reactions_with_run_info')
