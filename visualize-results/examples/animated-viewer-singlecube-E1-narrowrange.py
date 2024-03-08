@@ -7,6 +7,12 @@ from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit, brentq
 import matplotlib.ticker as mtick
 
+def simpleaxis(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
 logging.basicConfig(level=logging.INFO)
 
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
@@ -55,36 +61,36 @@ df_results = organize_run_results.join_data_from_runs([f'simple-reactions/{x}/' 
 
 ## drop rows where 'is_outlier' columns is equal to 1
 df_results.drop(df_results[df_results['is_outlier'] == 1].index, inplace=True)
-
-# convert from mol/L to mM
-for substrate in substrates:
-    df_results[substrate] = df_results[substrate].apply(lambda x: x*1000 if x>1e-10 else 0)
-    # df_results[substrate] = df_results[substrate].round(4)
-
-xs = df_results[substrates[0]].to_numpy()
-ys = df_results[substrates[1]].to_numpy()
-zs = df_results['temperature'].to_numpy()
-yields = df_results[column_to_plot].to_numpy()
 #
-# logging.info(f'Min concentrations of substrates: {[np.min(x) for x in [xs, ys, zs]]}')
+# # convert from mol/L to mM
+# for substrate in substrates:
+#     df_results[substrate] = df_results[substrate].apply(lambda x: x*1000 if x>1e-10 else 0)
+#     # df_results[substrate] = df_results[substrate].round(4)
 #
-# [ic(np.min(x)) for x in [xs, ys, zs]]
-#
-# print(f'Max concentrations of substrates: {[np.max(x) for x in [xs, ys, zs]]}')
-# print(f'Yields - min: {min(yields)}, max: {max(yields)}')
-#
-avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
-                            substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
-                            colorbar_title=column_to_plot,
-                            npoints=50, sparse_npoints=5, rbf_epsilon=1,
-                            rbf_smooth=0.05,
-                            interpolator_choice='rbf',
-                            data_for_spheres='raw',
-                            rbf_function='multiquadric',
-                            axes_ticks_format='%.0f',
-                            axes_font_factor=1.3,
-                            contours=[0.2, 0.4, 0.7, 0.85],
-                            contour_opacity=0.4)
+# xs = df_results[substrates[0]].to_numpy()
+# ys = df_results[substrates[1]].to_numpy()
+# zs = df_results['temperature'].to_numpy()
+# yields = df_results[column_to_plot].to_numpy()
+# #
+# # logging.info(f'Min concentrations of substrates: {[np.min(x) for x in [xs, ys, zs]]}')
+# #
+# # [ic(np.min(x)) for x in [xs, ys, zs]]
+# #
+# # print(f'Max concentrations of substrates: {[np.max(x) for x in [xs, ys, zs]]}')
+# # print(f'Yields - min: {min(yields)}, max: {max(yields)}')
+# #
+# avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
+#                             substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
+#                             colorbar_title=column_to_plot,
+#                             npoints=50, sparse_npoints=5, rbf_epsilon=1,
+#                             rbf_smooth=0.05,
+#                             interpolator_choice='rbf',
+#                             data_for_spheres='raw',
+#                             rbf_function='multiquadric',
+#                             axes_ticks_format='%.0f',
+#                             axes_font_factor=1.3,
+#                             contours=[0.2, 0.4, 0.7, 0.85],
+#                             contour_opacity=0.4)
 
 
 def model_of_yield_for_one_condition(index_in_df, K_1, k_forward, k_backward):
@@ -179,7 +185,7 @@ def fit_kinetic_model(indices_here, do_plot=False):
     # plt.scatter(xs_to_plot, measured_yields, color='yellow', marker='o')
     f, keq_fit = produce_fit(indices_here, measured_yields)
     if do_plot:
-        plt.scatter(xs_to_plot, measured_yields, color=colors_to_plot, alpha=0.5)
+        plt.scatter(xs_to_plot, measured_yields, color=colors_to_plot, alpha=0.5, s=10)
         for c_alc in unique_alcohol_concentrations:
             color_here = colors[np.where(unique_alcohol_concentrations == c_alc)[0][0]]
             # find df_indices among indices_here where alcolhol concentration is c_alc
@@ -191,8 +197,11 @@ def fit_kinetic_model(indices_here, do_plot=False):
             xs_here, ys_here = zip(*sorted(zip(xs_here, ys_here)))
             plt.plot(xs_here, ys_here, color=color_here, label=f'{c_alc:.3f} M')
         # plt.scatter(xs_to_plot, ys_to_plot, color=colors_to_plot, marker='x')
-        plt.ylabel('Yield')
-        plt.xlabel('Initial concentration of HBr')
+        simpleaxis(plt.gca())
+        plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+        plt.ylabel('Yield with respect to alcohol')
+        plt.xlabel('Starting concentration of HBr, M')
+        plt.tight_layout()
         plt.legend(title="Starting alcohol\nconcentration")
 
     return keq_fit
@@ -202,6 +211,7 @@ keq_fits = []
 temperatures = df_results['temperature'].unique()
 temperatures = np.sort(temperatures)
 for temperature in temperatures:
+    fig1 = plt.figure(figsize=(4, 3.9), dpi=300)
     print(f'Fitting model at temperature = {temperature}')
     mask = (df_results['temperature'] == temperature)
     indices_where_mask_is_true = df_results[mask].index.to_numpy()
@@ -209,12 +219,14 @@ for temperature in temperatures:
     keq_fits.append(keq_fit)
     if do_plot:
         plt.title(f'Temperature {temperature} °C')
+        simpleaxis(plt.gca())
         plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-        plt.ylabel('Yield w.r.t. alcohol')
+        plt.ylabel('Yield with respect to alcohol')
         plt.xlabel('Starting concentration of HBr, M')
+        plt.tight_layout()
         plt.gcf().savefig(f'{data_folder}simple-reactions/2023-11-28-run01/results/kinetics/figures/temperature_{temperature}C.png', dpi=300)
         plt.xlim(-0.001, 0.011)
         plt.show()
 
 # save keq_fits as numpy array
-np.save(f'{data_folder}simple-reactions/2023-09-14-run01/results/kinetics/keq_fits.npy', np.array(keq_fits))
+# np.save(f'{data_folder}simple-reactions/2023-09-14-run01/results/kinetics/keq_fits.npy', np.array(keq_fits))

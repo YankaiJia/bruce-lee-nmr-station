@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from visualize_results import *
 from scipy.interpolate import Rbf, LinearNDInterpolator
 
+# import 3d matplotlib
+from mpl_toolkits.mplot3d import Axes3D
+
 # df_results = join_data_from_runs(['multicomp-reactions/2023-03-20-run01/',
 #                                   'multicomp-reactions/2023-03-29-run01/',
 #                                   'multicomp-reactions/2023-03-31-run01/',
@@ -10,6 +13,23 @@ from scipy.interpolate import Rbf, LinearNDInterpolator
 run_name = 'multicomp-reactions/2023-06-19-run01/'
 
 df_results = pd.read_csv(data_folder + run_name + f'results/product_concentration_after_substituting_outliers.csv')
+
+# group dataframe by unique values of 'ptsa' column and count the number of rows in each group
+ptsa_unique = df_results['ptsa'].unique()
+ptsa_interesting = ptsa_unique[0]
+df_interesting = df_results[df_results['ptsa'] == ptsa_interesting]
+xs = df_interesting['ic001'].to_numpy()
+ys = df_interesting['am001'].to_numpy()
+zs = df_interesting['ald001'].to_numpy()
+
+# make 3d plot with the xs, ys, zs
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(xs, ys, zs, c='r', marker='o')
+ax.set_xlabel('Isocyanide')
+ax.set_ylabel('Amine')
+ax.set_zlabel('Aldehyde')
+plt.show()
 
 do_plot = False
 plot_interpolants = True

@@ -10,11 +10,6 @@ from scipy.interpolate import LinearNDInterpolator
 from scipy.interpolate import interp1d
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 
-from mayavi.core.ui.api import MayaviScene, SceneEditor, \
-                MlabSceneModel
-from traits.api import HasTraits, Range, Instance, \
-        on_trait_change
-
 # contourvalues = [0.5, 0.7, 0.9]
 
 def Arrow_From_A_to_B(x1, y1, z1, x2, y2, z2):
@@ -50,14 +45,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                             npoints=30, sparse_npoints=4, rbf_epsilon=0.01, rbf_smooth=0.001,
                             interpolator_choice='rbf', data_for_spheres='raw', colormap='blue-red', contours=5,
                             colorbar_title="Yield", rbf_function="multiquadric", axes_ticks_format='%.2f', axes_font_factor=0.83,
-                            contour_opacity=1, single_size_of_points=False,
-                            forced_kmax=None, dont_mlabshow=False, reorient_callable=None, savefig=None,
-                            transparent=False):
-    # get mayavi engine
-    # mlab_engine = mlab.get_engine()
-    # scene.scene.camera.focal_point = [0.5206201337277889, 0.4916610289365053, 0.5019663814455271]
-
-
+                            contour_opacity=1, single_size_of_points=False):
     xs0 = (x_raw - np.min(x_raw)) / (np.max(x_raw) - np.min(x_raw))
     ys0 = (y_raw - np.min(y_raw)) / (np.max(y_raw) - np.min(y_raw))
     zs0 = (z_raw - np.min(z_raw)) / (np.max(z_raw) - np.min(z_raw))
@@ -67,8 +55,11 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     max_zs0 = np.max(zs0)
     max_ks0 = np.max(ks0)
 
-    if forced_kmax is not None:
-        max_ks0 = forced_kmax
+    min_xs0 = np.min(xs0)
+    min_ys0 = np.min(ys0)
+    min_zs0 = np.min(zs0)
+    min_ks0 = np.min(ks0)
+
 
     npoints = npoints * 1j
     xnew, ynew, znew = np.mgrid[np.min(xs0):np.max(xs0):npoints,
@@ -105,8 +96,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     plot = mlab.contour3d(xnew, ynew, znew, wnew, extent=[np.min(xs0), max_xs0,
                                                           np.min(ys0), max_ys0,
                                                           np.min(zs0), max_zs0],
-                          contours=contours, opacity=contour_opacity, vmin=0, vmax=max_ks0, colormap=colormap,
-                          transparent=transparent)
+                          contours=contours, opacity=contour_opacity, vmin=0, vmax=max_ks0, colormap=colormap)
     plot.actor.actor.property.ambient = 0.0
     # for i in range(3):
     #     start = np.array([np.min(xs0), np.min(ys0), np.min(zs0)])
@@ -115,9 +105,11 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     #     arr = Arrow_From_A_to_B(start[0], start[1], start[2], end[0], end[1], end[2])
     # arr_temp = Arrow_From_A_to_B(np.max(xs0), np.min(ys0), np.min(zs0),
     #                                   np.max(xs0), np.min(ys0), np.max(zs0))
-    ax1 = mlab.axes(color=(0.5, 0.5, 0.5), nb_labels=sparse_npoints, ranges=[np.min(x_raw), np.max(x_raw),
+    ax1 = mlab.axes(color=(1, 1, 1), nb_labels=sparse_npoints, ranges=[np.min(x_raw), np.max(x_raw),
                                                                 np.min(y_raw), np.max(y_raw),
-                                                                np.min(z_raw), np.max(z_raw)])
+                                                                np.min(z_raw), np.max(z_raw)],
+                    opacity=0.001)
+
     mlab.xlabel(f'{substance_titles[0]}')
     mlab.ylabel(f'{substance_titles[1]}')
     mlab.zlabel(f'{substance_titles[2]}')
@@ -125,47 +117,54 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     cb = mlab.colorbar(object=plot, title=colorbar_title, orientation='horizontal', nb_labels=5)
     cb.scalar_bar.unconstrained_font_size = True
     cb.label_text_property.font_size = 19
-    ax1.axes.font_factor = axes_font_factor
+    ax1.axes.font_factor = 0.1
     ax1.axes.label_format= axes_ticks_format
     ax1.axes.corner_offset = 0.05
-    if forced_kmax is not None:
-        ks_scaled = (ks - np.min(ks)) / (np.max(ks) - np.min(ks))
-        plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max((forced_kmax - np.min(ks)) / (np.max(ks) - np.min(ks))),
-                                    resolution=16, scale_factor=0.1, colormap=colormap)
-    else:
-        ks_scaled = (ks - np.min(ks)) / (np.max(ks) - np.min(ks))
-        plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max((ks0 - np.min(ks)) / (np.max(ks) - np.min(ks))),
-                                    resolution=16, scale_factor=0.1, colormap=colormap)
+    ks_scaled = (ks - np.min(ks)) / (np.max(ks) - np.min(ks))
+    plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max((ks0 - np.min(ks)) / (np.max(ks) - np.min(ks))),
+                                resolution=16, scale_factor=0.1, colormap=colormap)
+    if single_size_of_points:
+        plot_points.glyph.scale_mode = 'scale_by_vector'
     # plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max(ks_scaled),
     #                             resolution=16, scale_factor=0.1, colormap=colormap)
 
-    # get current mayavi scene
-    if reorient_callable is not None:
-        scene = mlab.get_engine().scenes[0]
-        reorient_callable(scene)
+    tr = 0.005
+    unique_xs0 = np.unique(xs0)
+    for unique_x in unique_xs0:
+        mlab.plot3d([unique_x, unique_x], [min_ys0, max_ys0], [min_zs0, min_zs0], tube_radius=tr)
+        mlab.plot3d([unique_x, unique_x], [min_ys0, min_ys0], [min_zs0, max_zs0], tube_radius=tr)
 
-    if savefig is not None:
-        mlab.savefig(savefig)
+    unique_ys0 = np.unique(ys0)
+    for unique_y in unique_ys0:
+        mlab.plot3d([min_xs0, max_xs0], [unique_y, unique_y], [min_zs0, min_zs0], tube_radius=tr)
+        mlab.plot3d([min_xs0, min_xs0], [unique_y, unique_y], [min_zs0, max_zs0], tube_radius=tr)
 
-    if not dont_mlabshow:
-        mlab.show()
+    unique_zs0 = np.unique(zs0)
+    for unique_z in unique_zs0:
+        mlab.plot3d([min_xs0, max_xs0], [min_ys0, min_ys0], [unique_z, unique_z], tube_radius=tr)
+        mlab.plot3d([min_xs0, min_xs0], [min_ys0, max_ys0], [unique_z, unique_z], tube_radius=tr)
+    mlab.show()
 
 
 if __name__ == '__main__':
     # Initial generation of the data
-    npoints = 7j
+    npoints = 4j
     x_raw, y_raw, z_raw = np.mgrid[1:5:npoints,
-                          10:50:npoints,
-                          100:500:npoints]
+                          2:10:npoints,
+                          3:30:npoints]
     # flatten all arrays
     x_raw = x_raw.flatten()
     y_raw = y_raw.flatten()
     z_raw = z_raw.flatten()
     # k_raw = x_raw * y_raw * z_raw
     k_raw = x_raw + y_raw + z_raw
+    k_raw -= np.min(k_raw)
+    k_raw /= np.max(k_raw)
 
     plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw,
-                            substance_titles=('Alcohol', 'HBr', 'Temperature'),
+                            substance_titles=('', '', ''),
                             colorbar_title='Yield',
                             npoints=30, sparse_npoints=4, rbf_epsilon=0.04,
-                            rbf_smooth=0.001)
+                            rbf_smooth=0.001,
+                            contour_opacity=0,
+                            single_size_of_points=True)

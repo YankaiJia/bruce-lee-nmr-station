@@ -9,11 +9,13 @@ import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 from sklearn.decomposition import PCA as pca
 import os
-from process_wellplate_spectra import SpectraProcessor
+# from process_wellplate_spectra import SpectraProcessor
+import importlib
+process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 craic_folder = data_folder + 'craic_microspectrometer_measurements/absorbance/'
-sp = SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
+sp = process_wellplate_spectra.SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                      '2022-12-01/interpolator-dataset/')
 
 # load background

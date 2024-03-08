@@ -277,27 +277,35 @@ if __name__ == '__main__':
 
     xs0, ys0, zs0, cats = substrate_cs
 
+    print(f'len of df_results: {len(df_results)}')
     for substance in substances:
         print(f'{substance} min: {np.min(df_results[substance].to_numpy())}')
         print(f'{substance} max: {np.max(df_results[substance].to_numpy())}')
-        print(f'{substance} unique: {sorted(df_results[substance].unique())}')
+        print(f'{substance} unique len {len(df_results[substance].unique())}: {sorted(df_results[substance].unique())}')
 
     minimal_concentration_of_substrates = np.min(np.array([xs0, ys0, zs0]))
 
     unique_cats = sorted(list(set(list(cats))))
     print(f'Unique cats: {unique_cats}')
 
-    fig = plt.figure(figsize=(3, 2.6))
-    plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=True,
-                                         plot_savgol=False, spline_color='C3', spline_alpha=0.6, spline_linewidth=3)
-    plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=True,
-                                         plot_savgol=False, spline_color='C1', spline_alpha=0.6, spline_linewidth=3,
+
+    fig = plt.figure(figsize=(3.6, 3.2))
+    plot_one_point_across_catalyst_range(df_results, (-1, 0, -1), label='Corner A', plot_points=True, color='black',
+                                         plot_savgol=False, spline_color='black', spline_alpha=0.6, spline_linewidth=3)
+    plot_one_point_across_catalyst_range(df_results, (-1, -1, 0), label='Corner B', plot_points=True, color='C4',
+                                         plot_savgol=False, spline_color='C4', spline_alpha=0.6, spline_linewidth=3,
                                          factor=1)
     # for x in unique_cats:
     #     plt.axvline(x=x, color='grey', alpha=0.5)
+    plt.xlim(0, 0.3)
+    plt.ylabel('Yield, %')
+    plt.xlabel('Acid concentration, M')
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig('misc-scripts/figures/ugi-corners.png', dpi=300)
     plt.show()
 
 
-    for ald in range(6):
-        plot_one_point_across_catalyst_range(df_results, (-1, 0, ald), label=f'ald{ald}')
-        plt.show()
+    # for ald in range(6):
+    #     plot_one_point_across_catalyst_range(df_results, (-1, 0, ald), label=f'ald{ald}')
+    #     plt.show()
