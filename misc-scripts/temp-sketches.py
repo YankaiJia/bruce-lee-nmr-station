@@ -61,27 +61,55 @@ from icecream import ic
 #     attr = 'yep'
 # ic(klass.attr)
 
-
-def func(*args):
-    x = args[0]
-    params = args[1:]
-    result = 0
-    for i, param in enumerate(params):
-        result += param * x**i
-    return result
-
-# example of curve_fit
-from scipy.optimize import curve_fit
-xdata = np.linspace(0, 4, 50)
-y = func(xdata, 2.5, 1.3, 0.5, -0.2)
-ydata = y + 0.2 * np.random.normal(size=len(xdata))
-popt, pcov = curve_fit(func, xdata, ydata, p0=[0, 0, 0, 3])
-print(popt)
-print(pcov)
-# plot fitted curve
+#
+# def func(*args):
+#     x = args[0]
+#     params = args[1:]
+#     result = 0
+#     for i, param in enumerate(params):
+#         result += param * x**i
+#     return result
+#
+# # example of curve_fit
+# from scipy.optimize import curve_fit
+# xdata = np.linspace(0, 4, 50)
+# y = func(xdata, 2.5, 1.3, 0.5, -0.2)
+# ydata = y + 0.2 * np.random.normal(size=len(xdata))
+# popt, pcov = curve_fit(func, xdata, ydata, p0=[0, 0, 0, 3])
+# print(popt)
+# print(pcov)
+# # plot fitted curve
+# import matplotlib.pyplot as plt
+# plt.plot(xdata, ydata, 'b-', label='data')
+# plt.plot(xdata, func(xdata, *popt), 'r-', label='fit')
+# plt.legend()
+# plt.show()
+#
+import numpy as np
 import matplotlib.pyplot as plt
-plt.plot(xdata, ydata, 'b-', label='data')
-plt.plot(xdata, func(xdata, *popt), 'r-', label='fit')
-plt.legend()
-plt.show()
 
+c=3.e2
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+ax2 = ax1.twiny()
+
+xvals = np.arange(199.9, 999.9, 0.1)
+data = np.sin(0.03*xvals)
+ax1.plot(xvals, data)
+
+ax1Ticks = ax1.get_xticks()
+ax2Ticks = ax1Ticks
+
+def tick_function(X):
+    V = c/X
+    return ["%.3f" % z for z in V]
+
+ax2.set_xticks(ax2Ticks)
+ax2.set_xbound(ax1.get_xbound())
+ax2.set_xticklabels(tick_function(ax2Ticks))
+
+ax1.set_xlabel("Frequency (GHz)")
+ax2.set_xlabel('Wavelength (mm)')
+ax1.grid(True)
+plt.ylim(ymin=-1.1,ymax=1.1)
+plt.show()

@@ -55,19 +55,33 @@ def process_run_by_shortname(run_shortname):
                                                               do_plot=False, return_all_substances=True, cut_from=79)
         concentrations_here = concentrations_here * dilution_factor
 
-        # TODO: Estimate carbocation concentrations here.
-        ## Carbocation concentrations are estimated from the absorbance at 363 nm
-        # concentrations_here = sp.get_absorbance_at_single_wavelength_for_one_plate(
-        #     plate_folder=craic_folder + row['folder'] + '/',
-        #     wavelength_id=363,
-        #     ref_wavelength_id=[756])
-
         for vial_id, product_concentrations in enumerate(concentrations_here):
             # index of this vial in the concentrations_df dataframe
             index_of_this_vial = df_structure.index[(df_structure['vial_id'] == vial_id)
                                                     & (df_structure['craic_folder'] == row['folder'])][0]
             df_structure.loc[index_of_this_vial, f'pc#{product_name}'] = product_concentrations[0]
             df_structure.loc[index_of_this_vial, f'pc#{byproduct_name}'] = product_concentrations[1]
+
+
+    ##################### CARBOCATION ABUNDANCE CALCULATION #####################
+    exp_names_craic = tuple(set(df_structure['craic_folder_undil'].to_list()))
+    print(f'{len(exp_names_craic)} craic folders in this run.')
+
+    df = pd.read_csv(craic_folder + 'database_about_these_folders.csv')
+    df = df.loc[df['folder'].isin(exp_names_craic)].copy().reset_index()
+
+    for index, row in df.iterrows():
+        print('Processing CRAIC folder ', row['folder'])
+        concentrations_here = sp.get_absorbance_at_single_wavelength_for_one_plate(
+            plate_folder=craic_folder + row['folder'] + '/',
+            wavelength_id=363,
+            ref_wavelength_id=[756])
+
+        for vial_id, product_concentrations in enumerate(concentrations_here):
+            # index of this vial in the concentrations_df dataframe
+            index_of_this_vial = df_structure.index[(df_structure['vial_id'] == vial_id)
+                                                    & (df_structure['craic_folder_undil'] == row['folder'])][0]
+            df_structure.loc[index_of_this_vial, f'pc#carbocat'] = product_concentrations
 
     concentrations_df = df_structure[df_structure[f'pc#{product_name}'].notna()]
 
