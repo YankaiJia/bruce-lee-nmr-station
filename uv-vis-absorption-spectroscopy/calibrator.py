@@ -5,6 +5,7 @@ import pandas as pd
 import importlib
 from scipy import interpolate
 from scipy.optimize import curve_fit
+from scipy.signal import savgol_filter
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
@@ -18,9 +19,18 @@ def construct_calibrant(
                         calibrant_shortnames,
                         ref_concentrations,
                         max_concentrations,
+                        min_concentrations=None,
                         custom_bkg_spectrum_npy_file=None,
                         no_right_edge_subtraction=False,
-                        ):
+                        upper_limit_of_absorbance=1000,
+                        do_reference_stitching=False,
+                        artefact_generating_upper_limit_of_absorbance=1.5,
+                        cut_to=None,
+                        bkg_multiplier=1,
+                        do_smoothing_at_low_absorbance=0.005,
+                        savgol_window=31):
+    if min_concentrations is None:
+        min_concentrations = np.zeros(len(calibrant_shortnames))
 
     plate_folder = f'{data_folder}{experiment_name}{calibration_source_filename}.csv'
     all_calibrants_df = pd.read_csv(f'{data_folder}{experiment_name}{calibration_source_filename}.txt')
@@ -50,6 +60,7 @@ def construct_calibrant(
         col_name_with_background = all_calibrants_df.loc[all_calibrants_df[concentration_column_name] == 0].iloc[0]['nanodrop_col_name']
         absorbances = nanodrop_df[col_name_with_background].to_numpy()
         bkg_spectrum = np.array([wavelengths, absorbances]).T
+    bkg_spectrum[:, 1] *= bkg_multiplier
 
     if do_plot:
         # plot bkg_spectrum
@@ -87,14 +98,94 @@ def construct_calibrant(
         wavelength_indices = np.arange(ref_spectrum.shape[0])
         reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum, fill_value='extrapolate')
 
-        concentrations = sorted([0] + one_calibrant_df[concentration_column_name].to_list())
+        concentrations = one_calibrant_df[concentration_column_name].to_list()
         concentrations = [x for x in concentrations if min_concentration <= x <= max_concentration]
+        concentrations = sorted([0] + concentrations)
 
         process_wellplate_spectra.create_folder_unless_it_exists(calibration_folder + f'references/{calibrant_shortname}/concentration_fits')
+
+        if do_reference_stitching:
+            linefit_parameters = []
+            for concentration in concentrations:
+                if concentration < ref_concentration:
+                    continue
+
+                df_row_here = one_calibrant_df.loc[one_calibrant_df[concentration_column_name] == concentration].iloc[0]
+                target_spectrum = load_spectrum_by_df_row(df_row_here)[:, 1]
+                mask = wavelength_indices > cut_from
+                if cut_to is not None:
+                    mask = np.logical_and(mask, wavelength_indices < cut_to)
+                mask = np.logical_and(mask, target_spectrum < upper_limit_of_absorbance)
+
+                # find the largest index where target_spectrum is above the value 1.5
+                if len(np.where(target_spectrum > artefact_generating_upper_limit_of_absorbance)[0]) == 0:
+                    largest_index_above_2 = -1
+                else:
+                    largest_index_above_2 = np.max(np.where(target_spectrum > artefact_generating_upper_limit_of_absorbance)[0])
+                # mask all the indices smaller than largest_index_above_1.5
+                mask2 = wavelength_indices > largest_index_above_2
+                mask = np.logical_and(mask, mask2)
+
+                def func(xs, a, b):
+                    return a * reference_interpolator(xs) + b
+
+                p0 = (concentration / ref_concentration, 0)
+                bounds = ([-1e-10, -np.inf], [np.inf, np.inf])
+                popt, pcov = curve_fit(func, wavelength_indices[mask], target_spectrum[mask],
+                                       p0=p0, bounds=bounds)
+                # sigma=noise_std*np.ones_like(target_spectrum),
+                # absolute_sigma=True)
+                perr = np.sqrt(np.diag(pcov))
+                slope = popt[0]
+                slope_error = perr[0]
+                linefit_parameters.append([popt[0], popt[1]])
+
+                fig1 = plt.figure(1)
+                plt.plot(target_spectrum, label='data', color='C0', alpha=0.5)
+                mask_illustration = np.ones_like(target_spectrum) * np.max(target_spectrum)
+                mask_illustration[mask] = 0
+                plt.fill_between(x=wavelength_indices, y1=0, y2=mask_illustration, color='yellow', alpha=0.3,
+                                 label='ignored (masked) data')
+                plt.plot(func(wavelength_indices, *popt), color='r', label='fit', alpha=0.5)
+                plt.plot(func(wavelength_indices, popt[0], 0), color='C1', label='reference', alpha=0.5)
+                plt.ylim(-0.03,
+                         np.max((func(wavelength_indices, *popt)[mask])) * 2)
+                plt.title(
+                    f"conc {df_row_here[concentration_column_name]}, well {df_row_here['nanodrop_col_name']}")
+                plt.legend()
+                if do_plot:
+                    plt.show()
+                else:
+                    plt.clf()
+
+                ref_spectrum[mask] = (target_spectrum[mask] - popt[1])/popt[0]
+                ref_spectrum = ref_spectrum - np.min(ref_spectrum)
+                reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum,
+                                                              fill_value='extrapolate')
+                # plot new ref spectrum in semilog scale
+                plt.semilogy(wavelengths, ref_spectrum)
+                plt.title(f'Ref spectrum, concentration: {concentration}')
+                plt.show()
+
+        if do_smoothing_at_low_absorbance is not None:
+            savgol_smoothed_signal = savgol_filter(ref_spectrum, window_length=savgol_window, polyorder=4)
+            # make exponential weight between the smoothed data and the original
+            exponential_decay_constant = do_smoothing_at_low_absorbance * np.max(ref_spectrum)
+            exponential_weight = np.exp(-1*ref_spectrum/exponential_decay_constant)
+            plt.semilogy(wavelengths, ref_spectrum, label='original spectrum')
+            plt.semilogy(wavelengths, savgol_smoothed_signal, label='smoothed spectrum')
+            ref_spectrum = savgol_smoothed_signal * exponential_weight + ref_spectrum * (1-exponential_weight)
+            ref_spectrum = ref_spectrum - np.min(ref_spectrum)
+            # plot new ref spectrum in semilog scale
+            plt.semilogy(wavelengths, ref_spectrum, label='hybrid spectrum')
+            plt.title(f'Ref spectrum, savgol_smoothed: {concentration}')
+            plt.legend()
+            plt.show()
 
         coeffs = []
         coeff_errs = []
         spectra = []
+
         for concentration in concentrations:
             if concentration == 0:
                 coeffs.append(0)
@@ -105,7 +196,18 @@ def construct_calibrant(
             target_spectrum = load_spectrum_by_df_row(df_row_here)[:, 1]
             spectra.append(np.copy(target_spectrum))
             mask = wavelength_indices > cut_from
-            # mask = np.logical_and(mask, target_spectrum > np.min(target_spectrum) + lower_limit_of_absorbance)
+            if cut_to is not None:
+                mask = np.logical_and(mask, wavelength_indices < cut_to)
+            mask = np.logical_and(mask, target_spectrum < upper_limit_of_absorbance)
+
+            # find the largest index where target_spectrum is above the value 1.5
+            if len(np.where(target_spectrum > artefact_generating_upper_limit_of_absorbance)[0]) == 0:
+                largest_index_above_2 = -1
+            else:
+                largest_index_above_2 = np.max(np.where(target_spectrum > artefact_generating_upper_limit_of_absorbance)[0])
+            # mask all the indices smaller than largest_index_above_1.5
+            mask2 = wavelength_indices > largest_index_above_2
+            mask = np.logical_and(mask, mask2)
 
             def func(xs, a, b):
                 return a * reference_interpolator(xs) + b
@@ -170,4 +272,6 @@ def construct_calibrant(
 
     for i, calibrant_shortname in enumerate(calibrant_shortnames):
         reference_for_one_calibrant(calibrant_shortname, ref_concentration=ref_concentrations[i],
-                                    max_concentration=max_concentrations[i], do_plot=do_plot)
+                                    min_concentration=min_concentrations[i],
+                                    max_concentration=max_concentrations[i],
+                                    do_plot=do_plot)

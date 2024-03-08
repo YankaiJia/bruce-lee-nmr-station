@@ -8,12 +8,14 @@ organize_run_results = importlib.import_module("misc-scripts.organize_run_result
 avs = importlib.import_module("visualize-results.animated_viewer_static")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-list_of_runs = tuple([
-    '2023-11-08-run01',
-    '2023-11-13-run01',
-    '2023-11-14-run01',
-    '2023-11-21-run01'])
-column_to_plot = 'yield'
+list_of_runs = tuple(['2024-01-29-run01',
+                      '2024-01-29-run02',
+                      '2024-01-30-run01'
+                      ])
+
+# column_to_plot = 'yield#HRP01'
+# column_to_plot = 'yield#dm37'
+column_to_plot = 'yield#bb017'
 
 substances = ['c#ethyl_acetoacetate',  'c#methoxybenzaldehyde', 'c#ammonium_acetate']
 substance_titles = ['Acetoacetate', 'Methoxy', 'Ammonium acetate']
@@ -25,7 +27,11 @@ df_results = organize_run_results.join_data_from_runs([f'BPRF/{x}/' for x in lis
 df_results.dropna(subset=[column_to_plot], inplace=True)
 df_results = df_results[~df_results[column_to_plot].isin([np.inf, -np.inf])]
 # if yield is above 1, replace with 1
-df_results[column_to_plot] = df_results[column_to_plot].apply(lambda x: 1 if x>1 else x)
+# df_results[column_to_plot] = df_results[column_to_plot].apply(lambda x: 1 if x>1 else x)
+# negative yields are omitted
+df_results = df_results[df_results[column_to_plot] >= 0]
+df_results = df_results[df_results[column_to_plot] <= 1]
+# df_results = df_results[df_results[column_to_plot] <= 0.35]
 
 # convert from mol/L to mM
 for substrate in substances:

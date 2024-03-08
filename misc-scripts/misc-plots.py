@@ -2,6 +2,7 @@ import importlib
 import os
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
