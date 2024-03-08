@@ -6,21 +6,21 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 experiment_name = f'BPRF/2024-01-17-run01/'
 cut_from = 5
 
-calibrator.construct_calibrant(
-    cut_from=cut_from,
-    lower_limit_of_absorbance=0.007,
-    concentration_column_name='concentration',
-    do_plot=True,
-    calibration_source_filename='calibrations/2024-01-21_14-53-09_UV-Vis_main_product',
-    calibrant_shortnames=['HRP01'],
-    ref_concentrations=[0.0003],
-    max_concentrations=[1],
-    min_concentrations=[0.00004],
-    experiment_name=experiment_name,
-    upper_limit_of_absorbance=0.6,
-    do_reference_stitching=True,
-    bkg_multiplier=0
-)
+# calibrator.construct_calibrant(
+#     cut_from=cut_from,
+#     lower_limit_of_absorbance=0.007,
+#     concentration_column_name='concentration',
+#     do_plot=True,
+#     calibration_source_filename='calibrations/2024-01-21_14-53-09_UV-Vis_main_product',
+#     calibrant_shortnames=['HRP01'],
+#     ref_concentrations=[0.0003],
+#     max_concentrations=[0.015],
+#     min_concentrations=[0.00004],
+#     experiment_name=experiment_name,
+#     upper_limit_of_absorbance=0.7557,
+#     do_reference_stitching=True,
+#     bkg_multiplier=0
+# )
 
 # calibrator.construct_calibrant(
 #     cut_from=cut_from,
@@ -163,17 +163,36 @@ calibrator.construct_calibrant(
 #     lower_limit_of_absorbance=0.007,
 #     concentration_column_name='concentration',
 #     do_plot=True,
-#     calibration_source_filename='calibrations/2023-12-26_15-14-38_UV-Vis_ethylaminobutenoate',
-#     calibrant_shortnames=['EAB'],
-#     ref_concentrations=[0.5],
-#     max_concentrations=[0.85],
-#     min_concentrations=[0],
+#     calibration_source_filename='calibrations/2024-02-02_14-06-53_UV-Vis_dm070',
+#     calibrant_shortnames=['dm70'],
+#     ref_concentrations=[0.00128],
+#     max_concentrations=[1],
+#     min_concentrations=[0.00017],
 #     experiment_name=experiment_name,
 #     upper_limit_of_absorbance=0.95,
 #     do_reference_stitching=True,
 #     cut_to=None
 #     # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
 # )
+
+calibrator.construct_calibrant(
+    cut_from=cut_from,
+    lower_limit_of_absorbance=0.007,
+    concentration_column_name='concentration',
+    do_plot=True,
+    calibration_source_filename='calibrations/2023-12-26_15-14-38_UV-Vis_ethylaminobutenoate',
+    calibrant_shortnames=['EAB'],
+    ref_concentrations=[0.0005],
+    max_concentrations=[0.00085],#[0.00085],
+    min_concentrations=[0],
+    experiment_name=experiment_name,
+    upper_limit_of_absorbance=0.95,
+    do_reference_stitching=True,
+    cut_to=None,
+    bkg_multiplier=1,
+    do_smoothing_at_low_absorbance=0.03
+    # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
+)
 
 # calibrator.construct_calibrant(
 #     cut_from=cut_from,
@@ -188,7 +207,9 @@ calibrator.construct_calibrant(
 #     experiment_name=experiment_name,
 #     upper_limit_of_absorbance=0.95,
 #     do_reference_stitching=True,
-#     cut_to=None
+#     cut_to=None,
+#     do_smoothing_at_low_absorbance=0.03,
+#     bkg_multiplier=1
 #     # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
 # )
 

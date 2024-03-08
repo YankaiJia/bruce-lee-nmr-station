@@ -5,6 +5,7 @@ import pandas as pd
 import importlib
 from scipy import interpolate
 from scipy.optimize import curve_fit
+from scipy.signal import savgol_filter
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
@@ -25,8 +26,9 @@ def construct_calibrant(
                         do_reference_stitching=False,
                         artefact_generating_upper_limit_of_absorbance=1.5,
                         cut_to=None,
-                        bkg_multiplier=1
-                        ):
+                        bkg_multiplier=1,
+                        do_smoothing_at_low_absorbance=0.005,
+                        savgol_window=31):
     if min_concentrations is None:
         min_concentrations = np.zeros(len(calibrant_shortnames))
 
@@ -165,6 +167,20 @@ def construct_calibrant(
                 plt.title(f'Ref spectrum, concentration: {concentration}')
                 plt.show()
 
+        if do_smoothing_at_low_absorbance is not None:
+            savgol_smoothed_signal = savgol_filter(ref_spectrum, window_length=savgol_window, polyorder=4)
+            # make exponential weight between the smoothed data and the original
+            exponential_decay_constant = do_smoothing_at_low_absorbance * np.max(ref_spectrum)
+            exponential_weight = np.exp(-1*ref_spectrum/exponential_decay_constant)
+            plt.semilogy(wavelengths, ref_spectrum, label='original spectrum')
+            plt.semilogy(wavelengths, savgol_smoothed_signal, label='smoothed spectrum')
+            ref_spectrum = savgol_smoothed_signal * exponential_weight + ref_spectrum * (1-exponential_weight)
+            ref_spectrum = ref_spectrum - np.min(ref_spectrum)
+            # plot new ref spectrum in semilog scale
+            plt.semilogy(wavelengths, ref_spectrum, label='hybrid spectrum')
+            plt.title(f'Ref spectrum, savgol_smoothed: {concentration}')
+            plt.legend()
+            plt.show()
 
         coeffs = []
         coeff_errs = []
