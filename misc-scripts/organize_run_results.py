@@ -87,16 +87,21 @@ def join_data_from_runs(run_names, round_on_columns=('ic001', 'am001', 'ald001',
         The dataframe with the joined data. The sequence of the rows is the same as the sequence of the runs.
     """
     df_result = pd.read_csv(data_folder + run_names[0] + f'results/product_concentration.csv')
+    df_result['run_name'] = run_names[0]
+    logging.info(f'Load the run, number of rows: {df_result.shape[0]}')
     if 'Unnamed: 0' in df_result.columns:
         df_result.drop('Unnamed: 0', inplace=True, axis=1)
     for run_name in run_names[1:]:
         df_temporary = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
+        logging.info(f'Loaded the run, number of rows: {df_temporary.shape[0]}')
+        df_temporary['run_name'] = run_name
         if 'Unnamed: 0' in df_temporary.columns:
             df_temporary.drop('Unnamed: 0', inplace=True, axis=1)
         if round_on_columns is not None:
             df_temporary = round_to_nearest(df_temporary, df_result, round_on_columns)
         df_result = df_result.append(df_temporary, ignore_index=True)
 
+    logging.info(f'Number of rows in the joined dataframe: {df_result.shape[0]}')
     return df_result
 
 
@@ -397,6 +402,122 @@ def organize_run_structure_v2_00(experiment_name):
         df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'reaction_plate_id'] = reaction_plate
         df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'diluted_plate_id'] = plate_for_dilution
         df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'craic_folder'] = craic_folder_here
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'vial_id'] = tuple(range(54))
+
+    # if there is a file 'outVandC/stock_solutions.xlsx', load it and use to determine concentrations
+
+    # load excel table with stock solution compositions
+    df_stock = pd.read_excel(data_folder + experiment_name + f'outVandC/stock_solutions.xlsx', sheet_name=0)
+    # iterate over rows in df_excel
+    for substance in df_stock.columns[1:]:
+        df_structure[f'c#{substance}'] = 0
+
+    for index, row in df_structure.iterrows():
+        # iterate over columns in df_structure
+        substances = df_stock.columns[1:]
+        net_volume = 0
+        for stock_solution_name in df_structure.columns:
+            # if this is a column with a stock solution
+            if stock_solution_name in df_stock['stock_solution'].to_list():
+                # get the stock solution concentration
+                stock_concentration = df_stock.loc[df_stock['stock_solution'] == stock_solution_name]
+                # get the volume of this stock solution used by the pipetter
+                volume = row[stock_solution_name]
+                for substance in df_stock.columns[1:]:
+                    this_stock_solution_concentration = stock_concentration[substance].iloc[0]
+                    df_structure.loc[index, f'c#{substance}'] = df_structure.loc[
+                                                                index, f'c#{substance}'] + volume * this_stock_solution_concentration
+                net_volume += volume
+        for substance in df_stock.columns[1:]:
+            df_structure.loc[index, f'c#{substance}'] = df_structure.loc[index, f'c#{substance}'] / net_volume
+
+    # save the dataframe as csv
+    structure_csv_filepath = data_folder + experiment_name + 'results/run_structure.csv'
+    with open(structure_csv_filepath, 'w') as f:
+        f.write(f'version: {version}\n')
+    df_structure.to_csv(structure_csv_filepath, index=False, mode='a')
+
+
+def organize_run_structure_v2_01(experiment_name):
+    """
+     Automatically combine `run_info.csv`, `dilution_info.csv` and CRAIC plate database into
+     a unified "run structure" table saved into `results/run_structure.csv`.
+
+     The output table indicates for each condition the vial_id, the reaction plate id, the id of plate it was
+     diluted into, and the CRAIC folder name that contains the spectra for this plate.
+
+     This version also adds the nondiluted spectra folders into the final table
+
+     Parameters
+     ----------
+     experiment_name: str
+         The name of the experiment, e.g. `multicomp-reactions/2023-06-26-run01/`
+     """
+    version = '2.00'
+    global craic_folder
+    global data_folder
+
+    run_name = experiment_name.split('/')[1]
+    run_type = experiment_name.split('/')[0]
+
+    # if there is not 'results' folder in the run folder, create it
+    target_folder = data_folder + experiment_name + 'results'
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+
+    # open dilution_info.csv as dataframe
+    df_dilution = load_df_from_dilution_info(experiment_name)
+
+    # open run_info.csv as dataframe
+    df_pipetter = load_df_from_run_info(data_folder + experiment_name + 'pipetter_io/run_info.csv')
+
+    # open the Excel file with the volumes, use first sheet
+    df_structure = pd.read_excel(data_folder + experiment_name + f'{run_name}.xlsx', sheet_name=0)
+    df_structure['vial_id'] = 0
+    df_structure['reaction_plate_id'] = 0
+    df_structure['diluted_plate_id'] = 0
+    df_structure['craic_folder'] = ''
+    df_structure['is_outlier'] = 0
+
+    exp_names_craic = [f'multicomp_reactions_{run_name}']
+    df_craic = pd.read_csv(craic_folder + 'database_about_these_folders.csv')
+    exp_names_craic = [f'{run_type.replace("-", "_")}_{run_name}']
+    exp_names_craic_dil = [f'{run_type.replace("-", "_")}_{run_name}_dil']
+    if df_craic['exp_name'].isin(exp_names_craic_dil).any():
+        df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic_dil)].copy().reset_index()
+    else:
+        df_craic = df_craic.loc[df_craic['exp_name'].isin(exp_names_craic)].copy().reset_index()
+    assert len(
+        df_craic) > 0, f"No plates found in CRAIC database for {experiment_name}. Good luck learning to type."
+
+    df_craic2 = pd.read_csv(craic_folder + 'database_about_these_folders.csv')
+    df_craic_undil = df_craic2.loc[df_craic2['exp_name'].isin(exp_names_craic)].copy().reset_index()
+
+    # logging.info(f'Found {len(df_craic)} plates in CRAIC database for {experiment_name}: '
+    #              f'plate IDs: {df_craic["plate_id"].values}')
+
+    # verify than numbers of rows in all the dataframes are the same
+    assert len(df_dilution) == len(df_pipetter) == len(df_structure) / 54 == len(df_craic)
+
+    # verify that number of rows is divisible by 54
+    assert len(df_structure) % 54 == 0
+
+    # iterate over the plates of df_pipetter
+    for row_id, row in enumerate(df_pipetter.itertuples()):
+        # verify that the logic of the data is correct
+        reaction_plate = row.plate_code
+        assert df_dilution.iloc[row_id]['from'] == reaction_plate
+        plate_for_dilution = df_dilution.iloc[row_id]['to']
+        assert df_craic.iloc[row_id]['plate_id'] == plate_for_dilution
+        craic_folder_here = df_craic.iloc[row_id]['folder']
+        assert df_craic_undil.iloc[row_id]['plate_id'] == reaction_plate
+        undil_folder_here = df_craic_undil.iloc[row_id]['folder']
+
+        # populate the structure dataframe with the plate codes and the craic folder
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'reaction_plate_id'] = reaction_plate
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'diluted_plate_id'] = plate_for_dilution
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'craic_folder'] = craic_folder_here
+        df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'craic_folder_undil'] = undil_folder_here
         df_structure.at[row_id * 54:(row_id + 1) * 54 - 1, 'vial_id'] = tuple(range(54))
 
     # if there is a file 'outVandC/stock_solutions.xlsx', load it and use to determine concentrations
@@ -763,7 +884,7 @@ def find_measurement_files_and_compiile_a_table(target_folder, extension, regexp
 
 def find_nanodrop_files_and_compiile_a_table(target_folder):
     regexp_pattern = re.compile(
-        r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:.*?)_plate_(?P<plate_id>\d+).csv',
+        r'(?P<timestamp_string>\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})(?:.*?)_plate(_?)(?P<plate_id>\d+).csv',
         re.DOTALL)
     return find_measurement_files_and_compiile_a_table(target_folder, extension='.csv', regexp_pattern=regexp_pattern)
 
@@ -904,15 +1025,26 @@ if __name__ == '__main__':
     # df_files = find_nanodrop_files_and_compiile_a_table(target_folder=data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra')
     # print(locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp=1705636817.00000, plate_id=71))
 
-    # target_folder = 'BPRF/2024-01-17-run01/'
-    # organize_run_structure_v4_00(experiment_name=target_folder)
+    target_folder = 'BPRF/2024-03-06-run02/'
+    organize_run_structure_v4_00(experiment_name=target_folder)
 
-    list_of_runs = tuple(['2024-01-29-run01',
-                          '2024-01-29-run02',
-                          '2024-01-30-run01'])
-    for run in list_of_runs:
-        organize_run_structure_v4_00(experiment_name=f'BPRF/{run}/')
+    # list_of_runs = tuple(['2024-01-29-run01',
+    #                       '2024-01-29-run02',
+    #                       '2024-01-30-run01'])
+    # for run in list_of_runs:
+    #     organize_run_structure_v4_00(experiment_name=f'BPRF/{run}/')
 
+    # list_of_runs = tuple(['2024-02-16-run01',
+    #                       '2024-02-17-run01',
+    #                       '2024-02-17-run02'])
+    # for run in list_of_runs:
+    #     organize_run_structure_v4_00(experiment_name=f'BPRF/{run}/')
+
+    # list_of_runs = tuple(['2024-01-16-run01',
+    #                       '2024-01-16-run02',
+    #                       '2024-01-17-run01'])
+    # for run in list_of_runs:
+    #     organize_run_structure_v4_00(experiment_name=f'BPRF/{run}/')
 
     # df_conditions = pd.read_excel('tests/test_organize_run_results/simple-reactions/2099-99-99-run01/2099-99-99-run01.xlsx',
     #                               sheet_name='reactions_with_run_info')
@@ -989,7 +1121,10 @@ if __name__ == '__main__':
     #                       '2023-07-11-run01',
     #                       '2023-07-11-run02'])
     # for run_shortname in list_of_runs:
-    #     organize_run_structure(f'simple-reactions/{run_shortname}/', version='2.00')
+    #     organize_run_structure_v2_01(f'simple-reactions/{run_shortname}/')
+
+    # for run_shortname in list_of_runs:
+    #     organize_run_structure_v2_00(f'simple-reactions/{run_shortname}/')
 
     # list_of_runs = tuple([
     #                       '2023-07-05-run01',
