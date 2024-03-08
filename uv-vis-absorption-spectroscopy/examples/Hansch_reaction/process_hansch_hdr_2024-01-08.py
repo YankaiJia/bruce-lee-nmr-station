@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import importlib
+
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 organize_run_results = importlib.import_module("misc-scripts.organize_run_results")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
@@ -10,7 +11,6 @@ plt.ioff()
 
 import logging
 logging.basicConfig(level=logging.INFO)
-
 
 def yield_by_name(product_name, product_concentration, substrate_concentrations_dictionary={'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 1}):
     """
@@ -33,15 +33,16 @@ def process_run_by_shortname(run_shortname, cut_from=40, dilution_factor=200):
     substrates = ['methoxybenzaldehyde', 'ethyl_acetoacetate', 'ammonium_acetate']
     product_name = 'HRP01'
     run_name = f'BPRF/{run_shortname}/'
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70']
 
     # divide by doubled concentration of ethyl_acetoacetate, because two molecules of ethyl_acetoacetate are needed for one product
     # or by 1 eq of methoqxybenzaldehyde, or ammonium acetate
     # main product is HRP01
     # dilution factor is 200
 
-    sp = process_wellplate_spectra.SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
-                                                         '2022-12-01/interpolator-dataset/')
+    sp = process_wellplate_spectra.SpectraProcessor(
+        folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
+        '2022-12-01/interpolator-dataset/')
     sp.nanodrop_lower_cutoff_of_wavelengths = 220
 
     df_structure = organize_run_results.load_run_structure(run_name)
@@ -62,11 +63,12 @@ def process_run_by_shortname(run_shortname, cut_from=40, dilution_factor=200):
                                                        calibration_folder=data_folder + 'BPRF/2024-01-17-run01/' + 'microspectrometer_data/calibration/',
                                                        calibrant_shortnames=substances_for_fitting,
                                                        background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
-                                                       calibrant_upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
+                                                       calibrant_upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
                                                        do_plot=False, cut_from=cut_from, cut_to=250,
                                                        ignore_abs_threshold=False, ignore_pca_bkg=True,
                                                        return_all_substances=True,
-                                                                            return_report=True)
+                                                       upper_limit_of_absorbance=0.95,
+                                                       return_report=True)
 
         for vial_id, product_concentrations in enumerate(concentrations_here):
             # index of this vial in the concentrations_df dataframe
@@ -112,6 +114,24 @@ def process_run_by_shortname(run_shortname, cut_from=40, dilution_factor=200):
         candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
         concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
+        product_name = 'dm035_8_dm35_9'
+        product_concentration = concentrations_df.loc[index, f'pc#dm35_8'] + concentrations_df.loc[index, f'pc#dm35_9']
+        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
+        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+
+        product_name = 'dm70'
+        product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
+        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
+        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+
+        product_name = 'dm40_12'
+        product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
+        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
+        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+
         # substrate_concentrations = [concentrations_df.loc[index, f'c#{substrate_name}'] for substrate_name in substrates]
         # # multiply the concentration of acetoacetate by 2 because two moles are needed to produce one mole of product
         # substrate_concentrations[0] = substrate_concentrations[0] * 2
@@ -148,6 +168,16 @@ if __name__ == '__main__':
                           '2024-01-29-run02',
                           '2024-01-30-run01'
                           ])
+
+    # list_of_runs = tuple(['2024-02-16-run01',
+    #                       '2024-02-17-run01',
+    #                       '2024-02-17-run02'])
+
+    # list_of_runs = tuple(['2024-01-16-run01',
+    #                       '2024-01-16-run02',
+    #                       '2024-01-17-run01'])
+
+
     for i, run_shortname in enumerate(list_of_runs):
         process_run_by_shortname(run_shortname)
         # plot_all_spectra_by_shortname(run_shortname)
