@@ -1025,7 +1025,10 @@ if __name__ == '__main__':
     # df_files = find_nanodrop_files_and_compiile_a_table(target_folder=data_folder + 'BPRF/2024-01-17-run01/nanodrop_spectra')
     # print(locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp=1705636817.00000, plate_id=71))
 
-    target_folder = 'BPRF/2024-03-06-run02/'
+
+    target_folder = 'BPRF/2024-03-06-run01/'
+    # target_folder = 'BPRF/2024-03-06-run02/'
+    # target_folder = 'BPRF/2024-03-04-run02/'
     organize_run_structure_v4_00(experiment_name=target_folder)
 
     # list_of_runs = tuple(['2024-01-29-run01',

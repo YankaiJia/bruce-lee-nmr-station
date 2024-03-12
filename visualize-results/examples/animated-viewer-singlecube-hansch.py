@@ -8,11 +8,11 @@ organize_run_results = importlib.import_module("misc-scripts.organize_run_result
 avs = importlib.import_module("visualize-results.animated_viewer_static")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-list_of_runs = tuple([
-    '2023-11-08-run01',
-    '2023-11-13-run01',
-    '2023-11-14-run01',
-    '2023-11-21-run01'])
+# list_of_runs = tuple([
+#     '2023-11-08-run01',
+#     '2023-11-13-run01',
+#     '2023-11-14-run01',
+#     '2023-11-21-run01'])
 column_to_plot = 'yield'
 
 # 80 degrees

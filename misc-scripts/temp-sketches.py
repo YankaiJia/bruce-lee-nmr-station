@@ -4,7 +4,17 @@ import numpy as np
 import re
 
 import pandas as pd
-from icecream import ic
+
+import statsmodels.api as sm
+from matplotlib import pyplot as plt
+
+xs = np.linspace(0, 2*np.pi*10, 1000)
+ys = 1*np.sin(xs/100) + np.random.normal(0, 0.1, 1000)
+x = sm.stats.acorr_ljungbox(ys, lags=[100])
+print(x)
+plt.plot(xs, ys)
+plt.show()
+# from icecream import ic
 #
 # data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 #
@@ -85,31 +95,31 @@ from icecream import ic
 # plt.legend()
 # plt.show()
 #
-import numpy as np
-import matplotlib.pyplot as plt
-
-c=3.e2
-fig = plt.figure()
-ax1 = fig.add_subplot(111)
-ax2 = ax1.twiny()
-
-xvals = np.arange(199.9, 999.9, 0.1)
-data = np.sin(0.03*xvals)
-ax1.plot(xvals, data)
-
-ax1Ticks = ax1.get_xticks()
-ax2Ticks = ax1Ticks
-
-def tick_function(X):
-    V = c/X
-    return ["%.3f" % z for z in V]
-
-ax2.set_xticks(ax2Ticks)
-ax2.set_xbound(ax1.get_xbound())
-ax2.set_xticklabels(tick_function(ax2Ticks))
-
-ax1.set_xlabel("Frequency (GHz)")
-ax2.set_xlabel('Wavelength (mm)')
-ax1.grid(True)
-plt.ylim(ymin=-1.1,ymax=1.1)
-plt.show()
+# import numpy as np
+# import matplotlib.pyplot as plt
+#
+# c=3.e2
+# fig = plt.figure()
+# ax1 = fig.add_subplot(111)
+# ax2 = ax1.twiny()
+#
+# xvals = np.arange(199.9, 999.9, 0.1)
+# data = np.sin(0.03*xvals)
+# ax1.plot(xvals, data)
+#
+# ax1Ticks = ax1.get_xticks()
+# ax2Ticks = ax1Ticks
+#
+# def tick_function(X):
+#     V = c/X
+#     return ["%.3f" % z for z in V]
+#
+# ax2.set_xticks(ax2Ticks)
+# ax2.set_xbound(ax1.get_xbound())
+# ax2.set_xticklabels(tick_function(ax2Ticks))
+#
+# ax1.set_xlabel("Frequency (GHz)")
+# ax2.set_xlabel('Wavelength (mm)')
+# ax1.grid(True)
+# plt.ylim(ymin=-1.1,ymax=1.1)
+# plt.show()

@@ -16,10 +16,12 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 #                       '2024-01-30-run01'
 #                       ])
 
-list_of_runs = tuple(['2024-02-16-run01',
-                      '2024-02-17-run01',
-                      '2024-02-17-run02'])
+# list_of_runs = tuple(['2024-02-16-run01',
+#                       '2024-02-17-run01',
+#                       '2024-02-17-run02'])
 
+list_of_runs = tuple(['2024-03-04-run01',
+                      '2024-03-04-run02'])
 
 
 
@@ -30,24 +32,29 @@ substance_titles = ['Acetoacetate', 'Methoxy', 'Ammonium acetate']
 df_results = organize_run_results.join_data_from_runs([f'BPRF/{x}/' for x in list_of_runs],
                                  round_on_columns=None)
 
-substrates = ['ethyl_acetoacetate',  'methoxybenzaldehyde', 'ammonium_acetate']
-product_name = 'bb021'
-for index, row in df_results.iterrows():
-    product_concentration = df_results.loc[index, f'pc#{product_name}']
-    coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
-    candidate_yields = [
-        product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
-        for substrate_name in substrates if substrate_name != 'ammonium_acetate']
-    df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+xs = df_results['c#ethyl_acetoacetate']
+ys = df_results['c#methoxybenzaldehyde']
+plt.scatter(xs, ys)
+plt.show()
 
-product_name = 'dm40'
-for index, row in df_results.iterrows():
-    product_concentration = df_results.loc[index, f'pc#dm40_10'] + df_results.loc[index, f'pc#dm40_12']
-    coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
-    candidate_yields = [
-        product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
-        for substrate_name in substrates if substrate_name != 'ammonium_acetate']
-    df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+substrates = ['ethyl_acetoacetate',  'methoxybenzaldehyde', 'ammonium_acetate']
+# product_name = 'bb021'
+# for index, row in df_results.iterrows():
+#     product_concentration = df_results.loc[index, f'pc#{product_name}']
+#     coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+#     candidate_yields = [
+#         product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+#         for substrate_name in substrates if substrate_name != 'ammonium_acetate']
+#     df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+#
+# product_name = 'dm40'
+# for index, row in df_results.iterrows():
+#     product_concentration = df_results.loc[index, f'pc#dm40_10'] + df_results.loc[index, f'pc#dm40_12']
+#     coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+#     candidate_yields = [
+#         product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+#         for substrate_name in substrates if substrate_name != 'ammonium_acetate']
+#     df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
 # round values in substance columns to 6 significant digits
 for substance in substances:
@@ -89,6 +96,7 @@ def get_xys_for_one_col(column_to_plot, df_results):
     xs = []
     ys = []
     zs = []
+    zserr = []
     for ethyl_acetoacetate in unique_ethyl_acetoacetate:
         for methoxybenzaldehyde in unique_methoxybenzaldehyde:
             df = df_results[(df_results['c#ethyl_acetoacetate'] == ethyl_acetoacetate) &
@@ -99,6 +107,7 @@ def get_xys_for_one_col(column_to_plot, df_results):
                 ys.append(methoxybenzaldehyde)
                 # average values of column to plot
                 zs.append(df[column_to_plot].median())
+                zserr.append(df[column_to_plot.replace('yield', 'yielderr')].median())
             else:
                 print(f'No data for {ethyl_acetoacetate} and {methoxybenzaldehyde}')
 
@@ -107,41 +116,42 @@ def get_xys_for_one_col(column_to_plot, df_results):
     grid_x, grid_y = np.mgrid[min(xs):max(xs):plotsteps*1j, min(ys):max(ys):plotsteps*1j]
     points = np.array([xs, ys]).T
     grid_z = griddata(points, zs, (grid_x, grid_y), method='cubic')
+    gridzerr = griddata(points, zserr, (grid_x, grid_y), method='cubic')
     xs_for_plot = np.linspace(min(xs), max(xs), plotsteps)
     ys_for_plot = np.linspace(min(ys), max(ys), plotsteps)
-    return grid_x, grid_y, grid_z
+    return grid_x, grid_y, grid_z, gridzerr
 
 
 data = []
 
 ######## MAIN PRODUCTS
-# data.append(get_xys_for_one_col(column_to_plot = 'yield#HRP01',
-#                                 df_results = df_results[df_results['yield#HRP01'] <= 1]))
-#
-# # all the rows where 'yield#bb017' is above 1 replace with 1
+data.append(get_xys_for_one_col(column_to_plot = 'yield#HRP01',
+                                df_results = df_results[df_results['yield#HRP01'] <= 1]))
+
+# all the rows where 'yield#bb017' is above 1 replace with 1
 # df_results['yield#bb017'] = df_results['yield#bb017'].apply(lambda x: 1 if x>1 else x)
 # df_results['yield#bb017'] = df_results['yield#bb017']/1.06
-# data.append(get_xys_for_one_col(column_to_plot = 'yield#bb017',
-#                                 df_results = df_results[df_results['yield#bb017'] <= 1.55]))
-#
-# # surfcolors = [(31/255, 119/255, 180/255), (1, 127/255, 14/255)]
-# surfcolors = [tuple(np.array((33, 64, 154))/255), tuple(np.array((243, 185, 26))/255)]
-# yieldmax = 100
+data.append(get_xys_for_one_col(column_to_plot = 'yield#bb017',
+                                df_results = df_results[df_results['yield#bb017'] <= 1.55]))
 
-########## intermediates:
-data.append(get_xys_for_one_col(column_to_plot = 'yield#dm40',
-                                df_results = df_results[df_results['yield#dm40'] <= 1]))
-data.append(get_xys_for_one_col(column_to_plot = 'yield#bb021',
-                                df_results = df_results[df_results['yield#bb021'] <= 1]))
-surfcolors = [(44/255, 160/255, 44/255), (214/255, 39/255, 40/255)]
-yieldmax = 15
+# surfcolors = [(31/255, 119/255, 180/255), (1, 127/255, 14/255)]
+surfcolors = [tuple(np.array((33, 64, 154))/255), tuple(np.array((243, 185, 26))/255)]
+yieldmax = 100
+
+# ########## intermediates:
+# data.append(get_xys_for_one_col(column_to_plot = 'yield#dm40',
+#                                 df_results = df_results[df_results['yield#dm40'] <= 1]))
+# data.append(get_xys_for_one_col(column_to_plot = 'yield#bb021',
+#                                 df_results = df_results[df_results['yield#bb021'] <= 1]))
+# surfcolors = [(44/255, 160/255, 44/255), (214/255, 39/255, 40/255)]
+# yieldmax = 15
 
 mlab.figure(size=(1024, 1224), bgcolor=(1, 1, 1), fgcolor=(0.2, 0.2, 0.2))
 
 
 
 for dataset_id, data_point in enumerate(data):
-    grid_x, grid_y, grid_z = data_point
+    grid_x, grid_y, grid_z, gridzerr = data_point
     print(f'min z: {np.min(grid_z)}, max z: {np.max(grid_z)}')
     grid_x *= 1000
     grid_y *= 1000
@@ -232,9 +242,9 @@ mlab.show()
 data = []
 data.append(get_xys_for_one_col(column_to_plot = 'yield#HRP01',
                                 df_results = df_results[df_results['yield#HRP01'] <= 1]))
-df_results['yield#bb017'] = df_results['yield#bb017'].apply(lambda x: 1 if x>1 else x)
+# df_results['yield#bb017'] = df_results['yield#bb017'].apply(lambda x: 1 if x>1 else x)
 data.append(get_xys_for_one_col(column_to_plot = 'yield#bb017',
-                                df_results = df_results[df_results['yield#bb017'] <= 1.55]))
+                                df_results = df_results[df_results['yield#bb017'] <= 10.55]))
 data.append(get_xys_for_one_col(column_to_plot = 'yield#dm40',
                                 df_results = df_results[df_results['yield#dm40'] <= 1]))
 data.append(get_xys_for_one_col(column_to_plot = 'yield#bb021',
@@ -249,12 +259,12 @@ def tick_function(X):
     V = 110 - X
     return ["%.0f" % z for z in V]
 
-labels = ['HRP01', 'HRP04', 'HRI01/2', 'HRI04']
+labels = ['HRP01', 'HRP04', 'HRI01+2', 'HRI04']
 colors = [f'C{i}' for i in range(4)]
 colors[1] = 'gold'
 for id, d in enumerate(data):
     # iterate over unique x and find z where y=x
-    xs, ys, zs = d
+    xs, ys, zs, zserr = d
     xxs = []
     zzs = []
     # for x in np.unique(xs):
@@ -264,8 +274,10 @@ for id, d in enumerate(data):
     # find z where xs==ys==x
     z = zs[indices]
     x = xs[indices]
-    ax1.plot(110 - x*1000, z*100, label=labels[id], color=colors[id])
-
+    # ax1.plot(110 - x*1000, z*100, label=labels[id], color=colors[id])
+    # plot with zserr errorbars
+    ax1.errorbar(110 - x*1000, z*100, yerr=zserr[indices]*100, fmt='o-', label=labels[id], color=colors[id],
+                 alpha=0.5, capsize=3, capthick=1, elinewidth=1, markersize=3)
 
 ax1.set_xlim(10, 100)
 ax1Ticks = ax1.get_xticks()
@@ -278,6 +290,6 @@ ax2.set_xlabel("EAA, mM")
 ax1.set_xlabel('Aldehyde, mM')
 
 ax1.set_ylabel('Yield, %')
-# ax1.legend()
+ax1.legend()
 
 plt.show()
