@@ -41,11 +41,19 @@ for column in nanodrop_df.columns[1:]:
     if (nanodrop_df[column].max() < 0.1) and (first_number_in_column_name_before_underscore in [2, 5, 8, 11,14, 17]):
         spectra.append(nanodrop_df[column])
     plt.plot(nanodrop_df["wavelength"], nanodrop_df[column], label=column)
-# for well_id in range(1,18):
-#     for repeat in range(1, 6):
-#         wavelengths = nanodrop_df["wavelength"]
-#         spectrum = nanodrop_df[f"{well_id}_{repeat}"]
-#         plt.plot(wavelengths, spectrum, label=f'well {well_id}')
+
+
+# Second file
+plate_folder = data_folder + 'BPRF/cross_conamination_and_backgound_test/2024-03-10_00-22-33_UV-Vis_pure_ethanol_54_times.csv'
+# plate_folder = data_folder + 'BPRF/2024-02-16-run01/nanodrop_spectra/2024-02-18_17-48-07_UV-Vis_plate74.csv'
+nanodrop_df = read_peculiar_file_of_yankai(plate_folder)
+# iterate over all columns except the 'wavelegth' column
+wavelengths = nanodrop_df["wavelength"]
+for column in nanodrop_df.columns[1:]:
+    if (nanodrop_df[column].max() < 10.1):
+        spectra.append(nanodrop_df[column])
+    plt.plot(nanodrop_df["wavelength"], nanodrop_df[column], label=column)
+
 
 plt.legend()
 plt.show()
@@ -61,13 +69,13 @@ X1 = pca1.fit(nfeat1)
 expl_var_1 = X1.explained_variance_ratio_
 print(f'Explained variance: {expl_var_1}')
 sv = X1.components_.T
-for spectrum in spectra:
+for spectrum in nfeat1:
     plt.plot(wavelengths, spectrum, alpha=0.2, color='grey')
 colors = ['C0', 'C1', 'C2']
 for i in range(nc):
     plt.plot(wavelengths, sv[:, i], label=f'PC {i+1}', color=colors[i], alpha=0.3)
 
-mean_spectrum = np.mean(spectra, axis=0)
+mean_spectrum = np.mean(nfeat1, axis=0)
 plt.plot(wavelengths, mean_spectrum, label='mean', color='black', alpha=1)
 
 # Smooth the components and plot them

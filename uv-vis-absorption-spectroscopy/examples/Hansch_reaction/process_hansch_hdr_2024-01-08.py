@@ -66,10 +66,10 @@ def process_run_by_shortname(run_shortname, cut_from=15, dilution_factor=200):
                                                        dilution_factors=[20, 150],
                                                        calibration_folder=data_folder + 'BPRF/2024-01-17-run01/' + 'microspectrometer_data/calibration/',
                                                        calibrant_shortnames=substances_for_fitting,
-                                                       background_model_folder=data_folder + 'simple-reactions/2023-09-06-run01/microspectrometer_data/background_model/',
+                                                       background_model_folder=data_folder + 'BPRF/cross_conamination_and_backgound_test/ethanol_background_model/',
                                                        calibrant_upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
                                                        do_plot=False, cut_from=cut_from, cut_to=250,
-                                                       ignore_abs_threshold=False, ignore_pca_bkg=True,
+                                                       ignore_abs_threshold=False, ignore_pca_bkg=False,
                                                        return_all_substances=True,
                                                        upper_limit_of_absorbance=0.95,
                                                        return_report=True)

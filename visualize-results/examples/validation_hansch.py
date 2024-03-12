@@ -47,15 +47,15 @@ def inrobotocrudes():
     df_results_2 = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
     df_results = pd.read_excel(data_folder + run_name + f'NMR/hantzschrobotnmroyes.xlsx', sheet_name=0)
 
-    name = 'Hantzsch ester'
-    ys = df_results['NMR HE C'].to_numpy()
-    xs = df_results_2['pc#HRP01'].to_numpy()
-    xs_err = df_results_2['pcerr#HRP01'].to_numpy()
+    # name = 'Hantzsch ester'
+    # ys = df_results['NMR HE C'].to_numpy()
+    # xs = df_results_2['pc#HRP01'].to_numpy()
+    # xs_err = df_results_2['pcerr#HRP01'].to_numpy()
 
-    # name = 'Hemiaminal'
-    # ys = df_results['NMR HA C'].to_numpy()
-    # xs = df_results_2['pc#bb017'].to_numpy()
-    # xs_err = df_results_2['pcerr#bb017'].to_numpy()
+    name = 'Hemiaminal'
+    ys = df_results['NMR HA C'].to_numpy()
+    xs = df_results_2['pc#bb017'].to_numpy()
+    xs_err = df_results_2['pcerr#bb017'].to_numpy()
 
     # plot with error bars in x
     plt.title('In roboto crudes, 2024-03-06-run01, minLambda 235 nm')
