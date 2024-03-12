@@ -29,11 +29,15 @@ def yield_by_name(product_name, product_concentration, substrate_concentrations_
         return product_concentration / substrate_concentrations_dictionary[product_name]
 
 
-def process_run_by_shortname(run_shortname, cut_from=40, dilution_factor=200):
+def process_run_by_shortname(run_shortname, cut_from=15, dilution_factor=200):
     substrates = ['methoxybenzaldehyde', 'ethyl_acetoacetate', 'ammonium_acetate']
     product_name = 'HRP01'
     run_name = f'BPRF/{run_shortname}/'
     substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70']
+    # try removing: 35_8, 35_9, dm37, dm_70
+    # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm40_12', 'dm40_10',
+    #                           'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
+    # add: dm88
 
     # divide by doubled concentration of ethyl_acetoacetate, because two molecules of ethyl_acetoacetate are needed for one product
     # or by 1 eq of methoqxybenzaldehyde, or ammonium acetate
@@ -96,41 +100,61 @@ def process_run_by_shortname(run_shortname, cut_from=40, dilution_factor=200):
         # HRP01
         product_name = 'HRP01'
         product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
+        product_error = concentrations_df.loc[index, f'pcerr#{product_name}']
         coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
         candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        candidate_errs = [product_error / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
         concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+        concentrations_df.loc[index, f'yielderr#{product_name}'] = candidate_errs[np.argmax(candidate_yields)]
 
-        # dm037
-        product_name = 'dm37'
-        product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
-        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
-        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
-        concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+        # # dm037
+        # product_name = 'dm37'
+        # product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
+        # coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
+        # candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        # concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
         # bb017
         product_name = 'bb017'
         product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
+        product_error = concentrations_df.loc[index, f'pcerr#{product_name}']
         coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 2}
         candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        candidate_errs = [product_error / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
         concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+        concentrations_df.loc[index, f'yielderr#{product_name}'] = candidate_errs[np.argmax(candidate_yields)]
 
-        product_name = 'dm035_8_dm35_9'
-        product_concentration = concentrations_df.loc[index, f'pc#dm35_8'] + concentrations_df.loc[index, f'pc#dm35_9']
-        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
-        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
-        concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
-
-        product_name = 'dm70'
+        product_name = 'bb021'
         product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
-        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
-        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        product_error = concentrations_df.loc[index, f'pcerr#{product_name}']
+        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates
+                            if coefficients_dict[substrate_name] > 0]
+        candidate_errs = [product_error / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
         concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+        concentrations_df.loc[index, f'yielderr#{product_name}'] = candidate_errs[np.argmax(candidate_yields)]
 
-        product_name = 'dm40_12'
-        product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
-        coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
-        candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        # product_name = 'dm035_8_dm35_9'
+        # product_concentration = concentrations_df.loc[index, f'pc#dm35_8'] + concentrations_df.loc[index, f'pc#dm35_9']
+        # coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
+        # candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        # concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+
+        # product_name = 'dm70'
+        # product_concentration = concentrations_df.loc[index, f'pc#{product_name}']
+        # coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 2, 'ammonium_acetate': 1}
+        # candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
+        # concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+
+        product_name = 'dm40'
+        product_concentration = concentrations_df.loc[index, f'pc#dm40_10'] + concentrations_df.loc[index, f'pc#dm40_12']
+        product_error = concentrations_df.loc[index, f'pcerr#dm40_10'] + concentrations_df.loc[index, f'pcerr#dm40_12']
+        coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+        candidate_yields = [
+                            product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+                            for substrate_name in substrates if substrate_name != 'ammonium_acetate']
         concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+        concentrations_df.loc[index, f'yielderr#{product_name}'] = candidate_errs[np.argmax(candidate_yields)]
 
         # substrate_concentrations = [concentrations_df.loc[index, f'c#{substrate_name}'] for substrate_name in substrates]
         # # multiply the concentration of acetoacetate by 2 because two moles are needed to produce one mole of product
@@ -164,10 +188,10 @@ if __name__ == '__main__':
     #                       # '2023-11-21-run01'
     # ])
 
-    list_of_runs = tuple(['2024-01-29-run01',
-                          '2024-01-29-run02',
-                          '2024-01-30-run01'
-                          ])
+    # list_of_runs = tuple(['2024-01-29-run01',
+    #                       '2024-01-29-run02',
+    #                       '2024-01-30-run01'
+    #                       ])
 
     # list_of_runs = tuple(['2024-02-16-run01',
     #                       '2024-02-17-run01',
@@ -177,6 +201,10 @@ if __name__ == '__main__':
     #                       '2024-01-16-run02',
     #                       '2024-01-17-run01'])
 
+    # list_of_runs = tuple(['2024-03-04-run01',
+    #                       '2024-03-04-run02'])
+    list_of_runs = tuple(['2024-03-06-run01'])
+    # list_of_runs = tuple(['2024-03-06-run02'])
 
     for i, run_shortname in enumerate(list_of_runs):
         process_run_by_shortname(run_shortname)

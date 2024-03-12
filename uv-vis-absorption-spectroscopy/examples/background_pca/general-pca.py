@@ -84,6 +84,7 @@ nfeat1 = [spectrum[cut_from:, 1] - bkg_spectrum[cut_from:, 1] for spectrum in sp
 nfeat1 = [x - np.mean(x) for x in nfeat1]
 X1 = pca1.fit(nfeat1)
 expl_var_1 = X1.explained_variance_ratio_
+print(f'Explained variance: {expl_var_1}')
 sv = X1.components_.T
 for spectrum in spectra:
     plt.plot(spectrum[cut_from:, 0], spectrum[cut_from:, 1] - bkg_spectrum[cut_from:, 1], alpha=0.2, color='grey')
