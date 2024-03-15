@@ -33,7 +33,7 @@ def process_run_by_shortname(run_shortname, cut_from=15, dilution_factor=200):
     substrates = ['methoxybenzaldehyde', 'ethyl_acetoacetate', 'ammonium_acetate']
     product_name = 'HRP01'
     run_name = f'BPRF/{run_shortname}/'
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70']
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053']
     # try removing: 35_8, 35_9, dm37, dm_70
     # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm40_12', 'dm40_10',
     #                           'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
@@ -68,7 +68,7 @@ def process_run_by_shortname(run_shortname, cut_from=15, dilution_factor=200):
                                                        calibrant_shortnames=substances_for_fitting,
                                                        background_model_folder=data_folder + 'BPRF/cross_conamination_and_backgound_test/ethanol_background_model/',
                                                        calibrant_upper_bounds=[np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf],
-                                                       do_plot=False, cut_from=cut_from, cut_to=250,
+                                                       do_plot=False, cut_from=cut_from, cut_to=350,
                                                        ignore_abs_threshold=False, ignore_pca_bkg=False,
                                                        return_all_substances=True,
                                                        upper_limit_of_absorbance=0.95,
@@ -201,13 +201,13 @@ if __name__ == '__main__':
     #                       '2024-01-16-run02',
     #                       '2024-01-17-run01'])
 
-    # list_of_runs = tuple(['2024-03-04-run01',
-    #                       '2024-03-04-run02'])
-    list_of_runs = tuple(['2024-03-06-run01'])
+    list_of_runs = tuple(['2024-03-04-run01',
+                          '2024-03-04-run02'])
+    # list_of_runs = tuple(['2024-03-06-run01'])
     # list_of_runs = tuple(['2024-03-06-run02'])
 
     for i, run_shortname in enumerate(list_of_runs):
         process_run_by_shortname(run_shortname)
         # plot_all_spectra_by_shortname(run_shortname)
 
-    plt.show()
+    # plt.show()

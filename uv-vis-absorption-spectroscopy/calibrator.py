@@ -9,6 +9,17 @@ from scipy.signal import savgol_filter
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
+def read_cary_agilent_csv_spectrum(cary_file, column_name):
+    df = pd.read_csv(cary_file)
+    df = pd.read_csv(cary_file, skiprows=2, names=df.columns)
+    wavelengths = df[column_name]
+    # get next column after the column_name
+    column_index = df.columns.get_loc(column_name)
+
+    next_column_name = df.columns[column_index + 1]
+    ys = df[next_column_name]
+    return wavelengths, ys
+
 def construct_calibrant(
                         cut_from,
                         lower_limit_of_absorbance,
@@ -28,7 +39,10 @@ def construct_calibrant(
                         cut_to=None,
                         bkg_multiplier=1,
                         do_smoothing_at_low_absorbance=0.005,
-                        savgol_window=31):
+                        savgol_window=31,
+                        forced_reference_from_agilent_cary_file=None,
+                        cary_column_name = None
+):
     if min_concentrations is None:
         min_concentrations = np.zeros(len(calibrant_shortnames))
 
@@ -104,6 +118,17 @@ def construct_calibrant(
 
         process_wellplate_spectra.create_folder_unless_it_exists(calibration_folder + f'references/{calibrant_shortname}/concentration_fits')
 
+        if forced_reference_from_agilent_cary_file is not None:
+            wavelengths_cary, ys = read_cary_agilent_csv_spectrum(forced_reference_from_agilent_cary_file, column_name=cary_column_name)
+            ref_spectrum = ys
+            plt.semilogy(wavelengths_cary, ref_spectrum, label='forced reference')
+            plt.title(f'Ref spectrum, forced reference')
+            reference_interpolator = interpolate.interp1d(wavelengths_cary, ref_spectrum, fill_value='extrapolate')
+            ref_spectrum = reference_interpolator(wavelengths)
+            reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum, fill_value='extrapolate')
+            plt.semilogy(wavelengths, ref_spectrum, label='forced reference, resampled')
+            plt.show()
+
         if do_reference_stitching:
             linefit_parameters = []
             for concentration in concentrations:
@@ -176,6 +201,8 @@ def construct_calibrant(
             plt.semilogy(wavelengths, savgol_smoothed_signal, label='smoothed spectrum')
             ref_spectrum = savgol_smoothed_signal * exponential_weight + ref_spectrum * (1-exponential_weight)
             ref_spectrum = ref_spectrum - np.min(ref_spectrum)
+            reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum,
+                                                          fill_value='extrapolate')
             # plot new ref spectrum in semilog scale
             plt.semilogy(wavelengths, ref_spectrum, label='hybrid spectrum')
             plt.title(f'Ref spectrum, savgol_smoothed: {concentration}')
@@ -247,6 +274,14 @@ def construct_calibrant(
         fig3, axarr = plt.subplots(1, 2, figsize=(10, 5))
         ax1, ax2 = axarr
         ax2.plot(coeffs, concentrations, 'o-')
+
+        xs = coeffs
+        ys = concentrations
+        popt, pcov = curve_fit(lambda x, a: a * x, xs, ys, p0=(1))
+        new_xs = np.array([0, 1*max(xs)])
+        new_ys = np.array([0, popt[0]*max(xs)])
+        ax2.plot(new_xs, new_ys, label='linear fit', color='C1')
+
         ax2.set_xlabel('Best-fit scale coefficient')
         ax2.set_ylabel('Concentration, mol/liter')
         fig3.savefig(calibration_folder + f"references/{calibrant_shortname}/concentration-vs-coeff.png", dpi=300)

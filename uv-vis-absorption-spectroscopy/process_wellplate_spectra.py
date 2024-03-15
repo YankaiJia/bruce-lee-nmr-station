@@ -945,12 +945,12 @@ class SpectraProcessor:
         return wavelength_indices[mask], target_spectrum[mask]
 
     def multispectrum_to_concentration(self, target_spectrum_inputs, calibration_folder, calibrant_shortnames,
-                                  background_model_folder, dilution_factors,
-                                  upper_limit_of_absorbance=1000, fig_filename='temp', do_plot=False, #lower_limit_of_absorbance=0.02
-                                  upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
-                                  cut_to = False, ignore_pca_bkg=False, return_errors=False,
+                                       background_model_folder, dilution_factors,
+                                       upper_limit_of_absorbance=1000, fig_filename='temp', do_plot=False,  #lower_limit_of_absorbance=0.02
+                                       upper_bounds=[np.inf, np.inf], use_line=False, cut_from = 200, ignore_abs_threshold=False,
+                                       cut_to = False, ignore_pca_bkg=False, return_errors=False,
                                        use_linear_calibration=True, plot_calibrant_references=False,
-                                       return_report=False): #upper_bounds=[np.inf, np.inf]
+                                       return_report=False, sigma_of_absorbance=0.01): #upper_bounds=[np.inf, np.inf]
         calibrants = []
         for calibrant_shortname in calibrant_shortnames:
             dict_here = dict()
@@ -966,8 +966,12 @@ class SpectraProcessor:
 
         if plot_calibrant_references:
             for i, calibrant in enumerate(calibrants):
+                if i<10:
+                    linestyle='-'
+                else:
+                    linestyle='--'
                 plt.plot(220+np.linspace(0, 400, 400), calibrant['reference_interpolator'](np.linspace(0, 400, 400)),
-                         label=calibrant_shortnames[i])
+                         label=calibrant_shortnames[i], linestyle=linestyle)
             plt.legend()
             plt.xlabel('Wavelength, nm')
             plt.ylabel('Absorbance')
@@ -1051,7 +1055,7 @@ class SpectraProcessor:
             #     lower_bounds.append(0.0068)
             #     upper_bounds.append(1)
             # else:
-            p0.append(5e-3)
+            p0.append(3e-4)
             lower_bounds.append(0)
             upper_bounds.append(np.inf)
         for i in range(number_of_spectra - 1):
@@ -1075,7 +1079,7 @@ class SpectraProcessor:
 
         bounds = (lower_bounds, upper_bounds)
         popt, pcov = curve_fit(func, comboX, comboY,
-                               p0=p0, bounds=bounds, sigma=np.ones_like(comboX)*0.01, absolute_sigma=True,
+                               p0=p0, bounds=bounds, sigma=np.ones_like(comboX) * sigma_of_absorbance, absolute_sigma=True,
                                maxfev=1000000, ftol=1e-15, xtol=1e-15, gtol=1e-15)
 
         # print(f'infodict nfev: {infodict["nfev"]}')
@@ -1113,10 +1117,14 @@ class SpectraProcessor:
         fig1, axs = plt.subplots(len(target_spectrum_inputs), 1, figsize=(10, 10), sharex=True)
         for spectrum_index in range(number_of_spectra):
             axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index],
-                                     target_spectra_amplitudes_masked[spectrum_index], color='r',
-                                     label='Data', alpha=0.5, markersize=1)
+                                     target_spectra_amplitudes_masked[spectrum_index], color='red',
+                                     label='Data', alpha=0.7)
+            axs[spectrum_index].fill_between(x=220 + target_spectra_wavelength_indices_masked[spectrum_index],
+                                     y1=target_spectra_amplitudes_masked[spectrum_index] - sigma_of_absorbance,
+                                     y2=target_spectra_amplitudes_masked[spectrum_index] + sigma_of_absorbance,
+                                     color='gold', alpha=0.15)
             axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index],
-                                     separate_predicted_spectra[spectrum_index], color='black', label='Fit')
+                                     separate_predicted_spectra[spectrum_index], color='black', label='Fit', alpha=0.7)
             residuals_here = separate_predicted_spectra[spectrum_index] - target_spectra_amplitudes_masked[spectrum_index]
             lag = len(residuals_here) // 5
             lb_df = sm.stats.acorr_ljungbox(residuals_here, lags=[lag])
@@ -1158,6 +1166,8 @@ class SpectraProcessor:
         plt.ylabel('Absorbance')
 
         fit_report['fitted_dilution_factor_2'] = fitted_dilution_factors[0]
+
+        # plot covariance matrix
         # # plt.legend()
         # plt.show()
         #
@@ -1239,7 +1249,7 @@ if __name__ == '__main__':
 
     # well_id = 44
     well_id = 9
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70']
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053']
     # cut_from = 40
     cut_from = 15
     # Condition 154

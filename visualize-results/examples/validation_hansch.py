@@ -47,6 +47,8 @@ def inrobotocrudes():
     df_results_2 = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
     df_results = pd.read_excel(data_folder + run_name + f'NMR/hantzschrobotnmroyes.xlsx', sheet_name=0)
 
+    f1 = plt.figure(figsize=(7,7))
+
     # name = 'Hantzsch ester'
     # ys = df_results['NMR HE C'].to_numpy()
     # xs = df_results_2['pc#HRP01'].to_numpy()
@@ -58,14 +60,14 @@ def inrobotocrudes():
     xs_err = df_results_2['pcerr#bb017'].to_numpy()
 
     # plot with error bars in x
-    plt.title('In roboto crudes, 2024-03-06-run01, minLambda 235 nm')
+    plt.title('In roboto crudes, 2024-03-06-run01, $\lambda_{min}$=235 nm')
     dataset_dividing_indes = 9
     plt.errorbar(xs[:dataset_dividing_indes], ys[:dataset_dividing_indes], xerr=xs_err[:dataset_dividing_indes], fmt='o',
-                 capsize=5, capthick=2, alpha=0.5, label='Condition A (Hantzsch ester max)', color='C0')
+                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
     plt.errorbar(xs[dataset_dividing_indes:], ys[dataset_dividing_indes:], xerr=xs_err[dataset_dividing_indes:], fmt='o',
-                 capsize=5, capthick=2, alpha=0.5, label='Condition B (hemiaminal max)', color='C2')
+                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition B\n(for hemiaminal maximum yield)', color='C2')
     maxval = max([np.max(xs), np.max(ys)])
-    plt.plot([0, maxval], [0, maxval], 'k--')
+    plt.plot([0, maxval], [0, maxval], 'k--', label='x=y line')
     for i in range(len(xs)):
         plt.annotate(i, (xs[i], ys[i]))
     plt.ylabel(f'{name} concentration by NMR, mol/L')

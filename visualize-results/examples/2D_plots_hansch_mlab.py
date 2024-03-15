@@ -115,8 +115,8 @@ def get_xys_for_one_col(column_to_plot, df_results):
     plotsteps = 30
     grid_x, grid_y = np.mgrid[min(xs):max(xs):plotsteps*1j, min(ys):max(ys):plotsteps*1j]
     points = np.array([xs, ys]).T
-    grid_z = griddata(points, zs, (grid_x, grid_y), method='cubic')
-    gridzerr = griddata(points, zserr, (grid_x, grid_y), method='cubic')
+    grid_z = griddata(points, zs, (grid_x, grid_y), method='linear')
+    gridzerr = griddata(points, zserr, (grid_x, grid_y), method='linear')
     xs_for_plot = np.linspace(min(xs), max(xs), plotsteps)
     ys_for_plot = np.linspace(min(ys), max(ys), plotsteps)
     return grid_x, grid_y, grid_z, gridzerr

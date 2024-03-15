@@ -69,7 +69,7 @@ X1 = pca1.fit(nfeat1)
 expl_var_1 = X1.explained_variance_ratio_
 print(f'Explained variance: {expl_var_1}')
 sv = X1.components_.T
-for spectrum in nfeat1:
+for spectrum in spectra:
     plt.plot(wavelengths, spectrum, alpha=0.2, color='grey')
 colors = ['C0', 'C1', 'C2']
 for i in range(nc):

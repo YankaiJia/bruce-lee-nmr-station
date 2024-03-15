@@ -2,18 +2,58 @@ import logging
 import os
 import numpy as np
 import re
-
+from matplotlib import pyplot as plt
 import pandas as pd
 
-import statsmodels.api as sm
-from matplotlib import pyplot as plt
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-xs = np.linspace(0, 2*np.pi*10, 1000)
-ys = 1*np.sin(xs/100) + np.random.normal(0, 0.1, 1000)
-x = sm.stats.acorr_ljungbox(ys, lags=[100])
-print(x)
-plt.plot(xs, ys)
+experiment_name = f'BPRF/2024-01-17-run01/'
+
+def read_cary_agilent_csv_spectrum(cary_file, column_name):
+    df = pd.read_csv(cary_file)
+    df = pd.read_csv(cary_file, skiprows=2, names=df.columns)
+    wavelengths = df[column_name]
+    # get next column after the column_name
+    column_index = df.columns.get_loc(column_name)
+
+    next_column_name = df.columns[column_index + 1]
+    ys = df[next_column_name]
+    return wavelengths, ys
+
+cary_file = data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch-ester-HRP01/HRP01_400ug_per_20mL_repeat1.csv'
+column_name = 'HRP01_0.4mg_per_20_mL_repeat1'
+# cary_file = data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_dm37/dm37.csv'
+# column_name = 'dm_37_SBW1nm_repeat2'
+plt.title('HRP01 reference spectrum')
+
+wavelengths, ys = read_cary_agilent_csv_spectrum(cary_file, column_name)
+plt.plot(wavelengths, ys, label='reference from Agilent Cary')
+
+spectrum = np.load(data_folder + '/BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/ref_spectrum.npy')
+# spectrum = np.load(data_folder + '/BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/dm37/ref_spectrum.npy')
+wavelengths = 220 + np.arange(spectrum.shape[0])
+
+plt.plot(wavelengths, spectrum*2*0.98, label='reference from nanodrop')
+# plt.plot(wavelengths, spectrum, label='reference from nanodrop')
+plt.legend()
+plt.xlabel('Wavelength, nm')
+plt.ylabel('Absorbance')
+
 plt.show()
+
+
+
+# import statsmodels.api as sm
+#
+#
+# xs = np.linspace(0, 2*np.pi*10, 1000)
+# ys = 1*np.sin(xs/100) + np.random.normal(0, 0.1, 1000)
+# x = sm.stats.acorr_ljungbox(ys, lags=[100])
+# print(x)
+# plt.plot(xs, ys)
+# plt.show()
+
+
 # from icecream import ic
 #
 # data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
