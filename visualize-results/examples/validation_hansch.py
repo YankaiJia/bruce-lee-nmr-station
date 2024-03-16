@@ -42,25 +42,25 @@ def exrobotocrudes():
     plt.legend()
     plt.show()
 
-def inrobotocrudes():
+def inrobotocrudes(name):
     run_name = 'BPRF/2024-03-06-run01/'
     df_results_2 = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
     df_results = pd.read_excel(data_folder + run_name + f'NMR/hantzschrobotnmroyes.xlsx', sheet_name=0)
 
     f1 = plt.figure(figsize=(7,7))
 
-    # name = 'Hantzsch ester'
-    # ys = df_results['NMR HE C'].to_numpy()
-    # xs = df_results_2['pc#HRP01'].to_numpy()
-    # xs_err = df_results_2['pcerr#HRP01'].to_numpy()
+    if name == 'Hantzsch ester':
+        ys = df_results['NMR HE C'].to_numpy()
+        xs = df_results_2['pc#HRP01'].to_numpy()
+        xs_err = df_results_2['pcerr#HRP01'].to_numpy()
 
-    name = 'Hemiaminal'
-    ys = df_results['NMR HA C'].to_numpy()
-    xs = df_results_2['pc#bb017'].to_numpy()
-    xs_err = df_results_2['pcerr#bb017'].to_numpy()
+    if name == 'Hemiaminal':
+        ys = df_results['NMR HA C'].to_numpy()
+        xs = df_results_2['pc#bb017'].to_numpy()
+        xs_err = df_results_2['pcerr#bb017'].to_numpy()
 
     # plot with error bars in x
-    plt.title('In roboto crudes, 2024-03-06-run01, $\lambda_{min}$=235 nm')
+    plt.title('In roboto crudes, 2024-03-06-run01, $\lambda_{min}$=221 nm')
     dataset_dividing_indes = 9
     plt.errorbar(xs[:dataset_dividing_indes], ys[:dataset_dividing_indes], xerr=xs_err[:dataset_dividing_indes], fmt='o',
                  capsize=5, capthick=2, alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
@@ -72,8 +72,12 @@ def inrobotocrudes():
         plt.annotate(i, (xs[i], ys[i]))
     plt.ylabel(f'{name} concentration by NMR, mol/L')
     plt.xlabel(f'{name} concentration by UV-VIS, mol/L')
-    plt.xlim(-0.05 * maxval, 1.1 * maxval)
-    plt.ylim(-0.05 * maxval, 1.1 * maxval)
+    # plt.xlim(-0.05 * maxval, 1.1 * maxval)
+    # plt.ylim(-0.05 * maxval, 1.1 * maxval)
+
+    plt.xlim(-0.001, 0.012)
+    plt.ylim(-0.001, 0.012)
+
     plt.legend()
     plt.show()
     # xs = df_results.index.to_numpy()
@@ -83,4 +87,5 @@ def inrobotocrudes():
 
 
 if __name__ == '__main__':
-    inrobotocrudes()
+    inrobotocrudes(name='Hantzsch ester')
+    inrobotocrudes(name='Hemiaminal')

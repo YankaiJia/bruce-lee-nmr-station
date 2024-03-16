@@ -9,9 +9,17 @@ from scipy.signal import savgol_filter
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
+nanodrop_errorbar_folder = data_folder + 'nanodrop-spectrophotometer-measurements/nanodrop_errorbar_folder_2024-03-16/raw_residuals/'
+
 def read_cary_agilent_csv_spectrum(cary_file, column_name):
-    df = pd.read_csv(cary_file)
-    df = pd.read_csv(cary_file, skiprows=2, names=df.columns)
+    # load cary_file as text file and find the index of the first line that is empty
+    with open(cary_file, 'r') as file:
+        lines = file.readlines()
+        for i, line in enumerate(lines):
+            if line == '\n':
+                break
+    df = pd.read_csv(cary_file, skipfooter=len(lines)-i, engine='python')
+    df = pd.read_csv(cary_file, skiprows=2, names=df.columns, skipfooter=len(lines)-i, engine='python')
     wavelengths = df[column_name]
     # get next column after the column_name
     column_index = df.columns.get_loc(column_name)
@@ -41,7 +49,10 @@ def construct_calibrant(
                         do_smoothing_at_low_absorbance=0.005,
                         savgol_window=31,
                         forced_reference_from_agilent_cary_file=None,
-                        cary_column_name = None
+                        cary_column_name = None,
+                        nanodrop_wavelength_shift=0,
+                        do_record_residuals=False,
+                        do_not_save_data=False,
 ):
     if min_concentrations is None:
         min_concentrations = np.zeros(len(calibrant_shortnames))
@@ -51,7 +62,8 @@ def construct_calibrant(
 
     sp = process_wellplate_spectra.SpectraProcessor(folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
                                                          '2022-12-01/interpolator-dataset/')
-    sp.nanodrop_lower_cutoff_of_wavelengths = 220
+    sp.nanodrop_lower_cutoff_of_wavelengths = 220 - nanodrop_wavelength_shift
+    sp.nanodrop_upper_cutoff_of_wavelengths = 600 - nanodrop_wavelength_shift
 
     calibration_folder = data_folder + experiment_name + 'microspectrometer_data/calibration/'
 
@@ -65,6 +77,7 @@ def construct_calibrant(
     # load background from different file
     # bkg_spectrum = np.load(calibration_folder + f'background/bkg_spectrum.npy')
     nanodrop_df = sp.load_nanodrop_csv_for_one_plate(plate_folder)
+    nanodrop_df['wavelength'] = nanodrop_df['wavelength'] + nanodrop_wavelength_shift
     wavelengths = nanodrop_df['wavelength'].to_numpy()
 
     # load background from the row where concentration is 0
@@ -91,7 +104,8 @@ def construct_calibrant(
             spectrum[:, 1] -= np.mean(spectrum[-100:, 1])
         return spectrum
 
-    np.save(calibration_folder + f'background//bkg_spectrum.npy', bkg_spectrum)
+    if not do_not_save_data:
+        np.save(calibration_folder + f'background//bkg_spectrum.npy', bkg_spectrum)
 
     def reference_for_one_calibrant(calibrant_shortname, ref_concentration, min_concentration=0, max_concentration=1000,
                                     do_plot=True):
@@ -205,7 +219,7 @@ def construct_calibrant(
                                                           fill_value='extrapolate')
             # plot new ref spectrum in semilog scale
             plt.semilogy(wavelengths, ref_spectrum, label='hybrid spectrum')
-            plt.title(f'Ref spectrum, savgol_smoothed: {concentration}')
+            plt.title(f'Ref spectrum, savgol_smoothed')
             plt.legend()
             plt.show()
 
@@ -250,6 +264,13 @@ def construct_calibrant(
             slope_error = perr[0]
             coeffs.append(slope)
             coeff_errs.append(slope_error)
+
+            if do_record_residuals:
+                residuals = target_spectrum - func(wavelength_indices, *popt)
+                # stack wavelengths, target_spectrum, resoduals into a single 3xN array for saving
+                residuals_for_saving = np.vstack((wavelengths[mask2], target_spectrum[mask2], residuals[mask2])).T
+                filename_from_calibration_source = calibration_source_filename.split('/')[-1]
+                np.save(f'{nanodrop_errorbar_folder}residuals_{filename_from_calibration_source}__colname{df_row_here["nanodrop_col_name"]}.npy', residuals_for_saving)
 
             fig1 = plt.figure(1)
             plt.plot(target_spectrum, label='data', color='C0', alpha=0.5)
@@ -297,16 +318,74 @@ def construct_calibrant(
 
         coeff_to_concentration_interpolator = interpolate.interp1d(coeffs, concentrations,
                                                                    fill_value='extrapolate')
-        # Saving
-        np.save(calibration_folder + f'references/{calibrant_shortname}/bkg_spectrum.npy', bkg_spectrum)
-        np.save(calibration_folder + f'background//bkg_spectrum.npy', bkg_spectrum)
-        np.save(calibration_folder + f'references/{calibrant_shortname}/ref_spectrum.npy', ref_spectrum)
-        np.save(calibration_folder + f'references/{calibrant_shortname}/interpolator_coeffs.npy', np.array(coeffs))
-        np.save(calibration_folder + f'references/{calibrant_shortname}/interpolator_concentrations.npy',
-                concentrations)
+
+        if not do_not_save_data:
+            # Saving
+            np.save(calibration_folder + f'references/{calibrant_shortname}/bkg_spectrum.npy', bkg_spectrum)
+            np.save(calibration_folder + f'background//bkg_spectrum.npy', bkg_spectrum)
+            np.save(calibration_folder + f'references/{calibrant_shortname}/ref_spectrum.npy', ref_spectrum)
+            np.save(calibration_folder + f'references/{calibrant_shortname}/interpolator_coeffs.npy', np.array(coeffs))
+            np.save(calibration_folder + f'references/{calibrant_shortname}/interpolator_concentrations.npy',
+                    concentrations)
 
     for i, calibrant_shortname in enumerate(calibrant_shortnames):
         reference_for_one_calibrant(calibrant_shortname, ref_concentration=ref_concentrations[i],
                                     min_concentration=min_concentrations[i],
                                     max_concentration=max_concentrations[i],
                                     do_plot=do_plot)
+
+def take_median_of_nanodrop_spectra(plate_folder, nanodrop_lower_cutoff_of_wavelengths = 220,
+        nanodrop_upper_cutoff_of_wavelengths = 600):
+
+    # repeated measurements
+    nanodrop_df = pd.read_csv(plate_folder)
+
+    # rename first column to "wavelength" and make it float type
+    nanodrop_df = nanodrop_df.rename(columns={nanodrop_df.columns[0]: "wavelength"})
+
+    # remove rows where wavelength is lower than nanodrop_lower_cutoff_of_wavelengths
+    nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] >= nanodrop_lower_cutoff_of_wavelengths]
+
+    # remove rows where wavelength is higher than nanodrop_upper_cutoff_of_wavelengths
+    nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] <= nanodrop_upper_cutoff_of_wavelengths]
+
+    nanodrop_df["wavelength"] = nanodrop_df["wavelength"].astype(float)
+
+    # make a new df with same wavelength column
+    nanodrop_df_medianned = nanodrop_df[["wavelength"]]
+
+    sample_ids = []
+    for column in nanodrop_df.columns[1:]:
+        sample_id = column.split('-')[0]
+        if sample_id not in sample_ids:
+            sample_ids.append(sample_id)
+    for sample_id in sample_ids:
+        # find all columns which start with the sample_id before underscore, such as 1_0, 1_2, 1_3 if sample id is 1
+        columns_to_average = [column for column in nanodrop_df.columns if column.startswith(f'{sample_id}-')]
+        # take median of these columns
+        stacked_cols = [nanodrop_df[column].to_numpy() for column in columns_to_average]
+        ys = np.median(np.array(stacked_cols), axis=0)
+        nanodrop_df_medianned[f'{sample_id}'] = ys
+        # for col in stacked_cols:
+        #     plt.plot(nanodrop_df["wavelength"], col, label='original')
+        # plt.plot(nanodrop_df["wavelength"], ys, label='medianned')
+        # plt.legend()
+        # plt.show()
+
+    # # plot all columns against column 'wavelength' and use labels as columns
+    # for column in nanodrop_df.columns[1:]:
+    #     plt.plot(nanodrop_df["wavelength"], nanodrop_df[column], label=column)
+    #
+    # # plot medianned df
+    # for column in nanodrop_df_medianned.columns[1:]:
+    #     plt.plot(nanodrop_df_medianned["wavelength"], nanodrop_df_medianned[column], label=column, linestyle='--')
+    #
+    # plt.legend()
+    # plt.show()
+
+    # save medianned df to csv
+    nanodrop_df_medianned.to_csv(plate_folder[:-4] + '_medianned.csv', index=False)
+
+
+if __name__ == '__main__':
+    pass

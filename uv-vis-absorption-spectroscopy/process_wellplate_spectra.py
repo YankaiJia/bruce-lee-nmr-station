@@ -1160,8 +1160,10 @@ class SpectraProcessor:
             axs[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index],
                                      background_interpolators[0](target_spectra_wavelength_indices_masked[spectrum_index]) * weights_of_background_components[spectrum_index],
                                      label='Bkg. PC1', linestyle=':')
-        for spectrum_index in range(number_of_spectra):
-            axs[spectrum_index].legend()
+        # for spectrum_index in range(number_of_spectra):
+        #     axs[spectrum_index].legend()
+        axs[0].legend()
+
         plt.xlabel('Wavelength, nm')
         plt.ylabel('Absorbance')
 
