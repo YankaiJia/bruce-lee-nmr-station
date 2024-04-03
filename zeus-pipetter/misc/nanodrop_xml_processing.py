@@ -2,7 +2,7 @@ import pandas as pd, os, glob, numpy as np, time, datetime
 from scipy.signal import savgol_filter
 import xml.etree.ElementTree as ET
 import matplotlib.pyplot as plt
-from labellines import labelLine, labelLines
+# from labellines import labelLine, labelLines
 
 def remove_unwanted_columns(df):
     for column in df.columns:
@@ -82,7 +82,7 @@ def treat_one_file(xml_folder, xml_name):
     plt.legend(loc="upper right")
     plt.xlabel('wavelength (nm)')
     plt.ylabel('abs')
-    labelLines(plt.gca().get_lines(), zorder=2.5)
+    # labelLines(plt.gca().get_lines(), zorder=2.5)
     plt.show()
 
     # save plot

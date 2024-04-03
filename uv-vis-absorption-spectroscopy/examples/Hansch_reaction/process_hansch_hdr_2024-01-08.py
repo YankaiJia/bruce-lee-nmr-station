@@ -33,7 +33,7 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
     substrates = ['methoxybenzaldehyde', 'ethyl_acetoacetate', 'ammonium_acetate']
     product_name = 'HRP01'
     run_name = f'BPRF/{run_shortname}/'
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4']
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
     # try removing: 35_8, 35_9, dm37, dm_70
     # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm40_12', 'dm40_10',
     #                           'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
@@ -205,6 +205,7 @@ if __name__ == '__main__':
     #                       '2024-03-04-run02'])
     list_of_runs = tuple(['2024-03-06-run01'])
     # list_of_runs = tuple(['2024-03-06-run02'])
+    # list_of_runs = tuple(['2024-03-12-run01'])
 
     for i, run_shortname in enumerate(list_of_runs):
         process_run_by_shortname(run_shortname)

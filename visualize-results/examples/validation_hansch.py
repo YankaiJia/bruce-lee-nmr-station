@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-def exrobotocrudes():
+def exrobotocrudes_old():
     run_name = 'BPRF/2024-03-06-run02/'
     df_results_2 = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
     df_results = pd.read_excel(data_folder + run_name + f'NMR/hantzschexnmroyes.xlsx', sheet_name=0)
@@ -42,7 +42,7 @@ def exrobotocrudes():
     plt.legend()
     plt.show()
 
-def inrobotocrudes(name):
+def inrobotocrudes_old(name):
     run_name = 'BPRF/2024-03-06-run01/'
     df_results_2 = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
     df_results = pd.read_excel(data_folder + run_name + f'NMR/hantzschrobotnmroyes.xlsx', sheet_name=0)
@@ -60,7 +60,7 @@ def inrobotocrudes(name):
         xs_err = df_results_2['pcerr#bb017'].to_numpy()
 
     # plot with error bars in x
-    plt.title('In roboto crudes, 2024-03-06-run01, $\lambda_{min}$=221 nm')
+    plt.title('In roboto crudes, 2024-03-06-run01, $\lambda_{min}$=235 nm')
     dataset_dividing_indes = 9
     plt.errorbar(xs[:dataset_dividing_indes], ys[:dataset_dividing_indes], xerr=xs_err[:dataset_dividing_indes], fmt='o',
                  capsize=5, capthick=2, alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
@@ -86,6 +86,87 @@ def inrobotocrudes(name):
     # colstoplot = ['NMR HE C', 'OYES HE C']
 
 
+def inrobotocrudes(name, ax, runshortname):
+    run_name = f'BPRF/{runshortname}/'
+    df_results_2 = pd.read_csv(data_folder + run_name + f'results/product_concentration.csv')
+    df_results = pd.read_excel(data_folder + run_name + f'NMR/hantzschrobotnmroyes.xlsx', sheet_name=0)
+    # sort df_results by index column
+    df_results = df_results.sort_values(by='index')
+
+    # f1 = plt.figure(figsize=(7,7))
+
+    if name == 'Hantzsch ester':
+        ys = df_results['NMR HE C'].to_numpy()
+        xs = df_results_2['pc#HRP01'].to_numpy()
+        xs_err = df_results_2['pcerr#HRP01'].to_numpy()
+
+    if name == 'Hemiaminal':
+        ys = df_results['NMR HA C'].to_numpy()
+        xs = df_results_2['pc#bb017'].to_numpy()
+        xs_err = df_results_2['pcerr#bb017'].to_numpy()
+
+    if name == 'dm88_4':
+        ys = df_results['dm88_4 C'].to_numpy()
+        xs = df_results_2['pc#dm088_4'].to_numpy()
+        xs_err = df_results_2['pcerr#dm088_4'].to_numpy()
+
+    if name == 'dm070':
+        ys = df_results['dm070 C'].to_numpy()
+        xs = df_results_2['pc#dm70'].to_numpy()
+        xs_err = df_results_2['pcerr#dm70'].to_numpy()
+
+    if name == 'dm053':
+        ys = df_results['dm053 C'].to_numpy()
+        xs = df_results_2['pc#dm053'].to_numpy()
+        xs_err = df_results_2['pcerr#dm053'].to_numpy()
+
+    xs  *= 1000
+    xs_err *= 1000
+    ys *= 1000
+
+    # plot with error bars in x
+    # plt.title('In roboto crudes, 2024-03-12-run01, $\lambda_{min}$=235 nm')
+    odd_indices = np.where(df_results['NMR HE C'].to_numpy() > 0.0005)
+    even_indices = np.where(df_results['NMR HE C'].to_numpy() <= 0.0005)
+    ax.errorbar(xs[even_indices], ys[even_indices], xerr=xs_err[even_indices], fmt='o',
+                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
+    ax.errorbar(xs[odd_indices], ys[odd_indices], xerr=xs_err[odd_indices], fmt='o',
+                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition B\n(for hemiaminal maximum yield)', color='C2')
+    max_xs = max(xs)
+    max_ys = max(ys)
+    maxval = max([max_xs, max_ys])
+    print(f'maxval: {maxval}')
+    ax.plot([0, maxval], [0, maxval], 'k--', label='x=y line')
+    # for i in range(len(xs)):
+    #     plt.annotate(i, (xs[i], ys[i]))
+    ax.set_ylabel(f'{name} concentration by NMR, mM')
+    ax.set_xlabel(f'{name} concentration by UV-VIS, mM')
+    ax.set_xlim(-0.05 * maxval, 1.1 * maxval)
+    ax.set_ylim(-0.05 * maxval, 1.1 * maxval)
+
+    # plt.xlim(-0.001, 0.012)
+    # plt.ylim(-0.001, 0.012)
+
+    # plt.legend()
+    # plt.show()
+    # xs = df_results.index.to_numpy()
+    # ys = df_results['pc#HRP01'].to_numpy()
+    # xs = df_results.index.to_numpy()
+    # colstoplot = ['NMR HE C', 'OYES HE C']
+
 if __name__ == '__main__':
-    inrobotocrudes(name='Hantzsch ester')
-    inrobotocrudes(name='Hemiaminal')
+    # inrobotocrudes(name='Hantzsch ester')
+    # inrobotocrudes(name='Hemiaminal')
+    # inrobotocrudes(name='dm88_4')
+    # inrobotocrudes(name='dm070')
+
+    # f1 = plt.figure(10, 8)
+    # make a gris of four subplots
+    # runshortname = '2024-03-12-run01'
+    runshortname = '2024-03-06-run01'
+    fig, axs = plt.subplots(2, 3, figsize=(12, 8))
+    fig.suptitle(f'In roboto crudes, {runshortname}, ' + '$\lambda_{min}$=221 nm')
+    for i, name in enumerate(['Hantzsch ester', 'Hemiaminal', 'dm88_4', 'dm070', 'dm053']):
+        inrobotocrudes(name, axs[i//3, i%3], runshortname=runshortname)
+
+    plt.show()

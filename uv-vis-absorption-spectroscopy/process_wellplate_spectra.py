@@ -192,6 +192,9 @@ class SpectraProcessor:
         # rename first column to "wavelength" and make it float type
         nanodrop_df = nanodrop_df.rename(columns={nanodrop_df.columns[0]: "wavelength"})
 
+        # print the lowest value of 'wavelength' column
+        print(f"Lowest wavelength in nanodrop file: {nanodrop_df['wavelength'].min()}")
+
         # remove rows where wavelength is lower than nanodrop_lower_cutoff_of_wavelengths
         nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] >= self.nanodrop_lower_cutoff_of_wavelengths]
 
@@ -1251,7 +1254,7 @@ if __name__ == '__main__':
 
     # well_id = 44
     well_id = 9
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053']
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
     # cut_from = 40
     cut_from = 15
     # Condition 154
