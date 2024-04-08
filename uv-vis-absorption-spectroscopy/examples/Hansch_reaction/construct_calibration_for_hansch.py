@@ -304,7 +304,7 @@ cut_from = 5
 #     # nanodrop_wavelength_shift = +3
 # )
 
-## with CARY and two isomers
+# # with CARY and two isomers
 # calibrator.construct_calibrant(
 #     cut_from=0,
 #     lower_limit_of_absorbance=0.007,

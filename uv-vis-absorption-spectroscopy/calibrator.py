@@ -53,6 +53,7 @@ def construct_calibrant(
                         nanodrop_wavelength_shift=0,
                         do_record_residuals=False,
                         do_not_save_data=False,
+                        skip_concentrations=tuple([])
 ):
     if min_concentrations is None:
         min_concentrations = np.zeros(len(calibrant_shortnames))
@@ -127,7 +128,7 @@ def construct_calibrant(
         reference_interpolator = interpolate.interp1d(wavelength_indices, ref_spectrum, fill_value='extrapolate')
 
         concentrations = one_calibrant_df[concentration_column_name].to_list()
-        concentrations = [x for x in concentrations if min_concentration <= x <= max_concentration]
+        concentrations = [x for x in concentrations if (min_concentration <= x <= max_concentration) and (x not in skip_concentrations)]
         concentrations = sorted([0] + concentrations)
 
         process_wellplate_spectra.create_folder_unless_it_exists(calibration_folder + f'references/{calibrant_shortname}/concentration_fits')

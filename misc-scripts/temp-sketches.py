@@ -7,39 +7,93 @@ import pandas as pd
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
-experiment_name = f'BPRF/2024-01-17-run01/'
 
-def read_cary_agilent_csv_spectrum(cary_file, column_name):
-    df = pd.read_csv(cary_file)
-    df = pd.read_csv(cary_file, skiprows=2, names=df.columns)
-    wavelengths = df[column_name]
-    # get next column after the column_name
-    column_index = df.columns.get_loc(column_name)
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import SmoothBivariateSpline
 
-    next_column_name = df.columns[column_index + 1]
-    ys = df[next_column_name]
-    return wavelengths, ys
+import warnings
+warnings.simplefilter('ignore')
 
-cary_file = data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch-ester-HRP01/HRP01_400ug_per_20mL_repeat1.csv'
-column_name = 'HRP01_0.4mg_per_20_mL_repeat1'
-# cary_file = data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_dm37/dm37.csv'
-# column_name = 'dm_37_SBW1nm_repeat2'
-plt.title('HRP01 reference spectrum')
+# train_x, train_y = np.meshgrid(np.arange(-5, 5, 0.5), np.arange(-5, 5, 0.5))
+# train_x = train_x.flatten()
+# train_y = train_y.flatten()
 
-wavelengths, ys = read_cary_agilent_csv_spectrum(cary_file, column_name)
-plt.plot(wavelengths, ys, label='reference from Agilent Cary')
+train_x = np.random.uniform(-5, 5, 300)
+train_y = np.random.uniform(-5, 5, 300)
 
-spectrum = np.load(data_folder + '/BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/ref_spectrum.npy')
-# spectrum = np.load(data_folder + '/BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/dm37/ref_spectrum.npy')
-wavelengths = 220 + np.arange(spectrum.shape[0])
 
-plt.plot(wavelengths, spectrum*2*0.98, label='reference from nanodrop')
-# plt.plot(wavelengths, spectrum, label='reference from nanodrop')
-plt.legend()
-plt.xlabel('Wavelength, nm')
-plt.ylabel('Absorbance')
+def z_func(x, y):
+    return np.cos(x) + np.sin(y) ** 2 + 0.05 * x + 0.1 * y
 
+train_z = z_func(train_x, train_y)
+interp_func = SmoothBivariateSpline(train_x, train_y, train_z, s=0.0)
+smth_func = SmoothBivariateSpline(train_x, train_y, train_z)
+
+test_x = np.arange(-9, 9, 0.01)
+test_y = np.arange(-9, 9, 0.01)
+grid_x, grid_y = np.meshgrid(test_x, test_y)
+
+interp_result = interp_func(test_x, test_y).T
+smth_result = smth_func(test_x, test_y).T
+perfect_result = z_func(grid_x, grid_y)
+
+fig, axes = plt.subplots(1, 3, figsize=(16, 8))
+extent = [test_x[0], test_x[-1], test_y[0], test_y[-1]]
+opts = dict(aspect='equal', cmap='nipy_spectral', extent=extent, vmin=-1.5, vmax=2.5)
+
+im = axes[0].imshow(perfect_result, **opts)
+fig.colorbar(im, ax=axes[0], orientation='horizontal')
+axes[0].plot(train_x, train_y, 'w.')
+axes[0].set_title('Perfect result, sampled function', fontsize=21)
+
+im = axes[1].imshow(smth_result, **opts)
+axes[1].plot(train_x, train_y, 'w.')
+fig.colorbar(im, ax=axes[1], orientation='horizontal')
+axes[1].set_title('s=default', fontsize=21)
+
+im = axes[2].imshow(interp_result, **opts)
+fig.colorbar(im, ax=axes[2], orientation='horizontal')
+axes[2].plot(train_x, train_y, 'w.')
+axes[2].set_title('s=0', fontsize=21)
+
+plt.tight_layout()
 plt.show()
+
+
+# experiment_name = f'BPRF/2024-01-17-run01/'
+#
+# def read_cary_agilent_csv_spectrum(cary_file, column_name):
+#     df = pd.read_csv(cary_file)
+#     df = pd.read_csv(cary_file, skiprows=2, names=df.columns)
+#     wavelengths = df[column_name]
+#     # get next column after the column_name
+#     column_index = df.columns.get_loc(column_name)
+#
+#     next_column_name = df.columns[column_index + 1]
+#     ys = df[next_column_name]
+#     return wavelengths, ys
+#
+# cary_file = data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch-ester-HRP01/HRP01_400ug_per_20mL_repeat1.csv'
+# column_name = 'HRP01_0.4mg_per_20_mL_repeat1'
+# # cary_file = data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_dm37/dm37.csv'
+# # column_name = 'dm_37_SBW1nm_repeat2'
+# plt.title('HRP01 reference spectrum')
+#
+# wavelengths, ys = read_cary_agilent_csv_spectrum(cary_file, column_name)
+# plt.plot(wavelengths, ys, label='reference from Agilent Cary')
+#
+# spectrum = np.load(data_folder + '/BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/ref_spectrum.npy')
+# # spectrum = np.load(data_folder + '/BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/dm37/ref_spectrum.npy')
+# wavelengths = 220 + np.arange(spectrum.shape[0])
+#
+# plt.plot(wavelengths, spectrum*2*0.98, label='reference from nanodrop')
+# # plt.plot(wavelengths, spectrum, label='reference from nanodrop')
+# plt.legend()
+# plt.xlabel('Wavelength, nm')
+# plt.ylabel('Absorbance')
+#
+# plt.show()
 
 
 
