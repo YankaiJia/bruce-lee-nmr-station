@@ -1417,7 +1417,7 @@ if __name__ == '__main__':
 
     ###################### SIMPLE SN1 REACTIONS ######################
 
-    # plate_folder = data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/2023-09-07_22-46-02_E1_ref_and_etoh_hbr_aac.csv'
+    # plate_folder = data_folder + 'nanodrop-spectrophotometer-measurements/reference_for_simple_SN1/2023-09-07_22-46-02_E1_ref_and_etoh_hbr_aac.csv'
     # # # sp.show_all_spectra(data_folder + 'simple-reactions/2023-08-21-run01/nanodrop_spectra/2023-08-23_23-50-41_plate_51.csv',
     # # #                     specific_well_ids=range(10))
     # sp.show_all_spectra(plate_folder, specific_well_ids=range(7, 14, 1))

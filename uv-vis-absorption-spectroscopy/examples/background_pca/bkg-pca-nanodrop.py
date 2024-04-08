@@ -21,7 +21,7 @@ calibration_folder = data_folder + f'{run_name}/' + 'microspectrometer_data/cali
 bkg_spectrum = np.load(calibration_folder + 'background/bkg_spectrum.npy')
 
 # Load all background spectra
-spectra = sp.load_all_spectra(data_folder + 'nanodrop-spectrometer-measurements/background_test/2023-08-29_13-47-39_2023_08_29_UV-Vis_background_measurement_dioxaneX54.csv')
+spectra = sp.load_all_spectra(data_folder + 'nanodrop-spectrophotometer-measurements/background_test/2023-08-29_13-47-39_2023_08_29_UV-Vis_background_measurement_dioxaneX54.csv')
 cut_from = 0
 do_save = False
 

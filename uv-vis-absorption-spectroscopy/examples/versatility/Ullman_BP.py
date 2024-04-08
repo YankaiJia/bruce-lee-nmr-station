@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Ullman_BP/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Ullman_BP/'
 
 cut_from = 50
 

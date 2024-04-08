@@ -17,8 +17,8 @@ run_shortname = '2023-08-21-run01'
 experiment_name = f'simple-reactions/{run_shortname}/'
 calibrant_shortname = 'SN1OH03'
 calibration_folder = data_folder + experiment_name + 'microspectrometer_data/calibration/'
-plate_folder = data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/2023-08-27_21-34-20_2023_08_27_UV-Vis_reference.csv'
-one_calibrant_df = pd.read_csv(data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/'
+plate_folder = data_folder + 'nanodrop-spectrophotometer-measurements/reference_for_simple_SN1/2023-08-27_21-34-20_2023_08_27_UV-Vis_reference.csv'
+one_calibrant_df = pd.read_csv(data_folder + 'nanodrop-spectrophotometer-measurements/reference_for_simple_SN1/'
                                              'concentrations_of_substrate.csv')
 
 ref_concentration=7.5e-4/dilution_factor

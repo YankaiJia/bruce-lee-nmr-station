@@ -123,7 +123,7 @@ if __name__ == "__main__":
         if 'run' in folder:
             xml_folder = data_folder + '/simple-reactions/' + folder + '/nanodrop_spectra/'
         else:
-            xml_folder = data_folder + '/nanodrop-spectrometer-measurements/' +  folder + '/'
+            xml_folder = data_folder + '/nanodrop-spectrophotometer-measurements/' +  folder + '/'
 
         os.chdir(xml_folder)
         xml_files = glob.glob('*.xml')

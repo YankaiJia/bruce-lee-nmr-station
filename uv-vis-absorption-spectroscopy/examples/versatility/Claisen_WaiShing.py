@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Claisen_WaiShing/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Claisen_WaiShing/'
 
 construct_calibrant(
     cut_from=5,

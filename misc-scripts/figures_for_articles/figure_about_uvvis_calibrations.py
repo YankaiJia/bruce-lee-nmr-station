@@ -8,7 +8,7 @@ def simpleaxis(ax):
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Claisen_WaiShing/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Claisen_WaiShing/'
 
 f = plt.figure(figsize=(4.9, 4.5 * 2/3 * 1.1), dpi=300)
 

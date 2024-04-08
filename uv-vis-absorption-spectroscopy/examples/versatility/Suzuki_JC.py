@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Suzuki_JC/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Suzuki_JC/'
 calibration_source_filename = '2023-10-11_15-28-13_sub_and_prod_calib_curve_good'
 calibrant_shortnames = ['CH3COPhBr', 'CH3CObiPhOMe', 'MeOPhB(OH)2']
 ref_concentrations = [0.0002, 0.0002, 0.0004]

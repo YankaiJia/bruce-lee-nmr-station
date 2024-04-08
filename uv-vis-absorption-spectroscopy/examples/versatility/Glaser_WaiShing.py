@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Glaser_WaiShing/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Glaser_WaiShing/'
 
 cut_from = 70
 
@@ -8,7 +8,7 @@ construct_calibrant(
     cut_from=cut_from,
     lower_limit_of_absorbance=0.007,
     concentration_column_name='concentration',
-    do_plot=False,
+    do_plot=True,
     calibration_source_filename='2023-10-16_12-50-44_UV-Vis_phenylacetylene_MeCN',
     calibrant_shortnames=['phenylacetylene'],
     ref_concentrations=[0.0005],
@@ -29,7 +29,7 @@ construct_calibrant(
     max_concentrations=[0.00045],
     experiment_name=experiment_name,
     no_right_edge_subtraction=True,
-    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrometer-measurements/versatility_test/Glaser_WaiShing/microspectrometer_data/calibration/references/phenylacetylene/bkg_spectrum.npy'
+    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrophotometer-measurements/versatility_test/Glaser_WaiShing/microspectrometer_data/calibration/references/phenylacetylene/bkg_spectrum.npy'
 )
 
 
@@ -44,7 +44,7 @@ construct_calibrant(
     max_concentrations=[0.610],
     experiment_name=experiment_name,
     no_right_edge_subtraction=False,
-    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrometer-measurements/versatility_test/Glaser_WaiShing/microspectrometer_data/calibration/references/phenylacetylene/bkg_spectrum.npy'
+    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrophotometer-measurements/versatility_test/Glaser_WaiShing/microspectrometer_data/calibration/references/phenylacetylene/bkg_spectrum.npy'
 )
 
 

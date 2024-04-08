@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Click_DM/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Click_DM/'
 
 cut_from = 3
 # cut_from = 52

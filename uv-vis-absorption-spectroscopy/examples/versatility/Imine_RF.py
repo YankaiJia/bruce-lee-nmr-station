@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Imine_RF/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Imine_RF/'
 
 cut_from = 50
 
@@ -14,7 +14,7 @@ construct_calibrant(
     ref_concentrations=[0.0005],
     max_concentrations=[0.0011],
     experiment_name=experiment_name,
-    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrometer-measurements/versatility_test/Imine_RF/microspectrometer_data/calibration/references/ald01/bkg_spectrum.npy'
+    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrophotometer-measurements/versatility_test/Imine_RF/microspectrometer_data/calibration/references/ald01/bkg_spectrum.npy'
 )
 
 construct_calibrant(

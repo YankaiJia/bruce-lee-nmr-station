@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Friedel-Crafts_GM/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Friedel-Crafts_GM/'
 
 cut_from = 150
 
@@ -38,7 +38,7 @@ construct_calibrant(
 #     ref_concentrations=[0.02925],
 #     max_concentrations=[0.1],
 #     experiment_name=experiment_name,
-#     custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrometer-measurements/versatility_test/Friedel-Crafts_GM/microspectrometer_data/calibration/references/ferrocene/bkg_spectrum.npy',
+#     custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrophotometer-measurements/versatility_test/Friedel-Crafts_GM/microspectrometer_data/calibration/references/ferrocene/bkg_spectrum.npy',
 #     no_right_edge_subtraction=True
 # )
 
@@ -52,7 +52,7 @@ construct_calibrant(
     ref_concentrations=[0.020],
     max_concentrations=[0.1],
     experiment_name=experiment_name,
-    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrometer-measurements/versatility_test/Friedel-Crafts_GM/microspectrometer_data/calibration/references/ferrocene/bkg_spectrum.npy',
+    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrophotometer-measurements/versatility_test/Friedel-Crafts_GM/microspectrometer_data/calibration/references/ferrocene/bkg_spectrum.npy',
     no_right_edge_subtraction=True
 )
 
@@ -66,7 +66,7 @@ construct_calibrant(
     ref_concentrations=[0.01],
     max_concentrations=[0.1],
     experiment_name=experiment_name,
-    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrometer-measurements/versatility_test/Friedel-Crafts_GM/microspectrometer_data/calibration/references/ferrocene/bkg_spectrum.npy'
+    custom_bkg_spectrum_npy_file=data_folder + 'nanodrop-spectrophotometer-measurements/versatility_test/Friedel-Crafts_GM/microspectrometer_data/calibration/references/ferrocene/bkg_spectrum.npy'
 )
 
 

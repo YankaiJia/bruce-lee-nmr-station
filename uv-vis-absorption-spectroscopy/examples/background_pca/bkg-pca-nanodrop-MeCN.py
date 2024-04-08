@@ -23,7 +23,7 @@ calibration_folder = data_folder + f'{run_name}/' + 'microspectrometer_data/cali
 # bkg_spectrum = np.load(calibration_folder + 'background/bkg_spectrum.npy')
 
 # Load all background spectra
-spectra = sp.load_all_spectra(data_folder + 'nanodrop-spectrometer-measurements/reference_for_E1/MeCN_54times/2023-09-09_20-46-58_MeCN_54times.csv')
+spectra = sp.load_all_spectra(data_folder + 'nanodrop-spectrophotometer-measurements/reference_for_E1/MeCN_54times/2023-09-09_20-46-58_MeCN_54times.csv')
 bkg_spectrum = np.mean([spectrum for spectrum in spectra], axis=0)
 np.save(calibration_folder + 'background/bkg_spectrum.npy', bkg_spectrum)
 cut_from = 0

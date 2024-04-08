@@ -223,7 +223,7 @@ def process_plate(sp, dilution_factor,
 
     return df
 
-# experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Claisen_WaiShing/'
+# experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Claisen_WaiShing/'
 
 product_name = 'IIO029A'
 plate_folder = 'D:/Docs/Dropbox/robochem/data/craic_microspectrometer_measurements/absorbance/2023-06-23_10-16-05__plate0000049__multicomp_reactions_2023-06-22-run02/'

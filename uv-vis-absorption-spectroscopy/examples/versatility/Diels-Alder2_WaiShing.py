@@ -1,6 +1,6 @@
 from versatility_examples import *
 
-experiment_name = f'nanodrop-spectrometer-measurements/versatility_test/Diels-Alder2_WaiShing/'
+experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Diels-Alder2_WaiShing/'
 
 cut_from = 0
 

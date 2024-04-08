@@ -17,8 +17,8 @@ run_shortname = '2023-08-21-run01'
 experiment_name = f'simple-reactions/{run_shortname}/'
 calibrant_shortname = 'HBr'
 calibration_folder = data_folder + experiment_name + 'microspectrometer_data/calibration/'
-plate_folder = data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/2023-09-07_22-46-02_E1_ref_and_etoh_hbr_aac.csv'
-one_calibrant_df = pd.read_csv(data_folder + 'nanodrop-spectrometer-measurements/reference_for_simple_SN1/'
+plate_folder = data_folder + 'nanodrop-spectrophotometer-measurements/reference_for_simple_SN1/2023-09-07_22-46-02_E1_ref_and_etoh_hbr_aac.csv'
+one_calibrant_df = pd.read_csv(data_folder + 'nanodrop-spectrophotometer-measurements/reference_for_simple_SN1/'
                                              '2023_09_07_UV-Vis_E1_ref_and_etoh_hbr_aac.txt')
 one_calibrant_df['nanodrop_col_name'] = one_calibrant_df['nanodrop_col_name'].astype(str)
 one_calibrant_df = one_calibrant_df[one_calibrant_df['substance'] == 'HBR_48%']
