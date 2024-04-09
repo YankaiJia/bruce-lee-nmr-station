@@ -53,7 +53,8 @@ def construct_calibrant(
                         nanodrop_wavelength_shift=0,
                         do_record_residuals=False,
                         do_not_save_data=False,
-                        skip_concentrations=tuple([])
+                        skip_concentrations=tuple([]),
+                        dont_save_residuals_below_cut_to=False
 ):
     if min_concentrations is None:
         min_concentrations = np.zeros(len(calibrant_shortnames))
@@ -269,7 +270,10 @@ def construct_calibrant(
             if do_record_residuals:
                 residuals = target_spectrum - func(wavelength_indices, *popt)
                 # stack wavelengths, target_spectrum, resoduals into a single 3xN array for saving
-                residuals_for_saving = np.vstack((wavelengths[mask2], target_spectrum[mask2], residuals[mask2])).T
+                if dont_save_residuals_below_cut_to:
+                    residuals_for_saving = np.vstack((wavelengths[mask], target_spectrum[mask], residuals[mask])).T
+                else:
+                    residuals_for_saving = np.vstack((wavelengths[mask2], target_spectrum[mask2], residuals[mask2])).T
                 filename_from_calibration_source = calibration_source_filename.split('/')[-1]
                 np.save(f'{nanodrop_errorbar_folder}residuals_{filename_from_calibration_source}__colname{df_row_here["nanodrop_col_name"]}.npy', residuals_for_saving)
 
