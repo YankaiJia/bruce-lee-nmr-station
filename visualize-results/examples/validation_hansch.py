@@ -112,11 +112,18 @@ def inrobotocrudes(name, ax, runshortname):
 
     if name == 'dm070':
         ys = df_results['dm070 C'].to_numpy()
+        # xs = df_results_2['pc#dm70'].to_numpy() + df_results_2['pc#dm37'].to_numpy()
+        # xs_err = df_results_2['pcerr#dm70'].to_numpy() + df_results_2['pcerr#dm37'].to_numpy()
+
         xs = df_results_2['pc#dm70'].to_numpy()
         xs_err = df_results_2['pcerr#dm70'].to_numpy()
+        # xs = ys
+        # xs_err = np.ones_like(xs)*0.0001
 
     if name == 'dm053':
         ys = df_results['dm053 C'].to_numpy()
+        # xs = ys
+        # xs_err = np.ones_like(xs)*0.0001
         xs = df_results_2['pc#dm053'].to_numpy()
         xs_err = df_results_2['pcerr#dm053'].to_numpy()
 
@@ -162,8 +169,8 @@ if __name__ == '__main__':
 
     # f1 = plt.figure(10, 8)
     # make a gris of four subplots
-    # runshortname = '2024-03-12-run01'
-    runshortname = '2024-03-06-run01'
+    runshortname = '2024-03-12-run01'
+    # runshortname = '2024-03-06-run01'
     fig, axs = plt.subplots(2, 3, figsize=(12, 8))
     fig.suptitle(f'In roboto crudes, {runshortname}, ' + '$\lambda_{min}$=221 nm')
     for i, name in enumerate(['Hantzsch ester', 'Hemiaminal', 'dm88_4', 'dm070', 'dm053']):

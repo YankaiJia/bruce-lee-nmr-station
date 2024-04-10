@@ -11,22 +11,7 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
 nanodrop_errorbar_folder = data_folder + 'nanodrop-spectrophotometer-measurements/nanodrop_errorbar_folder_2024-03-16/raw_residuals/'
 
-def read_cary_agilent_csv_spectrum(cary_file, column_name):
-    # load cary_file as text file and find the index of the first line that is empty
-    with open(cary_file, 'r') as file:
-        lines = file.readlines()
-        for i, line in enumerate(lines):
-            if line == '\n':
-                break
-    df = pd.read_csv(cary_file, skipfooter=len(lines)-i, engine='python')
-    df = pd.read_csv(cary_file, skiprows=2, names=df.columns, skipfooter=len(lines)-i, engine='python')
-    wavelengths = df[column_name]
-    # get next column after the column_name
-    column_index = df.columns.get_loc(column_name)
-
-    next_column_name = df.columns[column_index + 1]
-    ys = df[next_column_name]
-    return wavelengths, ys
+st = importlib.import_module('uv-vis-absorption-spectroscopy.spectraltools')
 
 def construct_calibrant(
                         cut_from,
@@ -135,7 +120,7 @@ def construct_calibrant(
         process_wellplate_spectra.create_folder_unless_it_exists(calibration_folder + f'references/{calibrant_shortname}/concentration_fits')
 
         if forced_reference_from_agilent_cary_file is not None:
-            wavelengths_cary, ys = read_cary_agilent_csv_spectrum(forced_reference_from_agilent_cary_file, column_name=cary_column_name)
+            wavelengths_cary, ys = st.read_cary_agilent_csv_spectrum(forced_reference_from_agilent_cary_file, column_name=cary_column_name)
             ref_spectrum = ys
             plt.semilogy(wavelengths_cary, ref_spectrum, label='forced reference')
             plt.title(f'Ref spectrum, forced reference')

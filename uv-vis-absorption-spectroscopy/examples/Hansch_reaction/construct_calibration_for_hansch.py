@@ -2,6 +2,7 @@ import importlib
 import os
 calibrator = importlib.import_module("uv-vis-absorption-spectroscopy.calibrator")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+st = importlib.import_module("uv-vis-absorption-spectroscopy.spectraltools")
 
 experiment_name = f'BPRF/2024-01-17-run01/'
 cut_from = 5
@@ -240,26 +241,58 @@ cut_from = 5
 #     # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
 # )
 
-# calibrator.construct_calibrant(
-#     cut_from=cut_from,
-#     lower_limit_of_absorbance=0.007,
-#     concentration_column_name='concentration',
-#     do_plot=True,
-#     calibration_source_filename='calibrations/2023-12-26_15-14-38_UV-Vis_ethylaminobutenoate',
-#     calibrant_shortnames=['EAB'],
-#     ref_concentrations=[0.0005],
-#     max_concentrations=[0.00085],#[0.00085],
-#     min_concentrations=[0],
-#     experiment_name=experiment_name,
-#     upper_limit_of_absorbance=0.95,
-#     do_reference_stitching=False,
-#     do_smoothing_at_low_absorbance=None,
-#     forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/other-hantzsch/EAB.csv',
-#     cary_column_name='EAB__c1_rep1',
-#     cut_to=None,
-#     bkg_multiplier=1,
-#     # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
-# )
+
+############### Stitchine EAB spectra from Cary
+# data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+# agilent_cary_file = data_folder + f'BPRF/2024-01-17-run01/' + 'calibrations/spectrophotometer_data/other-hantzsch/EAB.csv'
+# cary_column_name = 'EAB__c1_rep1'
+# data1 = st.read_cary_agilent_csv_spectrum(agilent_cary_file, cary_column_name)
+# wavwlengths1, spectrum1 = data1
+#
+# agilent_cary_file = data_folder + f'BPRF/2024-01-17-run01/' + 'calibrations/spectrophotometer_data/Hantzsch_EAB/EAB_for_stitching.csv'
+#
+# wavelengths2, spectrum2 = st.read_cary_agilent_csv_spectrum(agilent_cary_file, 'EAB_c2_rep1_1')
+# _, spectrum_updated = st.stitch_two_spectra(wavwlengths1, spectrum1, wavelengths2, spectrum2, absorbance_limit=1.0,
+#                                          do_plot=True)
+#
+# wavelengths2, spectrum2 = st.read_cary_agilent_csv_spectrum(agilent_cary_file, 'EAB_c1_rep1_1')
+# _, spectrum_updated = st.stitch_two_spectra(wavwlengths1, spectrum_updated, wavelengths2, spectrum2, absorbance_limit=1.0,
+#                                          do_plot=True)
+#
+# wavelengths2, spectrum2 = st.read_cary_agilent_csv_spectrum(agilent_cary_file, 'EAB_c3_rep1_1')
+# _, spectrum_updated = st.stitch_two_spectra(wavwlengths1, spectrum_updated, wavelengths2, spectrum2, absorbance_limit=1.0,
+#                                          do_plot=True)
+#
+# wavelengths2, spectrum2 = st.read_cary_agilent_csv_spectrum(agilent_cary_file, 'EAB_c4_rep1_1')
+# _, spectrum_updated = st.stitch_two_spectra(wavwlengths1, spectrum_updated, wavelengths2, spectrum2, absorbance_limit=1.0,
+#                                          do_plot=True)
+#
+# st.write_cary_agilent_csv_spectrum(wavwlengths1, spectrum_updated,
+#                                 data_folder + f'BPRF/2024-01-17-run01/' + 'calibrations/spectrophotometer_data/Hantzsch_EAB/EAB_stitched.csv',
+#                                 'EAB_stitched')
+
+
+##################### Calibrating EAB
+calibrator.construct_calibrant(
+    cut_from=cut_from,
+    lower_limit_of_absorbance=0.007,
+    concentration_column_name='concentration',
+    do_plot=True,
+    calibration_source_filename='calibrations/2023-12-26_15-14-38_UV-Vis_ethylaminobutenoate',
+    calibrant_shortnames=['EAB'],
+    ref_concentrations=[0.0007],
+    max_concentrations=[0.00084],#[0.00085],
+    min_concentrations=[0],
+    experiment_name=experiment_name,
+    upper_limit_of_absorbance=0.95,
+    do_reference_stitching=False,
+    do_smoothing_at_low_absorbance=None,
+    forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_EAB/EAB_stitched.csv',
+    cary_column_name='EAB_stitched',
+    cut_to=None,
+    bkg_multiplier=1,
+    # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
+)
 
 # calibrator.construct_calibrant(
 #     cut_from=cut_from,
@@ -326,27 +359,27 @@ cut_from = 5
 #     # nanodrop_wavelength_shift = +3
 # )
 
-calibrator.construct_calibrant(
-    cut_from=0,
-    lower_limit_of_absorbance=0.007,
-    concentration_column_name='concentration',
-    do_plot=True,
-    calibration_source_filename='calibrations/2024_04_0_UV-Vis_bb021_F2',
-    calibrant_shortnames=['bb021_f2'],
-    ref_concentrations=[0.0005],
-    max_concentrations=[0.0004],
-    min_concentrations=[0.0001],
-    experiment_name=experiment_name,
-    upper_limit_of_absorbance=0.95,
-    do_reference_stitching=False,
-    do_smoothing_at_low_absorbance=None,
-    forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_other_2/bb021_f2_c2_rep1.csv',
-    cary_column_name='bb021f2_c2_rep1_2',
-    # forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_other_2/bb021_f1_rep2.csv',
-    # cary_column_name='bb021f1_c1_rep2_2',
-    cut_to=None
-    # nanodrop_wavelength_shift = +3
-)
+# calibrator.construct_calibrant(
+#     cut_from=0,
+#     lower_limit_of_absorbance=0.007,
+#     concentration_column_name='concentration',
+#     do_plot=True,
+#     calibration_source_filename='calibrations/2024_04_0_UV-Vis_bb021_F2',
+#     calibrant_shortnames=['bb021_f2'],
+#     ref_concentrations=[0.0005],
+#     max_concentrations=[0.0004],
+#     min_concentrations=[0.0001],
+#     experiment_name=experiment_name,
+#     upper_limit_of_absorbance=0.95,
+#     do_reference_stitching=False,
+#     do_smoothing_at_low_absorbance=None,
+#     forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_other_2/bb021_f2_c2_rep1.csv',
+#     cary_column_name='bb021f2_c2_rep1_2',
+#     # forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_other_2/bb021_f1_rep2.csv',
+#     # cary_column_name='bb021f1_c1_rep2_2',
+#     cut_to=None
+#     # nanodrop_wavelength_shift = +3
+# )
 
 
 # plate_folder = data_folder + 'BPRF/2024-01-17-run01/calibrations/2024-03-14_20-52-15_UV-Vis_dm088_4.csv'
@@ -359,8 +392,8 @@ calibrator.construct_calibrant(
 #     do_plot=True,
 #     calibration_source_filename='calibrations/2024-03-14_20-52-15_UV-Vis_dm088_4_medianned',
 #     calibrant_shortnames=['dm088_4'],
-#     ref_concentrations=[0.002],
-#     max_concentrations=[0.004],
+#     ref_concentrations=[0.0003],
+#     max_concentrations=[0.00035],
 #     min_concentrations=[0],
 #     experiment_name=experiment_name,
 #     upper_limit_of_absorbance=0.95,

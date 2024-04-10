@@ -9,6 +9,8 @@ organize_run_results = importlib.import_module("misc-scripts.organize_run_result
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 plt.ioff()
 
+
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -33,21 +35,58 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
     substrates = ['methoxybenzaldehyde', 'ethyl_acetoacetate', 'ammonium_acetate']
     product_name = 'HRP01'
     run_name = f'BPRF/{run_shortname}/'
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
+    # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
+    # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10',
+    #                           'ethyl_acetoacetate', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
     # try removing: 35_8, 35_9, dm37, dm_70
-    # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm40_12', 'dm40_10',
-    #                           'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021']
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm40_12', 'dm40_10',
+                              'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm088_4', 'dm053', 'dm70']
+
+    # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01',
+    #                           'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm088_4', 'dm70']
     # add: dm88
 
     # divide by doubled concentration of ethyl_acetoacetate, because two molecules of ethyl_acetoacetate are needed for one product
     # or by 1 eq of methoqxybenzaldehyde, or ammonium acetate
     # main product is HRP01
     # dilution factor is 200
+    df_stoich = pd.read_csv(data_folder + 'BPRF/misc/Hnamesstechiometry3.csv')
+    for i, s in enumerate(substrates):
+        # add row with string s in 'Names', string f'SUB{i}' in Short_names column, number 1 in the column called s and zeros in other columns
+        dict_to_add = {'Names': s, 'Short_names': f'SUB{i}', s: 1}
+        dict_to_add.update({x: 0 for x in substrates if x != s})
+        df_stoich = df_stoich.append(dict_to_add, ignore_index=True)
+
+    def product_concentrations_to_required_substrates(concentrations):
+        dict_of_substrate_concentrations = {s:0 for s in substrates}
+        for i, substance_for_fitting in enumerate(substances_for_fitting):
+            for s in substrates:
+                # find the cell in df_stoich where Name is equal to substance_for_fitting and column is s
+                dict_of_substrate_concentrations[s] += concentrations[i] * df_stoich.loc[df_stoich['Names'] == substance_for_fitting, s].values[0]
+        return dict_of_substrate_concentrations
+
+    def stoich_cost(concentrations, starting_concentrations_dict):
+        def smooth_step(x):
+            if x<=0:
+                return 0
+            else:
+                return x# * np.exp(x)
+            # return np.exp(x)
+
+        required_subs = product_concentrations_to_required_substrates(concentrations)
+        final_penalization = 0
+        for s in substrates:
+            overspending_ratio = required_subs[s] / starting_concentrations_dict[s]
+            final_penalization += smooth_step((overspending_ratio - 1)/0.01)
+            # final_penalization += smooth_step((required_subs[s] - starting_concentrations_dict[s])/0.001)
+
+        return final_penalization
 
     sp = process_wellplate_spectra.SpectraProcessor(
         folder_with_correction_dataset='uv-vis-absorption-spectroscopy/microspectrometer-calibration/'
         '2022-12-01/interpolator-dataset/')
     sp.nanodrop_lower_cutoff_of_wavelengths = 220
+    sp.use_instrumental_sigmas = True
 
     df_structure = organize_run_results.load_run_structure(run_name)
 
@@ -60,10 +99,20 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
                                         df_structure[df_structure['nanodrop_filepath'] == filepath_1].iloc[0]['nanodrop_filepath_2']
         logging.info(f'Processing nanodrop file (1st dilution): {filepath_1} and (2nd dilution): {filepath_for_second_dilution}')
 
+        # number of vials in this plate
+        number_of_vials = df_structure[df_structure['nanodrop_filepath'] == filepath_1].shape[0]
+        list_of_dedicated_stoich_callables = []
+        for vial_id in range(number_of_vials):
+            index_of_this_vial = df_structure.index[(df_structure['container_id'] == vial_id)
+                                                    & (df_structure['nanodrop_filepath'] == filepath_1)][0]
+            print({s: df_structure.loc[index_of_this_vial, f'c#{s}'] for s in substrates})
+            list_of_dedicated_stoich_callables.append(lambda x: stoich_cost(x, {s: df_structure.loc[index_of_this_vial, f'c#{s}'] for s in substrates}))
+
+
         concentrations_here, reports = sp.multispectrum_concentrations_for_one_plate(experiment_folder=data_folder + run_name,
                                                        plate_folder_1=filepath_for_first_dilution,
                                                        plate_folder_2=filepath_for_second_dilution,
-                                                       dilution_factors=[20, 150],
+                                                       dilution_factors=[20, 200],
                                                        calibration_folder=data_folder + 'BPRF/2024-01-17-run01/' + 'microspectrometer_data/calibration/',
                                                        calibrant_shortnames=substances_for_fitting,
                                                        background_model_folder=data_folder + 'BPRF/cross_conamination_and_backgound_test/ethanol_background_model/',
@@ -72,7 +121,8 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
                                                        ignore_abs_threshold=False, ignore_pca_bkg=False,
                                                        return_all_substances=True,
                                                        upper_limit_of_absorbance=0.95,
-                                                       return_report=True)
+                                                       return_report=True,
+                                                       list_of_dedicated_stoich_callables=list_of_dedicated_stoich_callables)
 
         for vial_id, product_concentrations in enumerate(concentrations_here):
             # index of this vial in the concentrations_df dataframe
@@ -89,6 +139,9 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
 
             for key in reports[vial_id]:
                 df_structure.loc[index_of_this_vial, key] = reports[vial_id][key]
+
+            required_subs = product_concentrations_to_required_substrates(product_concentrations)
+            print(required_subs)
 
     logging.debug(f'global id min {df_structure["global_index"].min()}')
     concentrations_df = df_structure[df_structure[f'pc#{product_name}'].notna()]
@@ -146,15 +199,15 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
         # candidate_yields = [product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
         # concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
-        product_name = 'dm40'
-        product_concentration = concentrations_df.loc[index, f'pc#dm40_10'] + concentrations_df.loc[index, f'pc#dm40_12']
-        product_error = concentrations_df.loc[index, f'pcerr#dm40_10'] + concentrations_df.loc[index, f'pcerr#dm40_12']
-        coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
-        candidate_yields = [
-                            product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
-                            for substrate_name in substrates if substrate_name != 'ammonium_acetate']
-        concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
-        concentrations_df.loc[index, f'yielderr#{product_name}'] = candidate_errs[np.argmax(candidate_yields)]
+        # product_name = 'dm40'
+        # product_concentration = concentrations_df.loc[index, f'pc#dm40_10'] + concentrations_df.loc[index, f'pc#dm40_12']
+        # product_error = concentrations_df.loc[index, f'pcerr#dm40_10'] + concentrations_df.loc[index, f'pcerr#dm40_12']
+        # coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+        # candidate_yields = [
+        #                     product_concentration / (concentrations_df.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+        #                     for substrate_name in substrates if substrate_name != 'ammonium_acetate']
+        # concentrations_df.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+        # concentrations_df.loc[index, f'yielderr#{product_name}'] = candidate_errs[np.argmax(candidate_yields)]
 
         # substrate_concentrations = [concentrations_df.loc[index, f'c#{substrate_name}'] for substrate_name in substrates]
         # # multiply the concentration of acetoacetate by 2 because two moles are needed to produce one mole of product
@@ -203,9 +256,9 @@ if __name__ == '__main__':
 
     # list_of_runs = tuple(['2024-03-04-run01',
     #                       '2024-03-04-run02'])
-    list_of_runs = tuple(['2024-03-06-run01'])
+    # list_of_runs = tuple(['2024-03-06-run01'])
     # list_of_runs = tuple(['2024-03-06-run02'])
-    # list_of_runs = tuple(['2024-03-12-run01'])
+    list_of_runs = tuple(['2024-03-12-run01'])
 
     for i, run_shortname in enumerate(list_of_runs):
         process_run_by_shortname(run_shortname)
