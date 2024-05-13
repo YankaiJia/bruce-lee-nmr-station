@@ -484,3 +484,55 @@ cut_from = 0
 #     upper_limit_of_absorbance=0.95,
 #     dont_save_residuals_below_cut_to=True
 # )
+
+# experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Diels-Alder2_WaiShing/'
+# Validation tests
+# experiment_name = 'BPRF/benchmarks/'
+# calibrator.construct_calibrant(
+#     cut_from=cut_from,
+#     lower_limit_of_absorbance=0.007,
+#     concentration_column_name='concentration',
+#     do_plot=True,
+#     calibration_source_filename='2024-04-16_14-30-16_UV-Vis_2_flush_20_dry_12',
+#     calibrant_shortnames=['EAB'],
+#     ref_concentrations=[0.03],
+#     max_concentrations=[1],#[0.00085],
+#     min_concentrations=[0],
+#     experiment_name=experiment_name,
+#     upper_limit_of_absorbance=0.95,
+#     do_reference_stitching=False,
+#     do_smoothing_at_low_absorbance=None,
+#     forced_reference_from_agilent_cary_file=data_folder + f'BPRF/2024-01-17-run01/' + 'calibrations/spectrophotometer_data/other-hantzsch/EAB.csv',
+#     cary_column_name='EAB__c1_rep1',
+#     cut_to=None,
+#     bkg_multiplier=1,
+#     do_record_residuals=False,
+#     do_not_save_data=True
+#     # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
+# )
+
+# experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Diels-Alder2_WaiShing/'
+# Validation tests
+experiment_name = 'BPRF/benchmarks/'
+calibrator.construct_calibrant(
+    cut_from=cut_from,
+    lower_limit_of_absorbance=0.007,
+    concentration_column_name='concentration',
+    do_plot=True,
+    calibration_source_filename='2024-04-16_14-30-16_UV-Vis_2_flush_20_dry_12',
+    calibrant_shortnames=['congo_red'],
+    ref_concentrations=[0.05],
+    max_concentrations=[1],#[0.00085],
+    min_concentrations=[0],
+    experiment_name=experiment_name,
+    upper_limit_of_absorbance=0.95,
+    do_reference_stitching=False,
+    do_smoothing_at_low_absorbance=None,
+    forced_reference_from_agilent_cary_file=data_folder + f'Yaroslav/' + 'blackness-noise-calibration-of-nanodrop/nilered/CongoRed_1.csv',
+    cary_column_name='cONGORed_80uL-in-3020uL_rep1_1',
+    cut_to=None,
+    bkg_multiplier=1,
+    do_record_residuals=False,
+    do_not_save_data=True
+    # custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
+)

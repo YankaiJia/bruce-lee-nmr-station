@@ -78,6 +78,14 @@ def process_run_by_shortname(run_shortname):
             ref_wavelength_id=[756])
 
         for vial_id, product_concentrations in enumerate(concentrations_here):
+            if product_concentrations > 0.06:
+                wavelengths = sp.load_msp_by_id(plate_folder=craic_folder + row['folder'] + '/', well_id=0)[:, 0]
+                spectrum = sp.load_msp_by_id(plate_folder=craic_folder + row['folder'] + '/', well_id=vial_id)[:, 1]
+                plt.plot(wavelengths, spectrum)
+                print(f'product_concentrations = {product_concentrations} for vial_id = {vial_id} in folder {row["folder"]}')
+                plt.show()
+                # load the spectrum from the plate and show it
+
             # index of this vial in the concentrations_df dataframe
             index_of_this_vial = df_structure.index[(df_structure['vial_id'] == vial_id)
                                                     & (df_structure['craic_folder_undil'] == row['folder'])][0]

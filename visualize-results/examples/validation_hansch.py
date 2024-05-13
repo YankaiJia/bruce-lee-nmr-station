@@ -54,7 +54,7 @@ def inrobotocrudes_old(name):
         xs = df_results_2['pc#HRP01'].to_numpy()
         xs_err = df_results_2['pcerr#HRP01'].to_numpy()
 
-    if name == 'Hemiaminal':
+    if name == 'Piperidone':
         ys = df_results['NMR HA C'].to_numpy()
         xs = df_results_2['pc#bb017'].to_numpy()
         xs_err = df_results_2['pcerr#bb017'].to_numpy()
@@ -65,7 +65,7 @@ def inrobotocrudes_old(name):
     plt.errorbar(xs[:dataset_dividing_indes], ys[:dataset_dividing_indes], xerr=xs_err[:dataset_dividing_indes], fmt='o',
                  capsize=5, capthick=2, alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
     plt.errorbar(xs[dataset_dividing_indes:], ys[dataset_dividing_indes:], xerr=xs_err[dataset_dividing_indes:], fmt='o',
-                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition B\n(for hemiaminal maximum yield)', color='C2')
+                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition B\n(for Piperidone maximum yield)', color='C2')
     maxval = max([np.max(xs), np.max(ys)])
     plt.plot([0, maxval], [0, maxval], 'k--', label='x=y line')
     for i in range(len(xs)):
@@ -100,12 +100,12 @@ def inrobotocrudes(name, ax, runshortname):
         xs = df_results_2['pc#HRP01'].to_numpy()
         xs_err = df_results_2['pcerr#HRP01'].to_numpy()
 
-    if name == 'Hemiaminal':
+    if name == 'Piperidone':
         ys = df_results['NMR HA C'].to_numpy()
         xs = df_results_2['pc#bb017'].to_numpy()
         xs_err = df_results_2['pcerr#bb017'].to_numpy()
 
-    if name == 'dm88_4':
+    if name == 'Vinylamine':
         ys = df_results['dm88_4 C'].to_numpy()
         xs = df_results_2['pc#dm088_4'].to_numpy()
         xs_err = df_results_2['pcerr#dm088_4'].to_numpy()
@@ -127,6 +127,7 @@ def inrobotocrudes(name, ax, runshortname):
         xs = df_results_2['pc#dm053'].to_numpy()
         xs_err = df_results_2['pcerr#dm053'].to_numpy()
 
+
     xs  *= 1000
     xs_err *= 1000
     ys *= 1000
@@ -135,10 +136,15 @@ def inrobotocrudes(name, ax, runshortname):
     # plt.title('In roboto crudes, 2024-03-12-run01, $\lambda_{min}$=235 nm')
     odd_indices = np.where(df_results['NMR HE C'].to_numpy() > 0.0005)
     even_indices = np.where(df_results['NMR HE C'].to_numpy() <= 0.0005)
-    ax.errorbar(xs[even_indices], ys[even_indices], xerr=xs_err[even_indices], fmt='o',
-                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
-    ax.errorbar(xs[odd_indices], ys[odd_indices], xerr=xs_err[odd_indices], fmt='o',
-                 capsize=5, capthick=2, alpha=0.5, label='Repeated condition B\n(for hemiaminal maximum yield)', color='C2')
+
+    markers, caps, bars = ax.errorbar(xs[even_indices], ys[even_indices], xerr=xs_err[even_indices], fmt='o',
+                 alpha=0.5, label='Repeated condition A\n(for Hantzsch ester maximum yield)', color='C0')
+    [bar.set_alpha(0.3) for bar in bars]
+    [cap.set_alpha(0.3) for cap in caps]
+    markers, caps, bars = ax.errorbar(xs[odd_indices], ys[odd_indices], xerr=xs_err[odd_indices], fmt='o',
+                 alpha=0.5, label='Repeated condition B\n(for Piperidone maximum yield)', color='C2')
+    [bar.set_alpha(0.3) for bar in bars]
+    [cap.set_alpha(0.3) for cap in caps]
     max_xs = max(xs)
     max_ys = max(ys)
     maxval = max([max_xs, max_ys])
@@ -163,17 +169,18 @@ def inrobotocrudes(name, ax, runshortname):
 
 if __name__ == '__main__':
     # inrobotocrudes(name='Hantzsch ester')
-    # inrobotocrudes(name='Hemiaminal')
+    # inrobotocrudes(name='Piperidone')
     # inrobotocrudes(name='dm88_4')
     # inrobotocrudes(name='dm070')
-
+    # Vinylamine
     # f1 = plt.figure(10, 8)
     # make a gris of four subplots
     runshortname = '2024-03-12-run01'
+    # runshortname = '2024-03-20-run01'
     # runshortname = '2024-03-06-run01'
     fig, axs = plt.subplots(2, 3, figsize=(12, 8))
     fig.suptitle(f'In roboto crudes, {runshortname}, ' + '$\lambda_{min}$=221 nm')
-    for i, name in enumerate(['Hantzsch ester', 'Hemiaminal', 'dm88_4', 'dm070', 'dm053']):
+    for i, name in enumerate(['Hantzsch ester', 'Piperidone', 'Vinylamine', 'dm070', 'dm053']):
         inrobotocrudes(name, axs[i//3, i%3], runshortname=runshortname)
 
     plt.show()

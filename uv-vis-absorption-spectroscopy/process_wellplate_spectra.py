@@ -200,7 +200,7 @@ class SpectraProcessor:
         nanodrop_df = nanodrop_df.rename(columns={nanodrop_df.columns[0]: "wavelength"})
 
         # print the lowest value of 'wavelength' column
-        print(f"Lowest wavelength in nanodrop file: {nanodrop_df['wavelength'].min()}")
+        # print(f"Lowest wavelength in nanodrop file: {nanodrop_df['wavelength'].min()}")
 
         # remove rows where wavelength is lower than nanodrop_lower_cutoff_of_wavelengths
         nanodrop_df = nanodrop_df[nanodrop_df["wavelength"] >= self.nanodrop_lower_cutoff_of_wavelengths]
@@ -697,6 +697,20 @@ class SpectraProcessor:
         concentrations_here = [calibrants[calibrant_index]['coeff_to_concentration_interpolator'](fitted_coeff)
                                for calibrant_index, fitted_coeff in enumerate(popt[:-4])]
 
+
+        # #plot covariance matrix
+        # plt.figure(figsize=(5, 10))
+        # pcov_to_plot = pcov[:len(calibrant_shortnames), :len(calibrant_shortnames)]
+        # plt.imshow(pcov_to_plot, vmin=-1*max(np.abs(pcov_to_plot).flatten()), vmax=max(np.abs(pcov_to_plot).flatten()),
+        #            cmap='RdBu_r')
+        # # make tick labels from calibrant_shortnames
+        # plt.yticks(range(len(calibrant_shortnames)), calibrant_shortnames)
+        # plt.xticks(range(len(calibrant_shortnames)), calibrant_shortnames, rotation=90)
+        # plt.colorbar(orientation='vertical', fraction=0.046)
+        # plt.tight_layout()
+        # plt.show()
+
+
         fig1, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), sharex=True, gridspec_kw={'height_ratios': [3, 1]})
         ax = ax1
         ax.plot(wavelengths, target_spectrum_input, label='Raw data', color='grey', alpha=0.2)
@@ -810,9 +824,9 @@ class SpectraProcessor:
                                      background_model_folder, do_plot=False, return_all_substances=False,
                                      cut_from = 200, cut_to=False, ignore_abs_threshold=False, ignore_pca_bkg=False,
                                                    return_report=False, upper_limit_of_absorbance=1000,
-                                                   list_of_dedicated_stoich_callables=None):
-        if list_of_dedicated_stoich_callables is None:
-            list_of_dedicated_stoich_callables = [None] * len(calibrant_shortnames)
+                                                   list_of_starting_concentration_dicts=None):
+        if list_of_starting_concentration_dicts is None:
+            list_of_starting_concentration_dicts = [None] * len(calibrant_shortnames)
         plate_name = plate_folder_1.split('/')[-1]
         create_folder_unless_it_exists(experiment_folder + 'results')
         create_folder_unless_it_exists(experiment_folder + f'results/uv-vis-fits')
@@ -845,20 +859,22 @@ class SpectraProcessor:
             spectrum_2 = self.load_msp_by_id(
                 plate_folder=plate_folder_2,
                 well_id=well_id)[:, 1]
-            concentrations_here = self.multispectrum_to_concentration(target_spectrum_inputs=[spectrum_1, spectrum_2],
-                                                                      dilution_factors=dilution_factors,
-                                                                 calibration_folder=calibration_folder,
-                                                                 calibrant_shortnames=calibrant_shortnames,
-                                                                 fig_filename=experiment_folder + f'results/uv-vis-fits/{plate_name}-well{well_id:02d}.png',
-                                                                 do_plot=do_plot,
-                                                                 background_model_folder=background_model_folder,
-                                                                 upper_bounds=calibrant_upper_bounds, cut_from=cut_from,
-                                                                 cut_to=cut_to,
-                                                                 ignore_abs_threshold=ignore_abs_threshold,
-                                                                 ignore_pca_bkg=ignore_pca_bkg,
-                                                                 upper_limit_of_absorbance=upper_limit_of_absorbance,
-                                                                 return_report=return_report,
-                                                                 stoich_callable=list_of_dedicated_stoich_callables[well_id])
+            print(f'>>>>>>>>>>>>>>>>>> Well {well_id}')
+            concentrations_here = self.multispectrum_to_concentration(
+                                            target_spectrum_inputs=[spectrum_1, spectrum_2],
+                                            dilution_factors=dilution_factors,
+                                            calibration_folder=calibration_folder,
+                                            calibrant_shortnames=calibrant_shortnames,
+                                            fig_filename=experiment_folder + f'results/uv-vis-fits/{plate_name}-well{well_id:02d}.png',
+                                            do_plot=do_plot,
+                                            background_model_folder=background_model_folder,
+                                            upper_bounds=calibrant_upper_bounds, cut_from=cut_from,
+                                            cut_to=cut_to,
+                                            ignore_abs_threshold=ignore_abs_threshold,
+                                            ignore_pca_bkg=ignore_pca_bkg,
+                                            upper_limit_of_absorbance=upper_limit_of_absorbance,
+                                            return_report=return_report,
+                                            starting_concentration_dict=list_of_starting_concentration_dicts[well_id])
             if return_report:
                 concentrations_here, report = concentrations_here
                 reports.append(report)
@@ -910,6 +926,11 @@ class SpectraProcessor:
             wavelengths = self.load_msp_by_id(plate_folder=plate_folder, well_id=0)[:, 0]
             wavelength_id = np.absolute(wavelengths - wavelength).argmin()
             ref_wavelength_id = [np.absolute(wavelengths - ref_wavelength).argmin() for ref_wavelength in ref_wavelengths]
+
+        wavelengths = self.load_msp_by_id(plate_folder=plate_folder, well_id=0)[:, 0]
+        print(f'Wavelength for wavelength_id is: {wavelengths[wavelength_id]}')
+        for ref_wav in ref_wavelength_id:
+            print(f'Reference wavelength for ref_wavelength_id is: {wavelengths[ref_wav]}')
 
         concentrations = []
         for well_id in range(54):
@@ -965,7 +986,8 @@ class SpectraProcessor:
                                        cut_to = False, ignore_pca_bkg=False, return_errors=False,
                                        use_linear_calibration=True, plot_calibrant_references=False,
                                        return_report=False, sigma_of_absorbance=0.01,
-                                       stoich_callable=None): #upper_bounds=[np.inf, np.inf]
+                                       starting_concentration_dict=None, second_dilution_factor_bound_range=0.1,
+                                       maximum_wavelength_offset=1.5): #upper_bounds=[np.inf, np.inf]
         calibrants = []
         for calibrant_shortname in calibrant_shortnames:
             dict_here = dict()
@@ -985,12 +1007,17 @@ class SpectraProcessor:
                     linestyle='-'
                 else:
                     linestyle='--'
-                plt.plot(220+np.linspace(0, 400, 400), calibrant['reference_interpolator'](np.linspace(0, 400, 400)),
+                xs = 220+np.linspace(0, 400, 400)
+                # xs = 220 + np.linspace(150, 400, 400)
+                plt.plot(xs, calibrant['reference_interpolator'](xs-220),
                          label=calibrant_shortnames[i], linestyle=linestyle)
-            plt.legend()
+            # plt.legend()
             plt.xlabel('Wavelength, nm')
             plt.ylabel('Absorbance')
+            plt.xlim(220, 500)
+            plt.ylim(0, 1.4)
             plt.show()
+        print(f'N calibrants: {len(calibrants)}')
 
         if ignore_pca_bkg:
             bkg_spectrum = np.mean(np.array([calibrant['bkg_spectrum'] for calibrant in calibrants]), axis=0)
@@ -1019,6 +1046,18 @@ class SpectraProcessor:
 
         comboX = np.concatenate(target_spectra_wavelength_indices_masked)
         comboY = np.concatenate(target_spectra_amplitudes_masked)
+
+        # uncertainties
+        if not self.use_instrumental_sigmas:
+            combo_sigmas = np.ones_like(comboY) * sigma_of_absorbance
+        else:
+            combo_sigmas = []
+            for i, wavelength_index in enumerate(comboX):
+                wavelength_here = wavelengths[wavelength_index]
+                absorbance_here = comboY[i]
+                sigma_here_here = self.uncertainty_of_measured_absorbance(wavelength_here, absorbance_here)
+                combo_sigmas.append(sigma_here_here)
+            combo_sigmas = np.array(combo_sigmas)
 
         indices_for_splitting = np.cumsum([len(target_spectrum_wavelengths_masked) for target_spectrum_wavelengths_masked in target_spectra_wavelength_indices_masked])[:-1]
         number_of_calibrants = len(calibrant_shortnames)
@@ -1068,40 +1107,19 @@ class SpectraProcessor:
             return comboY
 
         def func(*args):
-            xs = args[0]
-            separate_spectra = np.split(xs, indices_for_splitting)
             calibrants_concentrations = args[1:number_of_calibrants + 1]
-            dilutions_factors_here = [dilution_factors[0]] + list(args[number_of_calibrants + 1: number_of_calibrants + 1 + number_of_spectra - 1])
-            assert len(dilutions_factors_here) == number_of_spectra
-            offsets = args[number_of_calibrants + 1 + number_of_spectra - 1:
-                           number_of_calibrants + 1 + number_of_spectra - 1 + number_of_spectra]
-            bkg_pca_weights = args[number_of_calibrants + 1 + number_of_spectra - 1 + number_of_spectra:
-                                   number_of_calibrants + 1 + number_of_spectra - 1 + number_of_spectra + number_of_spectra]
-            wavelength_offsets = args[number_of_calibrants + 1 + number_of_spectra - 1 + number_of_spectra + number_of_spectra:
-                                      number_of_calibrants + 1 + number_of_spectra - 1 + number_of_spectra + number_of_spectra + number_of_spectra]
-            separate_predicted_spectra = []
-            for spectrum_index, wavelengths in enumerate(separate_spectra):
-                wavelengths = wavelengths + wavelength_offsets[spectrum_index]
-                dilution_factor_for_this_spectrum = dilutions_factors_here[spectrum_index]
-                calibrants_concentrations_for_this_spectrum = [x / dilution_factor_for_this_spectrum for x in calibrants_concentrations]
-                calibrants_coeffs_for_this_spectrum = [np.asscalar(calibrants[i]['concentration_to_coeff_interpolator'](calibrants_concentrations_for_this_spectrum[i]))
-                                                       for i in range(number_of_calibrants)]
-                predicted_spectrum = sum([calibrants_coeffs_for_this_spectrum[i] * calibrants[i]['reference_interpolator'](wavelengths)
-                                            for i in range(number_of_calibrants)]) \
-                                        + offsets[spectrum_index] + background_interpolators[0](wavelengths) * bkg_pca_weights[spectrum_index]
-                separate_predicted_spectra.append(predicted_spectrum)
-            comboY = np.concatenate(separate_predicted_spectra)
-
-            if stoich_callable is not None:
-                stoich_penalization_of_cost = stoich_callable(calibrants_concentrations)
-                comboY[-2] += stoich_penalization_of_cost * 1e-2
-                comboY[-1] -= stoich_penalization_of_cost * 1e-2
+            comboY = func_prelim(*args)
+            if starting_concentration_dict is not None:
+                stoich_penalization_of_cost = stoich_cost(calibrants_concentrations, calibrant_shortnames, starting_concentration_dict)
+                comboY[-2] += stoich_penalization_of_cost * 0.4e-2 / 0.00833486 * combo_sigmas[-2] * 1
+                comboY[-1] -= stoich_penalization_of_cost * 0.4e-2 / 0.00833486 * combo_sigmas[-1] * 1
 
             return comboY
 
         p0 = []
         lower_bounds = []
         upper_bounds = []
+        x_scale = []
         for i in range(number_of_calibrants):
             # if calibrant_shortnames[i] == 'bb017':
             #     p0.append(0.0068)
@@ -1109,18 +1127,22 @@ class SpectraProcessor:
             #     upper_bounds.append(1)
             # else:
             p0.append(1e-7)
+            x_scale.append(1e-3)
             # if calibrant_shortnames[i] == 'dm37':
             #     lower_bounds.append(-1*np.inf)
             # else:
             lower_bounds.append(0)
             upper_bounds.append(np.inf)
+
         for i in range(number_of_spectra - 1):
             p0.append(dilution_factors[i+1])
-            lower_bounds.append(0)
-            upper_bounds.append(np.inf)
+            x_scale.append(dilution_factors[i+1])
+            lower_bounds.append(dilution_factors[i+1]*(1-second_dilution_factor_bound_range))
+            upper_bounds.append(dilution_factors[i+1]*(1+second_dilution_factor_bound_range))
 
         for i in range(number_of_spectra): # these are offsets
             p0.append(0)
+            x_scale.append(0.01)
             lower_bounds.append(-np.inf)
             upper_bounds.append(np.inf)
 
@@ -1131,42 +1153,66 @@ class SpectraProcessor:
 
         for i in range(number_of_spectra): # these are weights for PCA componetns of the background
             p0.append(0)
+            x_scale.append(max_bkg_pca_weight)
             lower_bounds.append(-1*max_bkg_pca_weight)
             upper_bounds.append(max_bkg_pca_weight)
 
-        maximum_wavelength_offset = 1.5
         for i in range(number_of_spectra): # these are wavelength offsets (shifts) of individual spectra
             p0.append(0)
+            x_scale.append(1)
             lower_bounds.append(-1*maximum_wavelength_offset)
             upper_bounds.append(maximum_wavelength_offset)
-
-
-        # uncertainties
-        if not self.use_instrumental_sigmas:
-            combo_sigmas = np.ones_like(comboY) * sigma_of_absorbance
-        else:
-            combo_sigmas = []
-            for i, wavelength_index in enumerate(comboX):
-                wavelength_here = wavelengths[wavelength_index]
-                absorbance_here = comboY[i]
-                sigma_here_here = self.uncertainty_of_measured_absorbance(wavelength_here, absorbance_here)
-                combo_sigmas.append(sigma_here_here)
-            combo_sigmas = np.array(combo_sigmas)
 
         bounds = (lower_bounds, upper_bounds)
         popt, pcov = curve_fit(func_prelim, comboX, comboY,
                                p0=p0, bounds=bounds, sigma=combo_sigmas, absolute_sigma=True,
-                               maxfev=1000000, ftol=1e-15, xtol=1e-15, gtol=1e-15)
+                               maxfev=100000, ftol=1e-15, xtol=1e-15, gtol=1e-15, verbose=1, x_scale=x_scale)
 
         print('prelim done')
-        popt, pcov = curve_fit(func, comboX, comboY,
-                               p0=popt, bounds=bounds, sigma=combo_sigmas, absolute_sigma=True,
-                               maxfev=1000000, ftol=1e-15, xtol=1e-15, gtol=1e-15)
+        try:
+            popt, pcov = curve_fit(func, comboX, comboY,
+                                   p0=popt, bounds=bounds, sigma=combo_sigmas, absolute_sigma=True,
+                                   maxfev=100, ftol=1e-15, xtol=1e-15, gtol=1e-15, verbose=1,
+                                   x_scale=x_scale)
+        # if max_nfev is reached
+        except RuntimeError:
+            print(f'RuntimeError, hopefully max_nfev')
+            print('Trying again with 1e-12 tolerances')
+            try:
+                popt, pcov = curve_fit(func, comboX, comboY,
+                                       p0=popt, bounds=bounds, sigma=combo_sigmas, absolute_sigma=True,
+                                       maxfev=100, ftol=1e-12, xtol=1e-12, gtol=1e-12, verbose=1,
+                                       x_scale=x_scale)
+            except RuntimeError:
+                print(f'RuntimeError, hopefully max_nfev')
+                print('Trying again with 1e-10 tolerances')
+                try:
+                    popt, pcov = curve_fit(func, comboX, comboY,
+                                           p0=popt, bounds=bounds, sigma=combo_sigmas, absolute_sigma=True,
+                                           maxfev=100, ftol=1e-10, xtol=1e-10, gtol=1e-10, verbose=1,
+                                           x_scale=x_scale)
+                except RuntimeError:
+                    print(f'RuntimeError, hopefully max_nfev')
+                    print('Trying again with 1e-6 tolerances')
+                    popt, pcov = curve_fit(func, comboX, comboY,
+                                           p0=popt, bounds=bounds, sigma=combo_sigmas, absolute_sigma=True,
+                                           maxfev=100, ftol=1e-6, xtol=1e-6, gtol=1e-6, verbose=1,
+                                           x_scale=x_scale)
 
         # print(f'infodict nfev: {infodict["nfev"]}')
         perr = np.sqrt(np.diag(pcov))  # errors of the fitted coefficients
 
         concentrations_here = popt[0:number_of_calibrants]
+
+        required_subs = product_concentrations_to_required_substrates(concentrations_here, calibrant_shortnames)
+        os_string = ''
+        for s in substrates:
+            overspending_ratio = required_subs[s] / starting_concentration_dict[s]
+            string_here = f'{s} osr: {overspending_ratio-1:.1%}\n'
+            os_string += string_here
+        os_string = os_string[:-1]
+        print(os_string)
+
         fitted_dilution_factors = popt[number_of_calibrants: number_of_calibrants + number_of_spectra - 1]
         fitted_offsets = popt[number_of_calibrants + number_of_spectra - 1: number_of_calibrants + number_of_spectra - 1 + number_of_spectra]
         fitted_wavelength_offsets = popt[number_of_calibrants + number_of_spectra - 1 + number_of_spectra + number_of_spectra:
@@ -1188,7 +1234,7 @@ class SpectraProcessor:
         # plot the fit vs the data
 
         # make number of subplots equal to number of spectra
-        predicted_comboY = func(comboX, *popt)
+        predicted_comboY = func_prelim(comboX, *popt)
 
         fit_report = dict()
         for calibrant_id, calibrant_shortname in enumerate(calibrant_shortnames):
@@ -1220,9 +1266,6 @@ class SpectraProcessor:
                 fit_report[f'LB_stat_dil_{spectrum_index}'] = lb_df.loc[lag, 'lb_stat']
             # axs[spectrum_index].legend()
 
-        # print(fit_report)
-
-
         for calibrant_index in range(len(calibrant_shortnames)):
             if calibrant_index <= 9:
                 linestyle_here = '-'  # solid line
@@ -1252,6 +1295,8 @@ class SpectraProcessor:
 
         plt.xlabel('Wavelength, nm')
         plt.ylabel('Absorbance')
+
+        axs[0].set_title(os_string)
 
         fit_report['fitted_dilution_factor_2'] = fitted_dilution_factors[0]
 
@@ -1334,6 +1379,41 @@ def plot_differential_absorbances_for_plate(craic_exp_name,
     plt.title(f'{craic_exp_name}.\nRel. STD: {np.std(diff) / np.mean(diff)}')
     plt.show()
     return diff
+
+df_stoich = pd.read_csv(data_folder + 'BPRF/misc/Hnamesstechiometry3.csv')
+substrates = ['methoxybenzaldehyde', 'ethyl_acetoacetate', 'ammonium_acetate']
+for i, s in enumerate(substrates):
+    # add row with string s in 'Names', string f'SUB{i}' in Short_names column, number 1 in the column called s and zeros in other columns
+    dict_to_add = {'Names': s, 'Short_names': f'SUB{i}', s: 1}
+    dict_to_add.update({x: 0 for x in substrates if x != s})
+    df_stoich = df_stoich.append(dict_to_add, ignore_index=True)
+
+def product_concentrations_to_required_substrates(concentrations, calibrant_shortnames):
+    dict_of_substrate_concentrations = {s:0 for s in substrates}
+    for i, substance_for_fitting in enumerate(calibrant_shortnames):
+        for s in substrates:
+            # find the cell in df_stoich where Name is equal to substance_for_fitting and column is s
+            dict_of_substrate_concentrations[s] += concentrations[i] * df_stoich.loc[df_stoich['Names'] == substance_for_fitting, s].values[0]
+    return dict_of_substrate_concentrations
+
+
+def stoich_cost(concentrations, calibrant_shortnames, starting_concentrations_dict):
+    def smooth_step(x):
+        if x<=0:
+            return 0
+        else:
+            return x
+        # return np.exp(x)
+
+    required_subs = product_concentrations_to_required_substrates(concentrations, calibrant_shortnames)
+    final_penalization = 0
+    for s in substrates:
+        if starting_concentrations_dict[s] > 0:
+            overspending_ratio = required_subs[s] / starting_concentrations_dict[s]
+            final_penalization += smooth_step((overspending_ratio - 1)/0.01)
+        # final_penalization += smooth_step((required_subs[s] - starting_concentrations_dict[s])/0.001)
+
+    return final_penalization
 
 
 if __name__ == '__main__':
