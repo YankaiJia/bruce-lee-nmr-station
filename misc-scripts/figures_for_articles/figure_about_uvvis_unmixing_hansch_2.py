@@ -6,6 +6,8 @@ import importlib
 from scipy import interpolate
 import matplotlib.text as mtext
 from scipy.optimize import curve_fit
+import statsmodels.api as sm
+
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
@@ -215,10 +217,20 @@ def multispectrum_to_concentration_local(sp, target_spectrum_inputs, calibration
                                               alpha=0.15)
             # axsr[spectrum_index].plot(220+target_spectra_wavelength_indices_masked[spectrum_index],
             #                          separate_predicted_spectra[spectrum_index], color='black', label='Fit')
+            residuals_here = separate_residuals[spectrum_index]
+            lag = 50
+            lb_df = sm.stats.acorr_ljungbox(residuals_here, lags=[lag])
+            # print(f'spectrum index {spectrum_index}, LB_pvalue: {lb_df.loc[lag, "lb_pvalue"]}, lag: {lag}')
+            # print(lb_df)
+            if len(lb_df) == 1:
+                # take values from first row of dataframe lb_pvalue
+                print(f"LB_pvalue_dil_{spectrum_index} : {lb_df.loc[lag, 'lb_pvalue']}, stat: {lb_df.loc[lag, 'lb_stat']}")
+            else:
+                print('hmmm')
 
         for ax in [ax1, ax2]:
             ax.set_ylim(-0.02, 0.85)
-            ax.set_xlim(260, 430)
+            ax.set_xlim(220, 430)
             simpleaxis(ax)
 
         for ax in axsr:
@@ -248,8 +260,8 @@ sp = process_wellplate_spectra.SpectraProcessor(
 sp.nanodrop_lower_cutoff_of_wavelengths = 220
 
 well_id = 16
-substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm37', 'dm40_12', 'dm40_10', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70']
-cut_from = 40
+substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm70']#, 'dm088_4']
+cut_from = 1
 plate_folder = data_folder + 'BPRF/2024-02-16-run01/nanodrop_spectra/2024-02-18_17-48-07_UV-Vis_plate74.csv'
 spectrum1 = sp.load_msp_by_id(
     plate_folder=plate_folder,
@@ -262,13 +274,13 @@ spectrum2 = sp.load_msp_by_id(
 
 
 colors = [f'C{i}' for i in range(10)] + [f'C{i}' for i in range(10)]
-colors = ['none'] * 20
-colors[1] = 'C0'
-colors[2] = 'C1'
-colors[3] = 'C2'
-colors[5] = 'C3'
-colors[8] = 'C4'
-colors[9] = 'C5'
+# colors = ['none'] * 20
+# colors[1] = 'C0'
+# colors[2] = 'C1'
+# colors[3] = 'C2'
+# colors[5] = 'C3'
+# colors[8] = 'C4'
+# colors[9] = 'C5'
 # colors[10] = 'C6'
 
 

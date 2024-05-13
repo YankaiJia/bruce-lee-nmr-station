@@ -450,7 +450,7 @@ def fit_kinetic_model(indices_here, do_plot=False):
         # plt.scatter(xs_to_plot, ys_to_plot, color=colors_to_plot, marker='x')
         plt.ylabel('Yield')
         plt.xlabel('Initial concentration of HBr')
-        # plt.legend(title="Starting alcohol\nconcentration")
+        plt.legend(title="Starting alcohol\nconcentration")
 
     return keq_fit
 
@@ -532,15 +532,29 @@ for temperature in temperatures:
     for df_index in indices_where_mask_is_true:
         df_results.loc[df_index, 'yield_model'] = model_of_yield_for_one_condition(df_index, K_eq)
 
-column_to_plot = 'yield_model'
+column_to_plot = 'yield'
 # convert from mol/L to mM
+
+# iterate over rows and compute column yield2
+for i, row in df_results.iterrows():
+    limiting_substrate = min(row['pc#SN1OH03'] + row['pc#SN1Br03'], row['c#HBr'] / row['c#SN1OH03'] * (row['pc#SN1OH03'] + row['pc#SN1Br03']))
+    # limiting_substrate = min(row['pc#SN1OH03'] + row['pc#SN1Br03'], row['c#HBr'])
+    # limiting_substrate = min(row['c#SN1OH03'], row['c#HBr'])
+    if limiting_substrate == 0:
+        df_results.loc[i, 'yield2'] = 0
+    else:
+        df_results.loc[i, 'yield2'] = row['pc#SN1Br03'] / limiting_substrate
+
+column_to_plot = 'yield2'
+
+
 for substrate in substrates:
     df_results[substrate] = df_results[substrate].apply(lambda x: x*1000 if x>1e-10 else 0)
-
 xs = df_results[substrates[0]].to_numpy()
 ys = df_results[substrates[1]].to_numpy()
 zs = df_results['temperature'].to_numpy()
 yields = df_results[column_to_plot].to_numpy()
+yields[yields > 1] = 1
 
 print(f'Min concentrations of substrates: {[np.min(x) for x in [xs, ys, zs]]}')
 print(f'Max concentrations of substrates: {[np.max(x) for x in [xs, ys, zs]]}')
@@ -549,14 +563,14 @@ print(f'Yields - min: {min(yields)}, max: {max(yields)}')
 avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
                             substance_titles=('Alcohol,\nmM', 'HBr,\nmM', 'Temperature,\n°C'),
                             colorbar_title=column_to_plot,
-                            npoints=50, sparse_npoints=6, rbf_epsilon=1,
+                            npoints=50, sparse_npoints=5, rbf_epsilon=0.2,
                             rbf_smooth=0.05,
                             interpolator_choice='rbf',
-                            data_for_spheres='interpolated',
+                            data_for_spheres='raw',#'interpolated',
                             rbf_function='multiquadric',
                             axes_ticks_format='%.0f',
                             axes_font_factor=1.5,
-                            contours=[0.1, 0.5, 0.85, 0.97], contour_opacity=0.7) # [0.2, 0.4, 0.55, 0.7, 0.85]
+                            contours=[0.1, 0.70, 0.93, 0.98], contour_opacity=0.5) # [0.2, 0.4, 0.55, 0.7, 0.85]
 
 
 # df_results.loc[df_results['yield#SN1Br01s1'] < 0, 'yield#SN1Br01s1'] = 0

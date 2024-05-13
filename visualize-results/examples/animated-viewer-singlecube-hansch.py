@@ -37,7 +37,10 @@ substance_titles = ['Acetoacetate', 'Methoxy', 'Ammonium acetate']
 
 df_results = organize_run_results.join_data_from_runs([f'BPRF/{x}/' for x in list_of_runs],
                                  round_on_columns=None)
-df_results = df_results[df_results['c#ammonium_acetate'] > 0.01]
+df_results = df_results[df_results['c#ammonium_acetate'] > 0.05]
+# df_results = df_results[df_results['c#ammonium_acetate'] > 0.01]
+
+print(len(df_results))
 # column_to_plot = 'yield#HRP01'
 # df_results.dropna(subset=[column_to_plot], inplace=True)
 # df_results = df_results[~df_results[column_to_plot].isin([np.inf, -np.inf])]
@@ -75,27 +78,28 @@ rmse_thresh = 1000 #df_results['rmse'].quantile(0.95)
 # df_results = df_results[df_results[column_to_plot] <= 0.020]
 
 
-target_substance = 'dm40'
-column_to_plot = 'yield#dm40'
+# target_substance = 'dm40'
+column_to_plot = 'yield#HRP01'
+column_to_plot = 'yield#bb017'
 
 substrates = ['ethyl_acetoacetate',  'methoxybenzaldehyde', 'ammonium_acetate']
-product_name = 'bb021'
-for index, row in df_results.iterrows():
-    product_concentration = df_results.loc[index, f'pc#{product_name}']
-    coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
-    candidate_yields = [
-        product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
-        for substrate_name in substrates if substrate_name != 'ammonium_acetate']
-    df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+# product_name = 'bb021'
+# for index, row in df_results.iterrows():
+#     product_concentration = df_results.loc[index, f'pc#{product_name}']
+#     coefficients_dict = {'methoxybenzaldehyde': 2, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+#     candidate_yields = [
+#         product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+#         for substrate_name in substrates if substrate_name != 'ammonium_acetate']
+#     df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
-product_name = 'dm40'
-for index, row in df_results.iterrows():
-    product_concentration = df_results.loc[index, f'pc#dm40_10'] + df_results.loc[index, f'pc#dm40_12']
-    coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
-    candidate_yields = [
-        product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
-        for substrate_name in substrates if substrate_name != 'ammonium_acetate']
-    df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+# product_name = 'dm40'
+# for index, row in df_results.iterrows():
+#     product_concentration = df_results.loc[index, f'pc#dm40_10'] + df_results.loc[index, f'pc#dm40_12']
+#     coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+#     candidate_yields = [
+#         product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+#         for substrate_name in substrates if substrate_name != 'ammonium_acetate']
+#     df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
 # column_to_plot = 'yield#dm40'
 
@@ -167,9 +171,9 @@ def smooth_col(column_to_smooth_over, show_smoothing_plots = False):
             if show_smoothing_plots:
                 plt.show()
 
-# smoothcol(f'pc#{target_substance}')
-smooth_col('pc#dm40_10')
-smooth_col('pc#dm40_12')
+# smooth_col(f'pc#HRP01', show_smoothing_plots=True)
+# smooth_col('pc#dm40_10')
+# smooth_col('pc#dm40_12')
 
 substrates = ['ethyl_acetoacetate',  'methoxybenzaldehyde', 'ammonium_acetate']
 for index, row in df_results.iterrows():
@@ -187,18 +191,20 @@ for index, row in df_results.iterrows():
     candidate_yields = [product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name]) for substrate_name in substrates]
     df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
-    product_name = 'dm40'
-    # for index, row in df_results.iterrows():
-    product_concentration = df_results.loc[index, f'pc#dm40_10'] + df_results.loc[index, f'pc#dm40_12']
-    coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
-    candidate_yields = [
-        product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
-        for substrate_name in substrates if substrate_name != 'ammonium_acetate']
-    df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
+    # product_name = 'dm40'
+    # # for index, row in df_results.iterrows():
+    # product_concentration = df_results.loc[index, f'pc#dm40_10'] + df_results.loc[index, f'pc#dm40_12']
+    # coefficients_dict = {'methoxybenzaldehyde': 1, 'ethyl_acetoacetate': 1, 'ammonium_acetate': 0}
+    # candidate_yields = [
+    #     product_concentration / (df_results.loc[index, f'c#{substrate_name}'] * coefficients_dict[substrate_name])
+    #     for substrate_name in substrates if substrate_name != 'ammonium_acetate']
+    # df_results.loc[index, f'yield#{product_name}'] = np.max(candidate_yields)
 
 # plotting
-df_results = df_results[df_results['c#ammonium_acetate'] > 0.05]
+
 # df_results = df_results[df_results[column_to_plot] <= 0.009]
+
+print(len(df_results))
 
 # convert from mol/L to mM
 for substrate in substances:
@@ -272,7 +278,7 @@ avs.plot_3d_dataset_as_cube(xs, ys, zs, yields,
                             rbf_function='multiquadric',
                             axes_ticks_format='%.0f',
                             axes_font_factor=1.3,
-                            contours=[0.1, 0.7, 0.8, 0.9, 2], # for HRP01
+                            contours=[0.1, 0.2, 0.4, 0.6, 2], # for HRP01
                             # contours=[0.1, 0.9, 2],
                             contour_opacity=0.3,
                             forced_kmax=1,

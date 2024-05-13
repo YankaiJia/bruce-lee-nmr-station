@@ -2,29 +2,29 @@ from versatility_examples import *
 
 experiment_name = f'nanodrop-spectrophotometer-measurements/versatility_test/Claisen_WaiShing/'
 
-construct_calibrant(
-    cut_from=5,
-    lower_limit_of_absorbance=0.007,
-    concentration_column_name='concentration',
-    do_plot=False,
-    calibration_source_filename='2023-10-11_16-26-58_UV-Vis_methoxychalcone',
-    calibrant_shortnames=['methoxychalcone'],
-    ref_concentrations=[0.0002],
-    max_concentrations=[0.0006],
-    experiment_name=experiment_name,
-)
+# construct_calibrant(
+#     cut_from=5,
+#     lower_limit_of_absorbance=0.007,
+#     concentration_column_name='concentration',
+#     do_plot=True,
+#     calibration_source_filename='2023-10-11_16-26-58_UV-Vis_methoxychalcone',
+#     calibrant_shortnames=['methoxychalcone'],
+#     ref_concentrations=[0.0002],
+#     max_concentrations=[0.0006],
+#     experiment_name=experiment_name,
+# )
 
-construct_calibrant(
-    cut_from=5,
-    lower_limit_of_absorbance=0.007,
-    concentration_column_name='concentration',
-    do_plot=False,
-    calibration_source_filename='2023-10-11_19-50-36_UV-Vis_anisaldehyde',
-    calibrant_shortnames=['anisaldehyde', 'acetophenone'],
-    ref_concentrations=[0.0002, 0.0003],
-    max_concentrations=[0.001, 0.001],
-    experiment_name=experiment_name,
-)
+# construct_calibrant(
+#     cut_from=5,
+#     lower_limit_of_absorbance=0.007,
+#     concentration_column_name='concentration',
+#     do_plot=True,
+#     calibration_source_filename='2023-10-11_19-50-36_UV-Vis_anisaldehyde',
+#     calibrant_shortnames=['anisaldehyde', 'acetophenone'],
+#     ref_concentrations=[0.0002, 0.0003],
+#     max_concentrations=[0.001, 0.001],
+#     experiment_name=experiment_name,
+# )
 
 plate_folder = 'D:\Docs\Dropbox\robochem\data\craic_microspectrometer_measurements\absorbance\2023-06-23_10-16-05__plate0000049__multicomp_reactions_2023-06-22-run02'
 

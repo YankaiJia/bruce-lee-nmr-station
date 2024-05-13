@@ -6,6 +6,8 @@ import importlib
 from scipy import interpolate
 import matplotlib.text as mtext
 from scipy.optimize import curve_fit
+import statsmodels.api as sm
+
 process_wellplate_spectra = importlib.import_module("uv-vis-absorption-spectroscopy.process_wellplate_spectra")
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
@@ -177,6 +179,16 @@ def spectrum_to_concentration_local(sp, target_spectrum_input, calibration_folde
     plt.tight_layout()
     fig1.savefig(f"{fig_filename}.png", dpi=300)
 
+    residuals_here = target_spectrum[mask] - func(wavelength_indices[mask], *popt)
+    lag = 50
+    lb_df = sm.stats.acorr_ljungbox(residuals_here, lags=[lag])
+    # print(f'spectrum index {spectrum_index}, LB_pvalue: {lb_df.loc[lag, "lb_pvalue"]}, lag: {lag}')
+    # print(lb_df)
+    if len(lb_df) == 1:
+        # take values from first row of dataframe lb_pvalue
+        print(f"LB_pvalue : {lb_df.loc[lag, 'lb_pvalue']}, stat: {lb_df.loc[lag, 'lb_stat']}")
+    else:
+        print('hmmm')
 
     if do_plot:
         plt.show()
