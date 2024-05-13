@@ -3,7 +3,6 @@ import logging
 import os
 import pickle
 import re
-
 import numpy as np
 import pandas as pd
 from sklearn.metrics import pairwise_distances
@@ -1026,9 +1025,11 @@ if __name__ == '__main__':
     # print(locate_measurement_file_by_condition_timestamp_and_plate_id(df_files, condition_timestamp=1705636817.00000, plate_id=71))
 
 
-    target_folder = 'BPRF/2024-03-12-run01/'
+    # target_folder = 'BPRF/2024-03-20-run01/'
+    # target_folder = 'C:/Users/ICanSeeYourPixels/Desktop/temp/2024-03-20-run01/'
     # target_folder = 'BPRF/2024-03-06-run02/'
     # target_folder = 'BPRF/2024-03-04-run02/'
+    target_folder = 'BPRF/2024-03-20-run01/'
     organize_run_structure_v4_00(experiment_name=target_folder)
 
     # list_of_runs = tuple(['2024-01-29-run01',
