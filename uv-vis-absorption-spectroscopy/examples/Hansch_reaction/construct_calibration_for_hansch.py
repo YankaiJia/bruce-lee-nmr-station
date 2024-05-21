@@ -362,26 +362,26 @@ cut_from = 5
 # )
 
 # # with CARY and two isomers
-calibrator.construct_calibrant(
-    cut_from=0,
-    lower_limit_of_absorbance=0.007,
-    concentration_column_name='concentration',
-    do_plot=True,
-    calibration_source_filename='calibrations/2024-02-02_10-24-02_UV-Vis_bb021',
-    calibrant_shortnames=['bb021'],
-    ref_concentrations=[0.0002],
-    max_concentrations=[0.0004],
-    min_concentrations=[0.0001],
-    experiment_name=experiment_name,
-    upper_limit_of_absorbance=0.95,
-    do_reference_stitching=False,
-    do_smoothing_at_low_absorbance=None,
-    forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_other_2/bb021_f1_rep2.csv',
-    cary_column_name='bb021f1_c1_rep2_2',
-    cut_to=None,
-    custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
-    # nanodrop_wavelength_shift = +3
-)
+# calibrator.construct_calibrant(
+#     cut_from=0,
+#     lower_limit_of_absorbance=0.007,
+#     concentration_column_name='concentration',
+#     do_plot=True,
+#     calibration_source_filename='calibrations/2024-02-02_10-24-02_UV-Vis_bb021',
+#     calibrant_shortnames=['bb021'],
+#     ref_concentrations=[0.0002],
+#     max_concentrations=[0.0004],
+#     min_concentrations=[0.0001],
+#     experiment_name=experiment_name,
+#     upper_limit_of_absorbance=0.95,
+#     do_reference_stitching=False,
+#     do_smoothing_at_low_absorbance=None,
+#     forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/Hantzsch_other_2/bb021_f1_rep2.csv',
+#     cary_column_name='bb021f1_c1_rep2_2',
+#     cut_to=None,
+#     custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy'
+#     # nanodrop_wavelength_shift = +3
+# )
 
 # calibrator.construct_calibrant(
 #     cut_from=0,
@@ -429,3 +429,22 @@ calibrator.construct_calibrant(
 #     forced_reference_from_agilent_cary_file=data_folder + experiment_name + 'calibrations/spectrophotometer_data/other-hantzsch/dm88.csv',
 #     cary_column_name='dm88__c2_rep2',
 # )
+
+calibrator.construct_calibrant(
+    cut_from=0,
+    lower_limit_of_absorbance=0.007,
+    concentration_column_name='concentration',
+    do_plot=True,
+    calibration_source_filename='calibrations/acetic_acid',
+    calibrant_shortnames=['acetic_acid'],
+    ref_concentrations=[0.05978],
+    max_concentrations=[1],
+    min_concentrations=[0],
+    experiment_name=experiment_name,
+    upper_limit_of_absorbance=0.95,
+    do_reference_stitching=False,
+    do_smoothing_at_low_absorbance=0.02,
+    cut_to=None,
+    custom_bkg_spectrum_npy_file=data_folder + 'BPRF/2024-01-17-run01/microspectrometer_data/calibration/references/HRP01/bkg_spectrum.npy',
+    bkg_multiplier=0
+)

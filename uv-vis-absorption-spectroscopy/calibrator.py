@@ -324,6 +324,11 @@ def construct_calibrant(
                                     max_concentration=max_concentrations[i],
                                     do_plot=do_plot)
 
+
+def construct_degenerate_calibrant():
+    pass
+
+
 def take_median_of_nanodrop_spectra(plate_folder, nanodrop_lower_cutoff_of_wavelengths = 220,
         nanodrop_upper_cutoff_of_wavelengths = 600):
 

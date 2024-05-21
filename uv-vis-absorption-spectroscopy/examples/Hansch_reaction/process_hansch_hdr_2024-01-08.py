@@ -40,7 +40,7 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
     # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10',
     #                           'ethyl_acetoacetate', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
     # try removing: 35_8, 35_9, dm37, dm_70
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_9',
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01',
                               'ethyl_acetoacetate', 'EAB', 'bb017', 'dm088_4', 'dm053', 'dm70']
 
     # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01',
@@ -239,9 +239,9 @@ if __name__ == '__main__':
     # for i, run_shortname in enumerate(list_of_runs):
     #     process_run_by_shortname(run_shortname)
     #
-    list_of_runs = tuple(['2024-02-16-run01',
-                          '2024-02-17-run01',
-                          '2024-02-17-run02'])
+    # list_of_runs = tuple(['2024-02-16-run01',
+    #                       '2024-02-17-run01',
+    #                       '2024-02-17-run02'])
     #
     # for i, run_shortname in enumerate(list_of_runs):
     #     process_run_by_shortname(run_shortname)
@@ -254,7 +254,7 @@ if __name__ == '__main__':
     #                       '2024-03-04-run02'])
     # list_of_runs = tuple(['2024-03-06-run01'])
     # list_of_runs = tuple(['2024-03-06-run02'])
-    # list_of_runs = tuple(['2024-03-12-run01'])
+    list_of_runs = tuple(['2024-03-12-run01'])
     # list_of_runs = tuple(['2024-03-20-run01'])
 
     for i, run_shortname in enumerate(list_of_runs):
