@@ -5,6 +5,11 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
+def simpleaxis(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
 
 def read_cary_agilent_csv_spectrum(cary_file, column_name):
     # load cary_file as text file and find the index of the first line that is empty

@@ -40,8 +40,8 @@ def process_run_by_shortname(run_shortname, cut_from=1, dilution_factor=200):
     # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01', 'dm35_8', 'dm35_9', 'dm36', 'dm37', 'dm40_12', 'dm40_10',
     #                           'ethyl_acetoacetate', 'bb017', 'bb021', 'dm70', 'dm053', 'dm088_4', 'bb021_f2']
     # try removing: 35_8, 35_9, dm37, dm_70
-    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01',
-                              'ethyl_acetoacetate', 'EAB', 'bb017', 'dm088_4', 'dm053', 'dm70']
+
+    substances_for_fitting = ['methoxybenzaldehyde', 'HRP01',  'ethyl_acetoacetate', 'EAB', 'bb017', 'dm088_4', 'dm053', 'dm70']
 
     # substances_for_fitting = ['methoxybenzaldehyde', 'HRP01',
     #                           'ethyl_acetoacetate', 'EAB', 'bb017', 'bb021', 'dm088_4', 'dm70']

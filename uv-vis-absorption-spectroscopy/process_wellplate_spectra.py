@@ -541,7 +541,7 @@ class SpectraProcessor:
         return coeff_to_concentration_interpolator, reference_interpolator, bkg_spectrum
 
     def load_calibration_for_one_calibrant(self, calibrant_shortname, calibration_folder, use_line_fit=False,
-                                           do_savgol_filtering=False):
+                                           do_savgol_filtering=False, ignore_acetic_dependence=False):
         bkg_spectrum = np.load(calibration_folder + f'references/{calibrant_shortname}/bkg_spectrum.npy')
         # assert len(bkg_spectrum) == 381
 
@@ -562,7 +562,7 @@ class SpectraProcessor:
                                                                           fill_value='extrapolate')
 
         # if there is a file called 'acetic_acid_influence.pkl' then open it
-        if False: #os.path.isfile(calibration_folder + f'references/{calibrant_shortname}/acetic_acid_influence.pkl'):
+        if os.path.isfile(calibration_folder + f'references/{calibrant_shortname}/acetic_acid_influence.pkl') and (not ignore_acetic_dependence):
             with open(calibration_folder + f'references/{calibrant_shortname}/acetic_acid_influence.pkl', 'rb') as f:
                 array_of_wavelengths, acetic_acid_concentrations, spectral_2d_grid = pickle.load(f)
             reference_interpolator = RegularGridInterpolator((array_of_wavelengths, acetic_acid_concentrations), spectral_2d_grid,
@@ -1083,8 +1083,8 @@ class SpectraProcessor:
                                                              fill_value='extrapolate')
                                         for i in range(1)]
 
-        # indices_of_calibrants_that_depend_on_acetic_acid = [calibrant_shortnames.index('bb017')]
-        indices_of_calibrants_that_depend_on_acetic_acid = []
+        indices_of_calibrants_that_depend_on_acetic_acid = [calibrant_shortnames.index('bb017')]
+        # indices_of_calibrants_that_depend_on_acetic_acid = []
 
         def func_prelim(*args):
             xs = args[0]
@@ -1105,8 +1105,8 @@ class SpectraProcessor:
                 calibrants_concentrations_for_this_spectrum = [x / dilution_factor_for_this_spectrum for x in calibrants_concentrations]
                 # get the concentration where calibrant_shortname = 'acetic_acid'
                 # acetic_acid_concentration = calibrants_concentrations_for_this_spectrum[calibrant_shortnames.index('acetic_acid')] / dilution_factor_for_this_spectrum
-                print(f"AAconc: {product_concentrations_to_required_substrates(calibrants_concentrations, calibrant_shortnames)['ammonium_acetate'] / dilution_factor_for_this_spectrum}")
-                acetic_acid_concentration = 0 #product_concentrations_to_required_substrates(calibrants_concentrations, calibrant_shortnames)['ammonium_acetate'] / dilution_factor_for_this_spectrum
+                # print(f"AAconc: {product_concentrations_to_required_substrates(calibrants_concentrations, calibrant_shortnames)['ammonium_acetate'] / dilution_factor_for_this_spectrum}")
+                acetic_acid_concentration = product_concentrations_to_required_substrates(calibrants_concentrations, calibrant_shortnames)['ammonium_acetate'] / dilution_factor_for_this_spectrum
 
                 calibrants_coeffs_for_this_spectrum = [np.asscalar(calibrants[i]['concentration_to_coeff_interpolator'](calibrants_concentrations_for_this_spectrum[i]))
                                                        for i in range(number_of_calibrants)]
