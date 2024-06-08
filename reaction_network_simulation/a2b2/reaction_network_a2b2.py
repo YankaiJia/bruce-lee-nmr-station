@@ -1,17 +1,16 @@
 import concurrent.futures
 import itertools
+import json
 import random
+from datetime import datetime
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import pandas as pd
-import plotly.express as px
 from pathlib import Path
-import math
 
 matplotlib.use('Agg')
-import plotly.graph_objects as go
 import seaborn as sns
 
 
@@ -79,116 +78,110 @@ def sweep_diff_concs(path:str,c_start:float,c_stop:float,c_num:int,
 
     df = pd.DataFrame(columns=["a_init", "b_init",
                                f"{reaction_product}_final", f"{reaction_product}_yield"])
-    print(f'df: {df}')
+
     concentrations = np.linspace(float(c_start), float(c_stop), c_num, endpoint=False)
 
-    print(f'ks: {ks}')
-
     for index, (a0, b0) in enumerate(itertools.product(concentrations, repeat=2)):
-
-        print(f'a0: {a0}, b0: {b0}')
 
         concentration_lists, comp_names = concentration_iterate(ks=ks,a=a0, b=b0,
                                                                 t_step_size=t_step_size,
                                                                 t_end=t_num)
-
-        if random.randint(0,100) == 1:
-            fig_kinetics = plot_concs(a_list=concentration_lists[0],
-                                      b_list=concentration_lists[1],
-                                      ab_list = concentration_lists[-1], a0=a0, b0=b0)
-            Path(path + '/kinetics_2d_plots').mkdir(parents=True, exist_ok=True)
-            fig_kinetics.savefig(path + '/kinetics_2d_plots/' +
-                                 f'a0_{round(a0,2)}_b0_{round(b0,2)}.png')
-            plt.close(fig_kinetics)
+        if index % 5 == 0:
+            df_kinetics = pd.DataFrame(columns=comp_names)
+            ## append the concentratio lists to the df
+            for i in range(len(comp_names)):
+                df_kinetics[comp_names[i]] = concentration_lists[i]
+            save_csv_dir = path + '\\kinetics_data\\'
+            # if the directory does not exist, create it
+            Path(save_csv_dir).mkdir(parents=True, exist_ok=True)
+            ## save the df to csv file
+            df_kinetics.to_csv(save_csv_dir + f"{a0}_{b0}.csv")
 
         product_final = concentration_lists[-1][-1]
-
-        print(f'product_final: {product_final}')
-        print(f'a0: {a0}, b0: {b0}')
 
         if product_final == 0:
             ab_yield = 0
         else:
-            # if a0 or bo close to 0, then the yield is 0
+            # if a0 or bo is 0, then the yield is 0
             if np.isclose(a0, 0) or np.isclose(b0, 0):
                 ab_yield = 0
             else:
-                ab_yield = product_final / min(a0, b0)
+                ab_yield = 2 * product_final / min(a0, b0)
 
-        print(f'ab_yield: {ab_yield}')
+        # print(f"a0: {a0}, b0: {b0}, product_final: {product_final}, ab_yield: {ab_yield}")
 
-        df.loc[index] = [a0, b0, product_final, ab_yield]
+        # save the a0, b0, product_final, ab_yield to the df as one row
+        row_here = {'a_init': a0, 'b_init':b0,
+                    f"{reaction_product}_final": product_final,
+                    f"{reaction_product}_yield": ab_yield}
 
-        index += 1
+        df.loc[-1] = [a0,b0, product_final, ab_yield]
+        df.index = df.index + 1  # shifting index
+        df = df.sort_index()  # sorting by index
 
         print(index)
-
 
     return df
 
 def run_one_ks( ks, folder,
-                c_start=1,
-                c_stop=0,
-                c_num=50,
+                c_start=0,
+                c_stop=1,
+                c_num=20,
                 t_step_size=0.05,
-                t_num=300,
+                t_num=1000,
                 reaction_product='a2b2'):
 
     ks_str = '_'.join([str(x) for x in ks])
 
     print(f'Running ks: {ks_str}')
 
-    save_dir = (f'F:\\' + folder + f'\\k_{ks_str}\\')
+    save_dir = (f'G:\\' + folder + f'\\k_{ks_str}\\')
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
     print(f'save_dir: {save_dir}')
-
+    time_start = datetime.now()
     df_rxn = sweep_diff_concs(path=save_dir,
-                              c_start = c_start,
-                              c_stop = c_stop,
-                              c_num = c_num,
-                              t_step_size = t_step_size,
-                              t_num = t_num,
-                              ks = ks,
-                              reaction_product = reaction_product)
-
-    # print(f'df_rxn: {df_rxn}')
+                              c_start=c_start,
+                              c_stop=c_stop,
+                              c_num=c_num,
+                              t_step_size=t_step_size,
+                              t_num=t_num,
+                              ks=ks,
+                              reaction_product=reaction_product)
+    time_end = datetime.now()
+    time_now = datetime.today().strftime('%Y-%m-%d-%H-%M_%S')
 
     # save the df_rxn to the folder 'reaction_network_simulation'
-    df_rxn.to_csv(save_dir + f"k_{ks_str}.csv")
+    df_rxn.to_csv(save_dir + f"k_{ks_str}_{time_now}.csv")
 
+    ## save the setting into a json file
+    para = {}
+    para["c_start"] = c_start
+    para['c_stop'] = c_stop
+    para['c_num'] = c_num
+    para['t_step_size'] =t_step_size
+    para['t_num'] = t_num
+    para['ks'] = [x for x in ks]
+    para['csv_path'] = save_dir + f"k_{ks_str}_{time_now}.csv"
+    para['compute_time_sec'] = (time_end - time_start).seconds
 
-    table = df_rxn.pivot(index = 'a_init', columns = 'b_init', values = f'{reaction_product}_yield')
-    ax = sns.heatmap(table)
-    ax.invert_yaxis()
-    # print(table)
-    plt.savefig(save_dir+f'kab_{ks_str}.png')
-    # plt.show()
-
-    print(f'saved: {save_dir+f"k_{ks_str}.csv"}')
-
-    # # fig_scatter = plot_scatter()
-    # # fig_scatter.show()
-    # fig_isosurface = plot_isosurface(df=df_rxn, ks=(kab,kac,kbc,kabc,kacb,kbca))
-    # fig_isosurface.write_html(save_dir+f'k_{kab}_{kac}_{kbc}_{kabc}_{kacb}_{kbca}.html')
-    # fig_isosurface.show()
-
+    with open(save_dir + f"k_{ks_str}_{time_now}.json", 'w', encoding='utf-8') as f:
+        json.dump(para, f, indent=4)
 
 
 if __name__ == "__main__":
-    #
-    # rate_values = [1, 0.1]
-    # list_of_ks = list(itertools.product(rate_values, repeat=12))
-    # with concurrent.futures.ProcessPoolExecutor() as executor:
-    #     executor.map(run_one_ks, list_of_ks, ['reaction_network_simulation_a2b2_1_0.1'] * len(list_of_ks))
 
-
-    rate_values1 = [1, 0]
-    list_of_ks1 = list(itertools.product(rate_values1, repeat=12))
+    rate_values = [1, 0.1]
+    list_of_ks = list(itertools.product(rate_values, repeat=12))
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        executor.map(run_one_ks, list_of_ks1, ['reaction_network_simulation_a2b2_1_0.1'] * len(list_of_ks1))
+        executor.map(run_one_ks, list_of_ks, ['reaction_network_simulation_a2b2_1_0.1'] * len(list_of_ks))
 
-
+    #
+    # rate_values1 = [1, 0]
+    # list_of_ks1 = list(itertools.product(rate_values1, repeat=12))
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     executor.map(run_one_ks, list_of_ks1, ['reaction_network_simulation_a2b2_1_0'] * len(list_of_ks1))
+    #
 
 
 
