@@ -1,4 +1,6 @@
 import concurrent.futures
+import copy
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -12,21 +14,24 @@ import reaction_network_for_plotting
 import itertools
 matplotlib.use('Agg')
 
-def kinetic_equations_vectorized(concentrations, rate_constants):
+
+def kinetic_equations_abc(concentrations, rate_constants):
 
     a, b, c, ab, bc, ac, abc= concentrations
-    kab, kac, kbc, kabc, kacb, kbca = rate_constants
+    k1, k2, k3, k4, k5, k6, k7, k8, k9 = rate_constants
 
-    d_a = -kab * a * b - kac * a * c - kbca * bc * a
-    d_b = -kab * a * b - kbc * b * c - kacb * ac * b
-    d_c = -kac * a * c - kbc * b * c - kabc * ab * c
-    d_ab = kab * a * b - kabc * ab * c
-    d_bc = kbc * b * c - kbca * bc * a
-    d_ac = kac * a * c - kacb * ac * b
-    d_abc = kabc * ab * c + kbca * bc * a + kacb * ac * b
+    d_a = -k1 * a * b - k2 * a * c - k6 * bc * a + k7 * ab + k8 * ac
+    d_b = -k1 * a * b - k3 * b * c - k5 * ac * b + k7 * ab + k9 * bc
+    d_c = -k2 * a * c - k3 * b * c - k4 * ab * c + k8 * ac + k9 * bc
+    d_ab = k1 * a * b - k4 * ab * c - k7 * ab
+    d_bc = k3 * b * c - k6 * bc * a - k9 * bc
+    d_ac = k2 * a * c - k5 * ac * b - k8 * ac
+    d_abc = k4 * ab * c + k5 * ac * b + k6 * bc * a
+
     ds = np.array([float(x) for x in [d_a, d_b, d_c, d_ab, d_bc, d_ac, d_abc]])
 
     return ds
+
 
 def kinetic_equations_a2bc(concentrations, rate_constants):
 
@@ -56,45 +61,24 @@ def kinetic_equations_a2bc(concentrations, rate_constants):
     return ds
 
 
-def kinetic_equations(concentrations, rate_constants):
-    a, b, a2, ab, b2, a2b, ab2, a2b2 = concentrations
-    k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12 = rate_constants
-
-    d_a = (-2 * k1 * a * a - k2 * a * b - k5 * ab * a
-           - k7 * b2 * a - k9 * ab2 * a + k10 * a2 + k11 * ab)
-    d_b = (-k2 * a * b - 2 * k3 * b * b - k4 * a2 * b - k6 * ab * b - k8 * a2b * b
-           + k11 * ab + k12 * b2)
-    d_a2 = k1 * a * a - k4 * a2 * b
-    d_ab = k2 * a * b - k5 * ab * a - k6 * ab * b
-    d_b2 = k3 * b * b - k7 * b2 * a
-    d_a2b = k4 * a2 * b + k5 * ab * a - k8 * a2b * b
-    d_ab2 = k6 * ab * b + k7 * b2 * a - k9 * ab2 * a
-    d_a2b2 = k8 * a2b * b + k9 * ab2 * a
-
-    ds = np.array([d_a, d_b, d_a2, d_ab, d_b2, d_a2b, d_ab2, d_a2b2])
-
-    return ds
-
-def concentration_iterate(reaction_product, a:float=1, b:float=1, c:float=1,
-                          t_step_size:float=0.05, t_num:int=500,
+def concentration_iterate(reaction_product, a, b, c,
+                          t_step_size, t_num,
                           rate_constants:tuple=tuple()):
 
     comp_num =0
     comp_names = []
 
     if reaction_product == 'a2bc':
-        comp_num = 11
         comp_names = ['a', 'b', 'c', 'ab', 'ac', 'bc', 'a2', 'a2b', 'a2c', 'abc', 'a2bc']
+        comp_num = len(comp_names)
 
     elif reaction_product == 'abc':
-        comp_num = 7
         comp_names = ['a', 'b', 'c', 'ab', 'bc', 'ac', 'abc']
-    elif reaction_product == 'a2b2':
-        comp_num = 8
-        comp_names = ['a', 'b', 'a2', 'ab', 'b2', 'a2b', 'ab2', 'a2b2']
+        comp_num = len(comp_names)
+
 
     concentrations = np.array([a, b, c] + [0] * (comp_num - 3), dtype=float)
-    concentration_lists = [np.zeros(t_num) for _ in range(comp_num)]
+    concentration_lists = [copy.deepcopy(concentrations)]
     d_concentrations = np.zeros(comp_num)
 
     for num in range(t_num):
@@ -102,14 +86,16 @@ def concentration_iterate(reaction_product, a:float=1, b:float=1, c:float=1,
         if reaction_product == 'a2bc':
             d_concentrations = kinetic_equations_a2bc(concentrations, rate_constants)
         elif reaction_product == 'abc':
-            d_concentrations = kinetic_equations_vectorized(concentrations, rate_constants)
-        elif reaction_product == 'a2b2':
-            d_concentrations = kinetic_equations_a2b2(concentrations, rate_constants)
+            d_concentrations = kinetic_equations_abc(concentrations, rate_constants)
 
         concentrations += d_concentrations * t_step_size
 
-        for i in range(comp_num):
-            concentration_lists[i][num] = concentrations[i]
+        concentration_lists.append(copy.deepcopy(concentrations))
+
+        # if concentration of last component converges, break the loop
+        if (num > 100) and np.isclose(concentration_lists[-1][-1],concentration_lists[-2][-1],rtol=1e-5):
+            print(f'Interation of concentrations stopped at {num} steps')
+            break
 
     return concentration_lists, comp_names
 
@@ -122,56 +108,66 @@ def sweep_diff_concs(path:str, c_start:float, c_stop:float, c_num:int,
 
     concentrations = np.linspace(float(c_start), float(c_stop), c_num, endpoint=False)
 
-    for index, (a0, b0, c0) in enumerate(itertools.product(concentrations, repeat=3)):
+    abc_comb = sorted(itertools.product(concentrations, repeat=3), reverse=True)
 
-        concentration_lists, comp_names = concentration_iterate(a=a0, b=b0, c=c0,
-                                                    t_step_size=t_step_size, t_num=t_num,
-                                                    rate_constants=ks, reaction_product = reaction_product)
-        if random.randint(0, 100) == 1:
-            df_conc = pd.DataFrame(concentration_lists).T
+    for index, (a0, b0, c0) in enumerate(abc_comb):
+
+        concentration_lists, comp_names = concentration_iterate(reaction_product,
+                                                                a0, b0, c0,
+                                                                t_step_size, t_num, ks)
+
+        ####save a csv file if (all of a0, b0, c0) is in [0.9, 0.5, 0.1, 0.0]
+        if all([(i in [0.90, 0.50, 0.10]) for i in [round(a0,2), round(b0,2), round(c0,2)]]):
+            df_conc = pd.DataFrame(concentration_lists)
             df_conc.columns = comp_names
             # generate a subfolder named kinetics_data if not exist
             kinetics_data_path = path + '\\kinetics_data\\'
             Path(kinetics_data_path).mkdir(parents=True, exist_ok=True)
-            df_conc.to_csv(kinetics_data_path + f'concentrations_{round(a0,2)}_{round(b0,2)}_{round(c0,2)}.csv')
-
+            df_conc.to_csv(kinetics_data_path + f'{round(a0,2)}_{round(b0,2)}_{round(c0,2)}.csv')
+        #####################################################################
         product_final = concentration_lists[-1][-1]
 
         if a0==0 or b0==0 or c0 == 0:
             product_yield = 0
         else:
-            if np.isclose(min(a0, b0, c0),a0):
-                product_yield = 2 * product_final / a0
-            elif np.isclose(min(a0,b0,c0),b0) or np.isclose(min(a0,b0, c0), c0):
-                product_yield = product_final / min(a0,b0,c0)
-
+            if reaction_product == 'a2bc':
+                if np.isclose(min(a0, b0, c0),a0):
+                    product_yield = 2 * product_final / a0
+                elif np.isclose(min(a0,b0,c0),b0) or np.isclose(min(a0,b0, c0), c0):
+                    product_yield = product_final / min(a0,b0,c0)
+            elif reaction_product == 'abc':
+                product_yield = product_final / min(a0, b0, c0)
 
         df.loc[index] = [a0, b0, c0, product_final, product_yield]
 
-        # print(index + 1)
+        # print(index)
 
     return df
 
 
-def run_one_ks(ks, reaction_product,
-               is_show_html= True,
-               c_start = 0,
-               c_stop = 1,
-               c_num = 20,
-               t_step_size = 0.05,
-               t_num = 1000,) -> None:
+def run_one_ks(ks, reaction_product, ks_set_str,
+               is_write_html=True,
+               c_start=0,
+               c_stop=1,
+               c_num=10,
+               t_step_size=0.05,
+               t_num=500,) -> None:
 
     time_start = datetime.now()
 
     ks_str = '_'.join([str(x) for x in ks])
 
-    save_dir = (f'F:\\reaction_network_simulation_systematic_cal_a2bc_8k_points_0_1_wo_reverse_test'
+    save_dir = (f'G:\\reaction_network_simulation_'
+                f'{reaction_product}_{ks_set_str}_wo_reverse'
                 f'\\k_{ks_str}\\')
+
     Path(save_dir).mkdir(parents=True, exist_ok=True)
 
-    df_rxn = sweep_diff_concs(save_dir,c_start,
-                              c_stop, c_num,
-                              t_step_size, t_num, ks, reaction_product = reaction_product)
+    df_rxn = sweep_diff_concs(save_dir,
+                              c_start,c_stop, c_num,
+                              t_step_size, t_num,
+                              ks,
+                              reaction_product)
 
     time_now = datetime.today().strftime('%Y-%m-%d-%H-%M_%S')
 
@@ -179,7 +175,7 @@ def run_one_ks(ks, reaction_product,
     df_rxn.to_csv(save_dir + f"k_{ks_str}_{time_now}.csv")
 
     time_end = datetime.now()
-    # print(f"Time taken for ks = {ks} is {(time_end - time_start).seconds} seconds.")
+    print(f"Time taken for ks = {ks} is {(time_end - time_start).seconds} seconds.")
 
     para = {}
     para["c_start"] = c_start
@@ -187,7 +183,7 @@ def run_one_ks(ks, reaction_product,
     para['c_num'] = c_num
     para['t_step_size'] =t_step_size
     para['t_num'] = t_num
-    para['ks'] = [ks[0],ks[1],ks[2],ks[3],ks[4],ks[5]]
+    para['ks'] = ks
     para['csv_path'] = save_dir + f"k_{ks_str}_{time_now}.csv"
     para['compute_time_sec'] = (time_end - time_start).seconds
 
@@ -195,31 +191,57 @@ def run_one_ks(ks, reaction_product,
     with open(save_dir + f'para_{time_now}.json', 'w', encoding='utf-8') as f:
         json.dump(para, f, indent=4)
 
+    if is_write_html:
 
-    if is_show_html:
         # fig_scatter = reaction_network_for_plotting.plot_scatter()
         # fig_scatter.show()
-        fig_isosurface = reaction_network_for_plotting.plot_isosurface(df=df_rxn, ks=ks,
-                                                                       reaction_product = reaction_product)
+        fig_isosurface = reaction_network_for_plotting.plot_isosurface(df_rxn, ks, reaction_product)
         fig_isosurface.write_html(save_dir+f'k_{ks_str}_{time_now}.html')
         # fig_isosurface.show()
 
     print(f'Finished one run at {time_now} for ks = {ks}.')
 
+def is_save(list):
+    return any([list[0], list[1], list[2]]) and any([list[3], list[4], list[5]])
 
 if __name__ == "__main__":
 
-    rate_num = 0
-    ks = []
-    list_of_ks = []
+    reaction_product = 'abc'
+    #
+    # rate_values = [1, 0]
+    #
+    # ks_set_str = '_'.join([str(x) for x in rate_values])
+    # list_of_ks = list(itertools.product(rate_values, repeat=9))
+    # print(len(list_of_ks))
+    #
+    # list_of_ks_proper = [ i for i in list_of_ks if is_save(i)]
+    #
+    #
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     executor.map(run_one_ks,
+    #                  list_of_ks_proper,
+    #                  [reaction_product] * len(list_of_ks_proper),
+    #                  [ks_set_str] * len(list_of_ks_proper))
+    #
+    #
+    #
+    rate_values = [1, 0.1]
 
-    reaction_product ='a2b2'
-    if reaction_product == 'a2b2':
-        rate_num = 12
-        rate_values = [1, 0]
-        list_of_ks = list(itertools.product(rate_values, repeat=rate_num-3))
-        list_of_ks = [list(i) + [0]*3 for i in list_of_ks][:5]
+    ks_set_str = '_'.join([str(x) for x in rate_values])
+    list_of_ks = list(itertools.product(rate_values, repeat=9))
+    print(len(list_of_ks))
+
+    list_of_ks_proper = [ list(i) for i in list_of_ks if is_save(i)]
+
+    # make the last three components of the list_of_ks_proper to be 0
+    for i in list_of_ks_proper:
+        i[-3:] = [0, 0, 0]
+
+
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        executor.map(run_one_ks, list_of_ks, [reaction_product] * len(list_of_ks))
+        executor.map(run_one_ks,
+                     list_of_ks_proper,
+                     [reaction_product] * len(list_of_ks_proper),
+                     [ks_set_str] * len(list_of_ks_proper))
 

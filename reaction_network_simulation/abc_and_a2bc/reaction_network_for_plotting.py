@@ -1,3 +1,5 @@
+import concurrent.futures
+import glob
 import json,os
 
 import numpy as np
@@ -42,7 +44,7 @@ def plot_isosurface(df, ks, reaction_product):
         value=df[f'{reaction_product}_yield'],
         isomin=min(df[f'{reaction_product}_yield']),
         isomax=max(df[f'{reaction_product}_yield']),
-        surface_count=8, colorscale='Rainbow',colorbar=dict(len=0.5, x=0.45 ,y=0.5),
+        surface_count=10, colorscale='Rainbow',colorbar=dict(len=0.5, x=0.45 ,y=0.5),
         caps=dict(x_show=False, y_show=False), text=f'{reaction_product}_yield'
     )
     plot2 = go.Isosurface(
@@ -52,7 +54,7 @@ def plot_isosurface(df, ks, reaction_product):
         value=df[f'{reaction_product}_final'],
         isomin=min(df[f'{reaction_product}_final']),
         isomax=max(df[f'{reaction_product}_final']),
-        surface_count=8, colorscale='Rainbow',colorbar=dict(len=0.5, x=1.0 ,y=0.5),
+        surface_count=10, colorscale='Rainbow',colorbar=dict(len=0.5, x=1.0 ,y=0.5),
         caps=dict(x_show=False, y_show=False), text=f'{reaction_product}_final'
 
     )
@@ -98,37 +100,102 @@ def plot_concs(a_list, b_list, c_list, ab_list, bc_list, ac_list, abc_list, a0, 
 
     return fig
 
+def csv_plot_and_save_one_folder(folder):
+
+    print('working on folder: ',folder)
+
+    ## plot all csvs in the kinetics_data folder
+
+    os.chdir(folder)
+    csv_files = glob.glob('*.csv')
+    print(f'csv_files: {csv_files}')
+
+    for csv_file in csv_files:
+
+        png_file = Path(csv_file).with_suffix('.png')
+
+        # if png_fileexist, delete it
+        if png_file.exists():
+            os.remove(png_file)
+
+        df = pd.read_csv(csv_file)
+        # make the first column the index
+        df.set_index(df.columns[0], inplace=True)
+        titles = df.columns
+        # make len(titles) subplots for each species
+        fig, axs = plt.subplots(1, len(titles), figsize=(25, 6))
+        TIME_STEP = 0.05
+        x = [i * TIME_STEP for i in df.index.tolist()]
+        for index, title in enumerate(titles):
+            axs[index].plot(x,df[title])
+            axs[index].set_title(title)
+            axs[index].set_xlabel('t')
+
+        a0 = df[titles[0]][0]
+        b0 = df[titles[1]][0]
+        c0 = df[titles[2]][0]
+        product_final = df[titles[-1]][len(df[titles[-1]]) - 1]
+
+        if np.isclose(a0, 0) or np.isclose(b0, 0):
+            product_yield = 0
+        else:
+            product_yield = product_final / min(a0, b0)
+
+        fig.suptitle(f'a0 = {round(a0, 2)},   b0 = {round(b0, 2)},   c0 = {round(c0, 2)},   '
+                     f'abc_final = {round(product_final, 2)},   abc_yield = {round(product_yield, 2)}  \n \n'
+                     f'\n\n\n',
+                     fontsize=16)
+        # print(f'a0 = {a0}, b0 = {b0}, c0 = {c0}, '
+        #              f'abc_final = {product_final}, abc_yield = {product_yield}')
+
+        # Save the plot as a png file
+        plt.savefig(png_file, dpi=100)
+        # print(f'csv_file: {csv_file}')
+        plt.close()
+
+        # elif png_file.exists():
+        #     print(f'{png_file} already exists')
 
 if __name__ == "__main__":
 
 
-    data_dir = 'reaction_network_simulation_systematic_cal_wo_reverse'
+    # data_dir = 'G:\\reaction_network_simulation_abc_1_0_with_reverse'
+    # folders_with_ks = [(str(f) + '\\kinetics_data') for f in Path(data_dir).iterdir() if f.is_dir()]
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     executor.map(csv_plot_and_save_one_folder,folders_with_ks)
 
-    # get all the subfolder in the data_dir
-    data_dir = Path(data_dir)
-    subfolders = [f for f in data_dir.glob('*') if f.is_dir()]
 
-    for subfolder in subfolders:
-        # get all the csv files in the subfolder
-        csv_files = [f for f in subfolder.glob('*.csv')]
-        print(subfolder)
+    # data_dir = 'G:\\reaction_network_simulation_abc_1_0.1_with_reverse_5000steps'
+    # data_dir = 'G:\\reaction_network_simulation_abc_1_0_with_reverse'
+    # folders_with_ks = [(str(f) + '\\kinetics_data') for f in Path(data_dir).iterdir() if f.is_dir()]
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     executor.map(csv_plot_and_save_one_folder,folders_with_ks)
 
-        for csv_file in csv_files:
-            # rename the json file to the same name as the csv file
-            json_file=csv_file.with_suffix('.json')
-            # read the json file
-            with open(json_file) as f:
-                data = json.load(f)
+    # data_dir = 'G:\\reaction_network_simulation_abc_1_0.1_with_reverse'
+    # folders_with_ks = [(str(f) + '\\kinetics_data') for f in Path(data_dir).iterdir() if f.is_dir()]
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     executor.map(csv_plot_and_save_one_folder,folders_with_ks)
+    #
+    data_dir = 'G:\\reaction_network_simulation_abc_1_0.1_wo_reverse_5000steps'
+    # data_dir = 'G:\\reaction_network_simulation_abc_1_0.1_with_reverse'
+    folders_with_ks = [(str(f) + '\\kinetics_data') for f in Path(data_dir).iterdir() if f.is_dir()]
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(csv_plot_and_save_one_folder,folders_with_ks)
 
-            ks = data['ks']
-            df_rxn = pd.read_csv(csv_file)
-            # fig_scatter = plot_scatter()
-            # fig_scatter.show()
-            ## reduce the number of points to plot by 2
-            df_rxn = df_rxn.iloc[::5, :]
-            fig_isosurface = plot_isosurface(df=df_rxn, ks=(ks[0],ks[1],ks[2],ks[3],ks[4],ks[5]))
-            fig_isosurface.write_html(csv_file.with_suffix('.html'))
-            fig_isosurface.show()
+    data_dir = 'G:\\reaction_network_simulation_abc_1_0.1_wo_reverse'
+    # data_dir = 'G:\\reaction_network_simulation_abc_1_0.1_with_reverse'
+    folders_with_ks = [(str(f) + '\\kinetics_data') for f in Path(data_dir).iterdir() if f.is_dir()]
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        executor.map(csv_plot_and_save_one_folder,folders_with_ks)
+
+
+
+
+
+
+
+
+
 
 
 

@@ -61,7 +61,7 @@ def plot_kinetics_plot(folder):
     for num, csv_file in enumerate(csv_files):
         col_names = ['a', 'b', 'a2', 'ab', 'b2', 'a2b', 'ab2', 'a2b2']
         df = pd.read_csv(csv_file)
-        # make 7 subplots for each species
+        # make 8 subplots for each species
         fig, axs = plt.subplots(1, 8, figsize=(20, 9))
         for index, col_name in enumerate(col_names):
             axs[index].plot(df[col_name])
