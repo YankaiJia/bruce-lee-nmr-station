@@ -19,6 +19,8 @@ def move_pose(coord: tuple):
 def move_lin(coord: tuple):
     r.MoveLin(*coord)
 
+def move_lin_rel_trf(coord: tuple):
+    r.MoveLinRelTrf(*coord)
 
 def move_joints(coord: tuple):
     r.MoveJoints(*coord)
