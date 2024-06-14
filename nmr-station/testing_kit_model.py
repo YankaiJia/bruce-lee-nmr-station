@@ -17,6 +17,9 @@ from meca import move_lin_rel_trf
 
 # theta is the tilted angle of Joint 6 in degree
 def cal_tilted_angle_decompose(d: int, theta: float):
+    # if no angle tilted
+    if round(theta, 2) == 0.00: 
+        return d, 0
     theta_rad = math.radians(-theta)
     x = round(d * math.cos(theta_rad), 4)
     y = round(d * math.sin(theta_rad), 4) 

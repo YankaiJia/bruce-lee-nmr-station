@@ -71,16 +71,25 @@ def place_tube(location='spinsolve'):
     gripper_open()
     move_lin(coord_dict[f'{location}_high'])
 
+def get_robot():
+    return mdr.Robot()
 
-if __name__ == '__main__':
-    r = mdr.Robot()
+def connect_robot(r: mdr.Robot):
     r.Connect(address='192.168.0.100', enable_synchronous_mode=True, disconnect_on_exception=False)
     r.ActivateAndHome()
     r.WaitHomed()
     print('Homed!')
 
-    # config
+def config_robot(r: mdr.Robot):
     r.SetGripperRange(10, 40)
+
+
+if __name__ == '__main__':
+    r = mdr.Robot()
+    connect_robot(r)
+
+    # config
+    config_robot(r)
 
     reset()
 
