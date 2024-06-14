@@ -1,3 +1,10 @@
+"""
+Model part of the testing kit
+Stores logic & functions that communicate with the MECA500 robot arm
+
+King Lam Kwong
+"""
+
 import mecademicpy.robot as mdr
 import mecademicpy.mx_robot_def as mdr_def
 import numpy as np
