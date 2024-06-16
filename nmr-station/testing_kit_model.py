@@ -26,21 +26,22 @@ def cal_tilted_angle_decompose(d: int, theta: float):
     return x, y
 
 # vertically moving up or down once
-def change_vertical_height(direction: str, dist: int, tilted_angle: float):
-    is_moving_up = (True if direction == "u" else False)
+def change_vertical_height(robo: mdr.Robot, direction: str, dist: int, tilted_angle: float):
+    print(f"moving {direction} for {dist} mm with joint-6 {tilted_angle} deg tilted.")
+    is_moving_up = (True if direction == "up" else False)
     
     dx, dy = cal_tilted_angle_decompose(dist, tilted_angle)
     
     # get the actual current angle of joint 6
-    # _, _, _, _, _, cur_angle_j6 = mdr.Robot().GetRtTargetJointPos()
-    _, _, _, _, _, cur_angle_j6 = [-90, 0, 0, 0, 0, 120]
+    _, _, _, _, _, cur_angle_j6 = robo.GetRtTargetJointPos()
+    # _, _, _, _, _, cur_angle_j6 = [-90, 0, 0, 0, 0, 120]
     actu_angle_j6 = cur_angle_j6 - tilted_angle
     is_upside_down = (True if round(actu_angle_j6, 2) == 180.00 else False)
 
     if is_moving_up != is_upside_down: dx, dy = -dx, -dy
 
     print("Grippler Moving", ("up" if is_moving_up == True else "down"), f"for {dist} mm, dx={dx}, dy={dy}")
-    # move_lin_rel_trf(dx, dy, 0, 0, 0, 0) 
+    robo.move_lin_rel_trf(dx, dy, 0, 0, 0, 0) 
 
 
 

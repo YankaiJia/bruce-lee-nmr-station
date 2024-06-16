@@ -105,7 +105,7 @@ if __name__ == '__main__':
     pick_tube(location='spinsolve')
     place_tube(location='stand2')
     zero()
-import mecademicpy.robot as mdr
+    
 # Connect, activate, and home robot...
 
 # response_codes = [mdr_def.MX_ST_ERROR_RESET, mdr_def.MX_ST_NO_ERROR_RESET]
