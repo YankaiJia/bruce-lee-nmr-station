@@ -12,38 +12,47 @@ import numpy as np
 import math
 import time
 
-from meca import move_lin_rel_trf 
+from meca import move_lin_rel_trf
 
 
 # theta is the tilted angle of Joint 6 in degree
 def cal_tilted_angle_decompose(d: int, theta: float):
     # if no angle tilted
-    if round(theta % 360, 2) == 0.00: 
+    if round(theta % 360, 2) == 0.00:
         return d, 0
     theta_rad = math.radians(-theta)
     x = round(d * math.cos(theta_rad), 4)
-    y = round(d * math.sin(theta_rad), 4) 
+    y = round(d * math.sin(theta_rad), 4)
     return x, y
 
+
 # vertically moving up or down once
-def change_vertical_height(robo: mdr.Robot, direction: str, dist: int, tilted_angle: float):
+def change_vertical_height(
+    robo: mdr.Robot, direction: str, dist: int, tilted_angle: float
+):
     print(f"moving {direction} for {dist} mm with joint-6 {tilted_angle} deg tilted.")
-    is_moving_up = (True if direction == "up" else False)
-    
+    is_moving_up = True if direction == "up" else False
+
     dx, dy = cal_tilted_angle_decompose(dist, tilted_angle)
-    
+
     # get the actual current angle of joint 6
     _, _, _, _, _, cur_angle_j6 = robo.GetRtTargetJointPos()
     # _, _, _, _, _, cur_angle_j6 = [-90, 0, 0, 0, 0, 120]
     actu_angle_j6 = cur_angle_j6 - tilted_angle
-    is_upside_down = (True if round(actu_angle_j6, 2) == 180.00 else False)
+    is_upside_down = True if round(actu_angle_j6, 2) == 180.00 else False
 
-    if is_moving_up != is_upside_down: dx, dy = -dx, -dy
+    if is_moving_up != is_upside_down:
+        dx, dy = -dx, -dy
 
-    print("Grippler Moving", ("up" if is_moving_up == True else "down"), f"for {dist} mm, dx={dx}, dy={dy}")
-    robo.MoveLinRelTrf(dx, dy, 0, 0, 0, 0) 
+    print(
+        "Grippler Moving",
+        ("up" if is_moving_up == True else "down"),
+        f"for {dist} mm, dx={dx}, dy={dy}",
+    )
+    robo.MoveLinRelTrf(dx, dy, 0, 0, 0, 0)
 
     print(robo.GetRtTargetCartPos())
+
 
 def change_z_value(robo: mdr.Robot, dz: int):
     print("Moving", ("forward" if dz > 0 else "backward"), f"for {dz} mm")
@@ -52,17 +61,19 @@ def change_z_value(robo: mdr.Robot, dz: int):
 
     print(robo.GetRtTargetCartPos())
 
+
 def change_joint1_deg(robo: mdr.Robot, theta: float):
     print("Rotate Joint 1", ("forward" if theta > 0 else "backward"), f"for {theta}°")
 
     robo.MoveJointsRel(theta, 0, 0, 0, 0, 0)
-    
-    print(robo.GetRtTargetCartPos())
-    print(robo.GetRtTargetJointPos)
 
-if __name__ == "__main__" :
+    print(robo.GetRtTargetCartPos())
+    print(robo.GetRtTargetJointPos())
+
+
+if __name__ == "__main__":
     print("===Testing Mode===")
-    
+
     print(cal_tilted_angle_decompose(100, -60))
     change_vertical_height("d", 250, 0)
-    change_vertical_height("d", 100, -60)    
+    change_vertical_height("d", 100, -60)

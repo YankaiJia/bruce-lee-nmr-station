@@ -11,11 +11,7 @@ from pynput import keyboard
 
 import threading
 
-from testing_kit_model import (
-    change_vertical_height,
-    change_z_value,
-    change_joint1_deg
-)
+from testing_kit_model import change_vertical_height, change_z_value, change_joint1_deg
 from meca import get_robot, connect_robot, config_robot
 
 
@@ -66,7 +62,9 @@ def vert_move(args):
 
     unit_distance = int(args[0])
     tilted_angle = 0 if len(args) < 2 else int(args[1])
-    print(f"move vertically by unit distance {unit_distance} mm with joint-6 {tilted_angle}° tilted")
+    print(
+        f"move vertically by unit distance {unit_distance} mm with joint-6 {tilted_angle}° tilted"
+    )
 
     kr = KeyReader()
 
@@ -79,6 +77,7 @@ def vert_move(args):
 
     kr.listener_off()
 
+
 def joystick(args):
     r = get_robot()
     connect_robot(r)
@@ -90,22 +89,24 @@ def joystick(args):
     # joint6_tilted_angle
     delta_h = 0
     delta_z = 0
-    delta_j1= 0
+    delta_j1 = 0
     tilted_angle = 0
-    
+
     if len(args) < 3:
-       print("Invalid number of arguments. Expected 3 or 4 arguments.") 
-       exit()
+        print("Invalid number of arguments. Expected 3 or 4 arguments.")
+        exit()
     elif len(args) == 3:
         delta_h, delta_z, delta_j1 = args
     elif len(args) == 4:
         delta_h, delta_z, delta_j1, tilted_angle = args
-    
+
     kr = KeyReader()
-    while kr.last_key != "x":
+    while True:
         threading.Event().wait(0.2)
 
-        if kr.last_key in ["up", "down"]:
+        if kr.last_key == "x":
+            break
+        elif kr.last_key in ["up", "down"]:
             change_vertical_height(r, kr.last_key, delta_h, tilted_angle)
         elif kr.last_key in ["w", "s"]:
             change_z_value(r, (delta_z if kr.last_key == "w" else -delta_z))
@@ -115,6 +116,7 @@ def joystick(args):
         kr.last_key = ""
 
     kr.listener_off()
+
 
 if __name__ == "__main__":
 
