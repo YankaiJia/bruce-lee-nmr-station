@@ -43,6 +43,7 @@ def change_vertical_height(robo: mdr.Robot, direction: str, dist: int, tilted_an
     print("Grippler Moving", ("up" if is_moving_up == True else "down"), f"for {dist} mm, dx={dx}, dy={dy}")
     robo.MoveLinRelTrf(dx, dy, 0, 0, 0, 0) 
 
+    print(robo.GetRtTargetCartPos())
 
 
 if __name__ == "__main__" :
