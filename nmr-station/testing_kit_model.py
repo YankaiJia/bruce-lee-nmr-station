@@ -18,7 +18,7 @@ from meca import move_lin_rel_trf
 # theta is the tilted angle of Joint 6 in degree
 def cal_tilted_angle_decompose(d: int, theta: float):
     # if no angle tilted
-    if round(theta, 2) == 0.00: 
+    if round(theta % 360, 2) == 0.00: 
         return d, 0
     theta_rad = math.radians(-theta)
     x = round(d * math.cos(theta_rad), 4)
@@ -41,7 +41,7 @@ def change_vertical_height(robo: mdr.Robot, direction: str, dist: int, tilted_an
     if is_moving_up != is_upside_down: dx, dy = -dx, -dy
 
     print("Grippler Moving", ("up" if is_moving_up == True else "down"), f"for {dist} mm, dx={dx}, dy={dy}")
-    robo.move_lin_rel_trf(dx, dy, 0, 0, 0, 0) 
+    robo.MoveLinRelTrf(dx, dy, 0, 0, 0, 0) 
 
 
 

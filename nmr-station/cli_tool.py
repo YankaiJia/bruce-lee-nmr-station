@@ -43,7 +43,7 @@ def check_health(params):
 def vert_move(params):
     unit_distance = int(params[0])
     tilted_angle = (
-        0 if len(params) < 2 else (0 if params[1].isdigit() == False else params[1])
+        0 if len(params) < 2 else (0 if params[1].isdigit() == False else int(params[1])) 
     )
     print(f"move vertically by unit distance {unit_distance} mm")
 
