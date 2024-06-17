@@ -45,6 +45,20 @@ def change_vertical_height(robo: mdr.Robot, direction: str, dist: int, tilted_an
 
     print(robo.GetRtTargetCartPos())
 
+def change_z_value(robo: mdr.Robot, dz: int):
+    print("Moving", ("forward" if dz > 0 else "backward"), f"for {dz} mm")
+
+    robo.MoveLinRelTrf(0, 0, dz, 0, 0, 0)
+
+    print(robo.GetRtTargetCartPos())
+
+def change_joint1_deg(robo: mdr.Robot, theta: float):
+    print("Rotate Joint 1", ("forward" if theta > 0 else "backward"), f"for {theta}°")
+
+    robo.MoveJointsRel(theta, 0, 0, 0, 0, 0)
+    
+    print(robo.GetRtTargetCartPos())
+    print(robo.GetRtTargetJointPos)
 
 if __name__ == "__main__" :
     print("===Testing Mode===")

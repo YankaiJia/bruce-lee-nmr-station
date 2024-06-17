@@ -1,20 +1,39 @@
+"""
+CLI app for simpler testing nmr-station objects position and 
+corresponding MECA500 moving configurations
+
+
+King Lam Kwong
+"""
+
 import click
 from pynput import keyboard
 
 import threading
 
-from testing_kit_model import change_vertical_height
-from meca import (get_robot, connect_robot, config_robot)
+from testing_kit_model import (
+    change_vertical_height,
+    change_z_value,
+    change_joint1_deg
+)
+from meca import get_robot, connect_robot, config_robot
 
-@click.command()
+
+# @click.command()
+@click.command(
+    context_settings=dict(
+        ignore_unknown_options=True,
+        allow_extra_args=True,
+    )
+)
 @click.argument("function_name")
-@click.argument("params", nargs=-1)
-def cli(function_name, params):
+@click.argument("args", nargs=-1, type=int)
+def cli(function_name, args):
     # Get the method from the instance
     func = globals().get(function_name)
     # Check if it's callable (i.e., a method)
     if callable(func):
-        func(params)
+        func(args)
 
 
 class KeyReader:
@@ -36,16 +55,18 @@ class KeyReader:
 # add new functions as testing tool below
 
 
-def check_health(params):
-    print("healthy", params)
+def check_health(args):
+    print("healthy", args)
 
 
-def vert_move(params):
-    unit_distance = int(params[0])
-    tilted_angle = (
-        0 if len(params) < 2 else (0 if params[1].isdigit() == False else int(params[1])) 
-    )
-    print(f"move vertically by unit distance {unit_distance} mm")
+def vert_move(args):
+    r = get_robot()
+    connect_robot(r)
+    config_robot(r)
+
+    unit_distance = int(args[0])
+    tilted_angle = 0 if len(args) < 2 else int(args[1])
+    print(f"move vertically by unit distance {unit_distance} mm with joint-6 {tilted_angle}° tilted")
 
     kr = KeyReader()
 
@@ -58,10 +79,43 @@ def vert_move(params):
 
     kr.listener_off()
 
-
-if __name__ == "__main__":
+def joystick(args):
     r = get_robot()
     connect_robot(r)
     config_robot(r)
+
+    # vertical_height_change_unit
+    # horizontal_movement_change_unit
+    # joint1_rotation_change_unit
+    # joint6_tilted_angle
+    delta_h = 0
+    delta_z = 0
+    delta_j1= 0
+    tilted_angle = 0
+    
+    if len(args) < 3:
+       print("Invalid number of arguments. Expected 3 or 4 arguments.") 
+       exit()
+    elif len(args) == 3:
+        delta_h, delta_z, delta_j1 = args
+    elif len(args) == 4:
+        delta_h, delta_z, delta_j1, tilted_angle = args
+    
+    kr = KeyReader()
+    while kr.last_key != "x":
+        threading.Event().wait(0.2)
+
+        if kr.last_key in ["up", "down"]:
+            change_vertical_height(r, kr.last_key, delta_h, tilted_angle)
+        elif kr.last_key in ["w", "s"]:
+            change_z_value(r, (delta_z if kr.last_key == "w" else -delta_z))
+        elif kr.last_key in ["a", "d"]:
+            change_joint1_deg(r, (-delta_j1 if kr.last_key == "a" else delta_j1))
+
+        kr.last_key = ""
+
+    kr.listener_off()
+
+if __name__ == "__main__":
 
     cli()
