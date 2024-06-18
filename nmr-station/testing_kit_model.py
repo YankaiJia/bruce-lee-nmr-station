@@ -70,6 +70,14 @@ def change_joint1_deg(robo: mdr.Robot, theta: float):
     print(robo.GetRtTargetCartPos())
     print(robo.GetRtTargetJointPos())
 
+def change_gripper_state(robo: mdr.Robot):
+    _, _, _, _, is_opened = robo.GetRtGripperState()
+    if is_opened == True:
+        robo.GripperClose()
+        print("Gripper Opened!")
+    else: 
+        robo.GripperOpen()
+        print("Gripper Closed!")
 
 if __name__ == "__main__":
     print("===Testing Mode===")

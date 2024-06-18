@@ -11,7 +11,7 @@ from pynput import keyboard
 
 import threading
 
-from testing_kit_model import change_vertical_height, change_z_value, change_joint1_deg
+from testing_kit_model import change_vertical_height, change_z_value, change_joint1_deg, change_gripper_state
 from meca import get_robot, connect_robot, config_robot
 
 
@@ -36,9 +36,9 @@ class KeyReader:
     def __init__(self, mode: str="safe"):
         self.listener = None
         if mode == "safe":
-            keyboard.Listener(on_release=self.mark_last_key)
+            self.listener = keyboard.Listener(on_release=self.mark_last_key)
         elif mode == "smooth":
-            keyboard.Listener(on_press=self.mark_last_key)
+            self.listener = keyboard.Listener(on_press=self.mark_last_key)
         self.listener.start()
         self.last_key = ""
 
@@ -116,6 +116,9 @@ def joystick(args):
             change_z_value(r, (delta_z if kr.last_key == "w" else -delta_z))
         elif kr.last_key in ["a", "d"]:
             change_joint1_deg(r, (-delta_j1 if kr.last_key == "a" else delta_j1))
+        elif kr.last_key == "g":
+            change_gripper_state(r)
+
         kr.last_key = ""
 
     kr.listener_off()
