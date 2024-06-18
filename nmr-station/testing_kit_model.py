@@ -79,6 +79,10 @@ def change_gripper_state(robo: mdr.Robot):
         robo.GripperOpen()
         print("Gripper Closed!")
 
+def invert_gripper(robo: mdr.Robot):
+    robo.MoveJointsRel(0, 0, 0, 0, 0, 180)
+    print("Gripper Inverted")
+
 if __name__ == "__main__":
     print("===Testing Mode===")
 
