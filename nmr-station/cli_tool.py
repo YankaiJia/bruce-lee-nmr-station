@@ -33,12 +33,16 @@ def cli(function_name, args):
 
 
 class KeyReader:
-    def __init__(self):
-        self.listener = keyboard.Listener(on_release=self.on_release)
+    def __init__(self, mode: str="safe"):
+        self.listener = None
+        if mode == "safe":
+            keyboard.Listener(on_release=self.mark_last_key)
+        elif mode == "smooth":
+            keyboard.Listener(on_press=self.mark_last_key)
         self.listener.start()
         self.last_key = ""
 
-    def on_release(self, key: keyboard.Key):
+    def mark_last_key(self, key: keyboard.Key):
         try:
             self.last_key = key.char
         except AttributeError:
@@ -87,20 +91,20 @@ def joystick(args):
     # horizontal_movement_change_unit
     # joint1_rotation_change_unit
     # joint6_tilted_angle
-    delta_h = 0
-    delta_z = 0
-    delta_j1 = 0
+    delta_h = 5
+    delta_z = 5
+    delta_j1 = 0.25
     tilted_angle = 0
 
-    if len(args) < 3:
+    if len(args) in [1, 2]:
         print("Invalid number of arguments. Expected 3 or 4 arguments.")
         exit()
     elif len(args) == 3:
         delta_h, delta_z, delta_j1 = args
-    elif len(args) == 4:
-        delta_h, delta_z, delta_j1, tilted_angle = args
+    elif len(args) >= 4:
+        delta_h, delta_z, delta_j1, tilted_angle = args[0:4]
 
-    kr = KeyReader()
+    kr = KeyReader(("smooth" if len(args) == 0 else "safe"))
     while True:
         threading.Event().wait(0.2)
 
@@ -112,7 +116,6 @@ def joystick(args):
             change_z_value(r, (delta_z if kr.last_key == "w" else -delta_z))
         elif kr.last_key in ["a", "d"]:
             change_joint1_deg(r, (-delta_j1 if kr.last_key == "a" else delta_j1))
-
         kr.last_key = ""
 
     kr.listener_off()
