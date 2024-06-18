@@ -14,6 +14,11 @@ import time
 
 from meca import move_lin_rel_trf
 
+"""
+Calculation Functions
+
+"""
+
 
 # theta is the tilted angle of Joint 6 in degree
 def cal_tilted_angle_decompose(d: int, theta: float):
@@ -26,6 +31,17 @@ def cal_tilted_angle_decompose(d: int, theta: float):
     return x, y
 
 
+def is_joint6_upside_down(r: mdr.Robot, tilted_angle: float):
+    actual_angle_j6 = r.GetRtTargetJointPos[5] - tilted_angle
+    return True if str(round(actual_angle_j6, 1)) == "180.00" else False
+
+
+"""
+Simplified Movement Control Functions
+
+"""
+
+
 # vertically moving up or down once
 def change_vertical_height(
     robo: mdr.Robot, direction: str, dist: int, tilted_angle: float
@@ -35,13 +51,7 @@ def change_vertical_height(
 
     dx, dy = cal_tilted_angle_decompose(dist, tilted_angle)
 
-    # get the actual current angle of joint 6
-    _, _, _, _, _, cur_angle_j6 = robo.GetRtTargetJointPos()
-    # _, _, _, _, _, cur_angle_j6 = [-90, 0, 0, 0, 0, 120]
-    actu_angle_j6 = cur_angle_j6 - tilted_angle
-    is_upside_down = True if round(actu_angle_j6, 2) == 180.00 else False
-
-    if is_moving_up != is_upside_down:
+    if is_moving_up != is_joint6_upside_down(robo, tilted_angle):
         dx, dy = -dx, -dy
 
     print(
@@ -70,18 +80,24 @@ def change_joint1_deg(robo: mdr.Robot, theta: float):
     print(robo.GetRtTargetCartPos())
     print(robo.GetRtTargetJointPos())
 
-def change_gripper_state(robo: mdr.Robot):
-    _, _, _, _, is_opened = robo.GetRtGripperState()
+
+def change_gripper_state(robo: mdr.Robotd):
+    is_opened = robo.GetRtGripperState().opened
     if is_opened == True:
         robo.GripperClose()
         print("Gripper Opened!")
-    else: 
+    else:
         robo.GripperOpen()
         print("Gripper Closed!")
 
-def invert_gripper(robo: mdr.Robot):
-    robo.MoveJointsRel(0, 0, 0, 0, 0, 180)
+
+def invert_gripper(robo: mdr.Robot, tilted_angle: float):
+    d_theta = 180
+    if is_joint6_upside_down(robo, tilted_angle) == True:
+        d_theta = -180
+    robo.MoveJointsRel(0, 0, 0, 0, 0, d_theta)
     print("Gripper Inverted")
+
 
 if __name__ == "__main__":
     print("===Testing Mode===")

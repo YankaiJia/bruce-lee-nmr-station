@@ -125,7 +125,7 @@ def joystick(args):
         elif kr.last_key == "g":
             change_gripper_state(r)
         elif kr.last_key == "r":
-            invert_gripper(r)
+            invert_gripper(r, tilted_angle)
 
         kr.last_key = ""
 
