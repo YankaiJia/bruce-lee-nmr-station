@@ -11,7 +11,7 @@ from pynput import keyboard
 
 import threading
 
-from testing_kit_model import (
+from meca_movements import (
     change_vertical_height,
     change_z_value,
     change_joint1_deg,
@@ -63,6 +63,10 @@ class KeyReader:
 
 def check_health(args):
     print("healthy", args)
+
+
+def reset(args):
+    pass
 
 
 def vert_move(args):

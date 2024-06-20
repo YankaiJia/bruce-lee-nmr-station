@@ -1,5 +1,6 @@
 """
-Model part of the testing kit
+Simplified movement system for MECA500
+Used by the cli tool and auto scripts
 Stores logic & functions that communicate with the MECA500 robot arm
 
 King Lam Kwong
@@ -15,7 +16,7 @@ import time
 from meca import move_lin_rel_trf
 
 """
-Calculation Functions
+Calculation / Utility Functions
 
 """
 
@@ -32,8 +33,8 @@ def cal_tilted_angle_decompose(d: int, theta: float):
 
 
 def is_joint6_upside_down(r: mdr.Robot, tilted_angle: float):
-    actual_angle_j6 = r.GetRtTargetJointPos[5] - tilted_angle
-    return True if str(round(actual_angle_j6, 1)) == "180.00" else False
+    actual_angle_j6 = r.GetRtTargetJointPos()[5] - tilted_angle
+    return True if abs(round(actual_angle_j6, 2)) == 180.00 else False
 
 
 """
@@ -81,7 +82,7 @@ def change_joint1_deg(robo: mdr.Robot, theta: float):
     print(robo.GetRtTargetJointPos())
 
 
-def change_gripper_state(robo: mdr.Robotd):
+def change_gripper_state(robo: mdr.Robot):
     is_opened = robo.GetRtGripperState().opened
     if is_opened == True:
         robo.GripperClose()
