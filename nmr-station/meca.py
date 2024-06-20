@@ -81,7 +81,11 @@ def connect_robot(r: mdr.Robot):
     print('Homed!')
 
 def config_robot(r: mdr.Robot):
-    r.SetGripperRange(10, 40)
+   # r.SetGripperRange(12, 30)
+
+
+   # short gripper
+   r.SetGripperRange(0, 4.9)
 
 
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ from meca import get_robot, connect_robot, config_robot
     )
 )
 @click.argument("function_name")
-@click.argument("args", nargs=-1, type=int)
+@click.argument("args", nargs=-1, type=float)
 def cli(function_name, args):
     # Get the method from the instance
     func = globals().get(function_name)
