@@ -36,11 +36,11 @@ def is_joint6_upside_down(r: mdr.Robot, tilted_angle: float):
     actual_angle_j6 = r.GetRtTargetJointPos()[5] - tilted_angle
     return True if abs(round(actual_angle_j6, 2)) == 180.00 else False
 
+
 def print_RtTargetPos(r: mdr.Robot):
     print(r.GetRtTargetCartPos())
     print(r.GetRtTargetJointPos())
     print()
-
 
 
 """
@@ -95,19 +95,25 @@ def change_gripper_state(robo: mdr.Robot):
     else:
         robo.GripperOpen()
         print("Gripper Closed!")
-    
+
     print_RtTargetPos(robo)
 
 
 def invert_gripper(robo: mdr.Robot, tilted_angle: float):
-   d_theta = 180
-   # if is_joint6_upside_down(robo, tilted_angle) == True:
-   cur_j6 = robo.GetRtTargetJointPos()[5]
-   if cur_j6 > 90:
-       d_theta = -180
-   robo.MoveJointsRel(0, 0, 0, 0, 0, d_theta)
-   print("Gripper Inverted")
-   print_RtTargetPos(robo)
+    # d_theta = 180
+    # cur_j6 = robo.GetRtTargetJointPos()[5]
+    # if cur_j6 > 90:
+    #     d_theta = -180
+
+    d_theta = -180
+    cur_j6 = robo.GetRtTargetJointPos()[5]
+
+    if cur_j6 < -90:
+        d_theta = 180
+
+    robo.MoveJointsRel(0, 0, 0, 0, 0, d_theta)
+    print("Gripper Inverted")
+    print_RtTargetPos(robo)
 
 
 if __name__ == "__main__":
