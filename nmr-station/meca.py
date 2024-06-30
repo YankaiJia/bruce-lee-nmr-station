@@ -3,7 +3,7 @@ import mecademicpy.mx_robot_def as mdr_def
 import time
 import numpy as np
 
-def reset():
+def reset_robot():
     r.ResetError()
     r.ResumeMotion()
 
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # config
     config_robot(r)
 
-    reset()
+    reset_robot()
 
     zero()
     pick_tube(location='stand1')

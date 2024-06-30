@@ -18,7 +18,7 @@ from meca_movements import (
     change_gripper_state,
     invert_gripper,
 )
-from meca import get_robot, connect_robot, config_robot
+from meca import get_robot, connect_robot, config_robot, reset_robot
 
 
 # @click.command()
