@@ -2,3 +2,5 @@ mecademicpy
 
 click
 pynput
+
+pyautogui
