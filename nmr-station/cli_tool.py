@@ -6,7 +6,7 @@ corresponding MECA500 moving configurations
 King Lam Kwong
 """
 
-import click
+import click, pyautogui
 from pynput import keyboard
 
 import threading
@@ -134,6 +134,16 @@ def joystick(args):
         kr.last_key = ""
 
     kr.listener_off()
+
+def locate_cursor_xy(args):
+    prev_pos, cur_pos = None, None
+    while True:
+        cur_pos = pyautogui.position()
+        if cur_pos != prev_pos:
+            print(cur_pos)
+        prev_pos = cur_pos        
+
+        
 
 
 if __name__ == "__main__":
