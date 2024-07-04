@@ -1,5 +1,5 @@
 """
-Simplified movement system for MECA500
+Cylinderical movement system for MECA500
 Used by the cli tool and auto scripts
 Stores logic & functions that communicate with the MECA500 robot arm
 
@@ -71,7 +71,7 @@ def change_vertical_height(
     print_RtTargetPos(robo)
 
 
-def change_z_value(robo: mdr.Robot, dz: int):
+def change_radial_distance(robo: mdr.Robot, dz: int):
     print("Moving", ("forward" if dz > 0 else "backward"), f"for {dz} mm")
 
     robo.MoveLinRelTrf(0, 0, dz, 0, 0, 0)
@@ -79,7 +79,7 @@ def change_z_value(robo: mdr.Robot, dz: int):
     print_RtTargetPos(robo)
 
 
-def change_joint1_deg(robo: mdr.Robot, theta: float):
+def change_azimuth(robo: mdr.Robot, theta: float):
     print("Rotate Joint 1", ("forward" if theta > 0 else "backward"), f"for {theta}°")
 
     robo.MoveJointsRel(theta, 0, 0, 0, 0, 0)

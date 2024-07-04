@@ -13,8 +13,8 @@ import threading
 
 from meca_movements import (
     change_vertical_height,
-    change_z_value,
-    change_joint1_deg,
+    change_radial_distance,
+    change_azimuth,
     change_gripper_state,
     invert_gripper,
 )
@@ -123,9 +123,9 @@ def joystick(args):
         elif kr.last_key in ["up", "down"]:
             change_vertical_height(r, kr.last_key, delta_h, tilted_angle)
         elif kr.last_key in ["w", "s"]:
-            change_z_value(r, (delta_z if kr.last_key == "w" else -delta_z))
+            change_radial_distance(r, (delta_z if kr.last_key == "w" else -delta_z))
         elif kr.last_key in ["a", "d"]:
-            change_joint1_deg(r, (-delta_j1 if kr.last_key == "a" else delta_j1))
+            change_azimuth(r, (-delta_j1 if kr.last_key == "a" else delta_j1))
         elif kr.last_key == "g":
             change_gripper_state(r)
         elif kr.last_key == "r":
