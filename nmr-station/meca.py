@@ -22,8 +22,21 @@ def move_lin(coord: tuple):
 def move_lin_rel_trf(coord: tuple):
     r.MoveLinRelTrf(*coord)
 
-def move_joints(coord: tuple):
-    r.MoveJoints(*coord)
+
+def move_joints(r: mdr.Robot, j1: float=0, j2: float=0, j3: float=0, j4: float=0, j5: float=0, j6:float=0):
+    # if a single tuple is sent
+    if isinstance(j1, tuple):
+        j1, j2, j3, j4, j5, j6 = j1
+
+    r.MoveJoints(j1, j2, j3, j4, j5, j6)
+
+
+def move_joints_rel(r: mdr.Robot, j1: float=0, j2: float=0, j3: float=0, j4: float=0, j5: float=0, j6:float=0):
+    # if a single tuple is sent
+    if isinstance(j1, tuple):
+        j1, j2, j3, j4, j5, j6 = j1
+
+    r.MoveJointsRel(j1, j2, j3, j4, j5, j6)
 
 
 def gripper_open():

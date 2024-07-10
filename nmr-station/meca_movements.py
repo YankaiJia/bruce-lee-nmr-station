@@ -43,15 +43,12 @@ def print_RtTargetPos(r: mdr.Robot):
     print()
 
 
-"""
-Simplified Movement Control Functions
-
-"""
+# Simplified Movement Control Functions
 
 
 # vertically moving up or down once
 def change_vertical_height(
-    robo: mdr.Robot, direction: str, dist: int, tilted_angle: float
+    robo: mdr.Robot, direction: str, dist: int, tilted_angle: float=None
 ):
     print(f"moving {direction} for {dist} mm with joint-6 {tilted_angle} deg tilted.")
     is_moving_up = True if direction == "up" else False
@@ -99,7 +96,7 @@ def change_gripper_state(robo: mdr.Robot):
     print_RtTargetPos(robo)
 
 
-def invert_gripper(robo: mdr.Robot, tilted_angle: float):
+def invert_gripper(robo: mdr.Robot, tilted_angle: float = None):
     # d_theta = 180
     # cur_j6 = robo.GetRtTargetJointPos()[5]
     # if cur_j6 > 90:
