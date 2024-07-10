@@ -1,8 +1,9 @@
 import time
 
 
-from meca import get_robot, connect_robot, config_robot
-from meca_movements import invert_gripper
+from meca import get_robot, connect_robot, config_robot, move_joints, move_joints_rel
+
+from meca_movements import change_radial_distance, change_vertical_height, invert_gripper, change_gripper_state
 
 
 def pick_tube_from_slot1():
@@ -154,7 +155,52 @@ def test_from_washer_to_slot1():
    r.GripperOpen()
    r.MoveLinRelWrf(0, 0, 260, 0, 0, 0)
 
+def reset_position_spinsolve80_z291():
+   move_joints(r, -90.4,14.253, -8.21, 0, -6.044, 0)
 
+
+def insert_tube_to_spinsolve80():
+   move_joints_rel(r, j6=-27)
+   r.MoveLinRelWrf(0, 0, -47, 0, 0, 0)
+   move_joints_rel(r, j1=-10, j6=10)
+   change_radial_distance(r, 10)
+   move_joints_rel(r, j1=-10, j6=10)
+   change_radial_distance(r, 7)
+   move_joints_rel(r, j1=-6, j6=7)
+
+   r.MoveLinRelWrf(0, 0, -192.5, 0, 0, 0)
+   change_gripper_state(r)
+   r.MoveLinRelWrf(0, 0, 192.5, 0, 0, 0)
+
+def pickup_tube_at_spinsolve80():
+   r.GripperOpen()
+   r.MoveLinRelWrf(0, 0, -204, 0, 0, 0)
+   change_gripper_state(r)
+   r.MoveLinRelWrf(0, 0, 204, 0, 0, 0)
+
+def reset_tube_at_last_tip_spinsolve80():
+   r.MoveJoints(-90.4, 14.253, -8.21, 0, -6.044, 0)
+   r.MoveLinRelWrf(0, 0, -192.5, 0, 0, 0)
+   change_gripper_state(r)
+   r.MoveLinRelWrf(0, 0, 192.5, 0, 0, 0)
+
+
+def remove_tube_from_spinsolve80():
+   move_joints(r, -90.4,14.253, -8.21, 0, -6.044, 0)
+   # r.MoveJointsRel(6, 0, 0, 0, 0, -7)
+   # r.MoveLinRelTrf(0, 0, -7, 0, 0, 0)
+
+   move_joints_rel(r, j1=6, j6=-7)
+   change_radial_distance(r, -7)
+
+   move_joints_rel(r, j1=10, j6=-10)
+   change_radial_distance(r, -10)
+
+   move_joints_rel(r, j1=10, j6=-10)
+
+   # change_vertical_height(r, "up",37)
+   r.MoveLinRelWrf(0, 0, 47, 0, 0, 0)
+   move_joints_rel(r, j6=27)
 
 
 if __name__ == '__main__':
@@ -175,9 +221,15 @@ if __name__ == '__main__':
    # waiter_to_washer()
 
 
-   demo_27June()
+   # demo_27June()
    # pick_tube_from_slot1()
    # slot1_to_waiter()
    # r.MoveJoints(33.65, 18.81975, -38.51321, 0, 19.69246, 0)
 
+   # reset_position_spinsolve80_z291()
 
+   insert_tube_to_spinsolve80()
+
+   # reset_tube_at_last_tip_spinsolve80()
+   pickup_tube_at_spinsolve80()
+   remove_tube_from_spinsolve80()
