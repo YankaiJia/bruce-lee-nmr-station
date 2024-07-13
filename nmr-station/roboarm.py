@@ -1,28 +1,24 @@
+"""
+This files defines the RobotArm class for the NMR-station, its methods include
+ - warpped functions from the mecademicpy library
+ - The simplified cylinderal corrdinate system movement function written by me
+ - Automation features used in the NMR-station
+
+KingLam Kwong
+"""
+
+# Third-party imports
 import mecademicpy.robot as mdr
 
-from collections import namedtuple
-from typing import Callable
+# Standard library imports
 import time
 
+# current codespace imports
+from facility import CartPos, Facility
+
+
+# Constants
 TUBE_LENGTH = 275
-
-CartPos = namedtuple(
-    "CartPos", ["x", "y", "z", "alpha", "beta", "gamma"]
-)
-
-class Facility:
-    def __init__(
-        self,
-        start_pos: tuple,
-        land_pos: tuple,
-        tube_handling_strategy: Callable,
-        middle_pos: tuple = None
-    ):
-        self.start_pos = CartPos(*start_pos)
-        if middle_pos: self.intermediate_pos = CartPos(*middle_pos)
-        self.land_pos = CartPos(*land_pos)
-
-        self.handle_tube = tube_handling_strategy
 
 
 class RobotArm:
