@@ -1,7 +1,7 @@
 """
 This files defines the RobotArm class for the NMR-station, its methods include
- - warpped functions from the mecademicpy library
- - The simplified cylinderal corrdinate system movement function written by me
+ - wrapped functions from the mecademicpy library
+ - The simplified cylindrical coordinate system movement function written by me
  - Automation features used in the NMR-station
 
 KingLam Kwong
@@ -11,9 +11,9 @@ KingLam Kwong
 import mecademicpy.robot as mdr
 
 # Standard library imports
-import time
+# import time
 
-# current codespace imports
+# current code space imports
 from facility import CartPos, Facility
 
 
@@ -52,8 +52,8 @@ class RobotArm:
     # Robot Status Getter Functions
 
     def get_cart_pos(self):
-        CartPos(self.GetRtTargetCartPos())
-        return CartPos(self.GetRtTargetCartPos())
+        CartPos(self.robo.GetRtTargetCartPos())
+        return CartPos(self.robo.GetRtTargetCartPos())
 
     def print_rt_target_pos(self):
         print(self.robo.GetRtTargetCartPos())
@@ -79,7 +79,7 @@ class RobotArm:
         cur_j6 = self.robo.GetRtTargetJointPos()[5]
         return cur_j6 < -90
 
-    # Warpped Built-in Movement Functions
+    # Wrapped Built-in Movement Functions
 
     def move_pose(
         self,
@@ -207,19 +207,18 @@ class RobotArm:
         print("Gripper Inverted")
         self.print_rt_target_pos()
 
-
-	# NMR-station feature functions
+    # NMR-station feature functions
     
     def move_to(self, there: Facility):
-		# if the tube not above the high pos
+        # if the tube not above the high pos
         cur = self.get_cart_pos()
-        dist_above_land = cur.z - TUBE_LENGTH - there.land_pos.z
+        dist_above_land = cur.z - TUBE_LENGTH - there.pos["landing"].z
         if dist_above_land < 5:
             self.change_vertical_height(5 - dist_above_land)
         
-        self.move_pose(*there.start_pos)
+        self.move_pose(*there.pos["entrance"])
     
-    def place_tube(self, high_pos, low_pos, wait_for_picking: bool=False):
+    def place_tube(self, high_pos: CartPos, low_pos: CartPos, wait_for_picking: bool=False):
         if self.is_located_at(high_pos):
             self.move_lin(*low_pos)
         self.gripper_open()
