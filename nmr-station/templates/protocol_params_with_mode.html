@@ -1,0 +1,33 @@
+<div id="protocol-options" hx-swap="outerHTML">
+    {% set mode_excluded_params = {
+        "Manual": ["autoStart", "autoEnd", "autoStart2", "autoEnd2", "autoStart3", "autoEnd3"],
+        "Auto 3 Peaks": ["satFrequency1", "satFrequency2", "satFrequency3"],
+        "Auto 2 Peaks": ["satFrequency1", "satFrequency2", "satFrequency3", "autoStart3", "autoEnd3"],
+        "Auto": ["satFrequency1", "satFrequency2", "satFrequency3", "autoStart2", "autoEnd2", "autoStart3", "autoEnd3"]
+    } %}
+
+    {% for key in params %}
+    <div
+        {% if key in mode_excluded_params[current_mode] %} 
+            style="display: none;"
+        {% endif %}>
+        <label>{{ key }}</label>
+        {% if params[key]['type'] == 'input' %}
+            <input type="text" >
+        {% elif params[key]['type'] == 'select' %}
+            {% if key == "Mode" %}
+                <select hx-get="/select_protocol" name="freq_search_mode" hx-target="#protocol-options" >
+            {% else %} 
+                <select >          
+            {% endif %}
+
+                {% for option in params[key]['options']%}
+                    
+                    <option>{{ option }}</option>
+            
+                {% endfor %}
+                </select>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
