@@ -93,7 +93,7 @@
 <body>
     <div class="container">
         <label >Select a protocol</label>
-        <select hx-get="/select_protocol" name="protocol" hx-target="#protocol-options" hx-swap="outerHTML">
+        <select class="submit-val" hx-get="/select_protocol" name="protocol" hx-target="#protocol-options" hx-swap="outerHTML">
             <option > Select Protocol </option>
             {% for protocol in protocols %}
             <option value="{{ protocol }}">{{ protocol }}</option>
@@ -101,7 +101,9 @@
         </select>
         <div id="protocol-options" hx-swap="outerHTML">
         </div>
+		<button id="submit-btn" hx-post="/submit_protocol/" hx-include=".submit-val" hx-target="this">Submit</button>
     </div>
-    <div class="bottom-line"> This is the bottom line.</div>
+	   
+    <div id="bottom-line"> This is the bottom line.</div>
 </body>
 </html>

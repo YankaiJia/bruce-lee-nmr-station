@@ -1,15 +1,4 @@
 import xml.etree.ElementTree as ET
-# for protocol in protocols:
-#     protocol_name = protocol.get('protocol')
-#     if not protocol_name in ['1D PROTON', '1D EXTENDED+', '1D WET SUP']:
-#         continue
-#     print(protocol_name)
-#     options = protocol.findall('Option')
-#     for option in options:
-#         option_name = option.get('name')
-#         print(f"\-->{option_name}")
-#         for value in option:
-#             print(f"    \-->{value.text}")
 
 def load_protocols() -> dict:
     tree = ET.parse("templates/ProtocolOptions.xml")
@@ -35,6 +24,22 @@ def load_protocols() -> dict:
                 }
 
     return valid_protocol
+
+def to_xml_request(message_type: str, content):
+    message_head = """<?xml version="1.0" encoding="utf-8"?>
+<Message>
+"""
+    message_body = ""
+    if message_type == "Start":
+        message_body = f"\t<Start protocol=\"{content['protocol']}\"\n"
+        for key in content:
+            if key != "protocol":
+                option_name, option_value = key, content[key]
+                message_body += f"\t\t<Option name=\"{option_name}\" value=\"{option_value}\" />\n"
+        message_body += "\t</Start>\n"
+    message_tail = "</Message>"
+    request_message = message_head + message_body + message_tail
+    return request_message
 
 if __name__ == "__main__":
     load_protocols()

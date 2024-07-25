@@ -1,6 +1,6 @@
 import flask
 
-from xml_converter import load_protocols
+from xml_converter import load_protocols, to_xml_request
 
 app = flask.Flask(__name__)
 
@@ -21,8 +21,18 @@ def select_protocol():
     current_mode = flask.request.args.get("freq_search_mode", "Auto")
 
     print(f"You just selected the protocol {current_protocol}")
-    return flask.render_template('protocol_params_with_mode.html', params=valid_protocol[current_protocol], current_mode=current_mode)
+    return  flask.render_template('protocol_params_with_mode.html', params=valid_protocol[current_protocol], current_mode=current_mode)
 
+@app.route('/submit_protocol/', methods=['POST'])
+def send_protocol():
+    submission = flask.request.form
+    # for key in submission:
+    #     print(key, submission[key])
+
+    xml_request_message = to_xml_request("Start", submission)
+    print(xml_request_message)
+
+    return "submitted!"
 
 if __name__ == '__main__' :
     app.debug = True
