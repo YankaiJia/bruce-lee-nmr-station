@@ -31,7 +31,7 @@ def to_xml_request(message_type: str, content):
 """
     message_body = ""
     if message_type == "Start":
-        message_body = f"\t<Start protocol=\"{content['protocol']}\"\n"
+        message_body = f"\t<Start protocol=\"{content['protocol']}\">\n"
         for key in content:
             if key != "protocol":
                 option_name, option_value = key, content[key]

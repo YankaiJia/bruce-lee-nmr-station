@@ -1,6 +1,7 @@
 import flask
 
 from xml_converter import load_protocols, to_xml_request
+from remote_control import send_request_to_spinsolve80
 
 app = flask.Flask(__name__)
 
@@ -26,11 +27,10 @@ def select_protocol():
 @app.route('/submit_protocol/', methods=['POST'])
 def send_protocol():
     submission = flask.request.form
-    # for key in submission:
-    #     print(key, submission[key])
 
     xml_request_message = to_xml_request("Start", submission)
-    print(xml_request_message)
+
+    send_request_to_spinsolve80(xml_request_message)
 
     return "submitted!"
 
@@ -38,8 +38,6 @@ if __name__ == '__main__' :
     app.debug = True
     valid_protocol = load_protocols()
     valid_protocol['Select Protocol'] = {}
-    # available_protocols = valid_protocol.keys()
-
-    print(available_protocols)
+    available_protocols = valid_protocol.keys()
 
     app.run()

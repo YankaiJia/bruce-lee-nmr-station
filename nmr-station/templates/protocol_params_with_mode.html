@@ -15,7 +15,7 @@
         {% elif params[key]['type'] == 'select' %}
             <select class="submit-val"
                 {% if key == "Mode" %}
-                    hx-get="/select_protocol" name="freq_search_mode" hx-target="#protocol-options" 
+                    hx-get="/select_protocol" name="Mode" hx-target="#protocol-options" 
                 {% else %}
                     name="{{ key }}"
                 {% endif %} 
