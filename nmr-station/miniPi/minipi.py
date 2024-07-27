@@ -1,12 +1,16 @@
 """
-
 The pipetter module combines gantry and zeus, and deals with actions including pick_tip, discard_tip, draw_liquid,
 dispense_liquid, transfer_liquid and so on.
 
-by Yankai Jia
+by Yankai Jia, Natalia
 
 """
 import logging
+from dataclasses import dataclass
+import json, time, numpy as np, serial, re, winsound, operator
+import breadboard_lt as brb
+
+logger_path = 'C:\\Users\\jiaya\\Dropbox\\robochem\\pipetter_files\\miniPi\\miniPi.log'
 def setup_logger():
     # better logging format in console
     class CustomFormatter(logging.Formatter):
@@ -31,7 +35,7 @@ def setup_logger():
             return formatter.format(record)
 
     # create logger with 'main'
-    logger = logging.getLogger('main')
+    logger = logging.getLogger('minipi')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
     fh = logging.FileHandler(logger_path)
@@ -49,11 +53,6 @@ def setup_logger():
     return logger
 
 logger = setup_logger()
-
-from dataclasses import dataclass
-import copy, json, time, numpy as np, serial, re, winsound, operator
-
-import breadboard_lt as brb
 
 CONFIG_PATH = 'config//miniPi//'
 
@@ -135,12 +134,12 @@ class ZeusLTModule(object):
             time.sleep(0.01)
 
         if i == n_tries - 1:
-            print('No response received.')
+            logger.error('No response received.')
             raise TimeoutError
 
         error_code = int(line_here.split(characteristic_str)[-1])
         if characteristic_str == 'er' and error_code != 0:
-            print(f'cmd respond w/ error: {error_code}-{self.errorTable[error_code]}')
+            logger.error(f'cmd respond w/ error: {error_code}-{self.errorTable[error_code]}')
 
         return error_code
 
@@ -151,7 +150,7 @@ class ZeusLTModule(object):
         sm = f"00SMid{self.id:04d}sm1"
         sg = f"00SLid{self.id:04d}sg1"
         for i in range(3):
-            print("LED blinking\r")
+            logger.info("LED blinking\r")
             self.send_command(sg)
             time.sleep(time_interval)
             self.send_command(sm)
@@ -228,6 +227,7 @@ class ZeusLTModule(object):
 
     def start_adc(self):
         self.send_command(f"00AXid{self.id:04d}")
+
     def stop_adc(self):
         self.send_command(f"00AYid{self.id:04d}")
 
@@ -394,29 +394,29 @@ class Pipetter():
         ser = self.serial
         ser.write(str.encode(command + '\r\n'))
         if verbose:
-            print('SENT: {0}'.format(command))
+            logger.info('SENT: {0}'.format(command))
 
         if wait_for_ok:
             if verbose:
-                print('Waiting for ok...')
+                logger.info('Waiting for ok...')
             while True:
                 line = ser.readline()
                 if b'Alarm' in line:
-                    print('GRBL ALARM: GRBL wend into alarm. Overrode it with $X.')
+                    logger.error('GRBL ALARM: GRBL wend into alarm. Overrode it with $X.')
                     self.send_to_xy_stage('$X')
                     break
                 if verbose:
-                    print(line)
+                    logger.info(line)
                 if b'ok' in line:
                     break
 
         if read_all:
             if verbose:
-                print('Reading all...')
+                logger.info('Reading all...')
             while True:
                 line = ser.readline()
                 if verbose:
-                    print(line)
+                    logger.info(line)
                 if line == b'':
                     break
 
@@ -427,7 +427,7 @@ class Pipetter():
             for line in grbl_config_file:
                self.send_to_xy_stage(command = line.split('    (')[0], read_all= True, verbose= True)
 
-        print("XY stage configured!")
+        logger.info("XY stage configured!")
 
     def xy_pos(self) -> None:
         self.send_to_xy_stage(command= '?', read_all= True, verbose= False)
@@ -514,17 +514,17 @@ class Pipetter():
 
         # all coordinates are negative
         if xy[0] < self.max_x or xy[0] > 0:
-            print(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
+            logger.error(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
             return
         if xy[1] < self.max_y or xy[1] > 0:
-            print(f'XY STAGE ERROR: target Y is beyond the limit ({self.max_y}, 0). Motion aborted.')
+            logger.error(f'XY STAGE ERROR: target Y is beyond the limit ({self.max_y}, 0). Motion aborted.')
             return
 
 
         zeus_at_traverse_height = self.z_position >= self.ZeusTraversePosition or self.z_position == 0
 
         if ensure_traverse_height and not zeus_at_traverse_height:
-            print(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.z_position}.\n'
+            logger.error(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.z_position}.\n'
                   f'Motion aborted!')
             return
 
@@ -544,12 +544,12 @@ class Pipetter():
                     if finished_moving:
                         break
                     if verbose:
-                        print(f'Status read {i}')
+                        logger.info(f'Status read {i}')
                     self.serial.write(str.encode('?' + '\r\n'))
                     while True:
                         line = self.serial.readline()
                         if verbose:
-                            print(line)
+                            logger.info(line)
                         if b'Idle' in line:
                             finished_moving = True
                         if line == b'': # this means the motion is done!
@@ -557,7 +557,7 @@ class Pipetter():
                 # print(f'{time.time() - t0}')
 
                 if verbose:
-                    print('Finished moving xy stage')
+                    logger.info('Finished moving xy stage')
             self.xy_position = xy
 
     def move_xy_rel(self, displacement: tuple = (0,0)):
@@ -572,7 +572,7 @@ class Pipetter():
     def move_z(self, target_z:int, limit = -140, use_time_estimate=True):
 
         if target_z < limit:
-            print(f"z_pos {target_z} is not possible, limit: {limit} reached!")
+            logger.error(f"z_pos {target_z} is not possible, limit: {limit} reached!")
             return
 
         self.send_to_xy_stage(command=f'G0 Z{target_z}',
@@ -611,7 +611,7 @@ class Pipetter():
         self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,)
         self.xy_position = (-2,-2) # home pull-off distance is 2mm, see grbl settings $27
         self.z_position = -2 # home pull-off distance is 2mm, see grbl settings $27
-        print('The gantry is homed!')
+        logger.info('The gantry is homed!')
 
     def kill_alarm(self) -> None:
         self.send_to_xy_stage("$X", read_all= True, verbose= True)
@@ -622,7 +622,7 @@ class Pipetter():
 
     def move_through_wells(self, plate: object, dwell_time=0.1, ensure_traverse_height=True):
         for container in plate.containers:
-            print(f'This is well index: {container}')
+            logger.info(f'This is well index: {container}')
             self.move_xy(container.xy, ensure_traverse_height=ensure_traverse_height)
             time.sleep(dwell_time)
 
@@ -653,7 +653,7 @@ class Pipetter():
         tip_type = '1000ul' # for miniPi, only 1000 ul tips are used.
 
         if self.zeus.tip_status_req():
-            print(f'ERROR: There is already a tip on ZEUS. Please remove it before picking up a new one.')
+            logger.error(f'ERROR: There is already a tip on ZEUS. Please remove it before picking up a new one.')
             return
 
         with open('config//miniPi/tip_rack.json') as json_file:
@@ -704,7 +704,7 @@ class Pipetter():
 
                 return True
 
-        print('ERROR: No tips in rack.')
+        logger.error('ERROR: No tips in rack.')
         raise Exception
 
     def discard_tip(self):
@@ -716,7 +716,7 @@ class Pipetter():
             self.zeus.tip_on_zeus = ''
 
         elif self.zeus.tip_on_zeus == '':
-            print('ERROR: No tip on zeus to discard. Continue...')
+            logger.error('ERROR: No tip on zeus to discard. Continue...')
 
     def change_tip(self):
         if self.zeus.tip_on_zeus != '':
@@ -730,7 +730,7 @@ class Pipetter():
             self.pick_tip()
 
         if self.zeus.tip_on_zeus == '':
-            print('ERROR: No tip on zeus to draw.')
+            logger.error('ERROR: No tip on zeus to draw.')
             return False
 
         self.move_to_traverse_height()
@@ -762,10 +762,10 @@ class Pipetter():
 
             except ValueError:
                 if self.zeus.zeus_error_code(self.zeus.r.received_msg) == '81': # Empty tube detected during aspiration
-                    print('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
+                    logger.error('ZEUS ERROR: Empty tube during aspiration. Dispensing and trying again.')
                     continue
 
-        print(f'Tried {n_retries} but zeus error is still there')
+        logger.error(f'Tried {n_retries} but zeus error is still there')
         raise Exception
 
     def dispense_liquid(self, xy: tuple=brb.tube_rack.tubes[0].xy, disp_height=brb.tube_rack.tubes[0].disp_height):
@@ -785,7 +785,7 @@ class Pipetter():
             self.move_to_traverse_height()
             # print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
         except ValueError:
-            print('Zeus error during dispensing is ignored!')
+            logger.error('Zeus error during dispensing is ignored!')
             self.zeus.move_z(self.ZeusTraversePosition)
             pass
 
@@ -816,7 +816,7 @@ if __name__ == '__main__':
     pt.home()
     zeus.init()
 
-    samples_to_test = [0,1,2,3]
+    samples_to_test = list(range(10))
     seq =Planner().generate_events(samples=samples_to_test, volume = 5000)
     # fill_tubes(pt = pt, event_sequence=seq)
 

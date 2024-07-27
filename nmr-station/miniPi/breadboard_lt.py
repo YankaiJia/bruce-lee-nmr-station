@@ -1,7 +1,7 @@
 import logging
 
 # create logger
-module_logger = logging.getLogger('pipette_calibration.breadboard')
+module_logger = logging.getLogger('minipi.brb')
 
 from dataclasses import dataclass
 import numpy as np, copy, json, os
@@ -12,23 +12,23 @@ CONFIG_PATH = 'config//miniPi//'
 
 # load config file from json
 with open(CONFIG_PATH + 'brb_lt.json', 'r') as config_file:
-    config_brb = json.load(config_file)
+    config = json.load(config_file)
 
-ZeusTraversePosition = config_brb['ZeusTraversePosition']
-
-
-floor_z = -117.5
-bottom_z_of_vial_2ml = -116
-
+floor_z = config['floor_z']
+bottom_z_of_vial_2ml = config['bottom_z_of_vial_2ml']
 source_substance_containers: list = []
+
+with open(CONFIG_PATH + 'tip_rack.json') as json_file:
+    tip_rack = json.load(json_file)
+
+tip_rack_1000ul = tip_rack['1000ul']
+
 
 @dataclass
 class Container:
-
     asp_height:float
     xy: tuple = (0, 0)
     asp_height = 0
-
 
 vial_2ml = Container(asp_height=-112)
 
@@ -58,10 +58,10 @@ def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottom
     return coordinates
 
 plate0_vial_2mL_coordinates = generate_container_coordinates(Nwells=(6, 9),
-                                                            topleft=config_brb['plate0'][0],
-                                                            topright= config_brb['plate0'][1],
-                                                            bottomleft= config_brb['plate0'][2],
-                                                            bottomright= config_brb['plate0'][3])
+                                                            topleft=config['plate0'][0],
+                                                            topright= config['plate0'][1],
+                                                            bottomleft= config['plate0'][2],
+                                                            bottomright= config['plate0'][3])
 
 def container_list(container_geom: object, container_coordinates) -> list:
     # input exp:vial_2ml, plate0_vial_2mL_coordinates
@@ -78,9 +78,6 @@ class Plate:
 
         self.containers = containers if containers is not None else []
         self.plate_id = plate_id
-
-        self.logger = logging.getLogger('pipette_calibration.breadboard.Plate')
-        self.logger.debug(f'A Plate object is created with plate_id: {plate_id}.')
 
     def add_container(self, container_list: list):
         for container in container_list:
@@ -113,14 +110,10 @@ def plate_on_breadboard():
     plate0_containers = container_list(vial_2ml, plate0_vial_2mL_coordinates)
     plate0 = Plate(plate_id='plate0', containers=plate0_containers)
     plate0.assign_container_id(plate_id=0)
-
     module_logger.info('All plates in breadboard are created.')
-    print('All plates in breadboard are created.')
-
     return plate0
 
 plate0 = plate_on_breadboard()
-# plate_list = [plate0]
 
 @dataclass
 class Tube:
@@ -130,10 +123,10 @@ class Tube:
 class Tube_rack:
     def __init__(self):
         self.tubes = list()
-        tube1 = Tube(xy = (-320, -20), disp_height = -100)
-        tube2 = Tube(xy = (-320, -30), disp_height = -100)
-        tube3 = Tube(xy = (-320, -40), disp_height = -100)
-        tube4 = Tube(xy = (-320, -50), disp_height = -100)
+        tube1 = Tube(xy = config['tube1_xy'], disp_height = config['tube1_height'])
+        tube2 = Tube(xy = config['tube2_xy'], disp_height = config['tube2_height'])
+        tube3 = Tube(xy = config['tube3_xy'], disp_height = config['tube3_height'])
+        tube4 = Tube(xy = config['tube4_xy'], disp_height = config['tube4_height'])
         self.tubes.append(tube1)
         self.tubes.append(tube2)
         self.tubes.append(tube3)
@@ -145,10 +138,9 @@ tube_rack = Tube_rack()
 class Deck:
     beginningofTipPickPosition: int
 
+deckgeom_1000ul = Deck(config['beginningofTipPickPosition'],)
 
-deckgeom_1000ul = Deck(beginningofTipPickPosition=config_brb['beginningofTipPickPosition'],)
-
-deckgeom_trash_can = Deck(beginningofTipPickPosition=config_brb['beginningofTipPickPosition'],)
+deckgeom_trash_can = Deck(config['beginningofTipPickPosition'],)
 
 deckGeometryTableIndex = {'1000ul': 1}
 
@@ -191,21 +183,21 @@ def load_new_tip_rack(rack_reload):
                       'xy': (-163.5, -108.5), # dummy coordinates
                       'tipTypeTableIndex': 6,
                       'deckGeometryTableIndex': 1,
-                      'ZeusTraversePosition': ZeusTraversePosition,
+                      'ZeusTraversePosition': config['ZeusTraversePosition'],
                       'exists': True,
                       'substance': 'None'
                       }
            }
 
     if rack_reload == '1000ul':
-        print(f"the1000ul rack corner coords: {config_brb['rack_1000ul'][0]},{config_brb['rack_1000ul'][1]},{config_brb['rack_1000ul'][2]},{config_brb['rack_1000ul'][3]}")
+        print(f"the1000ul rack corner coords: {config['rack_1000ul'][0]},{config['rack_1000ul'][1]},{config['rack_1000ul'][2]},{config['rack_1000ul'][3]}")
 
         tip_rack['1000ul'] = create_deck(template_well=tip['1000ul'],
                                          Nwells=(8, 12),
-                                         topleft=config_brb['rack_1000ul'][0],
-                                         topright= config_brb['rack_1000ul'][1],
-                                         bottomleft=config_brb['rack_1000ul'][2],
-                                         bottomright=config_brb['rack_1000ul'][3],
+                                         topleft=config['rack_1000ul'][0],
+                                         topright= config['rack_1000ul'][1],
+                                         bottomleft=config['rack_1000ul'][2],
+                                         bottomright=config['rack_1000ul'][3],
                                          )
 
     with open(CONFIG_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
@@ -215,27 +207,13 @@ def load_new_tip_rack(rack_reload):
     return tip_rack
 
 def mark_next_n_tip_as_used(tip_type, n):
-    with open(CONFIG_PATH + 'tip_rack.json') as json_file:
-        tip_rack = json.load(json_file)
-    i = 0
 
-    while i < n:
-        for tip in tip_rack[tip_type]['tips']:
-            if tip['exists'] == True:
-                tip['exists'] = False
-                break
-        i+=1
+    for i in range(n):
+        tip_rack[tip_type]['tips'][i]['exists'] = False
 
     # save the revised tip_rack to json
     with open(CONFIG_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
-
-
-with open(CONFIG_PATH + 'tip_rack.json') as json_file:
-    tip_rack = json.load(json_file)
-
-tip_rack_1000ul = tip_rack['1000ul']
-
 
 
 if __name__ == "__main__":
