@@ -1,6 +1,6 @@
 import time
 
-from roboarm import RobotArm
+from robotarm import RobotArm
 from facility import load_facilities
 
 def route(robo: RobotArm):

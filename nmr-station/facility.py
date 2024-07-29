@@ -14,7 +14,7 @@ import json
 from typing import Callable
 
 # current codespace imports
-from roboarm import RobotArm
+from robotarm import RobotArm
 
 CartPos = namedtuple(
     "CartPos", ["x", "y", "z", "alpha", "beta", "gamma"]

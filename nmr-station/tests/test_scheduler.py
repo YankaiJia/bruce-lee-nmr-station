@@ -2,6 +2,11 @@ from queue import Queue
 import threading
 
 
+from tests.dummy_pipetter import DummyPipetterControl as PipetterControl
+from tests.dummy_pipetter import TubeRack
+from dummy_robotarm import DummyRobotArm as RobotArmControl
+from dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
+
 class SharedState:
     def __init__(self) -> None:
         self.state = {
@@ -49,7 +54,9 @@ class Scheduler:
 
 class DummyRobotArmDecision:
     def __init__(self):
-        pass 
+        self.robot_arm = RobotArmControl()
+        self.target_tube_id = 0
+        print(f"RobotArmDecision initiated")   
     
     def run(self, shared_state: SharedState):
         while True:
@@ -62,76 +69,107 @@ class DummyRobotArmDecision:
                 continue
 
             message = shared_state.get_front_message()
-            if message == "NextSample=1":
+            if message.startswith("NextTubeId="):
+                self.target_tube_id = int(message[11:])
+                print(f"self.target_tube_id = {self.target_tube_id}")
                 shared_state.finish_front_message()
                 shared_state.add_new_message("PauseRefill")
 
             elif message == "PauseRefillOkay":
-                print("robo.move_to(\"tube_rack\")")
+                self.robot_arm.move_to_tube_rack(self.target_tube_id)
                 shared_state.finish_front_message()
                 shared_state.add_new_message("ResumeRefill")
 
-                print("robo.move_to(\"spinsolve80\")")        
-                print("robo.tilted_insert_tube()")
-                print("robo.place_tube(\"spinsolve80\")")
+                self.robot_arm.move_to("spinsolve80")
+                self.robot_arm.tilted_insert_tube()
+                self.robot_arm.place_tube("spinsolve80")
                 shared_state.add_new_message("NewSampleReady")
 
-            elif message == "DitchUsedSample":
-                print("robo.pick_tube(\"spinsolve80\")")
-                print("robo.tilted_remove_tube()")
+            elif message == "DitchSample":
+                self.robot_arm.pick_tube("spinsolve80")
+                self.robot_arm.tilted_remove_tube()
+                shared_state.finish_front_message()
+
+                self.robot_arm.move_to("washer")
+                self.robot_arm.wash_tube()
+
+                shared_state.add_new_message(f"ReturnTubeId={self.target_tube_id}")                
 
 
 class Dummy_NMR_SpectrometerDecision:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, message: str) -> None:
+        self.remote_control = SpectrometerRemoteControl()
+        self.request_xml_message = message
+        print("Spectrometer initiated!")
 
     def run(self, shared_state: SharedState):
         while True:
-            my_state = shared_state.get_state()['NMR_spectrometer']
-
-            if my_state == "completed":
-                shared_state.add_new_message("DitchSample")
-                continue
-
-            if shared_state.no_message(): continue
-
             message = shared_state.get_front_message()
+
             if message == "NewSampleReady":
-                print("remote_control.order_new_protocol()")
+                self.remote_control.send_request_to_spinsolve80(self.request_xml_message)
+                print("finished NMR analysis")
                 shared_state.finish_front_message()
+                shared_state.add_new_message("DitchSample")
 
 class DummyPipetterDecision:
-    def __init__(self) -> None:
-        pass
-    
+    def __init__(self, process_order: list[int], tube_rack_capacity: int=1) -> None:
+        self.pipettor = PipetterControl()
+        self.process_order = process_order
+        self.tube_rack = TubeRack(tube_rack_capacity)
+        self.standby = False
+
+        print("Pipetter initiated")
+
     def run(self, shared_state: SharedState):
         while True:
-            my_state = shared_state.get_state()['pipetter']
+            next_vial_pos = (-1 if self.process_order == [] else self.process_order[0])
+            next_refill_pos = self.tube_rack.find_next()
+
+            if next_vial_pos != -1 and next_refill_pos != -1 and not self.standby:
+                self.pipettor.aspirate(next_vial_pos)
+                self.pipettor.refill(next_refill_pos)
+                self.tube_rack.tube_filled(next_refill_pos)
+                process_order.pop(0)
             
-            if shared_state.no_message(): continue
+            # if shared_state.no_message(): continue
 
             message = shared_state.get_front_message()
-            if message == "NextSample=?":
-                if my_state == "idle":
-                    shared_state.add_new_message("NextSample=None")
+
+            if message == "NextTubeId=?":
+                if next_refill_pos == -1:
+                    shared_state.add_new_message("NextTubeId=None")
                 else:
-                    shared_state.add_new_message("NextSample=(int)")
+                    shared_state.add_new_message(f"NextTubeId={next_refill_pos}")
                 shared_state.finish_front_message()
             elif message == "PauseRefill":
-                print("pipetter.stand_by()")
-                if my_state == "stand_by":
-                    shared_state.add_new_message("PauseRefillOkay")
-                    shared_state.finish_front_message()
-            elif message == "ResumeRefill":
-                print("pipetter.refill()")
+                self.pipettor.standby()
+                self.standby = True
+                shared_state.add_new_message("PauseRefillOkay")
                 shared_state.finish_front_message()
-            
+            elif message == "ResumeRefill":
+                self.standby = False
+                shared_state.finish_front_message()
+            elif message.startswith("ReturnTubeId="):
+                returned_tube_id = int(message[13:])
+                self.tube_rack.tube_emptied(returned_tube_id)
+                shared_state.finish_front_message()
+
 
 if __name__ == "__main__":
+    xml_request_message = """<?xml version="1.0" encoding="utf-8"?>
+<Message>
+        <Start protocol="1D PROTON">
+                <Option name="Scan" value="QuickScan" />
+        </Start>
+</Message>"""
+
+    process_order = [1, 4, 9, 16, 25, 36, 49]
+
     # testing
     dummy_robot_arm = DummyRobotArmDecision()
-    dummy_pipetter = DummyPipetterDecision()
-    dummy_NMR_spectrometer = Dummy_NMR_SpectrometerDecision()
+    dummy_pipetter = DummyPipetterDecision(process_order)
+    dummy_NMR_spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_message)
     # scheduler = Scheduler(sample_robot_arm, sample_NMR_spectrometer, sample_pipetter)
     scheduler = Scheduler(dummy_robot_arm, dummy_NMR_spectrometer, dummy_pipetter)
     scheduler.start()
