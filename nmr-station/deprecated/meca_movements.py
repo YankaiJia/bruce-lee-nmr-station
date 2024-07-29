@@ -13,7 +13,7 @@ import numpy as np
 import math
 import time
 
-from meca import move_lin_rel_trf
+from deprecated.meca import move_lin_rel_trf
 
 """
 Calculation / Utility Functions

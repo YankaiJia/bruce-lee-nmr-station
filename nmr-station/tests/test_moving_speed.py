@@ -8,7 +8,7 @@ King Lam Kwong
 
 
 
-from meca import get_robot, connect_robot, config_robot
+from deprecated.meca import get_robot, connect_robot, config_robot
 # from automations import pick_tube_from_slot1
 
 

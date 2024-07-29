@@ -11,14 +11,14 @@ from pynput import keyboard
 
 import threading
 
-from meca_movements import (
+from deprecated.meca_movements import (
     change_vertical_height,
     change_radial_distance,
     change_azimuth,
     change_gripper_state,
     invert_gripper,
 )
-from meca import get_robot, connect_robot, config_robot, reset_robot
+from deprecated.meca import get_robot, connect_robot, config_robot, reset_robot
 
 
 # @click.command()
