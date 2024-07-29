@@ -1,6 +1,6 @@
 """
 The pipetter module combines gantry and zeus, and deals with actions including pick_tip, discard_tip, draw_liquid,
-dispense_liquid, transfer_liquid and so on.
+dispense_liquid, transfer_liquid,etc.
 
 by Yankai Jia, Natalia
 
@@ -56,11 +56,7 @@ logger = setup_logger()
 
 CONFIG_PATH = 'config//miniPi//'
 
-# load settings from json
-with open(CONFIG_PATH+'brb_lt.json', 'r') as config_file:
-    config= json.load(config_file)
-
-class ZeusLTModule(object):
+class Zeus(object):
     # CANBus = None
     # transmission_retries = 5
     # remote_timeout = 1
@@ -109,7 +105,7 @@ class ZeusLTModule(object):
             85: "No communication to the digital potentiometer.",
     }
 
-    def __init__(self, id=1234, COMport='COM5', COM_timeout=0.1, baudrate=38400):
+    def __init__(self, id=815, COMport='COM5', COM_timeout=0.1, baudrate=19200):
         self.zeus_serial = serial.Serial(port=COMport,
                                     baudrate=baudrate,
                                     timeout=COM_timeout,
@@ -119,7 +115,7 @@ class ZeusLTModule(object):
         self.id = id
         self.tip_on_zeus = ''
 
-    def send_command(self, cmd, characteristic_str='er', n_tries = 2000):
+    def send_command(self, cmd, characteristic_str='er', n_tries = 100):
 
         self.zeus_serial.flushInput()
         self.zeus_serial.flushOutput()
@@ -133,12 +129,15 @@ class ZeusLTModule(object):
                 break
             time.sleep(0.01)
 
-        if i == n_tries - 1:
-            logger.error('No response received.')
-            raise TimeoutError
+            if i == n_tries - 1:
+                logger.error('No response received.')
+                raise TimeoutError
 
         error_code = int(line_here.split(characteristic_str)[-1])
         if characteristic_str == 'er' and error_code != 0:
+            if error_code == 75: # this means there is no tip on zeus
+                self.tip_on_zeus = ''
+                logger.info('tip_on_zeus is set to empty!')
             logger.error(f'cmd respond w/ error: {error_code}-{self.errorTable[error_code]}')
 
         return error_code
@@ -367,23 +366,46 @@ class Planner():
 
 class Pipetter():
 
-    def __init__(self, zeus):
+    '''
+    Primary methods includes: draw_liquid_with_id(), dispense_liquid_with_id(), draw_and_dispense_liquid_with_sequence()
+    '''
+
+    def __init__(self, re_config_grbl=False):
 
         self.ROBOT_NAME = 'miniPi'
-        self.zeus = zeus
         self.serial = serial.Serial('COM6', 115200, timeout=0.2)
 
-        self.time_step_for_pick_tip = config['time_step_for_pick_tip']
-        self.ZeusTraversePosition = config['ZeusTraversePosition']
-
-        self.max_x = config['max_x']
-        self.max_y = config['max_y']
-        self.xy_offset = config['xy_offset'] # offsets in x and y, negative to right, closer; positive, to left, further
-        self.trash_xy = config['trash_xy']
-        self.idle_xy = config['idle_xy']
-
+        # load settings from json
+        with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
+            self.config = json.load(config_file)
+        self.time_step_for_pick_tip = self.config['time_step_for_pick_tip']
+        self.ZeusTraversePosition = self.config['ZeusTraversePosition']
+        self.max_x = self.config['max_x']
+        self.max_y = self.config['max_y']
+        self.xy_offset = self.config['xy_offset'] # offsets in x and y, negative to right, closer; positive, to left, further
+        self.trash_xy = self.config['trash_xy']
+        self.idle_xy = self.config['idle_xy']
         self.xy_position = None
         self.z_position = None
+
+        # generate pipetting sequence
+        self.sequence = Planner().generate_events(samples=list(range(54)), volume=5000) #5000 means 500ul, subject to change
+        time.sleep(2) # not sure why, but his sleep is needed.
+
+        # config grbl if needed
+        if re_config_grbl:
+            self.configure_grbl()
+
+        # home xyz
+        self.home()
+        time.sleep(2)
+
+        # init zeus
+        self.zeus = Zeus()
+        time.sleep(1)
+        self.zeus.init()
+        time.sleep(1)
+        logger.info(f'The miniPi is initialized!')
 
     def send_to_xy_stage(self,
                          command,
@@ -434,8 +456,6 @@ class Pipetter():
 
     def time_that_xy_motion_takes(self, dx: int, dy: int):
 
-        # TODO: make it work 0726
-
         acceleration, max_speed_x = None,None
 
         with open(CONFIG_PATH + 'grbl_settings.txt','r') as file:
@@ -481,8 +501,6 @@ class Pipetter():
 
     def time_that_z_motion_takes(self, dz:float):
 
-        # TODO: make it work 0726
-
         with open(CONFIG_PATH + 'grbl_settings.txt','r') as file:
             for line in file:
                 if '$122' in line:
@@ -506,6 +524,8 @@ class Pipetter():
             time_here = 2 * (constant_acceleration_halftime + const_speed_halftime)
         # print(max(travel_times))
         return time_here
+    def reload_tip_rack(self):
+        brb.load_new_tip_rack(rack_reload='1000ul')
 
     def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
                 use_time_estimate=True):
@@ -679,10 +699,10 @@ class Pipetter():
 
                 self.zeus.tip_pick_up(tip_type=item['tipTypeTableIndex'])
 
-                self.move_z(config['beginningofTipPickPosition'])
+                self.move_z(self.config['beginningofTipPickPosition'])
 
                 for step in range(1,12): # go downward slowly step by step
-                    downward_step = -config['downwardDistance']/11
+                    downward_step = -self.config['downwardDistance']/11
                     self.move_z_rel(downward_step) # each step is one tenth of downward distance
                     time.sleep(self.time_step_for_pick_tip)
                     if self.zeus.tip_status_req():
@@ -700,6 +720,8 @@ class Pipetter():
                     with open(CONFIG_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
                         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
                 else:
+                    self.zeus.tip_on_zeus=''
+                    logger.info("tips_on_zeus is set to empty!")
                     raise ValueError('No tip is picked up.')
 
                 return True
@@ -724,7 +746,7 @@ class Pipetter():
 
         self.pick_tip()
 
-    def draw_liquid(self, location:tuple, asp_height: float, volume:float, n_retries=3) -> bool:
+    def draw_liquid(self, xy:tuple, asp_height: float, volume:float, n_retries=3) -> bool:
 
         if self.zeus.tip_on_zeus =='':
             self.pick_tip()
@@ -734,7 +756,7 @@ class Pipetter():
             return False
 
         self.move_to_traverse_height()
-        self.move_xy(location)
+        self.move_xy(xy)
         self.move_z(asp_height)
         time.sleep(0.5)
 
@@ -791,34 +813,52 @@ class Pipetter():
 
         return True
 
-def fill_tubes(pt, event_sequence: list):
+    def draw_and_dispense_liquid_with_sequence(self, ids:list):
 
-    for event in event_sequence:
-        pt.draw_liquid(location=event.source_container.xy,
-                       asp_height=event.source_container.asp_height,
-                       volume=event.volume)
+        sequence_here = [self.sequence[i] for i in ids if self.sequence[i].source_container.id == i]
+        logger.info(f'sequence to be executed: {sequence_here}')
 
-        pt.dispense_liquid(xy=event.destination_container.xy,
-                           disp_height=event.destination_container.disp_height)
+        for event in sequence_here:
+            self.draw_liquid(xy=event.source_container.xy,
+                             asp_height=event.source_container.asp_height,
+                             volume=event.volume)
+            self.dispense_liquid(xy=event.destination_container.xy,
+                                 disp_height=event.destination_container.disp_height)
+            self.discard_tip()
 
-        pt.discard_tip()
+    def find_event_with_correct_vial_id(self, sample_id):
+        event_here = None
+
+        for event in self.sequence:
+            if sample_id == event.source_container.id:
+                event_here = event
+        return event_here
+
+    def draw_liquid_with_id(self, sample_id):
+
+        event_here = self.sequence[sample_id] if self.sequence[sample_id].source_container.id == sample_id else None
+        logger.info(f'sequence to be executed: {event_here}')
+
+        self.draw_liquid(xy=event_here.source_container.xy,
+                         asp_height=event_here.source_container.asp_height,
+                         volume=event_here.volume)
+    def dispense_liquid_with_id(self, sample_id):
+
+        event_here = self.sequence[sample_id] if self.sequence[sample_id].source_container.id == sample_id else None
+        logger.info(f'sequence to be executed: {event_here}')
+
+        self.dispense_liquid(xy=event_here.destination_container.xy,
+                             disp_height=event_here.destination_container.disp_height)
+
 
 if __name__ == '__main__':
 
-    # # initiate zeus
-    zeus = ZeusLTModule(id=815, COMport='COM5', COM_timeout=0.1, baudrate=19200)
-    time.sleep(2)
+    pt = Pipetter()
 
-    # # initiate pipetter
-    pt = Pipetter(zeus=zeus)
-    time.sleep(3)
-    # pt.configure_grbl()
-    pt.home()
-    zeus.init()
 
-    samples_to_test = list(range(10))
-    seq =Planner().generate_events(samples=samples_to_test, volume = 5000)
-    # fill_tubes(pt = pt, event_sequence=seq)
+
+
+
 
 
 

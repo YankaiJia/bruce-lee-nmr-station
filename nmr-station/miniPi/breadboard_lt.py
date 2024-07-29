@@ -11,7 +11,7 @@ data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 CONFIG_PATH = 'config//miniPi//'
 
 # load config file from json
-with open(CONFIG_PATH + 'brb_lt.json', 'r') as config_file:
+with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
     config = json.load(config_file)
 
 floor_z = config['floor_z']
@@ -26,11 +26,12 @@ tip_rack_1000ul = tip_rack['1000ul']
 
 @dataclass
 class Container:
+    id: int
     asp_height:float
     xy: tuple = (0, 0)
     asp_height = 0
 
-vial_2ml = Container(asp_height=-112)
+vial_2ml = Container(id=0,asp_height=-112)
 
 def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a  plate from coordinates of corner wells.'''
@@ -103,7 +104,7 @@ class Plate:
     def assign_container_id(self, plate_id: int):
         for container_index in range(len(self.containers)):
             # print(f'brb.plate_list[{plate_id}].containers[{container_index}]')
-            self.containers[container_index].id = {'plate_id': plate_id, 'container_id': container_index}
+            self.containers[container_index].id = container_index
 
 
 def plate_on_breadboard():
@@ -220,5 +221,5 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    load_new_tip_rack(rack_reload ='1000ul')
-    module_logger.info('New tip rack: 1000ul is loaded.')
+    # load_new_tip_rack(rack_reload='1000ul')
+    # module_logger.info('New tip rack: 1000ul is loaded.')
