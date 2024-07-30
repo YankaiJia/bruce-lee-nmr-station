@@ -13,27 +13,33 @@ from dummy_spectrometer import DummySpectrometerRemoteControl as ConsumerControl
 class MessageQueue:
     def __init__(self):
         self.q = Queue()
+        self.lock = threading.Lock()
     
     def update_queue_changes(func):
         def wrapper(self, *args, **kwargs):
+            print(f"Queue before {func.__name__}: {self.q.queue}")
             result = func(self, *args, **kwargs)
             print(f"Queue after {func.__name__}: {self.q.queue}")
             return result
         return wrapper
     
+    # @update_queue_changes
+    # def get(self):
+    #     return self.q.get()
+    
     @update_queue_changes
     def get(self):
-        return self.q.get()
+        with self.lock:
+            return list(self.q.queue)[0]
 
     @update_queue_changes
     def put(self, args):
         self.q.put(args)
-        # print(f"Queue after put: {self.q.queue}")
 
     @update_queue_changes
     def task_done(self):
+        self.q.get()
         self.q.task_done()
-        # print(f"Queue after task_done: {self.q.queue}")
 
     def no_message(self):
         return (self.q.qsize() == 0)
@@ -90,6 +96,8 @@ class DummySpaceshipDecision:
             
             print("\n === Spaceship === \n")
 
+            if mq.no_message(): continue
+
             msg = mq.get()
 
             if msg == "No Product Remain":
@@ -114,9 +122,11 @@ class DummyConsumerDecision:
         while True: 
             
             print(" === Consumer === ")
+            
+            if mq.no_message(): continue
 
             msg = mq.get()
-
+            print(f"Consumer recieves message : {msg}")
             if msg == "No Product Remain": 
                 print("Consumer Thread ended")
                 break
