@@ -8,17 +8,17 @@ class DummyRobotArm:
     def move_to(self, facility: str):
         print(f"Robot Arm moving to {facility}")
 
-    def tilted_insert_tube():
+    def tilted_insert_tube(self):
         print("The Robot Arm is inserting the tube at a tilted angle")
 
-    def tilted_remove_tube():
+    def tilted_remove_tube(self):
         print("The Robot Arm is removing the tube at a tilted angle")
 
-    def place_tube(facility: str):
+    def place_tube(self, facility: str):
         print(f"Place tube on {facility}")
 
-    def pick_tube(facility: str):
+    def pick_tube(self, facility: str):
         print(f"Pick tube on {facility}")
 
-    def wash_tube():
+    def wash_tube(self):
         print(f"washing the tube")

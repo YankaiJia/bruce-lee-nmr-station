@@ -70,6 +70,8 @@ class DummyProducerDecision:
 
     def run(self, mq: MessageQueue):
         while True:
+            time.sleep(0.5)
+            
             print(" === Producer === ")
             print(process_order)
 
@@ -84,8 +86,6 @@ class DummyProducerDecision:
                 print("Producer Thread ended")
                 break
 
-            time.sleep(0.1)
-
 class DummySpaceshipDecision:
     def __init__(self) -> None:
         self.spaceship = SpaceshipControl()
@@ -93,6 +93,7 @@ class DummySpaceshipDecision:
     
     def run(self, mq: MessageQueue):
         while True:
+            time.sleep(0.5)
             
             print("\n === Spaceship === \n")
 
@@ -111,7 +112,6 @@ class DummySpaceshipDecision:
                 # print(f"spaceship has sent cargo {id} to consumer")
                 mq.put(f"To Consumer get Cargo:{id}")
 
-            time.sleep(0.1)
 
 class DummyConsumerDecision:
     def __init__(self) -> None:
@@ -120,6 +120,7 @@ class DummyConsumerDecision:
     
     def run(self, mq: MessageQueue):
         while True: 
+            time.sleep(0.5)
             
             print(" === Consumer === ")
             
@@ -136,7 +137,6 @@ class DummyConsumerDecision:
                 # print(f"Consuming Cargo {id}")
                 mq.task_done()
             
-            time.sleep(0.1)
 
 if __name__ == "__main__":
     # process_order = [1, 4, 9, 16, 25, 36, 49]
