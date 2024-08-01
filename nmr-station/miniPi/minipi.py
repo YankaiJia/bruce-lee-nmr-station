@@ -251,10 +251,6 @@ class Zeus(object):
     def re_pressure_data(self, start_index = 0, number_of_values_requested = 1):
         self.send_command(f"00QIid{self.id:04d}li{start_index:04d}ln{number_of_values_requested:04d}")
 
-    """
-    Additional commands and parameters
-    """
-
     def switch_dispensing_drive_power_off(self):
         self.send_command(f"00DOid{self.id:04d}")
 
@@ -263,10 +259,6 @@ class Zeus(object):
 
     def re_lld_data(self, start_index = 0, number_of_values = 0, lld_channel = 0):
         self.send_command(f"00RLid{self.id:04d}li{start_index:04d}ln{number_of_values:02d}lc{lld_channel}")
-
-    """
-       Status request
-    """
 
     def re_instrument_status(self):
         self.send_command(f"00RQid{self.id:04d}")
@@ -541,7 +533,7 @@ class Pipetter():
             return
 
 
-        zeus_at_traverse_height = self.z_position >= self.ZeusTraversePosition or self.z_position == 0
+        zeus_at_traverse_height = (self.z_position >= self.ZeusTraversePosition) or self.z_position == 0
 
         if ensure_traverse_height and not zeus_at_traverse_height:
             logger.error(f'ERROR: ZEUS was not in traverse height before motion, but instead at {self.z_position}.\n'
@@ -798,12 +790,12 @@ class Pipetter():
 
         try:
             self.zeus.disp(flow_rate=4000,
-                             stop_speed=4000,
-                             pressure_sensor=0,
-                             qpm=0,
-                             qpm_clot=0,
-                             qpm_foam=0,
-                             time_after_disp=10)
+                           stop_speed=4000,
+                           pressure_sensor=0,
+                           qpm=0,
+                           qpm_clot=0,
+                           qpm_foam=0,
+                           time_after_disp=10)
             self.move_to_traverse_height()
             # print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
         except ValueError:
@@ -849,6 +841,11 @@ class Pipetter():
 
         self.dispense_liquid(xy=event_here.destination_container.xy,
                              disp_height=event_here.destination_container.disp_height)
+
+    def stand_by(self):
+        self.move_to_traverse_height()
+        self.move_to_trash_bin()
+        self.zeus.init()
 
 
 if __name__ == '__main__':
