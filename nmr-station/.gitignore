@@ -1,3 +1,4 @@
 .idea/*
 templates/ProtocolOptions.xml
 *.db
+/pipetter/config/tip_rack.json

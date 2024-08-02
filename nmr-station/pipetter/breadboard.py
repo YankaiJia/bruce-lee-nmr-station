@@ -7,8 +7,7 @@ from dataclasses import dataclass
 import numpy as np, copy, json, os
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
-
-CONFIG_PATH = 'config//miniPi//'
+CONFIG_PATH = 'D:\\PycharmProjects\\roborea\\nmr-station\\pipetter\\config\\'
 
 # load config file from json
 with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
@@ -118,16 +117,18 @@ plate0 = plate_on_breadboard()
 
 @dataclass
 class Tube:
+    id: int
     xy: tuple
     disp_height: float
+
 
 class Tube_rack:
     def __init__(self):
         self.tubes = list()
-        tube1 = Tube(xy = config['tube1_xy'], disp_height = config['tube1_height'])
-        tube2 = Tube(xy = config['tube2_xy'], disp_height = config['tube2_height'])
-        tube3 = Tube(xy = config['tube3_xy'], disp_height = config['tube3_height'])
-        tube4 = Tube(xy = config['tube4_xy'], disp_height = config['tube4_height'])
+        tube1 = Tube(id=0, xy = config['tube1_xy'], disp_height = config['tube1_height'])
+        tube2 = Tube(id=1, xy = config['tube2_xy'], disp_height = config['tube2_height'])
+        tube3 = Tube(id=2, xy = config['tube3_xy'], disp_height = config['tube3_height'])
+        tube4 = Tube(id=3, xy = config['tube4_xy'], disp_height = config['tube4_height'])
         self.tubes.append(tube1)
         self.tubes.append(tube2)
         self.tubes.append(tube3)

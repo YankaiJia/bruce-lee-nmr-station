@@ -11,12 +11,12 @@
   "idle_xy" : [-20, -70],
   "floor_z":-117.5,
   "bottom_z_of_vial_2ml" : -116,
-  "tube1_xy": [-320, -20],
-  "tube2_xy": [-320, -20],
-  "tube3_xy": [-320, -20],
-  "tube4_xy": [-320, -20],
-  "tube1_height": -10,
-  "tube2_height": -10,
-  "tube3_height": -10,
-  "tube4_height": -10
+  "tube1_xy": [-387,-140],
+  "tube2_xy": [-390.5,-36],
+  "tube3_xy": [-335,-151],
+  "tube4_xy": [-339,-22],
+  "tube1_height": -53,
+  "tube2_height": -55,
+  "tube3_height": -34,
+  "tube4_height": -34
 }

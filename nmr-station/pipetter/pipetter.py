@@ -7,10 +7,22 @@ by Yankai Jia, Natalia
 """
 import logging
 from dataclasses import dataclass
-import json, time, numpy as np, serial, re, winsound, operator
-import breadboard_lt as brb
+import json
+import time
+import numpy as np
+import serial
+import serial.tools.list_ports
+import operator
+import os
 
-logger_path = 'C:\\Users\\jiaya\\Dropbox\\robochem\\pipetter_files\\miniPi\\miniPi.log'
+if __name__ == '__main__':
+    import breadboard as brb
+else:
+    import pipetter.breadboard as brb
+
+data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+logger_path = data_folder[:-5]+'\pipetter_files\\miniPi\\miniPi.log'
+
 def setup_logger():
     # better logging format in console
     class CustomFormatter(logging.Formatter):
@@ -19,15 +31,13 @@ def setup_logger():
         red = "\x1b[31;20m"
         bold_red = "\x1b[31;1m"
         reset = "\x1b[0m"
-        format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+        format = "%(asctime)s-%(name)s-%(levelname)s-%(message)s(%(filename)s:%(lineno)d)"
 
-        FORMATS = {
-            logging.DEBUG: grey + format + reset,
+        FORMATS = {logging.DEBUG: grey + format + reset,
             logging.INFO: yellow + format + reset,
             logging.WARNING: yellow + format + reset,
             logging.ERROR: red + format + reset,
-            logging.CRITICAL: bold_red + format + reset
-        }
+            logging.CRITICAL: bold_red + format + reset}
 
         def format(self, record):
             log_fmt = self.FORMATS.get(record.levelno)
@@ -44,7 +54,7 @@ def setup_logger():
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     # create formatter and add it to the handlers
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s-%(message)s')
     fh.setFormatter(formatter)
     ch.setFormatter(CustomFormatter())
     # add the handlers to the logger
@@ -53,8 +63,10 @@ def setup_logger():
     return logger
 
 logger = setup_logger()
+CONFIG_PATH = brb.CONFIG_PATH
 
-CONFIG_PATH = 'config//miniPi//'
+ports = list(serial.tools.list_ports.comports())
+zeus_port_id = [i.description[-2] for i in ports if 'USB Serial Port' in i.description][0]
 
 class Zeus(object):
     # CANBus = None
@@ -105,7 +117,7 @@ class Zeus(object):
             85: "No communication to the digital potentiometer.",
     }
 
-    def __init__(self, id=815, COMport='COM5', COM_timeout=0.1, baudrate=19200):
+    def __init__(self, id=815, COMport='COM' + zeus_port_id, COM_timeout=0.1, baudrate=19200):
         self.zeus_serial = serial.Serial(port=COMport,
                                     baudrate=baudrate,
                                     timeout=COM_timeout,
@@ -332,31 +344,43 @@ class Zeus(object):
         self.stop_adc()
 
 @dataclass
-class Event:
+class Aspirate_event:
     source_container:object
-    destination_container:object
-    is_executed:bool = False
     volume:float = 0
+
+@dataclass
+class Dispense_event:
+    destination_container:object
+    volume: float = 0
+
 
 class Planner():
     def __init__(self):
         self.source_plate = brb.plate0 # only one plate in brb
         self.destination_plate = brb.tube_rack # only one tube rack in brb
-        self.sequence = list()
+        self.sequence = {'asp':[],'disp':[]}
 
     def generate_events(self, samples:list, volume:float):
 
         for index, sample_id in enumerate(samples):
+
             tube_id = index % 4 # there are for tube positions in the tube rack.
-            event_here = Event(source_container=self.source_plate.containers[sample_id],
-                               destination_container=self.destination_plate.tubes[tube_id],
-                               volume=volume)
-            self.sequence.append(event_here)
+
+            aspirate_event_here = Aspirate_event(source_container=self.source_plate.containers[sample_id],
+                                                 volume=volume)
+            self.sequence['asp'].append(aspirate_event_here)
+
+            if index < 4:
+                dispense_event_here = Dispense_event(destination_container=self.destination_plate.tubes[tube_id],
+                                                     volume=volume)
+                self.sequence['disp'].append(dispense_event_here)
+
+        logger.debug('Pipette asp and disp sequence is generated.')
 
         return self.sequence
 
 
-class Pipetter():
+class PipetterControl():
 
     '''
     Primary methods includes: draw_liquid_with_id(), dispense_liquid_with_id(), draw_and_dispense_liquid_with_sequence()
@@ -365,11 +389,12 @@ class Pipetter():
     def __init__(self, re_config_grbl=False):
 
         self.ROBOT_NAME = 'miniPi'
-        self.serial = serial.Serial('COM6', 115200, timeout=0.2)
+        self.serial = serial.Serial('COM3', 115200, timeout=0.2)
 
         # load settings from json
         with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
             self.config = json.load(config_file)
+
         self.time_step_for_pick_tip = self.config['time_step_for_pick_tip']
         self.ZeusTraversePosition = self.config['ZeusTraversePosition']
         self.max_x = self.config['max_x']
@@ -397,6 +422,9 @@ class Pipetter():
         time.sleep(1)
         self.zeus.init()
         time.sleep(1)
+
+        # if pipetter is at standby location
+        self.is_at_standby = False
         logger.info(f'The miniPi is initialized!')
 
     def send_to_xy_stage(self,
@@ -522,8 +550,6 @@ class Pipetter():
     def move_xy(self, xy: tuple, verbose=False, ensure_traverse_height=True, block_until_motion_is_completed=True,
                 use_time_estimate=True):
 
-        ## TODO: the x and y limitations of this function need to be updated according to the geometry of the miniPi
-
         # all coordinates are negative
         if xy[0] < self.max_x or xy[0] > 0:
             logger.error(f'XY STAGE ERROR: target X is beyond the limit ({self.max_x}, 0). Motion aborted.')
@@ -556,7 +582,7 @@ class Pipetter():
                     if finished_moving:
                         break
                     if verbose:
-                        logger.info(f'Status read {i}')
+                        logger.debug(f'Status read {i}')
                     self.serial.write(str.encode('?' + '\r\n'))
                     while True:
                         line = self.serial.readline()
@@ -569,12 +595,10 @@ class Pipetter():
                 # print(f'{time.time() - t0}')
 
                 if verbose:
-                    logger.info('Finished moving xy stage')
+                    logger.debug('Finished moving xy stage')
             self.xy_position = xy
 
     def move_xy_rel(self, displacement: tuple = (0,0)):
-        ## TODO: relative movement of the x and y position
-
         current_position = self.xy_position
         target_position = tuple(map(operator.add, current_position, displacement))
 
@@ -634,7 +658,7 @@ class Pipetter():
 
     def move_through_wells(self, plate: object, dwell_time=0.1, ensure_traverse_height=True):
         for container in plate.containers:
-            logger.info(f'This is well index: {container}')
+            logger.debug(f'This is well index: {container}')
             self.move_xy(container.xy, ensure_traverse_height=ensure_traverse_height)
             time.sleep(dwell_time)
 
@@ -647,18 +671,18 @@ class Pipetter():
     def move_to_traverse_height(self):
         self.move_z(self.ZeusTraversePosition)
 
-    def beep_n(self):
-        duration = 600  # milliseconds
-        freq = 1500  # Hz
-        # time.sleep(0.2)
-        for i in range(10):
-            winsound.Beep(freq, duration)
+    # def beep_n(self):
+    #     duration = 600  # milliseconds
+    #     freq = 1500  # Hz
+    #     # time.sleep(0.2)
+    #     for i in range(10):
+    #         winsound.Beep(freq, duration)
 
-    def beep(self):
-        duration = 600  # milliseconds
-        freq = 1000  # Hz
-        # time.sleep(0.2)
-        winsound.Beep(freq, duration)
+    # def beep(self):
+    #     duration = 600  # milliseconds
+    #     freq = 1000  # Hz
+    #     # time.sleep(0.2)
+    #     winsound.Beep(freq, duration)
 
     def pick_tip(self):
 
@@ -668,7 +692,7 @@ class Pipetter():
             logger.error(f'ERROR: There is already a tip on ZEUS. Please remove it before picking up a new one.')
             return
 
-        with open('config//miniPi/tip_rack.json') as json_file:
+        with open(CONFIG_PATH+'/tip_rack.json') as json_file:
             tip_rack = json.load(json_file)
 
         self.move_z(self.ZeusTraversePosition)
@@ -677,7 +701,7 @@ class Pipetter():
         if not any(item['exists'] for item in tip_rack[tip_type]['tips']):
 
             for i in range(30):
-                winsound.Beep(1100, 200)
+                # winsound.Beep(1100, 200)
                 time.sleep(0.3)
 
             input(f'ERROR: The tip rack is empty. Please reload the tip rack and hit enter.')
@@ -798,6 +822,7 @@ class Pipetter():
                            time_after_disp=10)
             self.move_to_traverse_height()
             # print(f'DEBUG::dispense_liquid():: disp_liquidSurface: {transfer_event.disp_liquidSurface} ')
+
         except ValueError:
             logger.error('Zeus error during dispensing is ignored!')
             self.zeus.move_z(self.ZeusTraversePosition)
@@ -808,7 +833,7 @@ class Pipetter():
     def draw_and_dispense_liquid_with_sequence(self, ids:list):
 
         sequence_here = [self.sequence[i] for i in ids if self.sequence[i].source_container.id == i]
-        logger.info(f'sequence to be executed: {sequence_here}')
+        logger.debug(f'sequence to be executed: {sequence_here}')
 
         for event in sequence_here:
             self.draw_liquid(xy=event.source_container.xy,
@@ -826,31 +851,73 @@ class Pipetter():
                 event_here = event
         return event_here
 
-    def draw_liquid_with_id(self, sample_id):
+    def aspirate(self, sample_id):
 
-        event_here = self.sequence[sample_id] if self.sequence[sample_id].source_container.id == sample_id else None
-        logger.info(f'sequence to be executed: {event_here}')
+        """
+        The method draws one liquid into a tip according to the sample id.
+        """
+        event_here = None
+        for event in self.sequence['asp']:
+            if event.source_container.id == sample_id:
+                event_here = event
+
+        assert (event_here is not None), 'Error: the aspirate event to be run is empty!'
+
+        logger.debug(f'sequence to be executed: {event_here}')
 
         self.draw_liquid(xy=event_here.source_container.xy,
                          asp_height=event_here.source_container.asp_height,
                          volume=event_here.volume)
-    def dispense_liquid_with_id(self, sample_id):
+    def refill(self, tube_id):
 
-        event_here = self.sequence[sample_id] if self.sequence[sample_id].source_container.id == sample_id else None
-        logger.info(f'sequence to be executed: {event_here}')
+        """
+        The method dispenses one liquid from the tip into the vial
+        with the specified id.
+        """
+
+        event_here = None
+        for event in self.sequence['disp']:
+            if event.destination_container.id == tube_id:
+                event_here = event
+        assert (event_here is not None), 'Error: the dispense event to be run is empty!'
+
+        logger.debug(f'sequence to be executed: {event_here}')
 
         self.dispense_liquid(xy=event_here.destination_container.xy,
                              disp_height=event_here.destination_container.disp_height)
 
-    def stand_by(self):
-        self.move_to_traverse_height()
-        self.move_to_trash_bin()
-        self.zeus.init()
+        self.discard_tip()
+
+    def standby(self):
+
+        """
+        A series of actions will be executed: move to traverse height,
+        move to trash bin, and init zeus (tip will be discarded).
+        """
+
+        if not self.is_at_standby:
+            self.move_to_traverse_height()
+            self.move_to_trash_bin()
+            self.zeus.init()
+            self.is_at_standby = True
+            return True
+
+        elif self.is_at_standby:
+            logger.debug('Pipetter is already at standby.')
+            return True
+
+        else:
+            raise ValueError('Pipetter is_at_standy state is messed up, double check.')
 
 
 if __name__ == '__main__':
 
-    pt = Pipetter()
+    pt = PipetterControl()
+
+    ls = pt.sequence
+    lsa = pt.sequence['asp']
+    lsb = pt.sequence['disp']
+
 
 
 
