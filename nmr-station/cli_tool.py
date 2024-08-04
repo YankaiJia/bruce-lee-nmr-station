@@ -10,6 +10,7 @@ import click
 from pynput import keyboard
 
 import threading
+import time
 
 from meca_movements import (
     change_vertical_height,
@@ -17,6 +18,7 @@ from meca_movements import (
     change_azimuth,
     change_gripper_state,
     invert_gripper,
+    zero
 )
 from meca import get_robot, connect_robot, config_robot, reset_robot
 
@@ -91,6 +93,12 @@ def vert_move(args):
 
     kr.listener_off()
 
+def args_update(factor, args:list):
+
+    """For scaling up or scaling down the joystick steps by a factor."""
+
+    return [round(factor*arg,3) for arg in args]
+
 
 def joystick(args):
     r = get_robot()
@@ -115,8 +123,14 @@ def joystick(args):
         delta_h, delta_z, delta_j1, tilted_angle = args[0:4]
 
     kr = KeyReader(("smooth" if len(args) == 0 else "safe"))
+
+    print(f'Current joystick args {delta_h, delta_z, delta_j1, tilted_angle}')
+
+    time_out_threshold = 10*60 # unit in second
+    cur_time = time.time()
+
     while True:
-        threading.Event().wait(0.2)
+        threading.Event().wait(0.1)
 
         if kr.last_key == "x":
             break
@@ -130,12 +144,37 @@ def joystick(args):
             change_gripper_state(r)
         elif kr.last_key == "r":
             invert_gripper(r, tilted_angle)
+        elif kr.last_key == 'f12':
+            zero(r)
+        elif kr.last_key == ',': # this is the '<' key. Decrease steps by a factor 1.2.
+            delta_h, delta_z, delta_j1, tilted_angle = (
+                args_update(factor=1/1.2, args=[delta_h, delta_z, delta_j1, tilted_angle]))
+            print(f'Agrs updated to {delta_h, delta_z, delta_j1, tilted_angle}')
+        elif kr.last_key == '.':  # this is the '>' key. Increase steps by a factor 1.2.
+            delta_h, delta_z, delta_j1, tilted_angle = (
+                args_update(factor=1.2, args=[delta_h, delta_z, delta_j1, tilted_angle]))
+            print(f'Agrs updated to {delta_h, delta_z, delta_j1, tilted_angle}')
+        elif kr.last_key == 'q':
+            exit()
+
+        if kr.last_key !='':
+            cur_time = time.time()
+        # if no key pressed in long time, terminate joystick for safety.
+        if time.time()-cur_time > time_out_threshold:
+            print(f"Joystick terminated due to timeout of {round(time_out_threshold/60,2)} min.")
+            exit()
 
         kr.last_key = ""
 
     kr.listener_off()
 
+# the following is only for shorter typing.
+def js(args):
+    joystick(args)
+def vm(args):
+    vert_move(args)
 
 if __name__ == "__main__":
 
     cli()
+
