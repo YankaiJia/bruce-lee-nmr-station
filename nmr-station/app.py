@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 
 from xml_converter import load_protocols, to_xml_request
-# from spectrometer import send_request_to_spinsolve80
+from test_scheduler import Scheduler, DummyPipetterDecision, DummyRobotArmDecision, Dummy_NMR_SpectrometerDecision
 
 app = Flask(__name__)
 
@@ -11,7 +11,7 @@ valid_protocol = {}
 available_protocols = ["1D PROTON", "1D EXTENDED+", "1D WET SUP"]
 current_protocol = ""
 
-xml_request_message = ""
+xml_request_messages = []
 protocol_perform_list = []
 
 @app.route('/')
@@ -22,6 +22,7 @@ def index():
 def save_process_order():
     submission = request.form.get('process-order', '')
 
+    global process_order 
     process_order = [int(id.strip()) for id in submission.split(',') if id.strip()]
 
     print(process_order)
@@ -71,10 +72,25 @@ def delete_protocol_item(item_id: int):
 
 @app.route('/start_automation')
 def start_automation():
-    xml_request_message = [to_xml_request("Save", obj) for obj in protocol_perform_list]
-
+    xml_request_messages = [to_xml_request("Start", obj) for obj in protocol_perform_list]
+    
     # start automation 
-    # create scheduler
+
+    global scheduler
+    global process_order
+    
+    # dummy
+    pipetter = DummyPipetterDecision(process_order)
+    robot_arm = DummyRobotArmDecision()
+    spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_messages)
+    scheduler = Scheduler(pipetter, robot_arm, spectrometer)
+    
+    scheduler.start()
+
+    scheduler = None
+
+    return "Scheduler started!"
+
 
 if __name__ == '__main__' :
     app.debug = True

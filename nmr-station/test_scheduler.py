@@ -107,8 +107,9 @@ class DummyRobotArmDecision:
 class Dummy_NMR_SpectrometerDecision:
     def __init__(self, message: str) -> None:
         self.remote_control = SpectrometerRemoteControl()
-        self.request_xml_message = message
+        self.request_xml_messages = message
         print("Spectrometer initiated!")
+        print(f"\t with NMR requests {self.request_xml_messages}")
 
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube
@@ -132,8 +133,10 @@ class Dummy_NMR_SpectrometerDecision:
                 sample_id = tube_state.sample_in_tube[tube_id]
                 print(f"Analyzing sample {sample_id} in tube {tube_id}")
                 tube_state.analyzing_tube(tube_id)
-                self.remote_control.send_request_to_spinsolve80(self.request_xml_message)
-                time.sleep(2) 
+
+                for message in self.request_xml_messages:
+                    self.remote_control.send_request_to_spinsolve80(message)
+                    time.sleep(2) 
                 print("finished NMR analysis")
                 tube_state.in_spectrometer(tube_id)
                 message_queue.finish_front_message()
@@ -148,7 +151,7 @@ class DummyPipetterDecision:
         self.standby = False
 
         print("Pipetter initiated")
-
+        print(f"\t with process order {self.process_order}")
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube
         message_queue = shared_state.message_queue
@@ -157,7 +160,7 @@ class DummyPipetterDecision:
             time.sleep(1)
             
             print(" === Pipetter === ")
-            print(process_order)
+            print(self.process_order)
             tube_state.print_status()
 
             next_sample_id = (-1 if self.process_order == [] else self.process_order[0])
@@ -169,7 +172,7 @@ class DummyPipetterDecision:
                 self.pipettor.aspirate(next_sample_id)
                 self.pipettor.refill(next_refill_tube_id)
                 tube_state.filled_tube(next_refill_tube_id, next_sample_id)
-                process_order.pop(0)
+                self.process_order.pop(0)
             
             
 
