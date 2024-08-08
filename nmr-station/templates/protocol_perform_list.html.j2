@@ -1,0 +1,13 @@
+<div id="protocol-list" >
+
+  <div> List of Protocols Performed </div>
+  <button id="get-protocol-selection-btn" hx-get="/get_protocol_selection" hx-target="#protocol-config"> Add new protocol </button>
+
+{% for obj in protocols %}
+  <div id="protocol-item-{{loop.index}}">
+    <span> {{ loop.index }} </span>
+    <span> {{ obj['protocol'] }} </span>
+    <button class="delete-btn" id="delete-protocol-item-{{loop.index}}" hx-delete="/protocol-item/{{loop.index}}" hx-target="#protocol-list">Delete</button>
+  </div>
+{% endfor %}
+</div>

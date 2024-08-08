@@ -1,0 +1,13 @@
+<div id="protocol-mode-param" hx-swap-oob="true" class="get_protocol_param">
+  {% set mode_params = {
+    "Manual": ["satFrequency1", "satFrequency2", "satFrequency3"],
+    "Auto 3 Peaks": ["autoStart", "autoEnd", "autoStart2", "autoEnd2", "autoStart3", "autoEnd3"],
+    "Auto 2 Peaks": ["autoStart", "autoEnd", "autoStart2", "autoEnd2"],
+    "Auto": ["autoStart", "autoEnd"]
+  } %}
+
+  {% for key in mode_params[current_protocol_mode] %}
+  <label>{{ key }}</label>
+  <input class="submit-val" type="text" name="{{ key }}">
+  {% endfor %}
+</div>

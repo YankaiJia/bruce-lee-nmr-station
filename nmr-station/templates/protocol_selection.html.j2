@@ -1,0 +1,18 @@
+{# <div id="protocol-config" class="container"> #}
+  <div id="protocol-selection">
+    <label>Select a protocol</label>
+    <select class="submit-val" hx-get="/get_protocol_param" name="protocol" hx-target=".get_protocol_param" > <!-- hx-swap="outerHTML" -->
+      <option> Select Protocol </option>
+      {% for protocol in protocols %}
+      <option value="{{ protocol }}">{{ protocol }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div id="protocol-mode-selection" class="get_protocol_param">
+  </div>
+  <div id="protocol-mode-param" class="get_protocol_param change_protocol_mode_param">
+  </div>
+  <div id="protocol-nonmode-param" class="get_protocol_param">
+  </div>
+  <div id="add-protocol" class="get_protocol_param">
+{# </div> #}

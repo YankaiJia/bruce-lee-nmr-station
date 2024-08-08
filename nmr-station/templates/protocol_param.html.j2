@@ -1,0 +1,49 @@
+<div id="protocol-mode-selection" hx-swap-oob="true" class="get_protocol_param">
+  {% for key in params if key == "Mode" %}
+  <label>{{ key }}</label>
+  <select class="submit-val" hx-get="/select_protocol_mode" name="Mode" hx-target="#protocol-mode-param">
+    {% for option in params[key]['options']%}
+    <option>{{ option }}</option>
+    {% endfor %}
+  </select>
+  {% endfor %}
+</div>
+
+<div id="protocol-mode-param" hx-swap-oob="true" class="get_protocol_param change_protocol_mode_param">
+  {% set mode_params = {
+    "Manual": ["satFrequency1", "satFrequency2", "satFrequency3"],
+    "Auto 3 Peaks": ["autoStart", "autoEnd", "autoStart2", "autoEnd2", "autoStart3", "autoEnd3"],
+    "Auto 2 Peaks": ["autoStart", "autoEnd", "autoStart2", "autoEnd2"],
+    "Auto": ["autoStart", "autoEnd"]
+  } %}
+
+  {% for key in params %} {% if key in mode_params[current_mode] %}
+  <label>{{ key }}</label>
+  <input class="submit-val" type="text" name="{{ key }}">
+  {% endif %} {% endfor %}
+</div>
+
+<div id="protocol-nonmode-param" hx-swap-oob="true" class="get_protocol_param">
+  {% set exclude_list = ["Mode", "autoStart", "autoEnd", "autoStart2", "autoEnd2", "autoStart3", "autoEnd3", "satFrequency1",
+    "satFrequency2", "satFrequency3"] %}
+
+  {% for key in params %} {% if key not in exclude_list %}
+    
+    <label>{{ key }}</label>
+
+    {% if params[key]['type'] == 'input' %}
+      <input class="submit-val" type="text" name="{{ key }}">
+    {% elif params[key]['type'] == 'select' %}
+      <select class="submit-val" name="{{ key }}">
+        {% for option in params[key]['options']%}
+          <option>{{ option }}</option>
+        {% endfor %}
+      </select>
+    {% endif %}
+
+  {% endif %} {% endfor %}
+</div>
+
+<div id="add-protocol" hx-swap-oob="true" class="get_protocol_param">
+  <button id="add-protocol-btn" hx-post="/add_protocol" hx-include=".submit-val" hx-target="#protocol-config">Submit</button>
+</div>
