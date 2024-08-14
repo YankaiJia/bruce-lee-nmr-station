@@ -6,7 +6,6 @@ This files defines the RobotArm class for the NMR-station, its methods include
 
 KingLam Kwong, Yankai Jia
 """
-import copy
 
 # Third-party imports
 import mecademicpy.robot as mdr
@@ -15,17 +14,17 @@ import mecademicpy.robot as mdr
 import time
 from functools import wraps
 import math
-
+import copy
 
 # current code space imports
 from facility import *
-import facility
 
 # Constants
 TUBE_LENGTH = 275
 SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
 HIGH_Z = 345 # this is the Z position for arm when moving between spots.
 CAROUSEL_RADIUS = 80
+SPINSOLVE_ENTRANCE_HEIGHT = 203.5
 
 
 def timeit(func):
@@ -48,11 +47,14 @@ class RobotArm:
                           enable_synchronous_mode=True,
                           disconnect_on_exception=False)
         time.sleep(1)
-        # self.config_robot_before_activate()
+        # self.config_robot_before_activate(set_vel=self.running_vel)
         self.robo.ActivateAndHome()
-        self.config_robot_after_activate(set_vel=self.running_vel)
+        self.config_robot_after_activate()
         self.robo.WaitHomed()
         print("Homed!")
+
+        self.robo.SetRealTimeMonitoring("all")
+
 
         self.tube_status: int = 0 # 0: no tube. 1: with tube, topdown. -1: with tube, bottomup.
 
@@ -72,12 +74,6 @@ class RobotArm:
         self.robo.ResumeMotion()
         print("Robot is reset!")
 
-    def config_robot_before_activate(self):
-
-        self.robo.DeactivateRobot()
-        # set join 6 angle between [-180, +180]
-        self.robo.SetJointLimits(6,-200, +90) # this needs to be done once.
-        self.robo.SetJointLimitsCfg(1)
 
     def set_speed_to_fast(self):
         self.robo.SetJointVelLimit(150)
@@ -94,24 +90,29 @@ class RobotArm:
         self.robo.SetCartLinVel(150)
         self.robo.SetJointAcc(100)
 
-    def config_robot_after_activate(self, set_vel:str):
-        # self.robo.SetGripperRange(12, 30)
 
-        # short gripper
-        self.robo.SetGripperRange(0, 4.9)
+    def config_robot_before_activate(self, set_vel: str):
+
+        self.robo.DeactivateRobot()
+        # set join 6 angle between [-180, +180]
+        self.robo.SetJointLimits(6,-200, +90) # this needs to be done once.
+        self.robo.SetJointLimitsCfg(1)
+
         if set_vel=='fast':
             self.set_speed_to_fast()
         elif set_vel=='default':
             self.set_speed_to_default()
 
+    def config_robot_after_activate(self):
+        # self.robo.SetGripperRange(12, 30)
+        # short gripper
+        self.robo.SetGripperRange(0, 4.9)
+
 
     # Robot Status Getter Functions
 
     def get_cart_pos(self):
-        # CartPos(self.robo.GetRtTargetCartPos())
-        self.robo.GetRtTargetCartPos()
-        # return CartPos(self.robo.GetRtTargetCartPos())
-
+        """This method takes short to execute, no worries about its delay"""
         return self.robo.GetRtTargetCartPos()
 
     def get_radial_distance(self, x:float, y:float):
@@ -129,12 +130,16 @@ class RobotArm:
 
     def find_delta_by_atan2(self, cur_x, cur_y, tar_x, tar_y):
 
+        """see this link for more info on this method:
+        https://stackoverflow.com/questions/14066933/direct-way-of-computing-the-clockwise-angle-between-two-vectors
+
+        Using atan2(-det, -dot) + π will be better.
+        """
+
         dot = cur_x * tar_x + cur_y * tar_y  # Dot product between [x1, y1] and [x2, y2]
         det = cur_x * tar_y - cur_y * tar_x  # Determinant
         angle = math.atan2(det, dot)  # atan2(y, x) or atan2(sin, cos)
         # print(angle)
-
-
 
         if cur_x<0 and tar_x >0 and cur_y >0 and tar_y < 0:
             angle_with_y_axis_cur = math.atan(abs(cur_x / cur_y))
@@ -181,16 +186,7 @@ class RobotArm:
     def is_tube_inverted(self):
         return self.tube_status == -1
 
-    def get_gripper_force_customized(self): # this is not used.
-
-        response = r.robo.SendCustomCommand('GetRtGripperForce()',
-                                            expected_responses=[2321],
-                                            timeout=10)
-
-        return float(response.data.split(',')[-1])
-
     def get_gripper_force(self):
-        self.robo.SetRealTimeMonitoring("all")
         force = self.robo.GetRobotRtData().rt_gripper_force.data[0]
         return float(force)
 
@@ -209,15 +205,6 @@ class RobotArm:
             return True
         else:
             return False
-
-    # def get_cart_pos(self) -> tuple:
-
-        # self.robo.SetRealTimeMonitoring("all")
-        #
-        # force = self.robo.GetRobotRtData().rt_cart_pos
-        #
-        # return tuple(force.data)
-
 
     def go_to_safe(self):
 
@@ -240,10 +227,12 @@ class RobotArm:
 
     def zero(self):
 
+        """ Be VERY careful when running this method. Collision may occur.
+        Use retract_to_carousel() and then go_to_safe(), instead."""
+
         zero_position = [0, 0, 0, 0, 0, 0]
         if (input('CAUTION! Arm going to (0,0,0,0,0,0). COLLISION MAY OCCUR! [y/n]?')
                 in ["yes", "YES", 'Y', 'y']):
-
             time.sleep(2)
             if input('Reconfirm going to (0,0,0,0,0,0). COLLISION MAY OCCUR! [y/n]?') in ["yes", "YES", 'Y', 'y']:
                 self.robo.MoveJoints(zero_position[0],
@@ -257,28 +246,15 @@ class RobotArm:
             print("Robot did not go to (0,0,0,0,0).")
             return
 
+
     # Wrapped Built-in Movement Functions
 
-    def move_pose(
-        self,
-        x: float = 0,
-        y: float = 0,
-        z: float = 0,
-        alpha: float = 0,
-        beta: float = 0,
-        gamma: float = 0,
-    ):
+    def move_pose(self, x:float, y:float, z:float,
+                  alpha:float, beta:float, gamma:float,):
         self.robo.MovePose(x, y, z, alpha, beta, gamma)
 
-    def move_lin(
-        self,
-        x: float = 0,
-        y: float = 0,
-        z: float = 0,
-        alpha: float = 0,
-        beta: float = 0,
-        gamma: float = 0,
-    ):
+    def move_lin(self,x: float,y: float,z: float,
+                 alpha: float,beta: float,gamma: float,):
         self.robo.MoveLin(x, y, z, alpha, beta, gamma)
 
     def move_lin_rel_trf(
@@ -303,15 +279,7 @@ class RobotArm:
     ):
         self.robo.MoveLinRelWrf(x, y, z, alpha, beta, gamma)
 
-    def move_joints(
-        self,
-        j1: float = 0,
-        j2: float = 0,
-        j3: float = 0,
-        j4: float = 0,
-        j5: float = 0,
-        j6: float = 0,
-    ):
+    def move_joints(self,j1: float,j2: float,j3: float,j4: float,j5: float,j6: float,):
         # if a single tuple is sent
         if isinstance(j1, tuple):
             j1, j2, j3, j4, j5, j6 = j1
@@ -341,7 +309,12 @@ class RobotArm:
         self.robo.GripperClose()
         self.robo.WaitGripperMoveCompletion()
 
-    def refresh_j4(self): # for singularity avoidance
+    def refresh_j4(self):
+
+        """ This function is for avoiding singularity when using MoveLin for large displacement.
+        It is done by rounding j4 and j6 to zero when they are close to zero.
+        This method needs to be used with care, bugs may occur."""
+
         cur_joints = copy.deepcopy(self.robo.GetRtTargetJointPos())
 
         if  math.isclose(cur_joints[3], 0, abs_tol= 0.5) and \
@@ -355,9 +328,11 @@ class RobotArm:
             self.move_joints(*cur_joints)
 
 
-    # Simplified System Movement Functions
+    # Simplified System Movement Functions.
+    # Complex movements should be decomposed to the following
+    # three methods: change_vertica_height(), chang_radial_distance() and change_azimuth().
 
-    def change_vertical_height(self, dist: int):
+    def change_vertical_height(self, dist: float):
         self.robo.MoveLinRelWrf(0, 0, dist, 0, 0, 0)
 
         direction = "up" if dist > 0 else ("down" if dist < 0 else "nothing")
@@ -383,10 +358,10 @@ class RobotArm:
     def change_gripper_state(self):
         if self.is_gripper_opened():
             self.robo.GripperClose()
-            # print("Gripper Opened!")
+            # logger.debug("Gripper Opened!")
         else:
             self.robo.GripperOpen()
-            # print("Gripper Closed!")
+            # logger.debug("Gripper Closed!")
             self.tube_status = 0
 
         self.print_rt_target_pos()
@@ -396,18 +371,15 @@ class RobotArm:
         j6 = self.robo.GetRtTargetJointPos()[5]
 
         if math.isclose(j6, 0, abs_tol=0.1): # j6 is at 0
-            self.robo.MoveJointsRel(0, 0, 0, 0, 0, -90)
-            self.robo.MoveJointsRel(0, 0, 0, 0, 0, -90)
-
-        elif math.isclose(j6, -180, abs_tol= 1):
-            self.robo.MoveJointsRel(0, 0, 0, 0, 0, 90)
-            self.robo.MoveJointsRel(0, 0, 0, 0, 0, 90)
-
+            self.robo.MoveJointsRel(0, 0, 0, 0, 0, -180)
+        elif math.isclose(j6, -180, abs_tol= 0.1): # j6 is at 0
+            self.robo.MoveJointsRel(0, 0, 0, 0, 0, 180)
         else:
             raise ValueError(f'Joint 6 is at bad angle: {j6}')
 
         #update tube status
-        self.tube_status = self.tube_status * (-1)
+        if self.is_gripper_gripping_item():
+            self.tube_status = self.tube_status * (-1)
 
     def get_carousel_pos(self, carousel_radius: float, current_pos: tuple):
 
@@ -419,12 +391,11 @@ class RobotArm:
 
         y = (y0 / x0) * x
 
-        return tuple((x,y,pos_here[2], pos_here[3], pos_here[4], pos_here[5]))
+        return tuple((x, y, pos_here[2], pos_here[3], pos_here[4], pos_here[5]))
 
     def go_to_high_z(self, high_z: float=HIGH_Z):
 
         current_cart = self.get_cart_pos()
-
         # move arm to high_z: 352
         d_z = high_z - current_cart[2]
         self.robo.MoveLinRelWrf(0, 0, d_z, 0, 0, 0)
@@ -435,21 +406,24 @@ class RobotArm:
 
         cur_z = self.get_cart_pos()[2]
         d_z = high_z-cur_z
-        self.change_vertical_height(d_z)
+        if not math.isclose(d_z, 0, abs_tol= 0.01):
+            self.change_vertical_height(d_z)
 
         cur_cart = self.get_cart_pos()
         dr = carousel_radius - self.get_radial_distance(cur_cart[0],cur_cart[1])
-        self.change_radial_distance(dr)
+        if not math.isclose(dr, 0 , abs_tol= 0.01):
+            self.change_radial_distance(dr)
 
-
-    def move_inside_carousel(self, target_cart:CartPos, carousel_radius:float = CAROUSEL_RADIUS):
+    def move_inside_carousel(self, target_cart:CartPos,
+                             carousel_radius:float = CAROUSEL_RADIUS):
 
         cur_cart = self.get_cart_pos()
         cur_x, cur_y = cur_cart[0], cur_cart[1]
         tar_x, tar_y = target_cart[0], target_cart[1]
 
         dr1 = carousel_radius - self.get_radial_distance(cur_x, cur_y)
-        self.change_radial_distance(dr1)
+        if not math.isclose(dr1, 0, abs_tol=0.01):
+            self.change_radial_distance(dr1)
 
         # d_j1 = self.find_delta_joint_1(cur_x, cur_y, tar_x, tar_y)
         d_j1 = self.find_delta_by_atan2(cur_x, cur_y, tar_x, tar_y)
@@ -457,7 +431,8 @@ class RobotArm:
         self.change_azimuth(d_j1)
 
         dr2 = self.get_radial_distance(tar_x, tar_y) - carousel_radius
-        self.change_radial_distance(dr2)
+        if not math.isclose(dr2, 0, abs_tol=0.01):
+            self.change_radial_distance(dr2)
 
     def go_to_high_location(self, target_cart):
 
@@ -481,28 +456,24 @@ class RobotArm:
 
         print(f"target {target_cart} \n current {self.get_cart_pos()}")
 
-
-        # for this orientation, gripper should be inverted
+        # for this orientation, gripper should be bottomup/inverted
         if math.isclose(target_cart[3], -90, abs_tol=0.1) \
             and math.isclose(target_cart[5], -90, abs_tol=0.1) \
             and not self.is_gripper_inverted():
             self.invert_gripper()
             print(f'flipped @{time.time()}')
-        # for this orientation, gripper should be upright
+        # for this orientation, gripper should be topdown/upright
         if math.isclose(target_cart[3], -90, abs_tol=0.1) \
             and math.isclose(target_cart[5], 90, abs_tol=0.1) \
             and self.is_gripper_inverted():
             self.invert_gripper()
             print(f'flipped @{time.time()}')
 
-        # self.robo.MoveLin(*target_cart) # old
-
-        # change z (wrf)
+        # change z with respect to wrf
         cur_cart = self.get_cart_pos()
         dz = target_cart[2] - cur_cart[2]
-        r.change_vertical_height(dz)
-
-
+        if not math.isclose(dz, 0, abs_tol=0.01):
+            self.change_vertical_height(dz)
 
         # change radial distance.
         cur_cart = self.get_cart_pos()
@@ -513,48 +484,45 @@ class RobotArm:
 
         self.print_rt_target_pos()
 
-    def pick_tube(self, location, target_tube_status: int= 1):
+    def pick_tube(self, location, target_tube_status: int= 1, wait_after_place:float = 0.2):
 
         assert not self.is_gripper_gripping_item(), \
             'Gripper is already gripping item, action aborted!'
-
         assert target_tube_status in [-1, 1], "Tube status is incorrect!"
 
         if location in [Washer1, Washer2]:
             target_tube_status = -1
 
-        target_cart_high = location.pos['high']
-        target_cart_low = location.pos['low']
+        target_cart_high, target_cart_low = location.pos['high'], location.pos['low']
 
-        if not self.is_arm_at_carousel():
-            self.retract_to_carousel()
-
-        time.sleep(0.5)
-
-        # print(f'target_cart_high:{target_cart_high}')
+        if not self.is_arm_at_carousel(): self.retract_to_carousel()
+        time.sleep(0.2)
 
         self.go_to_high_location(target_cart_high)
         self.refresh_j4()
 
-        if not self.is_gripper_opened():
-            self.change_gripper_state()
+        if not self.is_gripper_opened(): self.change_gripper_state()
 
-        self.move_lin(*target_cart_low)
+        cur_cart = self.get_cart_pos()
+        d_z = target_cart_low[2] - cur_cart[2]
+        self.change_vertical_height(d_z)
         self.change_gripper_state()
-        time.sleep(0.2)
+        time.sleep(wait_after_place)
+
         self.refresh_j4()
-        self.move_lin(*target_cart_high)
+
+        cur_cart = self.get_cart_pos()
+        d_z = target_cart_high[2] - cur_cart[2]
+        self.change_vertical_height(d_z)
+        time.sleep(wait_after_place)
+
         self.retract_to_carousel()
 
         # make sure tube is gripped.
         if not self.is_gripper_gripping_item():
-            raise ValueError('No item is picked up, please check!')
-
+            raise ValueError('No item is picked up for pick_tube(), please check!')
         # update tube status
         self.tube_status = target_tube_status
-
-        # print("Pick tube done!")
-
 
     def place_tube(self, location, wait_after_place: float =0.5):
 
@@ -562,26 +530,21 @@ class RobotArm:
 
         if location in [Washer1, Washer2]:
             assert self.tube_status == -1, 'When put to washers, tube must be inverted!'
-
         if location in [Tube1, Tube2, Tube3, Tube4]:
             assert self.tube_status == 1, ('When put to tube stands, tube must be upright!'
                                            f'\n current tube status: {self.tube_status}')
 
-
         if not self.is_gripper_gripping_item():
             raise ValueError('Gripper is not gripping item, action aborted!')
 
-        target_cart_high = location.pos['high']
-        target_cart_low = location.pos['low']
+        target_cart_high, target_cart_low = location.pos['high'], location.pos['low']
 
-        if not self.is_arm_at_carousel():
-            self.retract_to_carousel()
+        if not self.is_arm_at_carousel(): self.retract_to_carousel()
 
         self.go_to_high_location(target_cart_high)
         self.refresh_j4()
 
         cur_cart = self.get_cart_pos()
-
         d_z = target_cart_low[2] - cur_cart[2]
 
         # self.move_lin(*target_cart_low)
@@ -590,7 +553,7 @@ class RobotArm:
         time.sleep(wait_after_place)
         self.refresh_j4()
         # self.move_lin(*target_cart_high)
-        correction_factor = 0.03 # correct the tube into place
+        correction_factor = 0.02 # correct the tube into place
         self.change_vertical_height(-d_z * correction_factor)
         time.sleep(wait_after_place)
         self.change_vertical_height(-d_z * (1-correction_factor))
@@ -602,7 +565,7 @@ class RobotArm:
         # mark robotic arm not gripping tube
         self.tube_status = 0
 
-        # print("Place tube done!")
+        # logger.debug("Place tube done!")
 
     @timeit
     def flip_tube(self, mode:str):
@@ -624,7 +587,7 @@ class RobotArm:
         if not self.is_arm_at_carousel():
             self.retract_to_carousel()
 
-        self.place_tube(place_loc, wait_after_place=1)
+        self.place_tube(place_loc, wait_after_place=0.5)
         self.pick_tube(pick_loc, target_tube_status=-1)
 
         if self.is_gripper_inverted():
@@ -632,22 +595,6 @@ class RobotArm:
             self.invert_gripper()
 
         time.sleep(0.1)
-
-    def move_tube_to_washer(self):
-
-        self.flip_tube()
-
-    def test(self):
-        self.pick_tube(Tube1)
-        self.flip_tube('topdown_to_bottomup')
-        self.place_tube(Washer1)
-        self.pick_tube(Washer1)
-        self.flip_tube('bottomup_to_topdown')
-        self.place_tube(Tube1)
-
-    def test1(self):
-        self.pick_tube(Tube1)
-        self.flip_tube('topdown_to_bottomup')
 
     def tilted_remove_tube(self):
         self.move_joints_rel(j1=6, j6=-7)
@@ -659,15 +606,72 @@ class RobotArm:
         self.change_vertical_height(34)
         self.move_joints_rel(j6=27)
 
-    def tilted_insert_tube(robo: RobotArm):
-        robo.move_joints_rel(j6=-27)
+    def tilted_insert_tube(self):
+        self.move_joints_rel(j6=-27)
         # robo.change_vertical_height(-47)
-        robo.change_vertical_height(-34)
-        robo.move_joints_rel(j1=-10, j6=10)
-        robo.change_radial_distance(10)
-        robo.move_joints_rel(j1=-10, j6=10)
-        robo.change_radial_distance(7)
-        robo.move_joints_rel(j1=-6, j6=7)
+        self.change_vertical_height(-34)
+        self.move_joints_rel(j1=-10, j6=10)
+        self.change_radial_distance(10)
+        self.move_joints_rel(j1=-10, j6=10)
+        self.change_radial_distance(7)
+        self.move_joints_rel(j1=-6, j6=7)
+
+    def place_tube_to_spinsolve(self, height_from_entrance:float=SPINSOLVE_ENTRANCE_HEIGHT):
+
+        assert self.tube_status == 1, "Tube status is incorrect!"
+        assert self.is_gripper_gripping_item(), "Gripper status is incorrect"
+
+        entrance_point = Spinsolve.pos['high']
+        self.go_to_high_location(entrance_point)
+        self.tilted_insert_tube()
+        self.change_vertical_height(-height_from_entrance)
+        self.change_gripper_state()
+        self.change_vertical_height(height_from_entrance)
+        self.tilted_remove_tube()
+        self.retract_to_carousel()
+
+        assert  not self.is_gripper_gripping_item(), "Gripper status is incorrect"
+        self.tube_status = 0
+
+    def pick_tube_from_spinsolve(self, height_from_entrance:float=SPINSOLVE_ENTRANCE_HEIGHT):
+
+        assert self.tube_status == 0, "Tube status is incorrect!"
+        assert not self.is_gripper_gripping_item(), "Gripper status is incorrect"
+
+        entrance_point = Spinsolve.pos['high']
+        self.go_to_high_location(entrance_point)
+        self.tilted_insert_tube()
+        self.change_vertical_height(-height_from_entrance)
+        self.change_gripper_state()
+        self.change_vertical_height(height_from_entrance)
+        self.tilted_remove_tube()
+        self.retract_to_carousel()
+
+        assert self.is_gripper_gripping_item(), "Gripper status is incorrect"
+        self.tube_status = 1
+
+
+    @timeit
+    def test(self, washer=Washer1):
+        self.pick_tube(Tube1)
+        self.flip_tube('topdown_to_bottomup')
+        self.place_tube(washer)
+        self.pick_tube(washer)
+        self.flip_tube('bottomup_to_topdown')
+        self.place_tube(Tube1)
+
+    @timeit
+    def test_sp(self, tube=Tube1, washer=Washer1):
+        self.pick_tube(tube)
+        self.place_tube_to_spinsolve()
+        time.sleep(2)
+        self.pick_tube_from_spinsolve()
+        self.flip_tube('topdown_to_bottomup')
+        self.place_tube(washer)
+        time.sleep(3)
+        self.pick_tube(washer)
+        self.flip_tube('bottomup_to_topdown')
+        self.place_tube(tube)
 
 if __name__ == '__main__':
     r = RobotArm()
