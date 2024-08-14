@@ -16,7 +16,7 @@ class SpectrometerRemoteControl:
         self.HOST = "127.0.0.1"
         self.PORT = 13000
 
-    def send_request_to_spinsolve80(self, request_content: str):
+    def send_request_to_spinsolve80(self, request_content: str, timeout_second:float = 10):
         print(f"Connect to {self.HOST}:{self.PORT}")
         self.spinsolve_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.spinsolve_socket.connect((self.HOST, self.PORT))
@@ -24,7 +24,7 @@ class SpectrometerRemoteControl:
         print(request_content)
 
         self.spinsolve_socket.send(request_content.encode())
-        self.spinsolve_socket.settimeout(10)
+        self.spinsolve_socket.settimeout(timeout_second)
         try:
             while True:
                 time.sleep(0.2)

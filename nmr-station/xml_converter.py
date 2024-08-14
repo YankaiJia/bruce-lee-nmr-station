@@ -44,6 +44,9 @@ def to_xml_request(message_type: str, content):
         for key in content:
             message_body += f"\t\t<{key}> {content[key]} </{key}>\n"
         message_body += "\t</Set>\n"
+
+    elif message_type == "GetRequest":
+        message_body = f"\t<GetRequest>\n\t\t<{content}/>\n\t</GetRequest>\n"
     
     message_tail = "</Message>"
     request_message = message_head + message_body + message_tail
