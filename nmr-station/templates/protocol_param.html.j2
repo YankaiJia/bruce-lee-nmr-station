@@ -1,11 +1,13 @@
 <div id="protocol-mode-selection" hx-swap-oob="true" class="get_protocol_param">
   {% for key in params if key == "Mode" %}
-  <label>{{ key }}</label>
-  <select class="submit-val" hx-get="/select_protocol_mode" name="Mode" hx-target="#protocol-mode-param">
-    {% for option in params[key]['options']%}
-    <option>{{ option }}</option>
-    {% endfor %}
-  </select>
+  <div class="field-wrapper">
+    <label>{{ key }}</label>
+    <select class="submit-val" hx-get="/select_protocol_mode" name="Mode" hx-target="#protocol-mode-param">
+      {% for option in params[key]['options']%}
+      <option>{{ option }}</option>
+      {% endfor %}
+    </select>
+  </div>
   {% endfor %}
 </div>
 
@@ -17,9 +19,11 @@
     "Auto": ["autoStart", "autoEnd"]
   } %}
 
-  {% for key in params %} {% if key in mode_params[current_mode] %}
-  <label>{{ key }}</label>
-  <input class="submit-val" type="text" name="{{ key }}">
+  {% for key in params %} {% if key in mode_params[current_protocol_mode] %}
+  <div class="field-wrapper">
+    <label>{{ key }}</label>
+    <input class="submit-val" type="text" name="{{ key }}">
+  </div>
   {% endif %} {% endfor %}
 </div>
 
@@ -28,19 +32,19 @@
     "satFrequency2", "satFrequency3"] %}
 
   {% for key in params %} {% if key not in exclude_list %}
-    
-    <label>{{ key }}</label>
+    <div class="field-wrapper"> 
+      <label>{{ key }}</label>
 
-    {% if params[key]['type'] == 'input' %}
-      <input class="submit-val" type="text" name="{{ key }}">
-    {% elif params[key]['type'] == 'select' %}
-      <select class="submit-val" name="{{ key }}">
-        {% for option in params[key]['options']%}
-          <option>{{ option }}</option>
-        {% endfor %}
-      </select>
-    {% endif %}
-
+      {% if params[key]['type'] == 'input' %}
+        <input class="submit-val" type="text" name="{{ key }}">
+      {% elif params[key]['type'] == 'select' %}
+        <select class="submit-val" name="{{ key }}">
+          {% for option in params[key]['options']%}
+            <option>{{ option }}</option>
+          {% endfor %}
+        </select>
+      {% endif %}
+    </div>
   {% endif %} {% endfor %}
 </div>
 

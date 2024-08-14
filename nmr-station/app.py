@@ -2,8 +2,10 @@ from flask import Flask, render_template, request
 
 from xml_converter import load_protocols, to_xml_request
 from test_scheduler import Scheduler, DummyPipetterDecision, DummyRobotArmDecision, Dummy_NMR_SpectrometerDecision
+from spectrometer import SpectrometerRemoteControl
 
 app = Flask(__name__)
+remote_control = SpectrometerRemoteControl()
 
 process_order = []
 
@@ -17,6 +19,20 @@ protocol_perform_list = []
 @app.route('/')
 def index():
     return render_template('index.html.j2', protocols=available_protocols)
+
+
+@app.route('/save-user-record', methods=['POST'])
+def save_user_record():
+    user_record = request.form
+    print(f"user-record submitted: {user_record}")
+
+    for field_name in user_record:
+        message = to_xml_request("Set", {field_name: user_record[field_name]})
+        print(message)  
+        remote_control.send_request_to_spinsolve80(message)
+
+    return "Saved!"
+
 
 @app.route('/save-process-order', methods=['POST'])
 def save_process_order():
@@ -43,12 +59,21 @@ def get_protocol_param():
     current_mode = request.args.get("Mode", "Auto")
 
     print(f"You just selected the protocol {current_protocol}")
-    return  render_template('protocol_param.html.j2', params=valid_protocol[current_protocol], current_mode=current_mode)
+    return  render_template(
+        'protocol_param.html.j2', 
+        params=valid_protocol[current_protocol], 
+        current_protocol_mode=current_mode
+    )
 
 @app.route('/select_protocol_mode')
 def select_protocol_mode():
     current_protocol_mode = request.args.get("Mode")
-    return render_template('protocol_mode_param.html.j2', current_protocol_mode=current_protocol_mode)
+
+    return render_template(
+        'protocol_mode_param.html.j2', 
+        params=valid_protocol[current_protocol], 
+        current_protocol_mode=current_protocol_mode
+    )
 
 @app.route('/add_protocol', methods=['POST', 'GET'])
 def add_protocol():

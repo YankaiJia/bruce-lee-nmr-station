@@ -30,6 +30,7 @@ def to_xml_request(message_type: str, content):
 <Message>
 """
     message_body = ""
+    
     if message_type == "Start":
         message_body = f"\t<Start protocol=\"{content['protocol']}\">\n"
         for key in content:
@@ -37,8 +38,16 @@ def to_xml_request(message_type: str, content):
                 option_name, option_value = key, content[key]
                 message_body += f"\t\t<Option name=\"{option_name}\" value=\"{option_value}\" />\n"
         message_body += "\t</Start>\n"
+    
+    elif message_type == "Set":
+        message_body = "\t<Set>\n"
+        for key in content:
+            message_body += f"\t\t<{key}> {content[key]} </{key}>\n"
+        message_body += "\t</Set>\n"
+    
     message_tail = "</Message>"
     request_message = message_head + message_body + message_tail
+    
     return request_message
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
 .idea/*
 templates/ProtocolOptions.xml
+templates/RemoteControl.xsd
+*:Zone.Identifier
 *.db

@@ -32,22 +32,16 @@
 		min-height: 100vh;
 	}
 
-	.container {
+	.container{
 		background-color: white;
 		border-radius: 8px;
 		box-shadow: 0 4px 6px var(--shadow-color);
-		padding: 2rem;
-		width: 250px;
+		padding: 1rem 2rem;
+		margin: 2px;
+		width: 530px;
 	}
 
-	h1 {
-		color: var(--secondary-color);
-		margin-top: 0;
-		margin-bottom: 1.5rem;
-		text-align: center;
-	}
-
-	h2 {
+	header {
 		color: var(--primary-color);
 		font-size: 1.2rem;
 		margin-bottom: 1rem;
@@ -57,12 +51,22 @@
 		font-weight: bold;
 	}
 
-	form {
+	.container div.field-wrapper{
+		width: 80%;
+		margin: 0.25rem auto 0.5rem;
+		border-bottom: 1px solid grey;
+		padding-bottom: .25em;
 		display: flex;
-		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
 	}
 
-	select input {
+	.container label{
+		flex: 1;
+	}
+
+	.container input, .container select{
+		background-color:#ccc;
 		padding: 0.5rem;
 		margin-bottom: 1rem;
 		border: 1px solid #ccc;
@@ -70,11 +74,27 @@
 		font-size: 1rem;
 	}
 
+	.container input, .container select, .container span{
+		font-size: 1rem;
+		flex: 2;
+		border: none;
+  	text-align: center;
+	}
+
+	.container button{
+		
+	}
+
+
 	button {
+		width: 80%;
+		margin: 0 10%;
+
 		background-color: var(--primary-color);
 		color: white;
 		border: none;
-		padding: 0.7rem 1rem;
+		padding: 0.5rem 1rem;
+		/* margin: 0 auto;*/
 		font-size: 1rem;
 		border-radius: 4px;
 		cursor: pointer;
@@ -86,18 +106,25 @@
 	}
 
 	button.delete-btn {
-			background-color: #ff4d4d; /* A shade of red */
+		width: auto;	
+			background-color: #ff4d4d; 
 			color: white;
 	}
 
 	button.delete-btn:hover {
-			background-color: #ff1a1a; /* A darker shade of red for hover */
+			background-color: #ff1a1a; 
 	}
 
 	@media (max-width: 600px) {
 		.container {
-			width: 95%;
+			width: 80%;
 			padding: 1.5rem;
+		}
+		.container div.field-wrapper{
+			flex-direction: column;
+		}
+		.container label, .container input, .container select, .container span{
+			flex: 1;
 		}
 	}
 </style>
@@ -105,9 +132,37 @@
 <body>
 	<header>Automated NMR Station</header>
 
+	<div id="user-record" class="container">
+		
+		<div class="field-wrapper"> 
+			<label for="Solvent" class="user-record">Solvent:</label>
+			<input type="text" id="Solvent" name="Solvent">
+    </div>
+
+    <div class="field-wrapper">
+			<label for="Sample" class="user-record">Sample:</label>
+			<input type="text" id="Sample" name="Sample">
+    </div>
+
+    <div class="field-wrapper">
+			<label for="Custom" class="user-record">Custom Field:</label>
+			<input type="text" id="Custom" name="Custom">
+    </div>
+		
+		<button hx-post="/save-user-record" 
+						hx-trigger="click"
+						hx-include="#user-record" >
+				Save
+		</button>
+
+	
+	</div>
+
 	<div id="sample-config" class="container">
-		<label>Id of vials to be analyzed: </label>
-		<input id="process-order" class="sample" type="text" name="process-order" placeholder="e.g., 1,2,3">
+		<div class="field-wrapper">
+			<label>Id of vials to be analyzed: </label>
+			<input id="process-order" class="sample" type="text" name="process-order" placeholder="e.g., 1,2,3">
+		</div>
 		<button hx-post="/save-process-order" 
             hx-trigger="click"
 						hx-include="#process-order" >
@@ -116,7 +171,7 @@
 	</div>
 
 	<div id="protocol-config" class="container">
-		<div id="protocol-selection">
+		<div id="protocol-selection" class="field-wrapper">
 			<label>Select a protocol</label>
 			<select class="submit-val" hx-get="/get_protocol_param" name="protocol" hx-target=".get_protocol_param" > <!-- hx-swap="outerHTML" -->
 				<option> Select Protocol </option>
