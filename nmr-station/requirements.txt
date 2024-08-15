@@ -6,6 +6,5 @@ pynput
 pyautogui
 flask
 
-# the following is added by Yankai Jia
 pyserial == 3.4
 numpy
