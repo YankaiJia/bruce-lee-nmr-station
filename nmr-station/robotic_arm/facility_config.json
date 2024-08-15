@@ -32,12 +32,12 @@
     },
     "flip_stand_gripper_bottomup_tube_bottomup": {
         "handle_tube": "handle_tube_at_washer",
-        "pos_low":  [100.54335, 149.46774, 130, -90, 33.92777, -90],
+        "pos_low":  [100.00398, 149.22764, 131, -90.00003, 33.82777, -89.99998],
         "pos_high_z": 346
     },
     "flip_stand_gripper_topdown_tube_bottomup": {
         "handle_tube": "handle_tube_at_washer",
-        "pos_low":  [100.54335, 149.46774, 219, -90, 33.92777, 90],
+        "pos_low":  [100.54335, 149.46774, 221, -90, 33.92777, 90],
         "pos_high_z": 346
     },
     "flip_in_air": {
