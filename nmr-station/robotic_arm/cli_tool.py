@@ -6,19 +6,23 @@ corresponding MECA500 moving configurations
 King Lam Kwong
 """
 
-import click, pyautogui
+import click
 from pynput import keyboard
 
 import threading
+import time
 
-from deprecated.meca_movements import (
+from meca_movements import (
     change_vertical_height,
     change_radial_distance,
     change_azimuth,
     change_gripper_state,
     invert_gripper,
+    zero,
+    rotate_one_joint,
+    reset_robot,
 )
-from deprecated.meca import get_robot, connect_robot, config_robot, reset_robot
+from meca import get_robot, connect_robot, config_robot
 
 
 # @click.command()
@@ -65,10 +69,6 @@ def check_health(args):
     print("healthy", args)
 
 
-def reset(args):
-    pass
-
-
 def vert_move(args):
     r = get_robot()
     connect_robot(r)
@@ -92,6 +92,12 @@ def vert_move(args):
     kr.listener_off()
 
 
+def args_update(factor, args: list):
+    """For scaling up or scaling down the joystick steps by a factor."""
+
+    return [round(factor * arg, 3) for arg in args]
+
+
 def joystick(args):
     r = get_robot()
     connect_robot(r)
@@ -103,20 +109,27 @@ def joystick(args):
     # joint6_tilted_angle
     delta_h = 5
     delta_z = 5
-    delta_j1 = 0.25
+    delta_jx = 0.25
     tilted_angle = 0
+    which_joint_to_rotate = 6
 
     if len(args) in [1, 2]:
         print("Invalid number of arguments. Expected 3 or 4 arguments.")
         exit()
     elif len(args) == 3:
-        delta_h, delta_z, delta_j1 = args
+        delta_h, delta_z, delta_jx = args
     elif len(args) >= 4:
-        delta_h, delta_z, delta_j1, tilted_angle = args[0:4]
+        delta_h, delta_z, delta_jx, tilted_angle, which_joint_to_rotate = args[0:5]
 
     kr = KeyReader(("smooth" if len(args) == 0 else "safe"))
+
+    print(f"Current joystick args {delta_h, delta_z, delta_jx, tilted_angle}")
+
+    time_out_threshold = 10 * 60  # unit in second
+    cur_time = time.time()
+
     while True:
-        threading.Event().wait(0.2)
+        threading.Event().wait(0.1)
 
         if kr.last_key == "x":
             break
@@ -124,26 +137,57 @@ def joystick(args):
             change_vertical_height(r, kr.last_key, delta_h, tilted_angle)
         elif kr.last_key in ["w", "s"]:
             change_radial_distance(r, (delta_z if kr.last_key == "w" else -delta_z))
-        elif kr.last_key in ["a", "d"]:
-            change_azimuth(r, (-delta_j1 if kr.last_key == "a" else delta_j1))
+        elif kr.last_key in ["left", "right", "a", "d"]:
+            change_azimuth(r, (-delta_jx if kr.last_key in ["left", "a"] else delta_jx))
         elif kr.last_key == "g":
             change_gripper_state(r)
         elif kr.last_key == "r":
             invert_gripper(r, tilted_angle)
+        elif kr.last_key in ["[", "]"]:
+            rotate_one_joint(
+                r, which_joint_to_rotate, (delta_z if kr.last_key == "[" else -delta_z)
+            )
+        elif kr.last_key == "f12":
+            zero(r)
+        elif kr.last_key == ",":  # this is the '<' key. Decrease steps by a factor 1.2.
+            delta_h, delta_z, delta_jx, tilted_angle = args_update(
+                factor=1 / 1.5, args=[delta_h, delta_z, delta_jx, tilted_angle]
+            )
+            print(f"Agrs updated to {delta_h, delta_z, delta_jx, tilted_angle}")
+        elif kr.last_key == ".":  # this is the '>' key. Increase steps by a factor 1.2.
+            delta_h, delta_z, delta_jx, tilted_angle = args_update(
+                factor=1.5, args=[delta_h, delta_z, delta_jx, tilted_angle]
+            )
+            print(f"Agrs updated to {delta_h, delta_z, delta_jx, tilted_angle}")
+
+        elif kr.last_key == "q":
+            print("Joystick is terminated by 'q' key.")
+            exit()
+        elif kr.last_key == "f1":
+            if input("Reset robot?") in ["y", "Y"]:
+                reset_robot()
+
+        if kr.last_key != "":
+            cur_time = time.time()
+        # if no key pressed in long time, terminate joystick for safety.
+        if time.time() - cur_time > time_out_threshold:
+            print(
+                f"Joystick terminated due to timeout of {round(time_out_threshold/60,2)} min."
+            )
+            exit()
 
         kr.last_key = ""
 
     kr.listener_off()
 
-def locate_cursor_xy(args):
-    prev_pos, cur_pos = None, None
-    while True:
-        cur_pos = pyautogui.position()
-        if cur_pos != prev_pos:
-            print(cur_pos)
-        prev_pos = cur_pos        
 
-        
+# the following is only for shorter typing.
+def js(args):
+    joystick(args)
+
+
+def vm(args):
+    vert_move(args)
 
 
 if __name__ == "__main__":

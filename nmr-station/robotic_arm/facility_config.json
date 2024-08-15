@@ -1,0 +1,58 @@
+{
+    "tube1": {
+        "handle_tube": "handle_tube_at_tube_rack",
+        "pos_low": [37.83509, 160.81823, 91, -90, 13.239, 90],
+        "pos_high_z": 345
+    },
+    "tube2": {
+        "handle_tube": "handle_tube_at_tube_rack",
+        "pos_low": [-38.69604, 160.2316, 91, -90, -13.577, 90],
+        "pos_high_z": 345
+    },
+    "tube3": {
+        "handle_tube": "handle_tube_at_tube_rack",
+        "pos_low": [49.81891, 213.45946, 111, -90, 13.137, 90],
+        "pos_high_z": 346
+    },
+    "tube4": {
+        "handle_tube": "handle_tube_at_tube_rack",
+        "name": "tube1",
+        "pos_low": [-51.42923, 212.85912, 111, -90, -13.58301, 90],
+        "pos_high_z": 346
+    },
+    "washer1": {
+        "handle_tube": "handle_tube_at_washer",
+        "pos_low": [175.40334, -34.7046,92.5,90,77.92759,-90],
+        "pos_high_z": 345
+    },
+    "washer2": {
+        "handle_tube": "handle_tube_at_washer",
+        "pos_low":  [158.55301, 77.08849, 92.5, -90.00003, 64.07097, 90.00003],
+        "pos_high_z": 345
+    },
+    "flip_stand_gripper_bottomup_tube_bottomup": {
+        "handle_tube": "handle_tube_at_washer",
+        "pos_low":  [100.54335, 149.46774, 130, -90, 33.92777, -90],
+        "pos_high_z": 346
+    },
+    "flip_stand_gripper_topdown_tube_bottomup": {
+        "handle_tube": "handle_tube_at_washer",
+        "pos_low":  [100.54335, 149.46774, 219, -90, 33.92777, 90],
+        "pos_high_z": 346
+    },
+    "flip_in_air": {
+        "handle_tube": "handle_tube_at_washer",
+        "pos_low":  [42.29521, 67.90519, 345, -90, 31.917, 90],
+        "pos_high_z": 0
+    },
+    "spinsolve": {
+        "handle_tube": "handle_cargo_at_spinsolve80",
+        "pos_low": [99.70885, -189.66037, 350.58499, 90, 27.73192, -117],
+        "pos_high_z": 350.58499
+        },
+    "waiter": {
+         "handle_tube": "handle_tube_at_waiter",
+         "pos_low": [198.976, 0, 358, 0.0, 90, 0.0],
+         "pos_high_z": 235.5
+        }
+}
