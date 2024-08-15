@@ -73,6 +73,32 @@ def setup_logger():
 
     return logger
 
+
+class DummyRobotArm:
+    def __init__(self) -> None:
+        print("Robot Arm is initiated!")
+
+    def move_to_tube_rack(self, tube_rack_id: int):
+        print(f"Robot Arm moving to tube rack {tube_rack_id}")
+
+    def move_to(self, facility: str):
+        print(f"Robot Arm moving to {facility}")
+
+    def tilted_insert_tube(self):
+        print("The Robot Arm is inserting the tube at a tilted angle")
+
+    def tilted_remove_tube(self):
+        print("The Robot Arm is removing the tube at a tilted angle")
+
+    def place_tube(self, facility: str):
+        print(f"Place tube on {facility}")
+
+    def pick_tube(self, facility: str):
+        print(f"Pick tube on {facility}")
+
+    def wash_tube(self):
+        print(f"washing the tube")
+
 class RobotArm:
     def __init__(self, running_vel = 'fast'):
         self.logger = setup_logger()
@@ -91,7 +117,6 @@ class RobotArm:
 
 
         self.tube_status: int = 0 # 0: no tube. 1: with tube, topdown. -1: with tube, bottomup.
-
         if self.is_gripper_gripping_item():
             self.tube_status = int(input("Tube is gripped.\nInput statue: 1(topdown)/-1(inverted)?"))
             if not self.tube_status in [0, -1, 1]:
@@ -143,7 +168,7 @@ class RobotArm:
         # long gripper
         # self.robo.SetGripperRange(12, 30)
         limits=None
-        if set_vel=='fast': limits = (75, 150, 500, 300, 100, 150)
+        if set_vel=='fast': limits = (100, 150, 500, 300, 100, 150)
         elif set_vel=='default': limits = (25, 100, 150, 45, 50, 100)
         self.set_speed(limits)
 
@@ -232,8 +257,11 @@ class RobotArm:
         return float(force)
 
     def is_gripper_gripping_item(self):
+
+        time.sleep(0.2)
+
         # when gripping, the applied force is about -40 N.
-        if self.get_gripper_force() < -20:
+        if self.get_gripper_force() < -10:
             return True
 
         return False
@@ -501,7 +529,7 @@ class RobotArm:
             and math.isclose(target_cart[5], -90, abs_tol=0.1) \
             and not self.is_gripper_inverted():
             self.invert_gripper()
-            print(f'flipped @{time.time()}')
+
         # for this orientation, gripper should be topdown/upright
         if math.isclose(target_cart[3], -90, abs_tol=0.1) \
             and math.isclose(target_cart[5], 90, abs_tol=0.1) \
@@ -559,6 +587,7 @@ class RobotArm:
 
         # make sure tube is gripped.
         if not self.is_gripper_gripping_item():
+            self.logger.debug(f'gripper force: {self.get_gripper_force()}')
             raise ValueError('No item is picked up for pick_tube(), please check!')
         # update tube status
         self.tube_status = target_tube_status
@@ -608,7 +637,6 @@ class RobotArm:
 
         self.logger.debug("Place tube done!")
 
-    @timeit
     def flip_tube(self, mode:str):
 
         if mode == 'topdown_to_bottomup':
@@ -688,11 +716,35 @@ class RobotArm:
         self.tilted_remove_tube()
         self.retract_to_carousel()
 
-        assert self.is_gripper_gripping_item(), "Gripper status is incorrect"
+        # make sure tube is gripped.
+        if not self.is_gripper_gripping_item():
+            raise ValueError('No item is picked up for pick_tube(), please check!')
+
         self.tube_status = 1
 
+    ## Methods to work with RobotArmDecision
+    def get_facility_from_str(self, loc_str:str):
+        location = [i for i in facilities if i.name == loc_str]
+        assert len(location)==1, f'Target location: {loc_str} has {len(location)} matche(s). It should be One!'
+        location = location[0] # list -> element
+        return location
 
-    @timeit
+    def pick_tube_with_str(self, loc_str: str):
+
+        location = self.get_facility_from_str(loc_str)
+
+        if 'tube' in location.name or 'washer' in location.name:
+            self.pick_tube(location)
+
+        elif 'spinsolve' in location.name:
+            self.pick_tube_from_spinsolve()
+
+        else:
+            self.logger.warning(f'Wrong location: {location.name}!')
+            raise ValueError('Target location is incorrect for pick tube!')
+
+
+    # For testing
     def test(self, washer=Washer1):
         self.pick_tube(Tube1)
         self.flip_tube('topdown_to_bottomup')
@@ -705,14 +757,23 @@ class RobotArm:
     def test_sp(self, tube=Tube1, washer=Washer1):
         self.pick_tube(tube)
         self.place_tube_to_spinsolve()
-        time.sleep(2)
+        time.sleep(1)
         self.pick_tube_from_spinsolve()
         self.flip_tube('topdown_to_bottomup')
         self.place_tube(washer)
-        time.sleep(3)
+        time.sleep(1)
         self.pick_tube(washer)
         self.flip_tube('bottomup_to_topdown')
         self.place_tube(tube)
+
+    @timeit
+    def test_flip(self):
+        self.pick_tube(Tube1)
+        self.place_tube_to_spinsolve()
+        self.pick_tube_from_spinsolve()
+        self.flip_tube('topdown_to_bottomup')
+        self.flip_tube('bottomup_to_topdown')
+        self.place_tube(Tube1)
 
 if __name__ == '__main__':
     r = RobotArm()
