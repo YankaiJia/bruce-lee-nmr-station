@@ -11,10 +11,8 @@ KingLam Kwong, Yankai Jia
 import mecademicpy.robot as mdr
 
 # Standard library imports
-import time
+import time, math, copy, logging
 from functools import wraps
-import math
-import copy
 
 # current code space imports
 from facility import *
@@ -25,6 +23,7 @@ SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
 HIGH_Z = 345 # this is the Z position for arm when moving between spots.
 CAROUSEL_RADIUS = 80
 SPINSOLVE_ENTRANCE_HEIGHT = 203.5
+LOG_PATH = 'D:\\dropbox\\Dropbox\\robochem\\data\\loggings\\nmr_station\\'
 
 
 def timeit(func):
@@ -39,19 +38,54 @@ def timeit(func):
         return result
     return timeit_wrapper
 
+def setup_logger():
+    # better logging format in console
+    class CustomFormatter(logging.Formatter):
+        grey ,yellow ,red, bold_red ,reset = \
+            ["\x1b[38;20m","\x1b[33;20m","\x1b[31;20m","\x1b[31;1m","\x1b[0m"]
+        format = "%(asctime)s-%(name)s-%(levelname)s-%(message)s (%(filename)s:%(lineno)d)"
+        FORMATS = {logging.DEBUG: grey + format + reset,
+            logging.INFO: yellow + format + reset,
+            logging.WARNING: yellow + format + reset,
+            logging.ERROR: red + format + reset,
+            logging.CRITICAL: bold_red + format + reset}
+        def format(self, record):
+            log_fmt = self.FORMATS.get(record.levelno)
+            formatter = logging.Formatter(log_fmt)
+            return formatter.format(record)
+
+    # create logger with 'main'
+    logger = logging.getLogger('meca500')
+    logger.setLevel(logging.DEBUG)
+    # create file handler which logs even debug messages
+    fh = logging.FileHandler(LOG_PATH + 'nmr_station.log')
+    fh.setLevel(logging.DEBUG)
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s-%(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(CustomFormatter())
+    # add the handlers to the logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    return logger
+
 class RobotArm:
     def __init__(self, running_vel = 'fast'):
+        self.logger = setup_logger()
         self.running_vel = running_vel
         self.robo = mdr.Robot()
         self.robo.Connect(address="192.168.0.100",
                           enable_synchronous_mode=True,
                           disconnect_on_exception=False)
         time.sleep(1)
-        # self.config_robot_before_activate(set_vel=self.running_vel)
+        # self.config_robot_before_activate() # this needs to be run only once
         self.robo.ActivateAndHome()
         self.config_robot_after_activate()
         self.robo.WaitHomed()
-        print("Homed!")
 
         self.robo.SetRealTimeMonitoring("all")
 
@@ -60,6 +94,10 @@ class RobotArm:
 
         if self.is_gripper_gripping_item():
             self.tube_status = int(input("Tube is gripped.\nInput statue: 1(topdown)/-1(inverted)?"))
+            if not self.tube_status in [0, -1, 1]:
+                raise ValueError('tube_status is incorrect!')
+
+        self.logger.info("Robotic arm is initiated!")
 
     def reset_robot(self):
         # self.robo.DeactivateRobot()
@@ -72,41 +110,44 @@ class RobotArm:
         self.robo.WaitHomed()
         self.robo.ResetError()
         self.robo.ResumeMotion()
-        print("Robot is reset!")
+        self.logger.info("Robot is reset!")
 
-
-    def set_speed_to_fast(self):
-        self.robo.SetJointVelLimit(150)
-        self.robo.SetCartAcc(100)
-        self.robo.SetCartAngVel(200)
-        self.robo.SetCartLinVel(300)
-        self.robo.SetJointAcc(150)
-
-
-    def set_speed_to_default(self):
-        self.robo.SetJointVelLimit(100)
-        self.robo.SetCartAcc(50)
-        self.robo.SetCartAngVel(45)
-        self.robo.SetCartLinVel(150)
-        self.robo.SetJointAcc(100)
-
-
-    def config_robot_before_activate(self, set_vel: str):
-
+    def config_robot_before_activate(self):
         self.robo.DeactivateRobot()
-        # set join 6 angle between [-180, +180]
-        self.robo.SetJointLimits(6,-200, +90) # this needs to be done once.
+        # set join 6 angle limit, this is to protect the cable of end effector
+        self.robo.SetJointLimits(6,-200, 90) # this needs to be done once.
         self.robo.SetJointLimitsCfg(1)
+        self.logger.info('meca500 config done before activation.')
 
-        if set_vel=='fast':
-            self.set_speed_to_fast()
-        elif set_vel=='default':
-            self.set_speed_to_default()
 
-    def config_robot_after_activate(self):
-        # self.robo.SetGripperRange(12, 30)
+    def set_speed(self, limits:tuple):
+        """How these limits are implemented for confining final velocity,
+        see meca500 program manual: Figure14."""
+
+        # joint space for: MoveJoints, MoveJointsRel, MovePose, MoveJump
+        self.robo.SetJointVel(limits[0]) # range 0.001-150, default 25
+        self.robo.SetJointAcc(limits[1]) # range 0.001-150, default 100
+        # Cartesian space
+        self.robo.SetCartLinVel(limits[2]) # range 0.001-5000, default 150
+        self.robo.SetCartAngVel(limits[3]) # range 0.001-1000, default 45
+        self.robo.SetCartAcc(limits[4]) # range 0.001-600, default 50
+        # for both
+        self.robo.SetJointVelLimit(limits[5]) # range 0.001-150, default 100
+        # logging
+        self.logger.debug(f'vel limits set to : {[limits[0],limits[1],limits[2],limits[3],limits[4],limits[5]]}')
+
+
+    def config_robot_after_activate(self, set_vel: str='fast'):
         # short gripper
         self.robo.SetGripperRange(0, 4.9)
+        # long gripper
+        # self.robo.SetGripperRange(12, 30)
+        limits=None
+        if set_vel=='fast': limits = (75, 150, 500, 300, 100, 150)
+        elif set_vel=='default': limits = (25, 100, 150, 45, 50, 100)
+        self.set_speed(limits)
+
+        self.logger.info('meca500 config done after activation.')
 
 
     # Robot Status Getter Functions
@@ -156,9 +197,9 @@ class RobotArm:
         return math.degrees(angle)
 
     def print_rt_target_pos(self):
-        print(f"current_cart:{self.robo.GetRtTargetCartPos()}")
-        print(f"current_joint:{self.robo.GetRtTargetJointPos()}")
-        print()
+        self.logger.debug(f"current_cart:{self.robo.GetRtTargetCartPos()}")
+        self.logger.debug(f"current_joint:{self.robo.GetRtTargetJointPos()}")
+        # print()
 
     def is_located_at(self, tar_pos: CartPos):
         cur_pos = self.get_cart_pos()
@@ -336,23 +377,22 @@ class RobotArm:
         self.robo.MoveLinRelWrf(0, 0, dist, 0, 0, 0)
 
         direction = "up" if dist > 0 else ("down" if dist < 0 else "nothing")
-        print(f"vertically moving {direction} for {abs(dist)} mm.")
+        self.logger.debug(f"vertically moving {direction} for {abs(dist)} mm.")
         self.print_rt_target_pos()
 
     def change_radial_distance(self, dz: float):
         self.robo.MoveLinRelTrf(0, 0, dz, 0, 0, 0)
 
-        print("Moving", ("forward" if dz > 0 else "backward"), f"for {dz} mm")
+        self.logger.debug("Moving"+ ("forward" if dz > 0 else "backward")+ f"for {dz} mm")
         self.print_rt_target_pos()
 
     def change_azimuth(self, theta: float):
         self.robo.MoveJointsRel(theta, 0, 0, 0, 0, 0)
 
-        print(
-            "Rotate Joint 1",
-            ("clockwise" if theta > 0 else "anticlockwise"),
-            f"for {theta}°",
-        )
+        self.logger.debug(
+            "Rotate Joint 1"+\
+            ("clockwise" if theta > 0 else "anticlockwise")+\
+            f"for {theta}°")
         self.print_rt_target_pos()
 
     def change_gripper_state(self):
@@ -449,12 +489,12 @@ class RobotArm:
 
         target_carousel_cart = self.get_carousel_pos(carousel_radius=CAROUSEL_RADIUS,
                                                      current_pos=target_cart)
-        print(f"after get_carousel_pos: {target_carousel_cart}")
+        self.logger.debug(f"after get_carousel_pos: {target_carousel_cart}")
         self.print_rt_target_pos()
 
         self.move_inside_carousel(target_carousel_cart)
 
-        print(f"target {target_cart} \n current {self.get_cart_pos()}")
+        self.logger.debug(f"target {target_cart} \n current {self.get_cart_pos()}")
 
         # for this orientation, gripper should be bottomup/inverted
         if math.isclose(target_cart[3], -90, abs_tol=0.1) \
@@ -467,7 +507,7 @@ class RobotArm:
             and math.isclose(target_cart[5], 90, abs_tol=0.1) \
             and self.is_gripper_inverted():
             self.invert_gripper()
-            print(f'flipped @{time.time()}')
+            self.logger.debug(f'Gripper flipped @{time.time()}')
 
         # change z with respect to wrf
         cur_cart = self.get_cart_pos()
@@ -479,9 +519,8 @@ class RobotArm:
         cur_cart = self.get_cart_pos()
         cur_rad_dist = self.get_radial_distance(cur_cart[0], cur_cart[1])
         target_rad_dist = self.get_radial_distance(target_cart[0], target_cart[1])
-        print(f'cur_cart:{cur_cart}. targe_cart:{target_cart}')
+        self.logger.debug(f'cur_cart:{cur_cart}.\n targe_cart:{target_cart}')
         self.change_radial_distance(target_rad_dist-cur_rad_dist)
-
         self.print_rt_target_pos()
 
     def pick_tube(self, location, target_tube_status: int= 1, wait_after_place:float = 0.2):
@@ -524,6 +563,8 @@ class RobotArm:
         # update tube status
         self.tube_status = target_tube_status
 
+        self.logger.debug('Pick tube done!')
+
     def place_tube(self, location, wait_after_place: float =0.5):
 
         assert not self.is_gripper_opened(), 'Gripper is open! Abort!'
@@ -565,7 +606,7 @@ class RobotArm:
         # mark robotic arm not gripping tube
         self.tube_status = 0
 
-        # logger.debug("Place tube done!")
+        self.logger.debug("Place tube done!")
 
     @timeit
     def flip_tube(self, mode:str):
@@ -591,7 +632,7 @@ class RobotArm:
         self.pick_tube(pick_loc, target_tube_status=-1)
 
         if self.is_gripper_inverted():
-            print('Gripper is inverted!')
+            self.logger.debug('Gripper is inverted!')
             self.invert_gripper()
 
         time.sleep(0.1)
@@ -630,7 +671,7 @@ class RobotArm:
         self.tilted_remove_tube()
         self.retract_to_carousel()
 
-        assert  not self.is_gripper_gripping_item(), "Gripper status is incorrect"
+        assert not self.is_gripper_gripping_item(), "Gripper status is incorrect"
         self.tube_status = 0
 
     def pick_tube_from_spinsolve(self, height_from_entrance:float=SPINSOLVE_ENTRANCE_HEIGHT):
