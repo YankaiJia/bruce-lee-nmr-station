@@ -14,7 +14,13 @@ import json
 from typing import Callable
 
 # current codespace imports
-from robotarm import RobotArm
+# This will cause 'circular import' problem when
+# running robotarm.py. So it is commented out and a dummy type hint is made.
+# from robotarm import RobotArm
+
+# make a dummy class for the type hint: RobotArm.
+class RobotArm:
+    pass
 
 CartPos = namedtuple(
     "CartPos", ["x", "y", "z", "alpha", "beta", "gamma"]

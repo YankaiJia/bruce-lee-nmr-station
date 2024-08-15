@@ -3,3 +3,4 @@ templates/ProtocolOptions.xml
 templates/RemoteControl.xsd
 *:Zone.Identifier
 *.db
+/pipetter/config/tip_rack.json

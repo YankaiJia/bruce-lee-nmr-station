@@ -230,3 +230,6 @@ class RobotArm:
             self.move_lin(*low_pos)
         self.gripper_close()
         self.move_lin(*high_pos)
+
+if __name__ == "__main__":
+    r = RobotArm()
