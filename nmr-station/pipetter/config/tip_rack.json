@@ -9,7 +9,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": false,
                 "substance": "None"
             },
@@ -21,7 +21,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": false,
                 "substance": "None"
             },
@@ -33,7 +33,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": false,
                 "substance": "None"
             },
@@ -45,7 +45,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": false,
                 "substance": "None"
             },
@@ -57,7 +57,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": false,
                 "substance": "None"
             },
@@ -69,7 +69,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": false,
                 "substance": "None"
             },
@@ -81,8 +81,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -93,8 +93,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -105,8 +105,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -117,8 +117,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -129,8 +129,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -141,8 +141,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -153,8 +153,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -165,8 +165,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -177,8 +177,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -189,8 +189,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -201,8 +201,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -213,8 +213,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -225,8 +225,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -237,8 +237,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -249,8 +249,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -261,8 +261,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -273,8 +273,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -285,8 +285,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -297,8 +297,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -309,8 +309,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -321,8 +321,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -333,8 +333,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -345,8 +345,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -357,8 +357,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -369,8 +369,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -381,8 +381,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -393,8 +393,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -405,8 +405,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -417,8 +417,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -429,8 +429,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -441,8 +441,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -453,8 +453,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -465,8 +465,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -477,8 +477,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -489,8 +489,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -501,8 +501,8 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
-                "exists": false,
+                "ZeusTraversePosition": -2,
+                "exists": true,
                 "substance": "None"
             },
             {
@@ -513,7 +513,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -525,7 +525,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -537,7 +537,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -549,7 +549,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -561,7 +561,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -573,7 +573,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -585,7 +585,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -597,7 +597,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -609,7 +609,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -621,7 +621,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -633,7 +633,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -645,7 +645,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -657,7 +657,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -669,7 +669,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -681,7 +681,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -693,7 +693,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -705,7 +705,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -717,7 +717,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -729,7 +729,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -741,7 +741,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -753,7 +753,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -765,7 +765,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -777,7 +777,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -789,7 +789,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -801,7 +801,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -813,7 +813,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -825,7 +825,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -837,7 +837,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -849,7 +849,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -861,7 +861,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -873,7 +873,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -885,7 +885,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -897,7 +897,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -909,7 +909,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -921,7 +921,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -933,7 +933,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -945,7 +945,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -957,7 +957,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -969,7 +969,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -981,7 +981,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -993,7 +993,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1005,7 +1005,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1017,7 +1017,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1029,7 +1029,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1041,7 +1041,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1053,7 +1053,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1065,7 +1065,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1077,7 +1077,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1089,7 +1089,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1101,7 +1101,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1113,7 +1113,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1125,7 +1125,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1137,7 +1137,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             },
@@ -1149,7 +1149,7 @@
                 ],
                 "tipTypeTableIndex": 6,
                 "deckGeometryTableIndex": 1,
-                "ZeusTraversePosition": -1,
+                "ZeusTraversePosition": -2,
                 "exists": true,
                 "substance": "None"
             }

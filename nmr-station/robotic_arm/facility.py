@@ -7,7 +7,6 @@ Here we provide a function to load the facility_config.json data
 KingLam Kwong
 """
 
-import copy
 
 # Third-party imports
 
@@ -16,6 +15,7 @@ from collections import namedtuple
 import json
 from typing import Callable
 import numpy as np
+import copy
 
 # current codespace imports
 # This will cause 'circular import' problem when
@@ -31,11 +31,6 @@ class RobotArm:
 CartPos = namedtuple("CartPos", ["x", "y", "z", "alpha", "beta", "gamma"])
 
 aa = CartPos(1, 2, 3, 4, 5, 6)
-
-facilities = []
-
-with open("facility_config.json") as file:
-    config_data = json.load(file)
 
 
 class Facility:
@@ -80,12 +75,6 @@ class Facility:
                 pos_high_here[5],
             )
         )
-
-
-class Tube_pos(Facility):
-
-    print("This is a Tube_pos!")
-
 
 def handle_tube_at_tube_rack(self, robo: RobotArm):
     if robo.is_gripper_opened():
@@ -160,13 +149,21 @@ def handle_tube_at_washer(self, robo: RobotArm):
 #
 #     return facilities
 
+def load_facilities():
 
-def add_tubes():
+    json_file = 'D:\\PycharmProjects\\roborea\\nmr-station\\robotic_arm\\facility_config.json'
+
+    with open(json_file) as file:
+        config_data = json.load(file)
+
+    facilities = []
+    facilities_dict = {}
     for key, value in config_data.items():
+        # print(value)
         pos_here = tuple(value["pos_low"])
         pos_high_z = value["pos_high_z"]
         tube_handling_strategy_here = value["handle_tube"]
-        facility_here = Tube_pos(
+        facility_here = Facility(
             pos_low=pos_here,
             pos_high_z=pos_high_z,
             tube_handling_strategy=tube_handling_strategy_here,
@@ -174,28 +171,12 @@ def add_tubes():
         )
         facilities.append(facility_here)
 
-    return facilities
+    for facility in facilities:
+        facilities_dict[facility.name] =facility
 
-
-add_tubes()
-
-Tube1 = [i for i in facilities if i.name == "tube1"][0]
-Tube2 = [i for i in facilities if i.name == "tube2"][0]
-Tube3 = [i for i in facilities if i.name == "tube3"][0]
-Tube4 = [i for i in facilities if i.name == "tube4"][0]
-Washer1 = [i for i in facilities if i.name == "washer1"][0]
-Washer2 = [i for i in facilities if i.name == "washer2"][0]
-Flip_stand_gripper_bottomup_tube_bottomup = [
-    i for i in facilities if i.name == "flip_stand_gripper_bottomup_tube_bottomup"
-][0]
-Flip_stand_gripper_topdown_tube_bottomup = [
-    i for i in facilities if i.name == "flip_stand_gripper_topdown_tube_bottomup"
-][0]
-Flip_in_air = [i for i in facilities if i.name == "flip_in_air"][0]
-Spinsolve = [i for i in facilities if i.name == "spinsolve"][0]
+    return facilities_dict
 
 if __name__ == "__main__":
 
-    facilities = add_tubes()
-
+    fd = load_facilities()
     print(1)

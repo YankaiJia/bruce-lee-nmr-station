@@ -2,10 +2,16 @@ from flask import Flask, render_template, request
 
 from xml_converter import load_protocols, to_xml_request
 from test_scheduler import Scheduler, DummyPipetterDecision, DummyRobotArmDecision, Dummy_NMR_SpectrometerDecision
-from spectrometer import SpectrometerRemoteControl
+
+from robotic_arm import RobotArm
+from pipetter import PipetterControl
+
+# from spectrometer import SpectrometerRemoteControl
+from dummy_spectrometer import DummySpectrometerRemoteControl
 
 app = Flask(__name__)
-remote_control = SpectrometerRemoteControl()
+# remote_control = SpectrometerRemoteControl()
+remote_control = DummySpectrometerRemoteControl()
 
 process_order = []
 

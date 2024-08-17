@@ -88,7 +88,7 @@ def handle_tube_at_washer(self, robo: RobotArm):
 def load_facilities() -> dict:
     facilities = {}
 
-    with open('facility_config.json') as file:
+    with open('../facility_config.json') as file:
         config_data = json.load(file)
     
     for name, details in config_data.items():

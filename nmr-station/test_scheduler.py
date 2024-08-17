@@ -2,10 +2,14 @@ from queue import Queue
 import threading
 import time, re
 
-from dummy_pipetter import DummyPipetterControl as PipetterControl
+# from dummy_pipetter import DummyPipetterControl as PipetterControl
 from dummy_robotarm import DummyRobotArm as RobotArmControl
-from dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
+
 from shared_state import SharedState
+from robotic_arm import RobotArm
+from pipetter import PipetterControl
+
+from dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
 
     
 
@@ -31,10 +35,10 @@ class Scheduler:
 
 class DummyRobotArmDecision:
     def __init__(self):
-        self.robot_arm = RobotArmControl()
-        self.target_tube_id = 0
+        self.robot_arm = RobotArm()
+        self.target_tube_id = -1
         self.is_return = False
-        print(f"RobotArmDecision initiated")   
+        print(f"RobotArmDecision initiated")
     
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube 
@@ -49,7 +53,7 @@ class DummyRobotArmDecision:
             print()
 
 
-            if message_queue.no_message():
+            if message_queue.no_message() and self.target_tube_id == -1:
                 message_queue.add_new_message("NextSample?")
                 continue
 
@@ -60,46 +64,57 @@ class DummyRobotArmDecision:
 
             if message.startswith("TubeId="):
                 new_target = re.search(r'TubeId=(\d+)', message)
-                self.target_tube_id = int(new_target.group(1))
+
+                # no tube assigned right now:
+                if self.target_tube_id == -1:
+                    self.target_tube_id = int(new_target.group(1))
+                    message_queue.add_new_message("PauseRefill")
 
                 message_queue.finish_front_message()
-                message_queue.add_new_message("PauseRefill")
 
             elif message == "PauseRefillOkay" and self.is_return == False:
-                self.robot_arm.move_to_tube_rack(self.target_tube_id)
-                self.robot_arm.pick_tube(f"tube rack {self.target_tube_id}")
+
+                self.robot_arm.move_to(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
+                self.robot_arm.pick_tube(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
                 message_queue.finish_front_message()
                 
                 tube_state.transferring_tube(self.target_tube_id)
-                self.robot_arm.move_to("spinsolve80")
+                self.robot_arm.move_to(self.robot_arm.facilities["spinsolve"])
                 message_queue.add_new_message("ResumeRefill")
 
                 self.robot_arm.tilted_insert_tube()
-                self.robot_arm.place_tube("spinsolve80")
+                self.robot_arm.place_tube_to_spinsolve()
                 tube_state.in_spectrometer(self.target_tube_id)
                 message_queue.add_new_message("NewSampleReady")
                 
             elif message == "DitchSample":
-                self.robot_arm.pick_tube("spinsolve80")
+                self.robot_arm.pick_tube_from_spinsolve()
                 self.robot_arm.tilted_remove_tube()
+                self.robot_arm.retract_to_carousel()
                 message_queue.finish_front_message()
 
                 tube_state.transferring_tube(self.target_tube_id)
-                self.robot_arm.move_to("washer")
+                self.robot_arm.flip_tube('topdown_to_bottomup')
+                self.robot_arm.move_to(self.robot_arm.facilities["washer1"])
+                self.robot_arm.place_tube(self.robot_arm.facilities["washer1"])
                 tube_state.washing_tube(self.target_tube_id)
                 self.robot_arm.wash_tube()
                 tube_state.drying_tube(self.target_tube_id)
+                self.robot_arm.dry_tube()
 
                 self.is_return = True
                 message_queue.add_new_message("PauseRefill")
 
             elif message == "PauseRefillOkay" and self.is_return == True:
-                self.robot_arm.pick_tube("washer")
-                self.robot_arm.move_to_tube_rack(self.target_tube_id)
-                self.robot_arm.place_tube("washer")
+                self.robot_arm.move_to(self.robot_arm.facilities["washer1"])
+                self.robot_arm.pick_tube(self.robot_arm.facilities["washer1"])
+                self.robot_arm.flip_tube('bottomup_to_topdown')
+                self.robot_arm.move_to(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
+                self.robot_arm.place_tube(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
                 message_queue.finish_front_message()
                 
-                message_queue.add_new_message(f"ReturnTubeId={self.target_tube_id}")    
+                message_queue.add_new_message(f"ReturnTubeId={self.target_tube_id}")
+                self.target_tube_id = -1
                 self.is_return = False
             
 
@@ -224,12 +239,13 @@ if __name__ == "__main__":
     process_order = [1, 4, 9, 16, 25, 36, 49]
     # process_order = [11, 22, 33]
 
-    # testing
-    dummy_robot_arm = DummyRobotArmDecision()
-    dummy_pipetter = DummyPipetterDecision(process_order)
-    dummy_NMR_spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_message)
-    # scheduler = Scheduler(sample_robot_arm, sample_NMR_spectrometer, sample_pipetter)
-    scheduler = Scheduler(dummy_robot_arm, dummy_NMR_spectrometer, dummy_pipetter)
-    
-    scheduler.start()
-    
+    # # testing
+    # dummy_robot_arm = DummyRobotArmDecision()
+    # dummy_pipetter = DummyPipetterDecision(process_order)
+    # dummy_NMR_spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_message)
+    # ## scheduler = Scheduler(sample_robot_arm, sample_NMR_spectrometer, sample_pipetter)
+    # scheduler = Scheduler(dummy_robot_arm, dummy_NMR_spectrometer, dummy_pipetter)
+    # scheduler.start()
+
+    dr = DummyRobotArmDecision()
+    # dp = DummyPipetterDecision(process_order)
