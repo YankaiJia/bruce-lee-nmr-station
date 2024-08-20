@@ -89,8 +89,6 @@ class DummyRobotArmDecision:
                 
             elif message == "DitchSample":
                 self.robot_arm.pick_tube_from_spinsolve()
-                self.robot_arm.tilted_remove_tube()
-                self.robot_arm.retract_to_carousel()
                 message_queue.finish_front_message()
 
                 tube_state.transferring_tube(self.target_tube_id)

@@ -105,17 +105,17 @@ def change_gripper_state(robo: mdr.Robot):
 
 
 def invert_gripper(robo: mdr.Robot, tilted_angle: float = None):
-    # d_theta = 180
-    # cur_j6 = robo.GetRtTargetJointPos()[5]
-    # if cur_j6 > 90:
-    #     d_theta = -180
-
-    d_theta = -180
-    # print(f'the robot is {robo}')
+    d_theta = 180
     cur_j6 = robo.GetRtTargetJointPos()[5]
+    if cur_j6 > 90:
+        d_theta = -180
 
-    if cur_j6 < -90:
-        d_theta = 180
+    # d_theta = -180
+    # # print(f'the robot is {robo}')
+    # cur_j6 = robo.GetRtTargetJointPos()[5]
+    #
+    # if cur_j6 < -90:
+    #     d_theta = 180
 
     robo.MoveJointsRel(0, 0, 0, 0, 0, d_theta)
     print("Gripper Inverted")
