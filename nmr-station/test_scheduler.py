@@ -9,8 +9,8 @@ from shared_state import SharedState
 from robotic_arm import RobotArm
 from pipetter import PipetterControl
 
-from dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
-
+# from dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
+from spectrometer import SpectrometerRemoteControl
     
 
 class Scheduler:
@@ -74,15 +74,12 @@ class DummyRobotArmDecision:
 
             elif message == "PauseRefillOkay" and self.is_return == False:
 
-                self.robot_arm.move_to(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
                 self.robot_arm.pick_tube(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
                 message_queue.finish_front_message()
                 
                 tube_state.transferring_tube(self.target_tube_id)
-                self.robot_arm.move_to(self.robot_arm.facilities["spinsolve"])
                 message_queue.add_new_message("ResumeRefill")
 
-                self.robot_arm.tilted_insert_tube()
                 self.robot_arm.place_tube_to_spinsolve()
                 tube_state.in_spectrometer(self.target_tube_id)
                 message_queue.add_new_message("NewSampleReady")
@@ -92,11 +89,19 @@ class DummyRobotArmDecision:
                 message_queue.finish_front_message()
 
                 tube_state.transferring_tube(self.target_tube_id)
-                self.robot_arm.flip_tube('topdown_to_bottomup')
-                self.robot_arm.move_to(self.robot_arm.facilities["washer1"])
+                self.robot_arm.flip_tube(location = 'flip_stand_waste')
+                ## first wash
                 self.robot_arm.place_tube(self.robot_arm.facilities["washer1"])
                 tube_state.washing_tube(self.target_tube_id)
                 self.robot_arm.wash_tube()
+                self.robot_arm.pick_tube(self.robot_arm.facilities["washer1"])
+                ## second wash
+                self.robot_arm.place_tube(self.robot_arm.facilities["washer2"])
+                tube_state.washing_tube(self.target_tube_id)
+                self.robot_arm.wash_tube()
+                self.robot_arm.pick_tube(self.robot_arm.facilities["washer2"])
+
+                self.robot_arm.place_tube(self.robot_arm.facilities['dryer'])
                 tube_state.drying_tube(self.target_tube_id)
                 self.robot_arm.dry_tube()
 
@@ -104,10 +109,8 @@ class DummyRobotArmDecision:
                 message_queue.add_new_message("PauseRefill")
 
             elif message == "PauseRefillOkay" and self.is_return == True:
-                self.robot_arm.move_to(self.robot_arm.facilities["washer1"])
-                self.robot_arm.pick_tube(self.robot_arm.facilities["washer1"])
-                self.robot_arm.flip_tube('bottomup_to_topdown')
-                self.robot_arm.move_to(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
+                self.robot_arm.pick_tube(self.robot_arm.facilities["dryer"])
+                self.robot_arm.flip_tube(location = 'flip_stand_clean')
                 self.robot_arm.place_tube(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
                 message_queue.finish_front_message()
                 

@@ -6,12 +6,12 @@ from test_scheduler import Scheduler, DummyPipetterDecision, DummyRobotArmDecisi
 from robotic_arm import RobotArm
 from pipetter import PipetterControl
 
-# from spectrometer import SpectrometerRemoteControl
-from dummy_spectrometer import DummySpectrometerRemoteControl
+from spectrometer import SpectrometerRemoteControl
+# from dummy_spectrometer import DummySpectrometerRemoteControl
 
 app = Flask(__name__)
-# remote_control = SpectrometerRemoteControl()
-remote_control = DummySpectrometerRemoteControl()
+remote_control = SpectrometerRemoteControl()
+# remote_control = DummySpectrometerRemoteControl()
 
 process_order = []
 
@@ -104,7 +104,7 @@ def delete_protocol_item(item_id: int):
 @app.route('/start_automation')
 def start_automation():
     xml_request_messages = [to_xml_request("Start", obj) for obj in protocol_perform_list]
-    
+    print(xml_request_messages)
     # start automation 
 
     global scheduler
@@ -115,7 +115,7 @@ def start_automation():
     robot_arm = DummyRobotArmDecision()
     spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_messages)
     scheduler = Scheduler(pipetter, robot_arm, spectrometer)
-    
+
     scheduler.start()
 
     scheduler = None

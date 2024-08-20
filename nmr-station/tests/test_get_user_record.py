@@ -17,5 +17,11 @@ def test_get_user_record():
       - not sure the usage of this
     """
 
+def test_quick_shim_reference():
+  remote_control = SpectrometerRemoteControl()
+  message = """<?xml version="1.0" encoding="utf-8"?>\n<Message>\n\t<Start protocol="1D PROTON">\n\t\t<Option name="Scan" value="StandardScan" />\n\t</Start>\n</Message>"""
+  remote_control.send_request_to_spinsolve80(message, 3)
+
 if __name__ == "__main__":
-  test_get_user_record()
+  # test_get_user_record()
+  test_quick_shim_reference()

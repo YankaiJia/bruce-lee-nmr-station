@@ -23,8 +23,8 @@ else:
 # Constants
 TUBE_LENGTH = 275
 SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
-HIGH_Z = 345  # this is the Z position for arm when moving between spots.
-CAROUSEL_RADIUS = 30
+HIGH_Z = 350  # this is the Z position for arm when moving between spots.
+CAROUSEL_RADIUS = 25
 LOG_PATH = "D:\\dropbox\\Dropbox\\robochem\\data\\loggings\\nmr_station\\"
 
 
@@ -113,8 +113,8 @@ class RobotArm:
             if not self.tube_status in [0, -1, 1]:
                 raise ValueError("tube_status is incorrect!")
 
-        # self.retract_to_carousel()
-        # self.go_to_safe(mode='auto')
+        self.retract_to_carousel()
+        self.go_to_safe(mode='auto')
 
         self.logger.info("Robotic arm is initiated!")
 
@@ -669,8 +669,8 @@ class RobotArm:
 
 
         if not self.is_located_at(target_cart_high):
-            print(self.get_cart_pos())
-            print(target_cart_high)
+            # print(self.get_cart_pos())
+            # print(target_cart_high)
             self.go_to_high_location(target_cart_high)
 
         self.refresh_j4()
@@ -840,11 +840,11 @@ class RobotArm:
         self.go_to_high_location(loc_coord)
 
     def wash_tube(self):
-        time.sleep(10)
+        time.sleep(2)
         self.logger.info("Washing tube is done!")
 
     def dry_tube(self):
-        time.sleep(10)
+        time.sleep(2)
         self.logger.info('Drying tube is done!')
 
     # For testing
@@ -903,3 +903,7 @@ class RobotArm:
 
 if __name__ == '__main__':
     r = RobotArm()
+
+    # for i in range(15):
+    #     a = i % 4 + 1
+    #     r.test_all(tube_id=a)
