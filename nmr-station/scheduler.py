@@ -5,13 +5,18 @@ import threading
 import time, re
 
 from shared_state import SharedState
-# from robotic_arm import RobotArm
-# from pipetter import PipetterControl
-# from spectrometer import SpectrometerRemoteControl
+from robotic_arm import RobotArm
+from pipetter import PipetterControl
+from spectrometer import SpectrometerRemoteControl
 from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
-    
+
+# time spent (sec) in each cleaning units
+T_WASTE_COLLECTOR = 2
+T_WASHER1 = 30
+T_WASHER2 = 30
+T_DRYER = 60
 
 class Scheduler:
     # dependency injection here
@@ -34,7 +39,7 @@ class Scheduler:
 
 
 class RobotArmDecision:
-    def __init__(self, robot_arm_control):
+    def __init__(self, robot_arm_control: RobotArm):
         self.robot_arm = robot_arm_control
         self.target_tube_id = -1
         self.is_return = False
@@ -42,7 +47,8 @@ class RobotArmDecision:
     
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube 
-        message_queue = shared_state.message_queue
+        producer_mq = shared_state.producer_message_queue
+        consumer_mq = shared_state.consumer_message_queue
 
         
         while True:
@@ -50,79 +56,104 @@ class RobotArmDecision:
 
             print("\033[94m === Robot Arm === \033[0m")
             tube_state.print_status()
-            print(f"\033[94m Robot Arm's Turn {message_queue.q.queue} \033[0m")
+            print(f"\x1b[38;5;190m Producer Channel: {producer_mq.q.queue} \033[0m")
+            print(f"\x1b[38;5;214m Consumer Channel: {consumer_mq.q.queue}\033[0m")
             print()
+            
+            """
+            Priority 1: Take analyzed tube from spinsolve to waste collector
+            """
+            # get message from the consumer_mq
+            spectrometer_msg = ""
+            if not consumer_mq.no_message():
+                spectrometer_msg = consumer_mq.get_front_message()
+                if spectrometer_msg == "DitchSample":
+                    self.robot_arm.pick_tube_from_spinsolve()
+                    consumer_mq.finish_front_message()
 
+                    tube_state.transferring_tube(tube_state.find("spectrometer"))
+                    self.robot_arm.flip_tube(location = 'flip_stand_waste')
+                    tube_state.in_waste_collector()
 
-            if message_queue.no_message() and self.target_tube_id == -1:
-                message_queue.add_new_message("NextSample?")
-                continue
+            """
+            Priority 2: Take the tube of next unanalyzed sample from tube rack to spinsolve for analysis
+            """
+            pipetter_msg = ""
+            if not producer_mq.no_message():
+                pipetter_msg = producer_mq.get_front_message()
 
-            message = message_queue.get_front_message()
+            # if pipetter_msg == "NoSampleLeft": 
+            #     producer_mq.add_new_message("NoSampleLeft")
+            #     break
 
-            if message == "NoSampleLeft":
-                break
+            if pipetter_msg == "":
+                producer_mq.add_new_message("NextSample?")
+            elif pipetter_msg.startswith("TubeId="):
+                new_target = re.search(r'TubeId=(\d+)', pipetter_msg)
+                producer_mq.add_new_message("PauseRefill")
+            elif pipetter_msg == "PauseRefillOkay":
+                target_id = tube_state.find_next_filled_tube()
+                self.robot_arm.pick_tube(self.robot_arm.facilities[f"tube{target_id + 1}"])
+                producer_mq.finish_front_message()
 
-            if message.startswith("TubeId="):
-                new_target = re.search(r'TubeId=(\d+)', message)
-
-                # no tube assigned right now:
-                if self.target_tube_id == -1:
-                    self.target_tube_id = int(new_target.group(1))
-                    message_queue.add_new_message("PauseRefill")
-
-                message_queue.finish_front_message()
-
-            elif message == "PauseRefillOkay" and self.is_return == False:
-
-                self.robot_arm.pick_tube(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
-                message_queue.finish_front_message()
-                
-                tube_state.transferring_tube(self.target_tube_id)
-                message_queue.add_new_message("ResumeRefill")
-
+                tube_state.transferring_tube(target_id)
                 self.robot_arm.place_tube_to_spinsolve()
-                tube_state.in_spectrometer(self.target_tube_id)
-                message_queue.add_new_message("NewSampleReady")
+                producer_mq.add_new_message("ResumeRefill")
+                tube_state.in_spectrometer(target_id)
+                consumer_mq.add_new_message("NewSampleReady")
+
+
+            """
+            Priority 3: Reversely iterate each cleaning-related tube_state: each transit to next state
+                i.e 
+                    tube at "dryer" transit to "empty"
+                    tube at "washer2" transit to "dryer"
+                    tube at "washer1" transit to "washer2"
+                    tube at "waste_collector" transit to "washer1"
+                why reversely iterate?
+                    prevent tube moving from washer1 to washer2 and still there is tube at washer2
+            """
+            for state in ["dryer", "washer2", "washer1", "waste_collecter"]:
+                tube_id = tube_state.find(state)
+                if tube_id == -1: continue 
+
+                end_time = tube_state.time_finished[tube_id]
+                if time.time() < end_time: continue
+
+                if state == "dryer":
+                    # move the tube back to its tube rack
+                    if pipetter_msg != "ReturnTubeOkay":
+                        producer_mq.add_new_message("ReturnTube")
+                    else:
+                        producer_mq.finish_front_message()
+                        self.robot_arm.pick_tube(self.robot_arm.facilities["dryer"])
+                        self.robot_arm.flip_tube(location = 'flip_stand_clean')
+                        self.robot_arm.place_tube(self.robot_arm.facilities[f"tube{tube_id+1}"])
+                        tube_state.empty_tube(tube_id)
+
+                        self.robot_arm.go_to_safe("auto")
+                        producer_mq.add_new_message("ResumeRefill")
                 
-            elif message == "DitchSample":
-                self.robot_arm.pick_tube_from_spinsolve()
-                message_queue.finish_front_message()
+                elif state == "washer2":
+                    # move the tube from washer2 to dryer
+                    self.robot_arm.place_tube(self.robot_arm.facilities["dryer"])
+                    tube_state.in_dryer(tube_id)
+                    tube_state.set_time_finished(time.time() + T_DRYER)
 
-                tube_state.transferring_tube(self.target_tube_id)
-                self.robot_arm.flip_tube(location = 'flip_stand_waste')
-                ## first wash
-                self.robot_arm.place_tube(self.robot_arm.facilities["washer1"])
-                tube_state.washing_tube(self.target_tube_id)
-                self.robot_arm.wash_tube()
-                self.robot_arm.pick_tube(self.robot_arm.facilities["washer1"])
-                ## second wash
-                self.robot_arm.place_tube(self.robot_arm.facilities["washer2"])
-                tube_state.washing_tube(self.target_tube_id)
-                self.robot_arm.wash_tube()
-                self.robot_arm.pick_tube(self.robot_arm.facilities["washer2"])
-
-                self.robot_arm.place_tube(self.robot_arm.facilities['dryer'])
-                tube_state.drying_tube(self.target_tube_id)
-                self.robot_arm.dry_tube()
-
-                self.is_return = True
-                message_queue.add_new_message("PauseRefill")
-
-            elif message == "PauseRefillOkay" and self.is_return == True:
-                self.robot_arm.pick_tube(self.robot_arm.facilities["dryer"])
-                self.robot_arm.flip_tube(location = 'flip_stand_clean')
-                self.robot_arm.place_tube(self.robot_arm.facilities[f"tube{self.target_tube_id+1}"])
-                message_queue.finish_front_message()
+                elif state == "washer1":
+                    # move the tube from washer1 to washer2
+                    self.robot_arm.place_tube(self.robot_arm.facilities["washer2"])
+                    tube_state.in_washer2(tube_id)
+                    tube_state.set_time_finished(time.time() + T_WASHER2)
                 
-                message_queue.add_new_message(f"ReturnTubeId={self.target_tube_id}")
-                self.target_tube_id = -1
-                self.is_return = False
-
-
-
+                elif state == "waste_collector":
+                    # move the tube from waste_collector to washer1
+                    self.robot_arm.place_tube(self.robot_arm.facilities["washer1"])
+                    tube_state.in_washer1(tube_id)
+                    tube_state.set_time_finished(time.time() + T_WASHER1)
+        
 class NMR_SpectrometerDecision:
-    def __init__(self, remote_control, message: list[str]) -> None:
+    def __init__(self, remote_control: SpectrometerRemoteControl, message: list[str]) -> None:
         self.remote_control = remote_control
         self.request_xml_messages = message
         print("Spectrometer initiated!")
@@ -130,17 +161,17 @@ class NMR_SpectrometerDecision:
 
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube
-        message_queue = shared_state.message_queue
+        consumer_mq = shared_state.consumer_message_queue
         
         while True:
             time.sleep(1)
 
             print(" === Spectrometer === ")
 
-            if message_queue.no_message(): continue
-            print(f"Spectrometer's Turn {message_queue.q.queue}")
+            if consumer_mq.no_message(): continue
+            print(f"\x1b[38;5;214m Consumer Channel: {consumer_mq.q.queue}\033[0m")
 
-            message = message_queue.get_front_message()
+            message = consumer_mq.get_front_message()
 
             if message == "NoSampleLeft":
                 break
@@ -156,12 +187,12 @@ class NMR_SpectrometerDecision:
                     time.sleep(2) 
                 print("finished NMR analysis")
                 tube_state.in_spectrometer(tube_id)
-                message_queue.finish_front_message()
-                message_queue.add_new_message("DitchSample")
+                consumer_mq.finish_front_message()
+                consumer_mq.add_new_message("DitchSample")
 
 
 class PipetterDecision:
-    def __init__(self, pipetter_control, process_order: list[int]) -> None:
+    def __init__(self, pipetter_control: PipetterControl, process_order: list[int]) -> None:
         self.pipettor = pipetter_control
         self.process_order = process_order
         
@@ -171,13 +202,13 @@ class PipetterDecision:
         print(f"\t with process order {self.process_order}")
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube
-        message_queue = shared_state.message_queue
+        producer_mq = shared_state.producer_message_queue
 
         while True:
             time.sleep(1)
             
             print(" === Pipetter === ")
-            print(self.process_order)
+            print(f"\x1b[38;5;190m Producer Channel: {producer_mq.q.queue} \033[0m")
             tube_state.print_status()
 
             next_sample_id = (-1 if self.process_order == [] else self.process_order[0])
@@ -191,40 +222,37 @@ class PipetterDecision:
                 tube_state.filled_tube(next_refill_tube_id, next_sample_id)
                 self.process_order.pop(0)
             
-            
 
-            print(f"Pipetter's Turn: {message_queue.q.queue}")
+            if producer_mq.no_message(): continue
 
-            if message_queue.no_message(): continue
-
-            message = message_queue.get_front_message()
+            message = producer_mq.get_front_message()
 
             if message == "NextSample?":
                 next_available_tube = tube_state.find_next_filled_tube()
                 if next_available_tube != -1:
                     print(f"Next available tube is at rack id {next_available_tube}")
-                    message_queue.add_new_message(f"TubeId={next_available_tube}, SampleId={tube_state.sample_in_tube[next_available_tube]}")
+                    producer_mq.add_new_message(f"TubeId={next_available_tube}, SampleId={tube_state.sample_in_tube[next_available_tube]}")
                 
                 elif next_available_tube == -1 and next_sample_id == -1:
-                    message_queue.add_new_message("NoSampleLeft")
+                    producer_mq.add_new_message("NoSampleLeft")
                 
-                message_queue.finish_front_message()
+                producer_mq.finish_front_message()
             
             elif message == "PauseRefill":
                 self.pipettor.standby()
                 self.standby = True
-                message_queue.add_new_message("PauseRefillOkay")
-                message_queue.finish_front_message()
+                producer_mq.add_new_message("PauseRefillOkay")
+                producer_mq.finish_front_message()
             
             elif message == "ResumeRefill":
                 self.standby = False
-                message_queue.finish_front_message()
+                producer_mq.finish_front_message()
             
-            elif message.startswith("ReturnTubeId="):
-                returned_tube_id = int(message[13:])
-                tube_state.empty_tube(returned_tube_id)
-                self.standby = False
-                message_queue.finish_front_message()
+            elif message == "ReturnTube":
+                self.pipettor.standby()
+                self.standby = True
+                producer_mq.add_new_message("ReturnTubeOkay")
+                producer_mq.finish_front_message()
 
             elif message == "NoSampleLeft":
                 break
