@@ -1,16 +1,16 @@
+import click
+
 from queue import Queue
 import threading
 import time, re
 
-# from dummy_pipetter import DummyPipetterControl as PipetterControl
-from dummy_robotarm import DummyRobotArm as RobotArmControl
-
 from shared_state import SharedState
-from robotic_arm import RobotArm
-from pipetter import PipetterControl
-
-# from dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
-from spectrometer import SpectrometerRemoteControl
+# from robotic_arm import RobotArm
+# from pipetter import PipetterControl
+# from spectrometer import SpectrometerRemoteControl
+from tests.dummy_robotarm import DummyRobotArmControl
+from tests.dummy_pipetter import DummyPipetterControl
+from tests.dummy_spectrometer import DummySpectrometerRemoteControl
     
 
 class Scheduler:
@@ -33,9 +33,9 @@ class Scheduler:
         for thread in threads: thread.join()
 
 
-class DummyRobotArmDecision:
-    def __init__(self):
-        self.robot_arm = RobotArm()
+class RobotArmDecision:
+    def __init__(self, robot_arm_control):
+        self.robot_arm = robot_arm_control
         self.target_tube_id = -1
         self.is_return = False
         print(f"RobotArmDecision initiated")
@@ -43,13 +43,14 @@ class DummyRobotArmDecision:
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube 
         message_queue = shared_state.message_queue
+
         
         while True:
-            time.sleep(1)
+            time.sleep(0.5)
 
-            print(" === Robot Arm === ")
+            print("\033[94m === Robot Arm === \033[0m")
             tube_state.print_status()
-            print(f"Robot Arm's Turn {message_queue.q.queue}")
+            print(f"\033[94m Robot Arm's Turn {message_queue.q.queue} \033[0m")
             print()
 
 
@@ -117,12 +118,12 @@ class DummyRobotArmDecision:
                 message_queue.add_new_message(f"ReturnTubeId={self.target_tube_id}")
                 self.target_tube_id = -1
                 self.is_return = False
-            
 
 
-class Dummy_NMR_SpectrometerDecision:
-    def __init__(self, message: str) -> None:
-        self.remote_control = SpectrometerRemoteControl()
+
+class NMR_SpectrometerDecision:
+    def __init__(self, remote_control, message: list[str]) -> None:
+        self.remote_control = remote_control
         self.request_xml_messages = message
         print("Spectrometer initiated!")
         print(f"\t with NMR requests {self.request_xml_messages}")
@@ -159,9 +160,9 @@ class Dummy_NMR_SpectrometerDecision:
                 message_queue.add_new_message("DitchSample")
 
 
-class DummyPipetterDecision:
-    def __init__(self, process_order: list[int]) -> None:
-        self.pipettor = PipetterControl()
+class PipetterDecision:
+    def __init__(self, pipetter_control, process_order: list[int]) -> None:
+        self.pipettor = pipetter_control
         self.process_order = process_order
         
         self.standby = False
@@ -228,25 +229,29 @@ class DummyPipetterDecision:
             elif message == "NoSampleLeft":
                 break
 
+@click.command()
+@click.option('--test', is_flag=True, required=True, help='Use dummy components')
+def main(test):
+    if not test:
+        click.echo("This application can only run in test mode.")
+        return
 
-if __name__ == "__main__":
-    xml_request_message = """<?xml version="1.0" encoding="utf-8"?>
+    process_order = [1, 4, 9]
+    pipetter_decision = PipetterDecision(DummyPipetterControl(), process_order)
+
+    robot_arm_decision = RobotArmDecision(DummyRobotArmControl())
+
+    xml_request_message = ["""<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="1D PROTON">
                 <Option name="Scan" value="QuickScan" />
         </Start>
-</Message>"""
+</Message>"""]
+    spectrometer_decision = NMR_SpectrometerDecision(DummySpectrometerRemoteControl(), xml_request_message)
 
-    process_order = [1, 4, 9, 16, 25, 36, 49]
-    # process_order = [11, 22, 33]
+    scheduler = Scheduler(robot_arm_decision, spectrometer_decision, pipetter_decision)
+    scheduler.start()
 
-    # # testing
-    # dummy_robot_arm = DummyRobotArmDecision()
-    # dummy_pipetter = DummyPipetterDecision(process_order)
-    # dummy_NMR_spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_message)
-    # ## scheduler = Scheduler(sample_robot_arm, sample_NMR_spectrometer, sample_pipetter)
-    # scheduler = Scheduler(dummy_robot_arm, dummy_NMR_spectrometer, dummy_pipetter)
-    # scheduler.start()
 
-    dr = DummyRobotArmDecision()
-    # dp = DummyPipetterDecision(process_order)
+if __name__ == "__main__":
+    main()

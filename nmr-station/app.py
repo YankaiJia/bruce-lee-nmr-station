@@ -1,17 +1,13 @@
 from flask import Flask, render_template, request
 
-from xml_converter import load_protocols, to_xml_request
-from test_scheduler import Scheduler, DummyPipetterDecision, DummyRobotArmDecision, Dummy_NMR_SpectrometerDecision
+from scheduler import Scheduler, PipetterDecision, RobotArmDecision, NMR_SpectrometerDecision
 
 from robotic_arm import RobotArm
 from pipetter import PipetterControl
-
-from spectrometer import SpectrometerRemoteControl
-# from dummy_spectrometer import DummySpectrometerRemoteControl
+from spectrometer import SpectrometerRemoteControl, load_protocols, to_xml_request
 
 app = Flask(__name__)
 remote_control = SpectrometerRemoteControl()
-# remote_control = DummySpectrometerRemoteControl()
 
 process_order = []
 
@@ -110,10 +106,9 @@ def start_automation():
     global scheduler
     global process_order
     
-    # dummy
-    pipetter = DummyPipetterDecision(process_order)
-    robot_arm = DummyRobotArmDecision()
-    spectrometer = Dummy_NMR_SpectrometerDecision(xml_request_messages)
+    pipetter = PipetterDecision(PipetterControl(), process_order)
+    robot_arm = RobotArmDecision(RobotArm())
+    spectrometer = NMR_SpectrometerDecision(SpectrometerRemoteControl(), xml_request_messages)
     scheduler = Scheduler(pipetter, robot_arm, spectrometer)
 
     scheduler.start()

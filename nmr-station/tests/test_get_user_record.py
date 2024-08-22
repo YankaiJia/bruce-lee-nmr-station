@@ -1,7 +1,6 @@
 import sys 
 sys.path.append("..") 
-from xml_converter import to_xml_request
-from spectrometer import SpectrometerRemoteControl
+from spectrometer import SpectrometerRemoteControl, to_xml_request
 
 def test_get_user_record():
   remote_control = SpectrometerRemoteControl()

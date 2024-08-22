@@ -12,6 +12,7 @@ KingLam Kwong
 
 # Standard library imports
 from collections import namedtuple
+import os
 import json
 from typing import Callable
 import numpy as np
@@ -49,6 +50,14 @@ class Facility:
         # self.pos['carousel'] = self.get_carousel_pos(carousel_radius, self.pos['high'])
         self.handle_tube = tube_handling_strategy
         self.name = name
+        self.__str__ = name
+        self.__repr__ = name 
+
+    def __str__(self):
+        return f"Facility: {self.name}"
+
+    def __repr__(self):
+        return f"Facility(name={self.name}, pos={self.pos})"
 
     def get_high_pos(self, pos_low: tuple, pos_high_z: float):
         coord_here = copy.deepcopy(list(pos_low))
@@ -150,8 +159,10 @@ def handle_tube_at_washer(self, robo: RobotArm):
 #     return facilities
 
 def load_facilities():
-
-    json_file = 'D:\\PycharmProjects\\roborea\\nmr-station\\robotic_arm\\facility_config.json'
+    # Get the directory of the current script
+    current_dir = os.path.dirname(__file__)
+    # Construct the full path to the JSON file
+    json_file = os.path.join(current_dir, 'facility_config.json')
 
     with open(json_file) as file:
         config_data = json.load(file)
