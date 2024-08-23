@@ -8,7 +8,7 @@ class MessageQueue:
     
     def update_queue_changes(func):
         def wrapper(self, *args, **kwargs):
-            print(f"Queue before {func.__name__}: {self.q.queue}")
+            # print(f"Queue before {func.__name__}: {self.q.queue}")
             result = func(self, *args, **kwargs)
             print(f"Queue after {func.__name__}: {self.q.queue}")
             return result

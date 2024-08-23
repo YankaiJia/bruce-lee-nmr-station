@@ -11,6 +11,9 @@ class DummyRobotArmControl:
     def move_to(self, facility: str):
         print(f"\033[94mRobot Arm moving to {facility} \033[0m")
 
+    def go_to_safe(self, mode):
+        print(f"Go to safe in {mode} mode")
+
     def tilted_insert_tube(self):
         print("\033[94mThe Robot Arm is inserting the tube at a tilted angle \033[0m")
 
