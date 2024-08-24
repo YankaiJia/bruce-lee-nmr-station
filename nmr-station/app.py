@@ -111,6 +111,7 @@ def start_automation():
     spectrometer = NMR_SpectrometerDecision(SpectrometerRemoteControl(), xml_request_messages)
     scheduler = Scheduler(pipetter, robot_arm, spectrometer)
 
+
     scheduler.start()
 
     scheduler = None

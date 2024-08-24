@@ -23,7 +23,7 @@ else:
 # Constants
 TUBE_LENGTH = 275
 SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
-HIGH_Z = 350  # this is the Z position for arm when moving between spots.
+HIGH_Z = 345  # this is the Z position for arm when moving between spots.
 CAROUSEL_RADIUS = 25
 LOG_PATH = "D:\\dropbox\\Dropbox\\robochem\\data\\loggings\\nmr_station\\"
 
@@ -113,8 +113,8 @@ class RobotArm:
             if not self.tube_status in [0, -1, 1]:
                 raise ValueError("tube_status is incorrect!")
 
-        self.retract_to_carousel()
-        self.go_to_safe(mode='auto')
+        # self.retract_to_carousel()
+        # self.go_to_safe(mode='auto')
 
         self.logger.info("Robotic arm is initiated!")
 
@@ -602,7 +602,8 @@ class RobotArm:
 
         if location in [self.facilities['washer1'],
                         self.facilities['washer2'],
-                        self.facilities['dryer']]:
+                        self.facilities['dryer'],
+                        self.facilities['flip_stand_waste_gripper_upright']]:
             target_tube_status = -1
 
         target_cart_high, target_cart_low = location.pos["high"], location.pos["low"]
@@ -651,7 +652,8 @@ class RobotArm:
 
         if location in [self.facilities['washer1'],
                         self.facilities['washer2'],
-                        self.facilities['dryer']]:
+                        self.facilities['dryer'],
+                        self.facilities['flip_stand_waste_gripper_upright']]:
             assert self.tube_status == -1, "Tube must be inverted!"
 
         if location in [self.facilities['tube1'],
@@ -699,7 +701,7 @@ class RobotArm:
         self.logger.debug("Place tube done!")
 
     @timeit
-    def flip_tube(self, location:str = 'flip_stand_waste'):
+    def flip_tube(self, location:str = 'flip_stand_waste', is_pick:bool = True):
 
         assert location in ['flip_stand_waste',
                             'flip_stand_clean'], 'Location for flip_tube() is incorrect!'
@@ -728,15 +730,17 @@ class RobotArm:
 
         self.place_tube(place_loc, wait_after_place=0.5)
         self.invert_gripper()
-        self.pick_tube(pick_loc)
+        if is_pick:
+            self.pick_tube(pick_loc)
 
-        if self.is_gripper_inverted():
+        if self.is_gripper_inverted() and self.is_gripper_gripping_item():
             # self.change_azimuth(5)
             self.invert_gripper()
             self.logger.debug("Gripper is inverted!")
 
-        self.logger.info('Tube status is multiplied by -1.')
-        self.tube_status = tube_status_after_flip
+        if self.is_gripper_gripping_item():
+            self.logger.debug('Tube status is multiplied by -1.')
+            self.tube_status = tube_status_after_flip
 
 
     def tilted_remove_tube(self):
@@ -769,7 +773,7 @@ class RobotArm:
         self.change_radial_distance(7)
         self.move_joints_rel(j1=-6, j6=7)
 
-    def place_tube_to_spinsolve(self):
+    def place_tube_to_spinsolve(self, delay:float = 0.5):
 
         vertical_height_for_insert = self.facilities['spinsolve_insert_vertical'].pos['high'][2]- \
                                      self.facilities['spinsolve_insert_vertical'].pos['low'][2]
@@ -786,7 +790,7 @@ class RobotArm:
         self.change_vertical_height(-vertical_height_for_insert)
         self.change_gripper_state()
         self.change_vertical_height(vertical_height_for_insert)
-        time.sleep(0.2)
+        time.sleep(delay)
         self.tilted_remove_tube()
         self.retract_to_carousel()
 

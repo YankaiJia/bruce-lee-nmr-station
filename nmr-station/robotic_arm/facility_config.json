@@ -12,13 +12,13 @@
     "tube3": {
         "handle_tube": "handle_tube_at_tube_rack",
         "pos_low": [49.81891, 213.45946, 114, -90, 13.137, 90],
-        "pos_high_z": 350
+        "pos_high_z": 345
     },
     "tube4": {
         "handle_tube": "handle_tube_at_tube_rack",
         "name": "tube1",
         "pos_low": [-51.42923, 212.85912, 114, -90, -13.58301, 90],
-        "pos_high_z": 350
+        "pos_high_z": 345
     },
     "washer1": {
         "handle_tube": "handle_tube_at_washer",

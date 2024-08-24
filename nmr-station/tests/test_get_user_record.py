@@ -1,5 +1,5 @@
 import sys 
-sys.path.append("..") 
+sys.path.append("..")
 from spectrometer import SpectrometerRemoteControl, to_xml_request
 
 def test_get_user_record():

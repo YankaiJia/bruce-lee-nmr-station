@@ -5,9 +5,9 @@ import threading
 import time, re
 
 from shared_state import SharedState
-# from robotic_arm import RobotArm
-# from pipetter import PipetterControl
-# from spectrometer import SpectrometerRemoteControl
+from robotic_arm import RobotArm
+from pipetter import PipetterControl
+from spectrometer import SpectrometerRemoteControl
 from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
@@ -85,7 +85,8 @@ class RobotArmDecision:
 
                     target_tube_id = tube_state.find("spectrometer")
                     tube_state.transferring_tube(target_tube_id)
-                    self.robot_arm.flip_tube(location = 'flip_stand_waste')
+                    self.robot_arm.flip_tube(location='flip_stand_waste',
+                                             is_pick=False)
                     tube_state.in_waste_collector(target_tube_id)
                     cur_time = round(time.time() - self.init_timestamp)
                     tube_state.set_time_finished(target_tube_id, self.cur_time() + T_WASTE_COLLECTOR)
@@ -166,6 +167,7 @@ class RobotArmDecision:
                 elif state == "washer2":
                     # move the tube from washer2 to dryer
                     if tube_state.find("dryer") == -1:
+                        self.robot_arm.pick_tube(self.robot_arm.facilities['washer2'])
                         self.robot_arm.place_tube(self.robot_arm.facilities["dryer"])
                         tube_state.in_dryer(tube_id)
                         tube_state.set_time_finished(tube_id, cur_time + T_DRYER)
@@ -173,6 +175,7 @@ class RobotArmDecision:
                 elif state == "washer1":
                     # move the tube from washer1 to washer2
                     if tube_state.find("washer2") == -1:
+                        self.robot_arm.pick_tube(self.robot_arm.facilities['washer1'])
                         self.robot_arm.place_tube(self.robot_arm.facilities["washer2"])
                         tube_state.in_washer2(tube_id)
                         tube_state.set_time_finished(tube_id, cur_time + T_WASHER2)
@@ -180,6 +183,8 @@ class RobotArmDecision:
                 elif state == "waste_collector":
                     # move the tube from waste_collector to washer1
                     if tube_state.find("washer1") == -1:
+                        self.robot_arm.pick_tube(
+                            self.robot_arm.facilities['flip_stand_waste_gripper_upright'])
                         self.robot_arm.place_tube(self.robot_arm.facilities["washer1"])
                         tube_state.in_washer1(tube_id)
                         tube_state.set_time_finished(tube_id, cur_time + T_WASHER1)
