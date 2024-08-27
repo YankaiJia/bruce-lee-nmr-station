@@ -165,7 +165,7 @@ class RobotArm:
         # self.robo.SetGripperRange(12, 30)
         limits = None
         if set_vel == "fast":
-            limits = (150, 150, 600, 300, 100, 150)
+            limits = (150, 150, 400, 300, 100, 150)
         elif set_vel == "default":
             limits = (25, 100, 150, 45, 50, 100)
         self.set_speed(limits)
@@ -220,6 +220,7 @@ class RobotArm:
     def print_rt_target_pos(self):
         self.logger.debug(f"current_cart:{self.robo.GetRtTargetCartPos()}")
         self.logger.debug(f"current_joint:{self.robo.GetRtTargetJointPos()}")
+
         # print()
 
     # def is_located_at(self, tar_pos: CartPos):
@@ -234,9 +235,13 @@ class RobotArm:
     #
     #     return rt
 
-    def is_located_at(self, loc_coord: tuple):
+    def is_located_at(self, loc_coord: tuple, coord_num:int = 6):
+        '''
+        if coord_num is 6, check all coordinates
+        if coord_num is 2, check only x and y coordinates.
+        '''
         cur_cart = self.get_cart_pos()
-        if np.allclose(cur_cart, loc_coord, atol=0.05):
+        if np.allclose(cur_cart[:coord_num], loc_coord[:coord_num], atol=0.05):
             return True
         else:
             return False
@@ -498,16 +503,16 @@ class RobotArm:
             self.logger.info('Please retract arm manually.')
             return
 
-        cur_pos = self.get_cart_pos()
-        a1=self.facilities['flip_stand_waste_gripper_upright'].pos['high']
-        # check if arm is at flipping post
-        if math.isclose(cur_pos[0], a1[0], abs_tol=0.2) and \
-                math.isclose(cur_pos[1], a1[1], abs_tol=0.2):
-            high_z = 370
+        for key, facility in self.facilities.items():
+            # check if arm is at one of the facilities, by checking x and y.
+            # if yes, overwrite high_z
+            if self.is_located_at(loc_coord=facility.pos['high'], coord_num=2):
+                high_z = facility.pos['high'][2] # z height
+                break
 
         cur_z = self.get_cart_pos()[2]
-
         d_z = high_z - cur_z
+
         if not math.isclose(d_z, 0, abs_tol=0.01):
             self.change_vertical_height(d_z)
 
@@ -911,3 +916,8 @@ if __name__ == '__main__':
     # for i in range(15):
     #     a = i % 4 + 1
     #     r.test_all(tube_id=a)
+
+    # for j in range(5):
+    #     for i in range(2):
+    #         r.pick_tube(r.facilities[f'tube{i+1}'])
+    #         r.place_tube(r.facilities[f'tube{i+1}'])

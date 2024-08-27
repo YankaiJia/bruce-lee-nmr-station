@@ -19,10 +19,10 @@ from tests.dummy_spectrometer import DummySpectrometerRemoteControl
 # T_DRYER = 60
 
 # testing purpose
-T_WASTE_COLLECTOR = 2
-T_WASHER1 = 3
-T_WASHER2 = 3
-T_DRYER = 3
+T_WASTE_COLLECTOR = 10
+T_WASHER1 = 30
+T_WASHER2 = 30
+T_DRYER = 60
 
 class Scheduler:
     # dependency injection here
@@ -98,26 +98,24 @@ class RobotArmDecision:
             if not producer_mq.no_message():
                 pipetter_msg = producer_mq.get_front_message()
 
-            # if pipetter_msg == "NoSampleLeft": 
-            #     producer_mq.add_new_message("NoSampleLeft")
-            #     break
+            # only run this block when no tube is in the spectrometer
+            if tube_state.find("analyzing") == -1 and tube_state.find("spectrometer") == -1:
+                if pipetter_msg == "":
+                    producer_mq.add_new_message("NextSample?")
+                elif pipetter_msg.startswith("TubeId="):
+                    new_target = re.search(r'TubeId=(\d+)', pipetter_msg)
+                    producer_mq.add_new_message("PauseRefill")
+                    producer_mq.finish_front_message()
+                elif pipetter_msg == "PauseRefillOkay":
+                    target_tube_id = tube_state.find_next_filled_tube()
+                    self.robot_arm.pick_tube(self.robot_arm.facilities[f"tube{target_tube_id + 1}"])
+                    producer_mq.finish_front_message()
 
-            if pipetter_msg == "":
-                producer_mq.add_new_message("NextSample?")
-            elif pipetter_msg.startswith("TubeId="):
-                new_target = re.search(r'TubeId=(\d+)', pipetter_msg)
-                producer_mq.add_new_message("PauseRefill")
-                producer_mq.finish_front_message()
-            elif pipetter_msg == "PauseRefillOkay":
-                target_tube_id = tube_state.find_next_filled_tube()
-                self.robot_arm.pick_tube(self.robot_arm.facilities[f"tube{target_tube_id + 1}"])
-                producer_mq.finish_front_message()
-
-                tube_state.transferring_tube(target_tube_id)
-                self.robot_arm.place_tube_to_spinsolve()
-                producer_mq.add_new_message("ResumeRefill")
-                tube_state.in_spectrometer(target_tube_id)
-                consumer_mq.add_new_message("NewSampleReady")
+                    tube_state.transferring_tube(target_tube_id)
+                    self.robot_arm.place_tube_to_spinsolve()
+                    producer_mq.add_new_message("ResumeRefill")
+                    tube_state.in_spectrometer(target_tube_id)
+                    consumer_mq.add_new_message("NewSampleReady")
 
 
             """
@@ -314,10 +312,10 @@ def main(test):
         return
     
     # Test case 1: Success!
-    # process_order = [1, 4, 9]
+    process_order = [1, 4, 9]
 
     # Test case 2: Success!
-    process_order = [0, 1, 2, 3, 4, 5, 6, 7, 54, 55, 56]
+    # process_order = [0, 1, 2, 3, 4, 5, 6, 7, 54, 55, 56]
     pipetter_decision = PipetterDecision(DummyPipetterControl(), process_order)
 
     robot_arm_decision = RobotArmDecision(DummyRobotArmControl())

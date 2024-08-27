@@ -20,6 +20,9 @@ if __name__ == '__main__':
 else:
     import pipetter.breadboard as brb
 
+# NUM_OF_TUBES_IN_RACK=4
+NUM_OF_TUBES_IN_RACK=2
+
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 logger_path = data_folder[:-5]+'\pipetter_files\\miniPi\\miniPi.log'
 
@@ -364,7 +367,7 @@ class Planner():
 
         for index, sample_id in enumerate(samples):
 
-            tube_id = index % 4 # there are for tube positions in the tube rack.
+            tube_id = index % NUM_OF_TUBES_IN_RACK
 
             aspirate_event_here = Aspirate_event(source_container=self.source_plate.containers[sample_id],
                                                  volume=volume)
@@ -855,6 +858,7 @@ class PipetterControl():
 
         """
         The method draws one liquid into a tip according to the sample id.
+        sample id: 0-53
         """
         event_here = None
         for event in self.sequence['asp']:
@@ -873,6 +877,8 @@ class PipetterControl():
         """
         The method dispenses one liquid from the tip into the vial
         with the specified id.
+
+        tube_id: 1-4
         """
 
         event_here = None
@@ -917,6 +923,10 @@ if __name__ == '__main__':
     ls = pt.sequence
     lsa = pt.sequence['asp']
     lsb = pt.sequence['disp']
+
+    # for i in range(4):
+    #     pt.aspirate(i)
+    #     pt.refill(i)
 
 
 

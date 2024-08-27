@@ -1,23 +1,23 @@
 {
-    "tube1": {
+    "tube3": {
         "handle_tube": "handle_tube_at_tube_rack",
-        "pos_low": [37.83509, 160.81823, 94, -90, 13.239, 90],
+        "pos_low": [37.66736, 160.78505, 94, -90, 13.18499, 90],
         "pos_high_z": 350
     },
-    "tube2": {
+    "tube4": {
         "handle_tube": "handle_tube_at_tube_rack",
         "pos_low": [-38.69604, 160.2316, 94, -90, -13.577, 90],
         "pos_high_z": 350
     },
-    "tube3": {
+    "tube1": {
         "handle_tube": "handle_tube_at_tube_rack",
-        "pos_low": [49.81891, 213.45946, 114, -90, 13.137, 90],
+        "pos_low": [49.44848, 212.64322, 114, -90, 13.09102, 90],
         "pos_high_z": 345
     },
-    "tube4": {
+    "tube2": {
         "handle_tube": "handle_tube_at_tube_rack",
         "name": "tube1",
-        "pos_low": [-51.42923, 212.85912, 114, -90, -13.58301, 90],
+        "pos_low": [-51.39904, 212.26352, 114, -90, -13.61201, 90],
         "pos_high_z": 345
     },
     "washer1": {
@@ -69,6 +69,6 @@
     "dryer": {
         "handle_tube": "handle_cargo_at_spinsolve80",
         "pos_low": [-182.64157, 38.139, 99, -90, -78.20483, 90],
-        "pos_high_z": 350
+        "pos_high_z": 355
     }
 }

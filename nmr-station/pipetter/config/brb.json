@@ -1,5 +1,5 @@
 {"plate0": [[-286, -110],[-284.2, -5.5],[-220.5, -110.5],[-219.5, -5.3]],
-  "rack_1000ul": [[-160.5, -108],[-160, -8.8],[-97.5, -108],[-97, -9.5]],
+  "rack_1000ul": [[-161.5, -108],[-161.5, -9],[-99.5, -108],[-98.5, -9]],
   "beginningofTipPickPosition": -102,
   "downwardDistance": 11,
   "ZeusTraversePosition":  -2,
@@ -11,12 +11,12 @@
   "idle_xy" : [-20, -70],
   "floor_z":-117.5,
   "bottom_z_of_vial_2ml" : -116,
-  "tube1_xy": [-387,-140],
-  "tube2_xy": [-390.5,-36],
-  "tube3_xy": [-335,-151],
-  "tube4_xy": [-339,-22],
-  "tube1_height": -53,
-  "tube2_height": -55,
-  "tube3_height": -34,
-  "tube4_height": -34
+  "tube3_xy": [-388,-137.5],
+  "tube4_xy": [-386.5,-33.5],
+  "tube1_xy": [-335.5,-148.5],
+  "tube2_xy": [-335.5, -20],
+  "tube3_height": -47,
+  "tube4_height": -47,
+  "tube1_height": -27,
+  "tube2_height": -27
 }
