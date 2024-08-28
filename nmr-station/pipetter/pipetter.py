@@ -668,7 +668,7 @@ class PipetterControl():
         self.send_to_xy_stage('$$', read_all=True, verbose=True)
         self.xy_pos()
 
-    def move_through_wells(self, plate: object, dwell_time=0.1, ensure_traverse_height=True):
+    def move_through_wells(self, plate: brb.Plate, dwell_time=0.1, ensure_traverse_height=True):
         for container in plate.containers:
             logger.debug(f'This is well index: {container}')
             self.move_xy(container.xy, ensure_traverse_height=ensure_traverse_height)
@@ -837,7 +837,7 @@ class PipetterControl():
 
         except ValueError:
             logger.error('Zeus error during dispensing is ignored!')
-            self.zeus.move_z(self.ZeusTraversePosition)
+            self.move_z(self.ZeusTraversePosition)
             pass
 
         return True

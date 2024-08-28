@@ -190,7 +190,7 @@ def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomrigh
 
 def load_new_tip_rack(rack_reload):
     # tip_rack = {}
-    with open(TIP_RACK_FILE_PATH) as json_file:
+    with open(PIPETTER_TIP_RACK_FILE_PATH) as json_file:
         tip_rack = json.load(json_file)
 
     tip = {'1000ul': {'tip_vol': 1000,
@@ -214,7 +214,7 @@ def load_new_tip_rack(rack_reload):
                                          bottomright=config['rack_1000ul'][3],
                                          )
 
-    with open(TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
+    with open(PIPETTER_TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
         print("tip_rack.json is updated.")
 
@@ -226,7 +226,7 @@ def mark_next_n_tip_as_used(tip_type, n):
         tip_rack[tip_type]['tips'][i]['exists'] = False
 
     # save the revised tip_rack to json
-    with open(TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
+    with open(PIPETTER_TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
 
