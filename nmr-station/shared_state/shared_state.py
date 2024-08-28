@@ -1,4 +1,6 @@
-import threading
+import threading, sys, os
+
+sys.path.append(os.path.abspath(os.path.pardir))
 
 from .tube_manager import TubeManager
 from .message_queue import MessageQueue

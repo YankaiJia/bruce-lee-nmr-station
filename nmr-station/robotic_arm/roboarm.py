@@ -11,8 +11,10 @@ KingLam Kwong, Yankai Jia
 import mecademicpy.robot as mdr
 
 # Standard library imports
-import time, math, copy, logging
+import time, math, copy, logging, os, sys
 from functools import wraps
+
+sys.path.append(os.path.abspath(os.path.pardir))
 
 # current code space imports
 from settings import (

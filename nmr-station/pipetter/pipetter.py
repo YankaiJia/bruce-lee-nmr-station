@@ -14,19 +14,27 @@ import serial
 import serial.tools.list_ports
 import operator
 import os
+import sys
 
-if __name__ == '__main__':
-    import breadboard as brb
-else:
-    import pipetter.breadboard as brb
+# if __name__ == '__main__':
+#     import breadboard as brb
+# else:
+#     import pipetter.breadboard as brb
 
-from settings import TUBE_COUNT
+sys.path.append(os.path.abspath(os.path.pardir))
+
+import breadboard as brb
+
+from settings import (
+    TUBE_COUNT,
+    PIPETTER_LOG_PATH,
+    PIPETTER_COORDINATES_FILE_PATH,
+    PIPETTER_GRBL_SETTINGS_FILE_PATH,
+    PIPETTER_TIP_RACK_FILE_PATH,
+)
 
 # NUM_OF_TUBES_IN_RACK=4
 NUM_OF_TUBES_IN_RACK= TUBE_COUNT
-
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
-logger_path = data_folder[:-5]+'\pipetter_files\\miniPi\\miniPi.log'
 
 def setup_logger():
     # better logging format in console
@@ -53,7 +61,7 @@ def setup_logger():
     logger = logging.getLogger('minipi')
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler(logger_path)
+    fh = logging.FileHandler(PIPETTER_LOG_PATH)
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -68,7 +76,6 @@ def setup_logger():
     return logger
 
 logger = setup_logger()
-CONFIG_PATH = brb.CONFIG_PATH
 
 ports = list(serial.tools.list_ports.comports())
 zeus_port_id = [i.description[-2] for i in ports if 'USB Serial Port' in i.description][0]
@@ -397,7 +404,7 @@ class PipetterControl():
         self.serial = serial.Serial('COM3', 115200, timeout=0.2)
 
         # load settings from json
-        with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
+        with open(PIPETTER_COORDINATES_FILE_PATH, 'r') as config_file:
             self.config = json.load(config_file)
 
         self.time_step_for_pick_tip = self.config['time_step_for_pick_tip']
@@ -483,7 +490,7 @@ class PipetterControl():
 
         acceleration, max_speed_x = None,None
 
-        with open(CONFIG_PATH + 'grbl_settings.txt','r') as file:
+        with open(PIPETTER_GRBL_SETTINGS_FILE_PATH,'r') as file:
             for line in file:
                 if '$120' in line:
                     acceleration_x = float(line.split(' ')[2])
@@ -526,7 +533,7 @@ class PipetterControl():
 
     def time_that_z_motion_takes(self, dz:float):
 
-        with open(CONFIG_PATH + 'grbl_settings.txt','r') as file:
+        with open(PIPETTER_GRBL_SETTINGS_FILE_PATH,'r') as file:
             for line in file:
                 if '$122' in line:
                     acceleration_z = float(line.split(' ')[2])
@@ -697,7 +704,7 @@ class PipetterControl():
             logger.error(f'ERROR: There is already a tip on ZEUS. Please remove it before picking up a new one.')
             return
 
-        with open(CONFIG_PATH+'/tip_rack.json') as json_file:
+        with open(PIPETTER_TIP_RACK_FILE_PATH) as json_file:
             tip_rack = json.load(json_file)
 
         self.move_z(self.ZeusTraversePosition)
@@ -738,7 +745,7 @@ class PipetterControl():
                     self.zeus.tip_on_zeus = '1000ul'
 
                     item['exists'] = False
-                    with open(CONFIG_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
+                    with open(PIPETTER_TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
                         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
                 else:
                     self.zeus.tip_on_zeus=''

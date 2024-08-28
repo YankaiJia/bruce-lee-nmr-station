@@ -1,5 +1,7 @@
 import sys, os, socket, time
 
+sys.path.append(os.path.abspath(os.path.pardir))
+
 from settings import REMOTE_CONTROL_PORT, REMOTE_CONTROL_HOST, REMOTE_CONTROL_TIMEOUT
 
 

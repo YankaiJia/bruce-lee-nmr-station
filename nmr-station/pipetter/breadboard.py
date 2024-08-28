@@ -1,4 +1,4 @@
-import logging
+import logging, sys
 
 # create logger
 module_logger = logging.getLogger('minipi.brb')
@@ -6,11 +6,13 @@ module_logger = logging.getLogger('minipi.brb')
 from dataclasses import dataclass
 import numpy as np, copy, json, os
 
+sys.path.append(os.path.abspath(os.path.pardir))
+
 from settings import (
     PIPETTER_LOG_PATH,
     PIPETTER_COORDINATES_FILE_PATH,
     PIPETTER_GRBL_SETTINGS_FILE_PATH,
-    TIP_RACK_FILE_PATH,
+    PIPETTER_TIP_RACK_FILE_PATH,
 )
 # data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 
@@ -27,7 +29,7 @@ floor_z = config['floor_z']
 bottom_z_of_vial_2ml = config['bottom_z_of_vial_2ml']
 source_substance_containers: list = []
 
-with open(TIP_RACK_FILE_PATH) as json_file:
+with open(PIPETTER_TIP_RACK_FILE_PATH) as json_file:
     tip_rack = json.load(json_file)
 
 tip_rack_1000ul = tip_rack['1000ul']
@@ -212,7 +214,7 @@ def load_new_tip_rack(rack_reload):
                                          bottomright=config['rack_1000ul'][3],
                                          )
 
-    with open(PIPETTER_COORDINATES_FILE_PATH, 'w', encoding='utf-8') as f:
+    with open(TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
         print("tip_rack.json is updated.")
 
