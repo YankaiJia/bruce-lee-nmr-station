@@ -15,17 +15,18 @@ import time, math, copy, logging
 from functools import wraps
 
 # current code space imports
+from settings import (
+    ROBOT_ARM_HOST,
+    ROBOT_ARM_LOG_PATH,
+    TUBE_LENGTH,
+    SAFE_POS,
+    HIGH_Z,
+    CAROUSEL_RADIUS
+)
 if __name__ == '__main__':
     from facility import *
 else:
     from .facility import *
-
-# Constants
-TUBE_LENGTH = 275
-SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
-HIGH_Z = 345  # this is the Z position for arm when moving between spots.
-CAROUSEL_RADIUS = 25
-LOG_PATH = "D:\\dropbox\\Dropbox\\robochem\\data\\loggings\\nmr_station\\"
 
 
 def timeit(func):
@@ -72,7 +73,7 @@ def setup_logger():
     logger = logging.getLogger("meca500")
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler(LOG_PATH + "nmr_station.log")
+    fh = logging.FileHandler(ROBOT_ARM_LOG_PATH + "nmr_station.log")
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
@@ -95,7 +96,7 @@ class RobotArm:
         self.facilities = load_facilities()
         self.robo = mdr.Robot()
         self.robo.Connect(
-            address="192.168.0.100",
+            address=ROBOT_ARM_HOST,
             enable_synchronous_mode=True,
             disconnect_on_exception=False,
         )
@@ -122,7 +123,7 @@ class RobotArm:
         # self.robo.DeactivateRobot()
         # self.robo.Disconnect()
         self.robo.Connect(
-            address="192.168.0.100",
+            address=ROBOT_ARM_HOST,
             enable_synchronous_mode=True,
             disconnect_on_exception=False,
         )

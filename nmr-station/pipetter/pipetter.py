@@ -20,8 +20,10 @@ if __name__ == '__main__':
 else:
     import pipetter.breadboard as brb
 
+from settings import TUBE_COUNT
+
 # NUM_OF_TUBES_IN_RACK=4
-NUM_OF_TUBES_IN_RACK=2
+NUM_OF_TUBES_IN_RACK= TUBE_COUNT
 
 data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
 logger_path = data_folder[:-5]+'\pipetter_files\\miniPi\\miniPi.log'

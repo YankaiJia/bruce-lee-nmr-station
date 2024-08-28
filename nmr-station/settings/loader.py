@@ -7,14 +7,8 @@ env_path = os.path.join(os.path.dirname(__file__), '.env')
 # override flag set True to allow .env content updates
 load_dotenv(env_path, override=True)
 
-ROBOT_ARM_LOG_PATH = os.getenv('ROBOT_ARM_LOG_PATH')
-PIPETTER_LOG_PATH = os.getenv('PIPETTER_LOG_PATH')
-# SPECTROMETER_LOG_PATH = os.getenv('SPECTROMETER_LOG_PATH')
-
-
 # config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
 # self.config = configparser.ConfigParser().read(config_path)
-
 
 
 """
@@ -23,3 +17,42 @@ TUBE_COUNT: no of nmr tubes serving in tube rack for sample transfer
     - affects NUM_OF_TUBES_IN_RACK in Planner.generate_events in pipetter.py
 """
 TUBE_COUNT = 2
+
+"""
+Time constant for each cleaning step
+    - Changing these affect the waiting time in scheduler.py
+"""
+T_WASTE_COLLECTOR = 10
+T_WASHER1 = 30
+T_WASHER2 = 30
+T_DRYER = 60
+
+
+"""
+Pipetter settings
+"""
+PIPETTER_LOG_PATH = os.getenv('PIPETTER_LOG_PATH')
+TIP_RACK_FILE_PATH = os.getenv('TIP_RACK_FILE_PATH')
+PIPETTER_COORDINATES_FILE_PATH = os.getenv('PIPETTER_COORDINATES_CONFIG_PATH')
+PIPETTER_GRBL_SETTINGS_FILE_PATH = os.getenv('PIPETTER_GRBL_SETTINGS_FILE_PATH')
+
+
+"""
+Robot Arm settings
+"""
+ROBOT_ARM_HOST = os.getenv('ROBOT_ARM_HOST')
+ROBOT_ARM_LOG_PATH = os.getenv('ROBOT_ARM_LOG_PATH')
+TUBE_LENGTH = 275
+SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
+HIGH_Z = 345  # this is the Z position for arm when moving between spots.
+CAROUSEL_RADIUS = 25
+
+
+"""
+Spectrometer settings
+    - modify the host and port in .env
+"""
+REMOTE_CONTROL_HOST = os.getenv('SPECTROMETER_REMOTE_CONTROL_HOST')
+REMOTE_CONTROL_PORT = os.getenv('SPECTROMETER_REMOTE_CONTROL_PORT')
+# SPECTROMETER_LOG_PATH = os.getenv('SPECTROMETER_LOG_PATH')
+REMOTE_CONTROL_TIMEOUT = 10

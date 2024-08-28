@@ -6,18 +6,28 @@ module_logger = logging.getLogger('minipi.brb')
 from dataclasses import dataclass
 import numpy as np, copy, json, os
 
-data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
-CONFIG_PATH = 'D:\\PycharmProjects\\roborea\\nmr-station\\pipetter\\config\\'
+from settings import (
+    PIPETTER_LOG_PATH,
+    PIPETTER_COORDINATES_FILE_PATH,
+    PIPETTER_GRBL_SETTINGS_FILE_PATH,
+    TIP_RACK_FILE_PATH,
+)
+# data_folder = os.environ['ROBOCHEM_DATA_PATH'].replace('\\', '/') + '/'
+
+
+# PIPETTER_CONFIG_FILE
+# config_file_path = os.path.join(PIPETTER_CONFIG_DIR, 'brb.json')
+# tip_rack_file_path = os.path.join(PIPETTER_CONFIG_DIR, 'tip_rack.json')
 
 # load config file from json
-with open(CONFIG_PATH + 'brb.json', 'r') as config_file:
+with open(PIPETTER_COORDINATES_FILE_PATH, 'r') as config_file:
     config = json.load(config_file)
 
 floor_z = config['floor_z']
 bottom_z_of_vial_2ml = config['bottom_z_of_vial_2ml']
 source_substance_containers: list = []
 
-with open(CONFIG_PATH + 'tip_rack.json') as json_file:
+with open(TIP_RACK_FILE_PATH) as json_file:
     tip_rack = json.load(json_file)
 
 tip_rack_1000ul = tip_rack['1000ul']
@@ -178,7 +188,7 @@ def create_deck(template_well, Nwells, topleft, topright, bottomleft, bottomrigh
 
 def load_new_tip_rack(rack_reload):
     # tip_rack = {}
-    with open(CONFIG_PATH + 'tip_rack.json') as json_file:
+    with open(TIP_RACK_FILE_PATH) as json_file:
         tip_rack = json.load(json_file)
 
     tip = {'1000ul': {'tip_vol': 1000,
@@ -202,7 +212,7 @@ def load_new_tip_rack(rack_reload):
                                          bottomright=config['rack_1000ul'][3],
                                          )
 
-    with open(CONFIG_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
+    with open(PIPETTER_COORDINATES_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
         print("tip_rack.json is updated.")
 
@@ -214,7 +224,7 @@ def mark_next_n_tip_as_used(tip_type, n):
         tip_rack[tip_type]['tips'][i]['exists'] = False
 
     # save the revised tip_rack to json
-    with open(CONFIG_PATH + 'tip_rack.json', 'w', encoding='utf-8') as f:
+    with open(TIP_RACK_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(tip_rack, f, ensure_ascii=False, indent=4)
 
 
