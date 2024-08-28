@@ -1,5 +1,7 @@
 import sys, os, socket, time
 
+from settings import REMOTE_CONTROL_PORT, REMOTE_CONTROL_HOST, REMOTE_CONTROL_TIMEOUT
+
 
 class DummySpectrometerRemoteControl:
     def __init__(self) -> None:
@@ -13,10 +15,10 @@ class DummySpectrometerRemoteControl:
 class SpectrometerRemoteControl:
     def __init__(self) -> None:
         self.spinsolve_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.HOST = "127.0.0.1"
-        self.PORT = 13000
+        self.HOST = REMOTE_CONTROL_HOST
+        self.PORT = REMOTE_CONTROL_PORT
 
-    def send_request_to_spinsolve80(self, request_content: str, timeout_second:float = 10):
+    def send_request_to_spinsolve80(self, request_content: str, timeout_second:float = REMOTE_CONTROL_TIMEOUT):
         print(f"Connect to {self.HOST}:{self.PORT}")
         self.spinsolve_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.spinsolve_socket.connect((self.HOST, self.PORT))

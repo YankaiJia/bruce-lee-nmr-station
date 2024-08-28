@@ -4,6 +4,7 @@ from queue import Queue
 import threading
 import time, re
 
+from settings import T_WASTE_COLLECTOR, T_WASHER1, T_WASHER2, T_DRYER
 from shared_state import SharedState
 from robotic_arm import RobotArm
 from pipetter import PipetterControl
@@ -11,18 +12,6 @@ from spectrometer import SpectrometerRemoteControl
 from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
-
-# time spent (sec) in each cleaning units
-# T_WASTE_COLLECTOR = 2
-# T_WASHER1 = 30
-# T_WASHER2 = 30
-# T_DRYER = 60
-
-# testing purpose
-T_WASTE_COLLECTOR = 10
-T_WASHER1 = 30
-T_WASHER2 = 30
-T_DRYER = 60
 
 class Scheduler:
     # dependency injection here
