@@ -16,14 +16,14 @@ import operator
 import os
 import sys
 
-# if __name__ == '__main__':
-#     import breadboard as brb
-# else:
-#     import pipetter.breadboard as brb
+if __name__ == '__main__':
+    import breadboard as brb
+else:
+    import pipetter.breadboard as brb
 
 sys.path.append(os.path.abspath(os.path.pardir))
 
-import breadboard as brb
+# import breadboard as brb
 
 from settings import (
     TUBE_COUNT,

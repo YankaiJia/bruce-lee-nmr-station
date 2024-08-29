@@ -80,7 +80,9 @@ def select_protocol_mode():
 @app.route('/add_protocol', methods=['POST', 'GET'])
 def add_protocol():
     submission = request.form
-    
+
+    print(to_xml_request("Start", submission))
+
     global protocol_perform_list
     protocol_perform_list.append(submission)
   

@@ -70,5 +70,10 @@
         "handle_tube": "handle_cargo_at_spinsolve80",
         "pos_low": [-181.70648, 38.3974, 99, -90.00001, -78.06805, 89.99999],
         "pos_high_z": 355
+    },
+    "reference_slot": {
+        "handle_tube": "reference_slot",
+        "pos_low": [-180.37875, -76.67026, 102, 90, -66.97201, -90],
+        "pos_high_z": 355
     }
 }

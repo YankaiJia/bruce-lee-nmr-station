@@ -502,7 +502,7 @@ class RobotArm:
     def retract_to_carousel(self, carousel_radius: float = CAROUSEL_RADIUS, high_z: float = HIGH_Z):
 
         j1 = self.robo.GetRtTargetJointPos()[0]
-        if j1 < -65:
+        if j1 < -65 and j1> -140:
             self.logger.info('Please retract arm manually.')
             return
 
