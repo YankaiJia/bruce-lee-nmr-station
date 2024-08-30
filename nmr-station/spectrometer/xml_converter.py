@@ -47,6 +47,11 @@ def to_xml_request(message_type: str, content):
 
     elif message_type == "GetRequest":
         message_body = f"\t<GetRequest>\n\t\t<{content}/>\n\t</GetRequest>\n"
+
+    elif message_type == "SetFolderName":
+        message_body = "\t<Set>\n\t\t<DataFolder>\n\t\t\t<TimeStampTree>"
+        message_body += f"{content}"
+        message_body += "</TimeStampTree>\n\t\t</DataFolder>\n\t</Set>\n"
     
     message_tail = "</Message>"
     request_message = message_head + message_body + message_tail

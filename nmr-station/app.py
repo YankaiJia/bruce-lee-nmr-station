@@ -1,10 +1,18 @@
 from flask import Flask, render_template, request
 
+import datetime
+
 from scheduler import Scheduler, PipetterDecision, RobotArmDecision, NMR_SpectrometerDecision
 
-from robotic_arm import RobotArm
-from pipetter import PipetterControl
-from spectrometer import SpectrometerRemoteControl, load_protocols, to_xml_request
+# from robotic_arm import RobotArm
+# from pipetter import PipetterControl
+# from spectrometer import SpectrometerRemoteControl, load_protocols, to_xml_request
+
+from tests.dummy_robotarm import DummyRobotArmControl as RobotArm
+from tests.dummy_pipetter import DummyPipetterControl as PipetterControl
+from tests.dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
+from spectrometer import load_protocols, to_xml_request
+
 
 app = Flask(__name__)
 remote_control = SpectrometerRemoteControl()
@@ -17,6 +25,9 @@ current_protocol = ""
 
 xml_request_messages = []
 protocol_perform_list = []
+
+# This one must be written in Windows Format file path
+next_automation_dir = ""
 
 @app.route('/')
 def index():
@@ -35,6 +46,24 @@ def save_user_record():
 
     return "Saved!"
 
+
+@app.route('/save-plate-id', methods=['POST'])
+def save_plate_id():
+    vial_plate_id = request.form
+    print(f"vial plate id is {vial_plate_id}")
+
+    global next_automation_dir
+    
+    # TODO: add the desired dropbox drive spectrum storage folder path in the settings and put back to here, must be Windows format
+    spectrum_storage_path = ""
+    today_ymd = datetime.now().strftime('%Y%m%d')
+        
+    next_automation_dir = spectrum_storage_path + "\\" + today_ymd + "\\" + str(vial_plate_id) + "\\"
+    # and then in each automation a subfolder insode next_automation_dir will be created based on the sampleId of the vial
+    # not sure what happen for each protocol in each sample, wil it create its own folder
+    # go update (in spectrometer/spectrometer.py) the NMR_Spectrometer.send_request_to_spinsolve80 update the folder path before new sample analysis
+
+    return f"next_automation_dir is now: {next_automation_dir}"
 
 @app.route('/save-process-order', methods=['POST'])
 def save_process_order():
@@ -110,7 +139,7 @@ def start_automation():
     
     pipetter = PipetterDecision(PipetterControl(), process_order)
     robot_arm = RobotArmDecision(RobotArm())
-    spectrometer = NMR_SpectrometerDecision(SpectrometerRemoteControl(), xml_request_messages)
+    spectrometer = NMR_SpectrometerDecision(SpectrometerRemoteControl(), next_automation_dir, xml_request_messages)
     scheduler = Scheduler(pipetter, robot_arm, spectrometer)
 
 
