@@ -26,6 +26,10 @@ T_WASTE_COLLECTOR = 10
 T_WASHER1 = 30
 T_WASHER2 = 30
 T_DRYER = 60
+# T_WASTE_COLLECTOR = 0.5
+# T_WASHER1 = 0.5
+# T_WASHER2 = 0.5
+# T_DRYER = 0.5
 
 
 """
@@ -56,3 +60,12 @@ REMOTE_CONTROL_HOST = os.getenv('SPECTROMETER_REMOTE_CONTROL_HOST')
 REMOTE_CONTROL_PORT = os.getenv('SPECTROMETER_REMOTE_CONTROL_PORT')
 # SPECTROMETER_LOG_PATH = os.getenv('SPECTROMETER_LOG_PATH')
 REMOTE_CONTROL_TIMEOUT = 10
+
+MAX_SAMPLE_COUNT_AFTER_SHIMMING = 20
+REGULAR_SHIM_XML = """<?xml version="1.0" encoding="utf-8"?>
+<Message>
+        <Start protocol="SHIM">
+                <Option name="Shim" value="QuickShim1st2nd" />
+        </Start>
+</Message>
+"""

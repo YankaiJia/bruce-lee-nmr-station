@@ -4,11 +4,15 @@ from queue import Queue
 import threading
 import time, re
 
-from settings import T_WASTE_COLLECTOR, T_WASHER1, T_WASHER2, T_DRYER
+from settings import (
+  T_WASTE_COLLECTOR, T_WASHER1, T_WASHER2, T_DRYER, 
+  MAX_SAMPLE_COUNT_AFTER_SHIMMING, REGULAR_SHIM_XML,
+)
 from shared_state import SharedState
-from robotic_arm import RobotArm
-from pipetter import PipetterControl
-from spectrometer import SpectrometerRemoteControl
+if __name__ != "__main__":
+    from robotic_arm import RobotArm
+    from pipetter import PipetterControl
+    from spectrometer import SpectrometerRemoteControl
 from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
@@ -40,6 +44,8 @@ class RobotArmDecision:
         self.target_tube_id = -1
         self.asked_return_tube = False
 
+        self.sample_count_after_shimming = MAX_SAMPLE_COUNT_AFTER_SHIMMING
+
         self.init_timestamp = time.time()
         print(f"RobotArmDecision initiated")
     
@@ -61,24 +67,47 @@ class RobotArmDecision:
             print(f"\x1b[38;5;214m Consumer Channel: {consumer_mq.q.queue}\033[0m")
             print()
             
-            """
-            Priority 1: Take analyzed tube from spinsolve to waste collector
-            """
             # get message from the consumer_mq
             spectrometer_msg = ""
             if not consumer_mq.no_message():
                 spectrometer_msg = consumer_mq.get_front_message()
-                if spectrometer_msg == "DitchSample":
+            
+
+            """
+            Regular Shimming
+            """
+            if self.sample_count_after_shimming >= MAX_SAMPLE_COUNT_AFTER_SHIMMING:
+                if spectrometer_msg == "":
+                    self.robot_arm.pick_tube(self.robot_arm.facilities["reference_slot"])
+                    self.robot_arm.place_tube_to_spinsolve()
+                    consumer_mq.add_new_message("ShimReference")
+
+                    continue
+                          
+                elif spectrometer_msg == "RemoveReference":
                     self.robot_arm.pick_tube_from_spinsolve()
+                    self.robot_arm.place_tube(self.robot_arm.facilities["reference_slot"])
                     consumer_mq.finish_front_message()
 
-                    target_tube_id = tube_state.find("spectrometer")
-                    tube_state.transferring_tube(target_tube_id)
-                    self.robot_arm.flip_tube(location='flip_stand_waste',
-                                             is_pick=False)
-                    tube_state.in_waste_collector(target_tube_id)
-                    cur_time = round(time.time() - self.init_timestamp)
-                    tube_state.set_time_finished(target_tube_id, self.cur_time() + T_WASTE_COLLECTOR)
+                    self.sample_count_after_shimming = 0
+                
+
+            """
+            Priority 1: Take analyzed tube from spinsolve to waste collector
+            """
+            
+            if spectrometer_msg == "DitchSample":
+                self.robot_arm.pick_tube_from_spinsolve()
+                consumer_mq.finish_front_message()
+
+                target_tube_id = tube_state.find("spectrometer")
+                tube_state.transferring_tube(target_tube_id)
+                self.robot_arm.flip_tube(location='flip_stand_waste',
+                                            is_pick=False)
+                tube_state.in_waste_collector(target_tube_id)
+                tube_state.set_time_finished(target_tube_id, self.cur_time() + T_WASTE_COLLECTOR)
+
+                self.sample_count_after_shimming += 1
 
             """
             Priority 2: Take the tube of next unanalyzed sample from tube rack to spinsolve for analysis
@@ -217,10 +246,18 @@ class NMR_SpectrometerDecision:
                 for message in self.request_xml_messages:
                     self.remote_control.send_request_to_spinsolve80(message)
                     time.sleep(2) 
+                    
                 print("finished NMR analysis")
                 tube_state.in_spectrometer(tube_id)
                 consumer_mq.finish_front_message()
                 consumer_mq.add_new_message("DitchSample")
+            
+            elif message == "ShimReference":
+                print("Shimming Reference")
+
+                self.remote_control.send_request_to_spinsolve80(REGULAR_SHIM_XML)
+                consumer_mq.finish_front_message()
+                consumer_mq.add_new_message("RemoveReference")
 
 
 class PipetterDecision:
@@ -301,10 +338,14 @@ def main(test):
         return
     
     # Test case 1: Success!
-    process_order = [1, 4, 9]
+    # process_order = [1, 4, 9]
 
     # Test case 2: Success!
     # process_order = [0, 1, 2, 3, 4, 5, 6, 7, 54, 55, 56]
+
+    # Test case 3: 
+    process_order = [i for i in range(22)]
+
     pipetter_decision = PipetterDecision(DummyPipetterControl(), process_order)
 
     robot_arm_decision = RobotArmDecision(DummyRobotArmControl())

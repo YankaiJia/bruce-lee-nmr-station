@@ -38,5 +38,5 @@ class DummyRobotArmControl:
     def dry_tube(self):
         print("\033[94mdry tube... \033[0m")
 
-    def flip_tube(self, location: str):
+    def flip_tube(self, location: str, is_pick: bool=True):
         print(f"\033[94mflip_tube at {location}... \033[0m")
