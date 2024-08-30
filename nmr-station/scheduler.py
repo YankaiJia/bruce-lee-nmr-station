@@ -9,10 +9,11 @@ from settings import (
   MAX_SAMPLE_COUNT_AFTER_SHIMMING, REGULAR_SHIM_XML,
 )
 from shared_state import SharedState
-if __name__ != "__main__":
-    from robotic_arm import RobotArm
-    from pipetter import PipetterControl
-    from spectrometer import SpectrometerRemoteControl
+# if __name__ != "__main__":
+from robotic_arm import RobotArm
+from pipetter import PipetterControl
+from spectrometer import SpectrometerRemoteControl
+
 from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
@@ -90,6 +91,8 @@ class RobotArmDecision:
                     consumer_mq.finish_front_message()
 
                     self.sample_count_after_shimming = 0
+                else:
+                    continue
                 
 
             """
@@ -353,7 +356,7 @@ def main(test):
     xml_request_message = ["""<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="1D PROTON">
-                <Option name="Scan" value="QuickScan" />
+                <Option name="Scan" value="QuickShim1st2nd" />
         </Start>
 </Message>"""]
     spectrometer_decision = NMR_SpectrometerDecision(DummySpectrometerRemoteControl(), xml_request_message)

@@ -220,6 +220,29 @@ class RobotArm:
 
         return math.degrees(angle)
 
+    def angle_between_two_vectors(self, x1, y1, x2, y2):
+
+        if np.allclose((x1, y1), (x2, y2), atol=0.001):
+            return 0
+        # find the angle between two vectors. This angle will be sent to the arm for rotating.
+        # During rotation, angle needs to be in the range(-170, +170)
+        def angle_with_x_axis(x, y):
+            cos = x / np.sqrt((x ** 2 + y ** 2))
+            theta = np.degrees(np.arccos(cos))
+            return theta if y >= 0 else 360 - theta
+
+        theta_A = angle_with_x_axis(x1, y1)
+        theta_B = angle_with_x_axis(x2, y2)
+
+        if (theta_A <= 80) and (theta_B >= 100):
+            result = (theta_B - theta_A) - 360
+        elif (theta_A >= 100) and (theta_B <= 80):
+            result = 360 + (theta_B - theta_A)
+        else:
+            result = theta_B - theta_A
+
+        return float(result)
+
     def print_rt_target_pos(self):
         self.logger.debug(f"current_cart:{self.robo.GetRtTargetCartPos()}")
         self.logger.debug(f"current_joint:{self.robo.GetRtTargetJointPos()}")
@@ -537,7 +560,10 @@ class RobotArm:
             self.change_radial_distance(dr1)
 
         # d_j1 = self.find_delta_joint_1(cur_x, cur_y, tar_x, tar_y)
-        d_j1 = self.find_delta_by_atan2(cur_x, cur_y, tar_x, tar_y)
+        d_j1 = self.angle_between_two_vectors(cur_x, cur_y, tar_x, tar_y)
+
+        print(f'cur_x, cur_y, tar_x, tar_y: {cur_x},{cur_y},{tar_x},{tar_y}')
+        print(f'angle between two vectors: {d_j1}')
 
         self.change_azimuth(d_j1)
 
