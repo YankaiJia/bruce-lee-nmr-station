@@ -217,8 +217,9 @@ class RobotArmDecision:
         
 class NMR_SpectrometerDecision:
     # def __init__(self, remote_control: SpectrometerRemoteControl, message: list[str]) -> None:
-    def __init__(self, remote_control, message: list[str]) -> None:
+    def __init__(self, remote_control, spectrum_storage_dir: str, message: list[str]) -> None:
         self.remote_control = remote_control
+        self.spectrum_storage_dir = spectrum_storage_dir
         self.request_xml_messages = message
         print("Spectrometer initiated!")
         print(f"\t with NMR requests {self.request_xml_messages}")
@@ -246,10 +247,15 @@ class NMR_SpectrometerDecision:
                 print(f"Analyzing sample {sample_id} in tube {tube_id}")
                 tube_state.analyzing_tube(tube_id)
 
+                """
+                # TODO: Update the folder path
+                folder_path = self.spectrum_storage_dir + "\\" + str(tube_id)
+                """
+
                 for message in self.request_xml_messages:
                     self.remote_control.send_request_to_spinsolve80(message)
                     time.sleep(2) 
-                    
+
                 print("finished NMR analysis")
                 tube_state.in_spectrometer(tube_id)
                 consumer_mq.finish_front_message()
@@ -258,6 +264,10 @@ class NMR_SpectrometerDecision:
             elif message == "ShimReference":
                 print("Shimming Reference")
 
+                """
+                # TODO: Update the folder path  
+                folder_path = self.spectrum_storage_dir + "\\" + "RegularShim"
+                """
                 self.remote_control.send_request_to_spinsolve80(REGULAR_SHIM_XML)
                 consumer_mq.finish_front_message()
                 consumer_mq.add_new_message("RemoveReference")
@@ -359,7 +369,7 @@ def main(test):
                 <Option name="Scan" value="QuickShim1st2nd" />
         </Start>
 </Message>"""]
-    spectrometer_decision = NMR_SpectrometerDecision(DummySpectrometerRemoteControl(), xml_request_message)
+    spectrometer_decision = NMR_SpectrometerDecision(DummySpectrometerRemoteControl(), "", xml_request_message)
 
     scheduler = Scheduler(robot_arm_decision, spectrometer_decision, pipetter_decision)
     scheduler.start()
