@@ -4,13 +4,15 @@ import datetime
 
 from scheduler import Scheduler, PipetterDecision, RobotArmDecision, NMR_SpectrometerDecision
 
-# from robotic_arm import RobotArm
-# from pipetter import PipetterControl
-# from spectrometer import SpectrometerRemoteControl, load_protocols, to_xml_request
+from robotic_arm import RobotArm
+from pipetter import PipetterControl
+from spectrometer import SpectrometerRemoteControl, load_protocols, to_xml_request
 
-from tests.dummy_robotarm import DummyRobotArmControl as RobotArm
-from tests.dummy_pipetter import DummyPipetterControl as PipetterControl
-from tests.dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
+# these three are for testing
+# from tests.dummy_robotarm import DummyRobotArmControl as RobotArm
+# from tests.dummy_pipetter import DummyPipetterControl as PipetterControl
+# from tests.dummy_spectrometer import DummySpectrometerRemoteControl as SpectrometerRemoteControl
+
 from spectrometer import load_protocols, to_xml_request
 
 

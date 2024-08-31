@@ -234,9 +234,12 @@ class RobotArm:
         theta_A = angle_with_x_axis(x1, y1)
         theta_B = angle_with_x_axis(x2, y2)
 
-        if (theta_A <= 80) and (theta_B >= 100):
+        if (theta_A <= 185 and theta_A >= 175) or (theta_B <= 185 and theta_B >= 175):
+            raise ValueError("Arm is wrong position!")
+
+        if (theta_A <= 175) and (theta_B >= 185):
             result = (theta_B - theta_A) - 360
-        elif (theta_A >= 100) and (theta_B <= 80):
+        elif (theta_A >= 175) and (theta_B <= 185):
             result = 360 + (theta_B - theta_A)
         else:
             result = theta_B - theta_A
@@ -562,8 +565,8 @@ class RobotArm:
         # d_j1 = self.find_delta_joint_1(cur_x, cur_y, tar_x, tar_y)
         d_j1 = self.angle_between_two_vectors(cur_x, cur_y, tar_x, tar_y)
 
-        print(f'cur_x, cur_y, tar_x, tar_y: {cur_x},{cur_y},{tar_x},{tar_y}')
-        print(f'angle between two vectors: {d_j1}')
+        # print(f'cur_x, cur_y, tar_x, tar_y: {cur_x},{cur_y},{tar_x},{tar_y}')
+        # print(f'angle between two vectors: {d_j1}')
 
         self.change_azimuth(d_j1)
 
