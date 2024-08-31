@@ -1,15 +1,18 @@
 from datetime import datetime
+import os, sys
+
+sys.path.append(os.path.abspath(os.path.pardir))
 
 from spectrometer import to_xml_request, SpectrometerRemoteControl
 
 def test():
   remote_control = SpectrometerRemoteControl()
-  spectrum_storage_path = "SPECTRUM_STORAGE_PATH"
+  spectrum_storage_path = 'd:\\dropbox\\Dropbox\\robochem\\data\\nmr_station\\test_path'
   today_ymd = datetime.now().strftime('%Y%m%d')
-  spectrum_storage_dir = spectrum_storage_path + "\\" + today_ymd + "\\" 
+  spectrum_storage_dir = spectrum_storage_path + "\\" + today_ymd + "\\"
 
   for i in range(5):
-    cur_path = spectrum_storage_dir + "\\" + str(i)
+    cur_path = spectrum_storage_dir + str(i)
     set_folder_xml_msg = to_xml_request("SetFolderName", cur_path)
     remote_control.send_request_to_spinsolve80(set_folder_xml_msg)
     
