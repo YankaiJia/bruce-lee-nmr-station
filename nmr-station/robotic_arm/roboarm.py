@@ -92,7 +92,9 @@ def setup_logger():
 
 
 class RobotArm:
-    def __init__(self, running_vel="fast"):
+    # def __init__(self, running_vel="fast"):
+    def __init__(self, running_vel="default"):
+
         self.logger = setup_logger()
         self.running_vel = running_vel
         self.facilities = load_facilities()
@@ -168,9 +170,9 @@ class RobotArm:
         # self.robo.SetGripperRange(12, 30)
         limits = None
         if set_vel == "fast":
-            limits = (150, 150, 400, 300, 100, 150)
+            limits = (100, 150, 300, 200, 100, 150)
         elif set_vel == "default":
-            limits = (25, 100, 150, 45, 50, 100)
+            limits = (25*0.8, 100*0.8, 150*0.8, 45*0.8, 50*0.8, 100*0.8)
         self.set_speed(limits)
 
         self.logger.info("meca500 config done after activation.")
@@ -250,7 +252,8 @@ class RobotArm:
         self.logger.debug(f"current_cart:{self.robo.GetRtTargetCartPos()}")
         self.logger.debug(f"current_joint:{self.robo.GetRtTargetJointPos()}")
 
-        # print()
+        # print(f"current_cart:{self.robo.GetRtTargetCartPos()}")
+        # print(f"current_joint:{self.robo.GetRtTargetJointPos()}")
 
     # def is_located_at(self, tar_pos: CartPos):
     #     cur_pos = self.get_cart_pos()
@@ -460,6 +463,7 @@ class RobotArm:
         self.print_rt_target_pos()
 
     def change_radial_distance(self, dz: float):
+
         self.robo.MoveLinRelTrf(0, 0, dz, 0, 0, 0)
 
         self.logger.debug(
@@ -782,10 +786,10 @@ class RobotArm:
 
     def tilted_remove_tube(self):
 
-        if not self.is_located_at(self.facilities['spinsolve_insert_vertical'].pos['high']):
-            self.logger.warning('meca500 location is incorrect for titled_remove_tube()!')
-            return
-
+        # if not self.is_located_at(self.facilities['spinsolve_insert_vertical'].pos['high']):
+        #     self.logger.warning('meca500 location is incorrect for titled_remove_tube()!')
+        #     return
+        self.change_radial_distance(1.25)
         self.move_joints_rel(j1=6, j6=-7)
         self.change_radial_distance(-7)
         self.move_joints_rel(j1=10, j6=-10)
@@ -797,9 +801,9 @@ class RobotArm:
 
     def tilted_insert_tube(self):
 
-        if not self.is_located_at(self.facilities['spinsolve'].pos['high']):
-            self.logger.warning('meca500 is not at spinsolve entrance point!')
-            return
+        # if not self.is_located_at(self.facilities['spinsolve'].pos['high']):
+        #     self.logger.warning('meca500 is not at spinsolve entrance point!')
+        #     return
 
         self.move_joints_rel(j6=-27)
         # robo.change_vertical_height(-47)
@@ -809,6 +813,12 @@ class RobotArm:
         self.move_joints_rel(j1=-10, j6=10)
         self.change_radial_distance(7)
         self.move_joints_rel(j1=-6, j6=7)
+        self.change_radial_distance(-1.25)
+
+        # go to self.facilities['spinsolve'].pos['high']
+        # cart: 6.95207, -229.91789, 316.58462, 90, 1.73193, -90
+        # angles: -88.26807, 20.27291, -28.58442, 0, 8.31151, 0
+        # self.move_joints(-88.26807, 20.27291, -28.58442, 0, 8.31151, 0)
 
     def place_tube_to_spinsolve(self, delay:float = 0.5):
 
@@ -923,7 +933,7 @@ class RobotArm:
         self.place_tube(self.facilities['tube1'])
 
     @timeit
-    def test_all(self, tube_id: int=1, pause:int = 0):
+    def test_all(self, tube_id: int=1, pause:int = 1):
 
         self.pick_tube(self.facilities[f'tube{tube_id}'])
         self.place_tube_to_spinsolve()

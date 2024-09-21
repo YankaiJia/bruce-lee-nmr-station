@@ -22,14 +22,14 @@ TUBE_COUNT = 2
 Time constant for each cleaning step
     - Changing these affect the waiting time in scheduler.py
 """
-# T_WASTE_COLLECTOR = 10
-# T_WASHER1 = 30
-# T_WASHER2 = 30
-# T_DRYER = 60
-T_WASTE_COLLECTOR = 2
-T_WASHER1 = 2
-T_WASHER2 = 2
-T_DRYER = 2
+T_WASTE_COLLECTOR = 30
+T_WASHER1 = 40
+T_WASHER2 = 40
+T_DRYER = 120
+# T_WASTE_COLLECTOR = 2
+# T_WASHER1 = 2
+# T_WASHER2 = 2
+# T_DRYER = 2
 
 
 """
@@ -62,11 +62,17 @@ REMOTE_CONTROL_PORT = os.getenv('SPECTROMETER_REMOTE_CONTROL_PORT')
 REMOTE_CONTROL_TIMEOUT = 10
 
 # MAX_SAMPLE_COUNT_AFTER_SHIMMING = 20
-MAX_SAMPLE_COUNT_AFTER_SHIMMING = 5
+MAX_SAMPLE_COUNT_AFTER_SHIMMING = 10
 REGULAR_SHIM_XML = """<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="SHIM">
-                <Option name="Shim" value="QuickShim" />
+                <Option name="Shim" value="QuickShim1st2nd" />
         </Start>
 </Message>
 """
+
+# shiming methods
+# 1. CheckShim: 1min
+# 2. QuickShim: 4min
+# 3. QuickShim1st2nd: 6min
+# 4. PowerShim: 40min

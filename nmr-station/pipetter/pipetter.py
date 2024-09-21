@@ -5,6 +5,9 @@ dispense_liquid, transfer_liquid,etc.
 by Yankai Jia, Natalia
 
 """
+
+TRANSFER_VOLUME = 6000
+
 import logging
 from dataclasses import dataclass
 import json
@@ -257,8 +260,8 @@ class Zeus(object):
     def disp_transport_air_volume(self, flow_rate = 10):
         self.send_command(f"00DTid{self.id:04d}fr{flow_rate:05d}")
 
-    def disp(self,  flow_rate=4000,
-                    stop_speed=4000,
+    def disp(self,  flow_rate=1000,
+                    stop_speed=2000,
                     pressure_sensor=0,
                     qpm=0,
                     qpm_clot=0,
@@ -418,7 +421,7 @@ class PipetterControl():
         self.z_position = None
 
         # generate pipetting sequence
-        self.sequence = Planner().generate_events(samples=list(range(54)), volume=5000) #5000 means 500ul, subject to change
+        self.sequence = Planner().generate_events(samples=list(range(54)), volume=TRANSFER_VOLUME) #5000 means 500ul, subject to change
         time.sleep(2) # not sure why, but his sleep is needed.
 
         # config grbl if needed
@@ -825,8 +828,8 @@ class PipetterControl():
         self.move_z(disp_height)
 
         try:
-            self.zeus.disp(flow_rate=4000,
-                           stop_speed=4000,
+            self.zeus.disp(flow_rate=1000,
+                           stop_speed=2000,
                            pressure_sensor=0,
                            qpm=0,
                            qpm_clot=0,

@@ -62,8 +62,10 @@ class RobotArmDecision:
         while True:
             time.sleep(0.5)
 
+
             print("\033[94m === Robot Arm === \033[0m")
             tube_state.print_status()
+            print(self.robot_arm.get_cart_pos())
             print(f"\x1b[38;5;190m Producer Channel: {producer_mq.q.queue} \033[0m")
             print(f"\x1b[38;5;214m Consumer Channel: {consumer_mq.q.queue}\033[0m")
             print()
@@ -176,10 +178,13 @@ class RobotArmDecision:
                         producer_mq.finish_front_message()
                         self.robot_arm.pick_tube(self.robot_arm.facilities["dryer"])
                         self.robot_arm.flip_tube(location = 'flip_stand_clean')
+                        # time.sleep(10)# this time is for cooling of tube after drying
                         self.robot_arm.place_tube(self.robot_arm.facilities[f"tube{tube_id+1}"])
+                        time.sleep(20)
                         tube_state.empty_tube(tube_id)
 
-                        self.robot_arm.go_to_safe("auto")
+                        # self.robot_arm.go_to_safe("auto")
+                        self.robot_arm.retract_to_carousel()
                         producer_mq.add_new_message("ResumeRefill")
                         self.asked_return_tube = False
                 

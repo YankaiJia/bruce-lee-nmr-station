@@ -11,33 +11,33 @@
     },
     "tube1": {
         "handle_tube": "handle_tube_at_tube_rack",
-        "pos_low": [49.44848, 212.64322, 112, -90, 13.09102, 90],
+        "pos_low": [49.07275, 212.70971, 112, -90, 12.99103, 90],
         "pos_high_z": 345
     },
     "tube2": {
         "handle_tube": "handle_tube_at_tube_rack",
         "name": "tube1",
-        "pos_low": [-51.39904, 212.26352, 112, -90, -13.61201, 90],
+        "pos_low": [-51.90432, 212.24346, 112, -90, -13.74202, 90],
         "pos_high_z": 345
     },
     "washer1": {
         "handle_tube": "handle_tube_at_washer",
-        "pos_low": [160.6298, -28.29956, 93, 90, 80.00824, -90],
+        "pos_low": [159.96495, -28.03851, 93, 90, 80.05824, -90],
         "pos_high_z": 350
     },
     "washer2": {
         "handle_tube": "handle_tube_at_washer",
-        "pos_low":  [158.55301, 77.08849, 92.5, -90, 64.07097, 90],
+        "pos_low":  [158.10334, 76.86988, 92.5, -90, 64.07097, 90],
         "pos_high_z": 350
     },
     "flip_stand_waste_gripper_upright": {
         "handle_tube": "handle_tube_at_washer",
-        "pos_low":  [139.32287, -110.6042, 199, 90, 51.555, -90],
+        "pos_low":  [139.87673, -111.81236, 199, 90, 51.36243, 90],
         "pos_high_z": 370
     },
     "flip_stand_waste_gripper_inverted": {
         "handle_tube": "handle_tube_at_washer",
-        "pos_low":  [139.32287, -110.6042, 113.5, 90, 51.555, -90],
+        "pos_low":  [139.87673, -111.81236, 112, 90, 51.36243, 90],
         "pos_high_z": 350
     },
     "flip_stand_clean_gripper_upright": {
@@ -58,17 +58,17 @@
     },
     "spinsolve": {
         "handle_tube": "handle_cargo_at_spinsolve80",
-        "pos_low": [99.70882, -189.66038, 350.58494, 90.00003, 27.73194, -90.00001],
+        "pos_low": [99.70882, -189.66038, 350.58494, 90, 27.73194, -90],
         "pos_high_z": 350.58499
     },
     "spinsolve_insert_vertical": {
         "handle_tube": "handle_cargo_at_spinsolve80",
-        "pos_low": [6.98991, -231.16733, 113.08495, 90.00002, 1.73195, -90],
+        "pos_low": [6.95207, -229.91789, 113.114, 90, 1.73193, -90],
         "pos_high_z": 316.58495
     },
     "dryer": {
         "handle_tube": "handle_cargo_at_spinsolve80",
-        "pos_low": [-181.70648, 38.3974, 99, -90.00001, -78.06805, 89.99999],
+        "pos_low": [-180.07787, 34.73972, 99, -90, -79.08092, 90],
         "pos_high_z": 355
     },
     "reference_slot": {

@@ -42,7 +42,7 @@ class Container:
     xy: tuple = (0, 0)
     asp_height = 0
 
-vial_2ml = Container(id=0,asp_height=-112)
+vial_2ml = Container(id=0,asp_height=config['asp_height_vial_2ml'])
 
 def generate_container_coordinates(Nwells, topleft, topright, bottomleft, bottomright):
     '''generate coordinates for all wells of a  plate from coordinates of corner wells.'''
@@ -234,5 +234,5 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    load_new_tip_rack(rack_reload='1000ul')
+    # load_new_tip_rack(rack_reload='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')

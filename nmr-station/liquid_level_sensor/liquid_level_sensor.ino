@@ -13,7 +13,7 @@ const int CLEANER_SWITCH = 10;
 
 unsigned long sensor1_last_changed_time = 0;
 unsigned long sensor2_last_changed_time = 0;
-unsigned long debounceDelay = 500;
+unsigned long debounceDelay = 2000;
 
 bool sensor1_status_last = HIGH; // HIGH means sensor in air
 bool sensor2_status_last = HIGH;
@@ -40,91 +40,79 @@ void setup()
   digitalWrite(valve2, valve2_status);
   
   digitalWrite(CLEANER_SWITCH, HIGH); 
-  Serial.begin(9600);
+//  Serial.begin(9600);
 
 }
 
 void loop()
 {
-    while(digitalRead(CLEANER_SWITCH) == LOW) //check if cleaner switch is ON
-    {
-        int sensor1_reading = digitalRead(sensor1); // read sensor status
-        int sensor2_reading = digitalRead(sensor2);
+    int sensor1_reading = digitalRead(sensor1); // read sensor status
+    int sensor2_reading = digitalRead(sensor2);
 
-        pump1_status = digitalRead(pump1);
-        valve1_status = digitalRead(valve1);
+    pump1_status = digitalRead(pump1);
+    valve1_status = digitalRead(valve1);
 
-        Serial.print("Sensor1_reading: ");
-        Serial.println(sensor1_reading);
-        Serial.print("Pump1_status: ");
-        Serial.println(pump1_status);
-        Serial.print("Valve1_status: ");
-        Serial.println(valve1_status);
+//    Serial.print("Sensor1_reading: ");
+//    Serial.println(sensor1_reading);
+//    Serial.print("Pump1_status: ");
+//    Serial.println(pump1_status);
+//    Serial.print("Valve1_status: ");
+//    Serial.println(valve1_status);
 
-        if (sensor1_reading !=  sensor1_status_last) //sensor state has changed.
+    if (sensor1_reading !=  sensor1_status_last) //sensor state has changed.
+        {
+        sensor1_last_changed_time = millis();
+        Serial.println("Sensor status changed!");
+        }
+
+    if (sensor2_reading !=  sensor2_status_last) //sensor state has changed.
+        {
+        sensor2_last_changed_time = millis();
+        Serial.println("Sensor status changed!");
+        }          
+        
+    if (millis() - sensor1_last_changed_time > debounceDelay) // A delay time has passed since last change
+        {
+          if (sensor1_reading != sensor1_status) // this means the change of sensor status persists.
             {
-            sensor1_last_changed_time = millis();
-            Serial.println("Sensor status changed!");
+              sensor1_status = sensor1_reading;
+              
+              if (sensor1_status == HIGH) // seonsor low to high, need liquid, should turn on pump
+              {
+                pump1_status = HIGH;
+               }
+              else if (sensor1_status == LOW) // sensor high to low, liquid enough, should turn off pump
+              {
+                pump1_status = LOW;
+               }
             }
+        }
 
-        if (sensor2_reading !=  sensor2_status_last) //sensor state has changed.
+    if (millis() - sensor2_last_changed_time > debounceDelay) // A delay time has passed since last change
+        {
+          if (sensor2_reading != sensor2_status) // this means the change of sensor status persists.
             {
-            sensor2_last_changed_time = millis();
-            Serial.println("Sensor status changed!");
-            }          
-            
-        if (millis() - sensor1_last_changed_time > debounceDelay) // A delay time has passed since last change
-            {
-              if (sensor1_reading != sensor1_status) // this means the change of sensor status persists.
-                {
-                  sensor1_status = sensor1_reading;
-                  
-                  if (sensor1_status == HIGH) // seonsor low to high, need liquid, should turn on pump
-                  {
-                    pump1_status = HIGH;
-                   }
-                  else if (sensor1_status == LOW) // sensor high to low, liquid enough, should turn off pump
-                  {
-                    pump1_status = LOW;
-                   }
-                }
+              sensor2_status = sensor2_reading;
+              
+              if (sensor2_status == HIGH) // seonsor low to high, need liquid, should turn on pump
+              {
+                pump2_status = HIGH;
+               }
+              else if (sensor2_status == LOW) // sensor high to low, liquid enough, should turn off pump
+              {
+                pump2_status = LOW;
+               }
             }
+        }
 
-        if (millis() - sensor2_last_changed_time > debounceDelay) // A delay time has passed since last change
-            {
-              if (sensor2_reading != sensor2_status) // this means the change of sensor status persists.
-                {
-                  sensor2_status = sensor2_reading;
-                  
-                  if (sensor2_status == HIGH) // seonsor low to high, need liquid, should turn on pump
-                  {
-                    pump2_status = HIGH;
-                   }
-                  else if (sensor2_status == LOW) // sensor high to low, liquid enough, should turn off pump
-                  {
-                    pump2_status = LOW;
-                   }
-                }
-            }
-
-        digitalWrite(pump1, pump1_status);
-        digitalWrite(valve1, pump1_status);
-        digitalWrite(pump2, pump2_status);
-        digitalWrite(valve2, pump2_status);
+    digitalWrite(pump1, pump1_status);
+    digitalWrite(valve1, pump1_status);
+    digitalWrite(pump2, pump2_status);
+    digitalWrite(valve2, pump2_status);
 
 
-        sensor1_status_last = sensor1_reading;
-        sensor2_status_last = sensor2_reading;
+    sensor1_status_last = sensor1_reading;
+    sensor2_status_last = sensor2_reading;
 
-        delay(10); // Add a small delay to prevent a tight loop
-    }
-
-    // Turn off all pumps and valves when the cleaner switch is turned off
-    digitalWrite(pump1, LOW);
-    digitalWrite(pump2, LOW);
-    digitalWrite(valve1, HIGH);
-    digitalWrite(valve2, LOW);
-
-    // Avoid tight loops
-    delay(10);
+    delay(10); // Add a small delay to prevent a tight loop
 }
