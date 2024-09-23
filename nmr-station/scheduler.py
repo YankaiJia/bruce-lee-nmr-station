@@ -3,11 +3,13 @@ import click
 from queue import Queue
 import threading
 import time, re
+import logging
 
 from settings import (
-  T_WASTE_COLLECTOR, T_WASHER1, T_WASHER2, T_DRYER, 
-  MAX_SAMPLE_COUNT_AFTER_SHIMMING, REGULAR_SHIM_XML,
-)
+            T_WASTE_COLLECTOR, T_WASHER1, T_WASHER2, T_DRYER,
+            MAX_SAMPLE_COUNT_AFTER_SHIMMING, REGULAR_SHIM_XML,
+            ROBOT_ARM_LOG_PATH
+            )
 from shared_state import SharedState
 # if __name__ != "__main__":
 from robotic_arm import RobotArm
@@ -17,6 +19,55 @@ from spectrometer import SpectrometerRemoteControl
 from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
+
+
+
+def setup_logger(name = 'Scheduler'):
+    # better logging format in console
+    class CustomFormatter(logging.Formatter):
+        grey, yellow, red, bold_red, reset = [
+            "\x1b[38;20m",
+            "\x1b[33;20m",
+            "\x1b[31;20m",
+            "\x1b[31;1m",
+            "\x1b[0m",
+        ]
+        format = (
+            "%(asctime)s-%(name)s-%(levelname)s-%(message)s (%(filename)s:%(lineno)d)"
+        )
+        FORMATS = {
+            logging.DEBUG: grey + format + reset,
+            logging.INFO: yellow + format + reset,
+            logging.WARNING: yellow + format + reset,
+            logging.ERROR: red + format + reset,
+            logging.CRITICAL: bold_red + format + reset,
+        }
+
+        def format(self, record):
+            log_fmt = self.FORMATS.get(record.levelno)
+            formatter = logging.Formatter(log_fmt)
+            return formatter.format(record)
+
+    # create logger with 'main'
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    # create file handler which logs even debug messages
+    fh = logging.FileHandler(ROBOT_ARM_LOG_PATH + "nmr_station.log")
+    fh.setLevel(logging.INFO)
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    # create formatter and add it to the handlers
+    formatter = logging.Formatter("%(asctime)s-%(name)s-%(levelname)s-%(message)s")
+    fh.setFormatter(formatter)
+    ch.setFormatter(CustomFormatter())
+    # add the handlers to the logger
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    return logger
+
+logger = setup_logger()
 
 class Scheduler:
     # dependency injection here
@@ -46,6 +97,7 @@ class RobotArmDecision:
         self.asked_return_tube = False
 
         self.sample_count_after_shimming = MAX_SAMPLE_COUNT_AFTER_SHIMMING
+        self.logger = setup_logger(name = 'RobotArmDecision')
 
         self.init_timestamp = time.time()
         print(f"RobotArmDecision initiated")
@@ -61,7 +113,6 @@ class RobotArmDecision:
         
         while True:
             time.sleep(0.5)
-
 
             print("\033[94m === Robot Arm === \033[0m")
             tube_state.print_status()
@@ -90,6 +141,7 @@ class RobotArmDecision:
                 elif spectrometer_msg == "RemoveReference":
                     self.robot_arm.pick_tube_from_spinsolve()
                     self.robot_arm.place_tube(self.robot_arm.facilities["reference_slot"])
+
                     consumer_mq.finish_front_message()
 
                     self.sample_count_after_shimming = 0
@@ -178,9 +230,8 @@ class RobotArmDecision:
                         producer_mq.finish_front_message()
                         self.robot_arm.pick_tube(self.robot_arm.facilities["dryer"])
                         self.robot_arm.flip_tube(location = 'flip_stand_clean')
-                        # time.sleep(10)# this time is for cooling of tube after drying
                         self.robot_arm.place_tube(self.robot_arm.facilities[f"tube{tube_id+1}"])
-                        time.sleep(20)
+                        time.sleep(30)# this time is for cooling of tube after drying
                         tube_state.empty_tube(tube_id)
 
                         # self.robot_arm.go_to_safe("auto")

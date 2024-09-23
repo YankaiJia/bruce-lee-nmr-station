@@ -481,8 +481,8 @@ class PipetterControl():
 
     def configure_grbl(self):
         from pathlib import Path
-        grbl_path = str(Path.cwd()) + ("\\config\\miniPi\\grbl_settings.txt")
-        with open(grbl_path, 'r') as grbl_config_file:
+        # grbl_path = str(Path.cwd()) + ("\\config\\miniPi\\grbl_settings.txt")
+        with open(PIPETTER_GRBL_SETTINGS_FILE_PATH, 'r') as grbl_config_file:
             for line in grbl_config_file:
                self.send_to_xy_stage(command = line.split('    (')[0], read_all= True, verbose= True)
 

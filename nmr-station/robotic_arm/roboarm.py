@@ -31,20 +31,6 @@ else:
     from .facility import *
 
 
-def timeit(func):
-    @wraps(func)
-    def timeit_wrapper(*args, **kwargs):
-        start_time = time.perf_counter()
-        result = func(*args, **kwargs)
-        end_time = time.perf_counter()
-        total_time = end_time - start_time
-        # first item in the args, ie `args[0]` is `self`
-        print(f"Function {func.__name__} Took {total_time:.4f} s")
-        return result
-
-    return timeit_wrapper
-
-
 def setup_logger():
     # better logging format in console
     class CustomFormatter(logging.Formatter):
@@ -72,7 +58,7 @@ def setup_logger():
             return formatter.format(record)
 
     # create logger with 'main'
-    logger = logging.getLogger("meca500")
+    logger = logging.getLogger("roboarm.py")
     logger.setLevel(logging.DEBUG)
     # create file handler which logs even debug messages
     fh = logging.FileHandler(ROBOT_ARM_LOG_PATH + "nmr_station.log")
@@ -90,12 +76,38 @@ def setup_logger():
 
     return logger
 
+logger = setup_logger()
+
+def timeit(func):
+    @wraps(func)
+    def timeit_wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        total_time = end_time - start_time
+        # first item in the args, ie `args[0]` is `self`
+        print(f"Function {func.__name__} Took {total_time:.4f} s")
+        return result
+
+    return timeit_wrapper
+
+def log_exception(func):
+    @wraps(func)
+    def log_exception_wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+        except:
+            logger.exception(f'---Got exception in roboarm.py at function: {func.__name__}---')
+            raise
+        return result
+    return log_exception_wrapper
+
 
 class RobotArm:
     # def __init__(self, running_vel="fast"):
     def __init__(self, running_vel="default"):
 
-        self.logger = setup_logger()
+        self.logger = logger
         self.running_vel = running_vel
         self.facilities = load_facilities()
         self.robo = mdr.Robot()
@@ -529,6 +541,7 @@ class RobotArm:
         d_z = high_z - current_cart[2]
         self.robo.MoveLinRelWrf(0, 0, d_z, 0, 0, 0)
 
+    @log_exception
     def retract_to_carousel(self, carousel_radius: float = CAROUSEL_RADIUS, high_z: float = HIGH_Z):
 
         j1 = self.robo.GetRtTargetJointPos()[0]
@@ -627,6 +640,7 @@ class RobotArm:
         self.logger.debug('###after change radial distance')
         self.print_rt_target_pos()
 
+    @log_exception
     def pick_tube(self, location:Facility,
                   target_tube_status: int = 1,
                   wait_after_place: float = 0.2):
@@ -685,6 +699,7 @@ class RobotArm:
 
         self.logger.debug("Pick tube done!")
 
+    @log_exception
     def place_tube(self, location, wait_after_place: float = 0.2):
 
         self.logger.info(f"Executing place_tube({location.name}) at {time.time()}")
@@ -742,6 +757,7 @@ class RobotArm:
         self.logger.debug("Place tube done!")
 
     @timeit
+    @log_exception
     def flip_tube(self, location:str = 'flip_stand_waste', is_pick:bool = True):
 
         assert location in ['flip_stand_waste',
@@ -783,7 +799,7 @@ class RobotArm:
             self.logger.debug('Tube status is multiplied by -1.')
             self.tube_status = tube_status_after_flip
 
-
+    @log_exception
     def tilted_remove_tube(self):
 
         # if not self.is_located_at(self.facilities['spinsolve_insert_vertical'].pos['high']):
@@ -799,6 +815,7 @@ class RobotArm:
         self.change_vertical_height(34)
         self.move_joints_rel(j6=27)
 
+    @log_exception
     def tilted_insert_tube(self):
 
         # if not self.is_located_at(self.facilities['spinsolve'].pos['high']):
@@ -820,6 +837,7 @@ class RobotArm:
         # angles: -88.26807, 20.27291, -28.58442, 0, 8.31151, 0
         # self.move_joints(-88.26807, 20.27291, -28.58442, 0, 8.31151, 0)
 
+    @log_exception
     def place_tube_to_spinsolve(self, delay:float = 0.5):
 
         vertical_height_for_insert = self.facilities['spinsolve_insert_vertical'].pos['high'][2]- \
@@ -844,6 +862,7 @@ class RobotArm:
         assert not self.is_gripper_gripping_item(), "Gripper status is incorrect"
         self.tube_status = 0
 
+    @log_exception
     def pick_tube_from_spinsolve(self):
 
         vertical_height_for_insert = self.facilities['spinsolve_insert_vertical'].pos['high'][2]- \
@@ -872,8 +891,7 @@ class RobotArm:
 
         self.tube_status = 1
 
-    ## Methods to work with RobotArmDecision
-
+    @log_exception
     def move_to(self, location: Facility):
 
         self.logger.info(f"Executing move_to({location.name}) at {time.time()}.")
