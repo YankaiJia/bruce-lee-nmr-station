@@ -17,7 +17,7 @@
     "tube2": {
         "handle_tube": "handle_tube_at_tube_rack",
         "name": "tube1",
-        "pos_low": [-51.90432, 212.24346, 112, -90, -13.74202, 90],
+        "pos_low": [-52.09529, 211.42431, 112, -90, -13.84203, 90],
         "pos_high_z": 345
     },
     "washer1": {

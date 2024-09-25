@@ -283,7 +283,8 @@ class NMR_SpectrometerDecision:
     def run(self, shared_state: SharedState):
         tube_state = shared_state.tube
         consumer_mq = shared_state.consumer_message_queue
-        
+        solvent_name = 'ACN_H2O'
+        custom_msg = 'CUSTOM'
         while True:
             time.sleep(1)
 
@@ -308,7 +309,17 @@ class NMR_SpectrometerDecision:
                 folder_path = self.spectrum_storage_dir + "\\" + str(tube_id)
                 """
 
-                for message in self.request_xml_messages:
+                # for each sample, send the sequence of xml message
+                # each sequence has four msg: 'sample', 'solvent', 'custom', '1d-proton', '1d-wet-sup'
+                for num, message in enumerate(self.request_xml_messages):
+
+                    if num == 0: # this msg specifies the sample name
+                        message = message.replace('######', str(sample_id))
+                    if num == 1: # this msg specifies the solvent name
+                        message = message.replace('######', str(solvent_name))
+                    if num == 2: # this msg specifies the custom name
+                        message = message.replace('######', str(custom_msg))
+
                     self.remote_control.send_request_to_spinsolve80(message)
                     time.sleep(2) 
 
@@ -399,8 +410,8 @@ class PipetterDecision:
                 producer_mq.add_new_message("Terminate")
                 break
 
-@click.command()
-@click.option('--test', is_flag=True, required=True, help='Use dummy components')
+# @click.command()
+# @click.option('--test', is_flag=True, required=True, help='Use dummy components')
 def main(test):
     if not test:
         click.echo("This application can only run in test mode.")
@@ -415,21 +426,67 @@ def main(test):
     # Test case 3: 
     process_order = [i for i in range(22)]
 
-    pipetter_decision = PipetterDecision(DummyPipetterControl(), process_order)
+    pipetter_decision = PipetterDecision(PipetterControl(), process_order)
 
-    robot_arm_decision = RobotArmDecision(DummyRobotArmControl())
+    robot_arm_decision = RobotArmDecision(RobotArm())
 
-    xml_request_message = ["""<?xml version="1.0" encoding="utf-8"?>
-<Message>
-        <Start protocol="1D PROTON">
-                <Option name="Scan" value="QuickShim1st2nd" />
-        </Start>
-</Message>"""]
-    spectrometer_decision = NMR_SpectrometerDecision(DummySpectrometerRemoteControl(), "", xml_request_message)
+    xml_sample = ["""<?xml version="1.0" encoding="utf-8"?>
+                <Message>
+                    <Set>
+                        <Sample> ###### </Sample>
+                    </Set>
+                </Message>"""]
+
+    xml_solvent = [""" <?xml version="1.0" encoding="utf-8"?>
+                    <Message>
+                        <Set>
+                            <Solvent> ###### </Solvent>
+                        </Set>
+                    </Message>"""]
+
+    xml_custom = ["""<?xml version="1.0" encoding="utf-8"?>
+                <Message>
+                    <Set>
+                        <Custom> ###### </Custom>
+                    </Set>
+                </Message>"""]
+
+    xml_1dproton = ["""<?xml version="1.0" encoding="utf-8"?>
+                            <Message>
+                                    <Start protocol="1D PROTON">
+                                            <Option name="Scan" value="QuickShim1st2nd" />
+                                    </Start>
+                            </Message>"""]
+    xml_1dwetsup = ["""<?xml version="1.0" encoding="utf-8"?>
+                            <Message>
+                                <Start protocol="1D WET SUP">
+                                    <Option name="Mode" value="Auto 2 Peaks" />
+                                    <Option name="autoStart" value="1.3" />
+                                    <Option name="autoEnd" value="2.7" />
+                                    <Option name="autoStart2" value="2.8" />
+                                    <Option name="autoEnd2" value="4.5" />
+                                    <Option name="CorrectionFactor" value="0.9" />
+                                    <Option name="Dummy" value="2" />
+                                    <Option name="Number" value="2" />
+                                    <Option name="AcquisitionTime" value="3.2" />
+                                    <Option name="RepetitionTime" value="10" />
+                                    <Option name="DecoupleAcq" value="Off" />
+                                    <Option name="DecoupleSat" value="Off" />
+                                </Start>
+                            </Message>"""]
+
+    #"Number" value="32"
+    # "RepetitionTime" value="2"
+    # spectrometer_decision = NMR_SpectrometerDecision(DummySpectrometerRemoteControl(), "", xml_request_message)
+
+    # xml_msg_list = ['sample', 'solvent', 'custom', '1dproton', '1dwetsup']
+    spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
+                                                     "",
+                                                     xml_sample+xml_solvent+xml_custom+xml_1dproton+xml_1dwetsup)
 
     scheduler = Scheduler(robot_arm_decision, spectrometer_decision, pipetter_decision)
     scheduler.start()
 
 
 if __name__ == "__main__":
-    main()
+    main(test=1)

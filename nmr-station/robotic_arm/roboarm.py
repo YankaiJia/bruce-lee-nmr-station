@@ -442,7 +442,15 @@ class RobotArm:
         if isinstance(j1, tuple):
             j1, j2, j3, j4, j5, j6 = j1
 
-        self.robo.MoveJointsRel(j1, j2, j3, j4, j5, j6)
+        # The arm frequently stops on this commend, raising the
+        # error: No command rx thread, are you in monitor mode?
+        # I do not know the reason for this. So, it is replaced with MoveJoints
+        # self.robo.MoveJointsRel(j1, j2, j3, j4, j5, j6)
+
+        # get current joints
+        curt_joints = self.robo.GetRtTargetJointPos()
+        target_joints = np.array(curt_joints) + np.array([j1, j2, j3, j4, j5, j6])
+        self.robo.MoveJoints(*target_joints)
 
     def refresh_j4(self):
         """This function is for avoiding singularity when using MoveLin for large displacement.
@@ -484,7 +492,9 @@ class RobotArm:
         self.print_rt_target_pos()
 
     def change_azimuth(self, theta: float):
-        self.robo.MoveJointsRel(theta, 0, 0, 0, 0, 0)
+
+        # self.robo.MoveJointsRel(theta, 0, 0, 0, 0, 0)
+        self.move_joints_rel(theta, 0, 0, 0, 0, 0)
 
         self.logger.debug(
             "Rotate Joint 1"
@@ -511,10 +521,10 @@ class RobotArm:
         j6 = self.robo.GetRtTargetJointPos()[5]
 
         if math.isclose(j6, 0, abs_tol=0.2):  # j6 is at 0
-            self.robo.MoveJointsRel(0, 0, 0, 0, 0, 180)
+            self.move_joints_rel(0, 0, 0, 0, 0, 180)
 
         elif math.isclose(j6, 180, abs_tol=0.2):  # j6 is at 0
-            self.robo.MoveJointsRel(0, 0, 0, 0, 0, -180)
+            self.move_joints_rel(0, 0, 0, 0, 0, -180)
         else:
             raise ValueError(f"Joint 6 is at bad angle: {j6}")
 
@@ -643,7 +653,8 @@ class RobotArm:
     @log_exception
     def pick_tube(self, location:Facility,
                   target_tube_status: int = 1,
-                  wait_after_place: float = 0.2):
+                  wait_after_place: float = 0.2,
+                  is_retract: bool = True):
 
         self.logger.info(f"Executing pick_tube({location.name}) at {time.time()}")
 
@@ -687,7 +698,8 @@ class RobotArm:
         self.change_vertical_height(d_z)
         time.sleep(wait_after_place)
 
-        self.retract_to_carousel()
+        if is_retract:
+            self.retract_to_carousel()
 
         # make sure tube is gripped.
         if not self.is_gripper_gripping_item():
@@ -765,6 +777,9 @@ class RobotArm:
 
         assert self.tube_status in [-1, 1], 'Incorrect tube status.'
 
+        self.logger.info(f"Executing flip_tube({location}) at {time.time()}")
+
+
         # move arm to carousel
         if not self.is_arm_at_carousel():
             self.retract_to_carousel()
@@ -801,6 +816,7 @@ class RobotArm:
 
     @log_exception
     def tilted_remove_tube(self):
+        self.logger.info(f"Executing tilted_remove_tube() at {time.time()}")
 
         # if not self.is_located_at(self.facilities['spinsolve_insert_vertical'].pos['high']):
         #     self.logger.warning('meca500 location is incorrect for titled_remove_tube()!')
@@ -817,6 +833,7 @@ class RobotArm:
 
     @log_exception
     def tilted_insert_tube(self):
+        self.logger.info(f"Executing tilted_remove_tube() at {time.time()}")
 
         # if not self.is_located_at(self.facilities['spinsolve'].pos['high']):
         #     self.logger.warning('meca500 is not at spinsolve entrance point!')
@@ -839,6 +856,9 @@ class RobotArm:
 
     @log_exception
     def place_tube_to_spinsolve(self, delay:float = 0.5):
+
+        self.logger.info(f"Executing place_tube_to_spinsolve() at {time.time()}")
+
 
         vertical_height_for_insert = self.facilities['spinsolve_insert_vertical'].pos['high'][2]- \
                                      self.facilities['spinsolve_insert_vertical'].pos['low'][2]
@@ -864,6 +884,9 @@ class RobotArm:
 
     @log_exception
     def pick_tube_from_spinsolve(self):
+
+        self.logger.info(f"Executing pick_tube_from_spinsolve() at {time.time()}")
+
 
         vertical_height_for_insert = self.facilities['spinsolve_insert_vertical'].pos['high'][2]- \
                                      self.facilities['spinsolve_insert_vertical'].pos['low'][2]
@@ -941,34 +964,47 @@ class RobotArm:
         self.place_tube(tube)
 
     @timeit
-    def test_flip(self):
+    def test_flip(self, n_times:int):
+        for i in range(n_times):
+            self.pick_tube(self.facilities['tube1'])
+            # self.place_tube_to_spinsolve()
+            # self.pick_tube_from_spinsolve()
+            self.flip_tube()
+            time.sleep(2)
+            self.flip_tube()
+            self.place_tube(self.facilities['tube1'])
+            print(f'Finished flip NO. {i}')
+    def test_flip_segmented(self, n_times):
 
-        self.pick_tube(self.facilities['tube1'])
-        self.place_tube_to_spinsolve()
-        self.pick_tube_from_spinsolve()
-        self.flip_tube('topdown_to_bottomup')
-        self.flip_tube('bottomup_to_topdown')
-        self.place_tube(self.facilities['tube1'])
+        for i in range(n_times):
+            self.pick_tube(r.facilities['tube1'])
+            self.flip_tube(location='flip_stand_waste',is_pick=False)
+            time.sleep(1)
+            self.pick_tube(self.facilities['flip_stand_waste_gripper_upright'])
+            self.flip_tube(location='flip_stand_clean')
+            self.place_tube(self.facilities['tube1'])
+            print(f'Finished flip NO. {i}')
 
     @timeit
-    def test_all(self, tube_id: int=1, pause:int = 1):
-
-        self.pick_tube(self.facilities[f'tube{tube_id}'])
-        self.place_tube_to_spinsolve()
-        time.sleep(pause)
-        self.pick_tube_from_spinsolve()
-        self.flip_tube()
-        self.place_tube(self.facilities['washer1'])
-        time.sleep(pause)
-        self.pick_tube(self.facilities['washer1'])
-        self.place_tube(self.facilities['washer2'])
-        time.sleep(pause)
-        self.pick_tube(self.facilities['washer2'])
-        self.place_tube(self.facilities['dryer'])
-        time.sleep(pause)
-        self.pick_tube(self.facilities['dryer'])
-        self.flip_tube('flip_stand_clean')
-        self.place_tube(self.facilities[f'tube{tube_id}'])
+    def test_all(self, tube_id: int=1, pause:int = 1, n_times: int = 1):
+        for i in range(n_times):
+            self.pick_tube(self.facilities[f'tube{tube_id}'])
+            self.place_tube_to_spinsolve()
+            time.sleep(pause)
+            self.pick_tube_from_spinsolve()
+            self.flip_tube()
+            self.place_tube(self.facilities['washer1'])
+            time.sleep(pause)
+            self.pick_tube(self.facilities['washer1'])
+            self.place_tube(self.facilities['washer2'])
+            time.sleep(pause)
+            self.pick_tube(self.facilities['washer2'])
+            self.place_tube(self.facilities['dryer'])
+            time.sleep(pause)
+            self.pick_tube(self.facilities['dryer'])
+            self.flip_tube('flip_stand_clean')
+            self.place_tube(self.facilities[f'tube{tube_id}'])
+            print(f'Done: {i}')
 
 if __name__ == '__main__':
     r = RobotArm()

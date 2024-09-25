@@ -22,10 +22,11 @@ TUBE_COUNT = 2
 Time constant for each cleaning step
     - Changing these affect the waiting time in scheduler.py
 """
-T_WASTE_COLLECTOR = 30
-T_WASHER1 = 40
-T_WASHER2 = 40
-T_DRYER = 120
+div = 1
+T_WASTE_COLLECTOR = 30 / div
+T_WASHER1 = 40 / div
+T_WASHER2 = 40 / div
+T_DRYER = 120 / div
 # T_WASTE_COLLECTOR = 2
 # T_WASHER1 = 2
 # T_WASHER2 = 2
@@ -66,7 +67,7 @@ MAX_SAMPLE_COUNT_AFTER_SHIMMING = 10
 REGULAR_SHIM_XML = """<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="SHIM">
-                <Option name="Shim" value="QuickShim1st2nd" />
+                <Option name="Shim" value="CheckShim" />
         </Start>
 </Message>
 """

@@ -6,7 +6,7 @@ This files defines the RobotArm class for the NMR-station, its methods include
 
 KingLam Kwong
 """
-
+import numpy as np
 # Third-party imports
 import mecademicpy.robot as mdr
 
@@ -152,8 +152,16 @@ class RobotArm:
         # if a single tuple is sent
         if isinstance(j1, tuple):
             j1, j2, j3, j4, j5, j6 = j1
+        # The arm frequently stops on this commend, raising the
+        # error: No command rx thread, are you in monitor mode?
+        # I do not know the reason for this. So, it is replaced with MoveJoints
+        # self.robo.MoveJointsRel(j1, j2, j3, j4, j5, j6)
 
-        self.robo.MoveJointsRel(j1, j2, j3, j4, j5, j6)
+        # get current joints
+        curt_joints = self.robo.GetRtTargetJointPos()
+        target_joints = np.array(curt_joints) + np.array([j1, j2, j3, j4, j5, j6])
+        self.robo.MoveJoints(*target_joints)
+
 
     def gripper_open(self):
         self.robo.GripperOpen()

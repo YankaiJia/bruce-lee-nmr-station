@@ -416,7 +416,7 @@ class PipetterControl():
         self.ZeusTraversePosition = self.config['ZeusTraversePosition']
         self.max_x = self.config['max_x']
         self.max_y = self.config['max_y']
-        self.xy_offset = self.config['xy_offset'] # offsets in x and y, negative to right, closer; positive, to left, further
+        # self.xy_offset = self.config['xy_offset'] # offsets in x and y, negative to right, closer; positive, to left, further
         self.trash_xy = self.config['trash_xy']
         self.idle_xy = self.config['idle_xy']
         self.xy_position = None
@@ -450,8 +450,11 @@ class PipetterControl():
                          verbose=False,
                          read_all=False) -> None:
 
+        print(f'command: {command}')
+
         ser = self.serial
         ser.write(str.encode(command + '\r\n'))
+
         if verbose:
             logger.info('SENT: {0}'.format(command))
 
@@ -584,8 +587,8 @@ class PipetterControl():
             return
 
         # if np.linalg.norm(np.array((x, y))) <= R:
-        self.send_to_xy_stage(command= 'G0 X{0:.3f} Y{1:.3f}'.format(xy[0] + self.xy_offset[0], xy[1] + self.xy_offset[1]),
-                         read_all=False)
+        self.send_to_xy_stage(command= 'G0 X{0:.3f} Y{1:.3f}'.format(xy[0], xy[1]),
+                              read_all=False)
 
         if block_until_motion_is_completed:
             if use_time_estimate:
@@ -613,7 +616,8 @@ class PipetterControl():
 
                 if verbose:
                     logger.debug('Finished moving xy stage')
-            self.xy_position = xy
+
+        self.xy_position = xy
 
     def move_xy_rel(self, displacement: tuple = (0,0)):
         current_position = self.xy_position
@@ -622,7 +626,7 @@ class PipetterControl():
         self.move_xy(target_position)
 
 
-    def move_z(self, target_z:int, limit = -140, use_time_estimate=True):
+    def move_z(self, target_z:int, limit = -150, use_time_estimate=True):
 
         if target_z < limit:
             logger.error(f"z_pos {target_z} is not possible, limit: {limit} reached!")
@@ -661,9 +665,9 @@ class PipetterControl():
         return True
 
     def home(self):
-        self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,)
-        self.xy_position = (-2,-2) # home pull-off distance is 2mm, see grbl settings $27
-        self.z_position = -2 # home pull-off distance is 2mm, see grbl settings $27
+        # self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,)
+        self.xy_position = (-5,-5) # home pull-off distance is 5mm, see grbl settings $27
+        self.z_position = -5 # home pull-off distance is 5mm, see grbl settings $27
         logger.info('The gantry is homed!')
 
     def kill_alarm(self) -> None:
@@ -933,10 +937,6 @@ class PipetterControl():
 if __name__ == '__main__':
 
     pt = PipetterControl()
-
-    ls = pt.sequence
-    lsa = pt.sequence['asp']
-    lsb = pt.sequence['disp']
 
     # for i in range(4):
     #     pt.aspirate(i)
