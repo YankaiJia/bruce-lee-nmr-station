@@ -10,11 +10,12 @@ class TubeManager:
 
     def print_status(self):
         with self.lock:
-            print("+----------------------------+")
-            print(f"  status      {self.tube_status}")
-            print(f"  sample Id   {self.sample_in_tube}")
-            print(f"  time finish {self.time_finished}")
-            print("+----------------------------+")
+            1
+            # print("+----------------------------+")
+            # print(f"  status      {self.tube_status}")
+            # print(f"  sample Id   {self.sample_in_tube}")
+            # print(f"  time finish {self.time_finished}")
+            # print("+----------------------------+")
 
     def set_time_finished(self, id: int, timestamp):
         with self.lock:

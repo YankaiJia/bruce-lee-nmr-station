@@ -234,5 +234,5 @@ if __name__ == "__main__":
 
     print('This is main.')
 
-    # load_new_tip_rack(rack_reload='1000ul')
+    load_new_tip_rack(rack_reload='1000ul')
     # module_logger.info('New tip rack: 1000ul is loaded.')

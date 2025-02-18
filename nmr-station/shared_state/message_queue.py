@@ -10,7 +10,7 @@ class MessageQueue:
         def wrapper(self, *args, **kwargs):
             # print(f"Queue before {func.__name__}: {self.q.queue}")
             result = func(self, *args, **kwargs)
-            print(f"Queue after {func.__name__}: {self.q.queue}")
+            # print(f"Queue after {func.__name__}: {self.q.queue}")
             return result
         return wrapper
     

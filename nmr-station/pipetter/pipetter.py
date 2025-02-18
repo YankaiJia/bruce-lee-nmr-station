@@ -6,7 +6,7 @@ by Yankai Jia, Natalia
 
 """
 
-TRANSFER_VOLUME = 6000
+TRANSFER_VOLUME =6000
 
 import logging
 from dataclasses import dataclass
@@ -450,7 +450,7 @@ class PipetterControl():
                          verbose=False,
                          read_all=False) -> None:
 
-        print(f'command: {command}')
+        # print(f'command: {command}')
 
         ser = self.serial
         ser.write(str.encode(command + '\r\n'))
@@ -626,9 +626,9 @@ class PipetterControl():
         self.move_xy(target_position)
 
 
-    def move_z(self, target_z:int, limit = -150, use_time_estimate=True):
+    def move_z(self, target_z:int, lower_limit = -150, upper_limit = 0, use_time_estimate=True):
 
-        if target_z < limit:
+        if (target_z < lower_limit) or (target_z > upper_limit):
             logger.error(f"z_pos {target_z} is not possible, limit: {limit} reached!")
             return
 
@@ -665,9 +665,9 @@ class PipetterControl():
         return True
 
     def home(self):
-        # self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,)
-        self.xy_position = (-5,-5) # home pull-off distance is 5mm, see grbl settings $27
-        self.z_position = -5 # home pull-off distance is 5mm, see grbl settings $27
+        self.send_to_xy_stage(command = '$H', read_all=True, verbose=False,)
+        self.xy_position = (-2,-2) # home pull-off distance is 2mm, see grbl settings $27
+        self.z_position = -2 # home pull-off distance is 2mm, see grbl settings $27
         logger.info('The gantry is homed!')
 
     def kill_alarm(self) -> None:
@@ -803,7 +803,7 @@ class PipetterControl():
                 self.zeus.mixing_asp()
                 self.zeus.aspirate(asp_volume=volume,
                                  overasp=100,
-                                 flow_rate=2000,
+                                 flow_rate=1000, # changed from 2000 to 1000, this is to no draw the powder at the interface
                                  stop_speed=2000,
                                  qpm=0,
                                  pressure_sensor=0,
@@ -938,7 +938,7 @@ if __name__ == '__main__':
 
     pt = PipetterControl()
 
-    # for i in range(4):
+    # for i in range(8,9):
     #     pt.aspirate(i)
     #     pt.refill(i)
 

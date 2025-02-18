@@ -65,7 +65,7 @@ def setup_logger():
     fh.setLevel(logging.INFO)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
+    ch.setLevel(logging.WARNING)
     # create formatter and add it to the handlers
     formatter = logging.Formatter("%(asctime)s-%(name)s-%(levelname)s-%(message)s")
     fh.setFormatter(formatter)
@@ -112,11 +112,13 @@ class RobotArm:
         self.facilities = load_facilities()
         self.robo = mdr.Robot()
         self.robo.Connect(
-            address=ROBOT_ARM_HOST,
+            address="192.168.0.100",
             enable_synchronous_mode=True,
             disconnect_on_exception=False,
         )
         time.sleep(1)
+        print('Robot connected!')
+
         # self.config_robot_before_activate() # this needs to be run only once
         self.robo.ActivateAndHome()
         self.config_robot_after_activate()
@@ -132,6 +134,8 @@ class RobotArm:
 
         # self.retract_to_carousel()
         # self.go_to_safe(mode='auto')
+
+        self.robo.StartMovementMonitor()
 
         self.logger.info("Robotic arm is initiated!")
 
@@ -338,6 +342,12 @@ class RobotArm:
             if not input("Reconfirm going to SAFE_POS. COLLISION MAY OCCUR! [y/n]?") in ["yes", "YES", "Y", "y", ]:
                 print("Robot did not go to SAFE_POS.")
                 return
+        elif mode == 'auto':
+            print('Arm going to safe position....')
+            time.sleep(1)
+        else:
+            raise Exception('mode incorrect!')
+
 
         self.retract_to_carousel()
         self.robo.MoveJoints(*safe_position)
@@ -931,6 +941,36 @@ class RobotArm:
 
         self.go_to_high_location(loc_coord)
 
+    ## The internal threads drop sometimes. This method manually terminate all the
+    ## internal threads. This is for testing the reconnecting methods after dropping.
+    def kill_all_command_threads(self):
+        # r.robo._command_response_handler_thread = None
+        r.robo._command_tx_thread = None
+        # r.robo._command_rx_thread = None
+
+    def pause_with_visual(self, seconds):
+        """
+        Pauses the program for a given number of seconds while displaying a visual countdown
+        in hundredths of a second in the console.
+        """
+        if seconds == 0:
+            return
+
+        total_steps = seconds * 10  # Convert seconds to hundredths
+        for remaining in range(total_steps, -1, -1):
+            progress = (total_steps - remaining) / total_steps
+            bar_length = 30  # Length of the progress bar
+            filled_length = int(progress * bar_length)
+
+            bar = "#" * filled_length + "-" * (bar_length - filled_length)
+            sys.stdout.write(f"\rPausing: {remaining / 10:.2f} sec [{bar}]")
+            sys.stdout.flush()
+
+            time.sleep(0.1)  # Pause for 0.01 seconds (hundredths)
+
+        sys.stdout.write("\rPause complete!                              \n")
+
+
     def wash_tube(self):
         time.sleep(2)
         self.logger.info("Washing tube is done!")
@@ -940,13 +980,21 @@ class RobotArm:
         self.logger.info('Drying tube is done!')
 
     # For testing
-    def test(self):
-        self.pick_tube(self.facilities['tube1'])
-        self.flip_tube("topdown_to_bottomup")
-        self.place_tube(self.facilities['washer1'])
-        self.pick_tube(self.facilities['washer1'])
-        self.flip_tube("bottomup_to_topdown")
-        self.place_tube(self.facilities['tube1'])
+    def test(self,n=1):
+        for i in range(n):
+            print(f'##################{i}/{n}################')
+            self.pick_tube(self.facilities['tube1'])
+            self.pause_with_visual(25)
+            # self.flip_tube()
+            # self.place_tube(self.facilities['washer1'])
+            # self.pick_tube(self.facilities['washer1'])
+            # self.flip_tube()
+            self.place_tube(self.facilities['tube1'])
+            # self.go_to_safe('auto')
+            # self.robo._command_response_handler_thread = None
+            # self.robo._command_tx_thread = None
+            # self.robo._command_rx_thread = None
+            self.pause_with_visual(25)
 
     @timeit
     def test_sp(self):
@@ -974,6 +1022,7 @@ class RobotArm:
             self.flip_tube()
             self.place_tube(self.facilities['tube1'])
             print(f'Finished flip NO. {i}')
+            self.kill_all_command_threads()
     def test_flip_segmented(self, n_times):
 
         for i in range(n_times):
@@ -986,34 +1035,59 @@ class RobotArm:
             print(f'Finished flip NO. {i}')
 
     @timeit
-    def test_all(self, tube_id: int=1, pause:int = 1, n_times: int = 1):
+    def test_all(self, tube_id: int=1, pause:int = 3, n_times: int = 1):
         for i in range(n_times):
             self.pick_tube(self.facilities[f'tube{tube_id}'])
+            self.pause_with_visual(200)
             self.place_tube_to_spinsolve()
-            time.sleep(pause)
+            self.pause_with_visual(200)
+            self.pause_with_visual(pause)
+            self.pause_with_visual(200)
             self.pick_tube_from_spinsolve()
+            self.pause_with_visual(200)
             self.flip_tube()
+            self.pause_with_visual(200)
             self.place_tube(self.facilities['washer1'])
-            time.sleep(pause)
+            self.pause_with_visual(200)
+            self.pause_with_visual(pause)
+            self.pause_with_visual(200)
             self.pick_tube(self.facilities['washer1'])
+            self.pause_with_visual(200)
             self.place_tube(self.facilities['washer2'])
-            time.sleep(pause)
+            self.pause_with_visual(200)
+            self.pause_with_visual(pause)
+            self.pause_with_visual(200)
             self.pick_tube(self.facilities['washer2'])
+            self.pause_with_visual(200)
             self.place_tube(self.facilities['dryer'])
-            time.sleep(pause)
+            self.pause_with_visual(200)
+            self.pause_with_visual(pause)
+            self.pause_with_visual(200)
             self.pick_tube(self.facilities['dryer'])
+            self.pause_with_visual(200)
             self.flip_tube('flip_stand_clean')
+            self.pause_with_visual(200)
             self.place_tube(self.facilities[f'tube{tube_id}'])
-            print(f'Done: {i}')
+            self.pause_with_visual(200)
+
+
+            #This is for testing the reconnecting method in _robot_base.py. Use with caution.
+            # self.kill_all_command_threads()
+
+
 
 if __name__ == '__main__':
     r = RobotArm()
+    # r.robo.GetRtTargetJointPos()
+    #
+    # r.robo._command_rx_thread = None
+    # r.robo.GetRtTargetJointPos()
+    # print(r.robo)
+    # print(r.robo._command_socket)
+    # r.robo._shut_down_queue_threads()
+    # r.robo._shut_down_socket_threads()
+    # r.robo.Disconnect()
+    # r.robo.Connect(address="192.168.0.100", enable_synchronous_mode=True, disconnect_on_exception=False, )
+    # print(r.robo)
+    # print(r.robo._command_socket)
 
-    # for i in range(15):
-    #     a = i % 4 + 1
-    #     r.test_all(tube_id=a)
-
-    # for j in range(5):
-    #     for i in range(2):
-    #         r.pick_tube(r.facilities[f'tube{i+1}'])
-    #         r.place_tube(r.facilities[f'tube{i+1}'])

@@ -1,7 +1,5 @@
 from dotenv import load_dotenv
-
 import os 
-
 
 env_path = os.path.join(os.path.dirname(__file__), '.env')
 # override flag set True to allow .env content updates
@@ -10,12 +8,12 @@ load_dotenv(env_path, override=True)
 # config_path = os.path.join(os.path.dirname(__file__), 'config.ini')
 # self.config = configparser.ConfigParser().read(config_path)
 
-
 """
-TUBE_COUNT: no of nmr tubes serving in tube rack for sample transfer
+TUBE_COUNT: no. of nmr tubes serving in tube rack for sample transfer
     - affects tube_count in TubeManager in SharedState
     - affects NUM_OF_TUBES_IN_RACK in Planner.generate_events in pipetter.py
 """
+
 TUBE_COUNT = 2
 
 """
@@ -23,14 +21,18 @@ Time constant for each cleaning step
     - Changing these affect the waiting time in scheduler.py
 """
 div = 1
+
+## for real run
 T_WASTE_COLLECTOR = 30 / div
-T_WASHER1 = 40 / div
-T_WASHER2 = 40 / div
-T_DRYER = 120 / div
+T_WASHER1 = 60 / div
+T_WASHER2 = 60 / div
+T_DRYER = 180 / div
+
+## for testing or taking video
 # T_WASTE_COLLECTOR = 2
 # T_WASHER1 = 2
 # T_WASHER2 = 2
-# T_DRYER = 2
+# T_DRYER = 5
 
 
 """
@@ -40,7 +42,6 @@ PIPETTER_LOG_PATH = os.getenv('PIPETTER_LOG_PATH')
 PIPETTER_TIP_RACK_FILE_PATH = os.getenv('PIPETTER_TIP_RACK_FILE_PATH')
 PIPETTER_COORDINATES_FILE_PATH = os.getenv('PIPETTER_COORDINATES_FILE_PATH')
 PIPETTER_GRBL_SETTINGS_FILE_PATH = os.getenv('PIPETTER_GRBL_SETTINGS_FILE_PATH')
-
 
 """
 Robot Arm settings
@@ -60,6 +61,7 @@ Spectrometer settings
 REMOTE_CONTROL_HOST = os.getenv('SPECTROMETER_REMOTE_CONTROL_HOST')
 REMOTE_CONTROL_PORT = os.getenv('SPECTROMETER_REMOTE_CONTROL_PORT')
 # SPECTROMETER_LOG_PATH = os.getenv('SPECTROMETER_LOG_PATH')
+MEASUREMENT_DATA_GUI_PATH = os.getenv('MEASUREMENT_DATA_GUI_PATH')
 REMOTE_CONTROL_TIMEOUT = 10
 
 # MAX_SAMPLE_COUNT_AFTER_SHIMMING = 20
