@@ -1033,48 +1033,53 @@ class RobotArm:
             self.flip_tube(location='flip_stand_clean')
             self.place_tube(self.facilities['tube1'])
             print(f'Finished flip NO. {i}')
-
+    def wait_for_input(self):
+        if input() in ['y','Y']:
+            print('Continues')
+        else:
+            raise KeyError
     @timeit
     def test_all(self, tube_id: int=1, pause:int = 3, n_times: int = 1):
         for i in range(n_times):
             self.pick_tube(self.facilities[f'tube{tube_id}'])
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.place_tube_to_spinsolve()
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            self.wait_for_input()
+
             self.pick_tube_from_spinsolve()
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.flip_tube()
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.place_tube(self.facilities['washer1'])
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            self.wait_for_input()
+
             self.pick_tube(self.facilities['washer1'])
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.place_tube(self.facilities['washer2'])
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            self.wait_for_input()
+
             self.pick_tube(self.facilities['washer2'])
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.place_tube(self.facilities['dryer'])
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            self.wait_for_input()
+
             self.pick_tube(self.facilities['dryer'])
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.flip_tube('flip_stand_clean')
-            self.pause_with_visual(200)
+            self.wait_for_input()
+
             self.place_tube(self.facilities[f'tube{tube_id}'])
-            self.pause_with_visual(200)
-
-
-            #This is for testing the reconnecting method in _robot_base.py. Use with caution.
-            # self.kill_all_command_threads()
-
-
+            self.wait_for_input()
 
 if __name__ == '__main__':
     r = RobotArm()

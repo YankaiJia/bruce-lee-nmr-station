@@ -68,7 +68,7 @@
     },
     "dryer": {
         "handle_tube": "handle_cargo_at_spinsolve80",
-        "pos_low": [-180.84774, 29.01915, 98, -90, -80.88393, 90],
+        "pos_low": [-179.60546, 30.10788, 98, -90.07196, -80.48379, 89.92989],
         "pos_high_z": 355
     },
     "reference_slot": {

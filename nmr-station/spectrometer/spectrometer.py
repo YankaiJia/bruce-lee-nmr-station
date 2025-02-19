@@ -4,7 +4,10 @@ sys.path.append(os.path.abspath(os.path.pardir))
 
 from settings import REMOTE_CONTROL_PORT, REMOTE_CONTROL_HOST, REMOTE_CONTROL_TIMEOUT
 
-
+## Measurement time for 1dproton EXTENDED+
+## 16 scans: 2:45
+## 32 scans: 5:15
+## 63 scans: 10:35
 
 class DummySpectrometerRemoteControl:
     def __init__(self) -> None:
