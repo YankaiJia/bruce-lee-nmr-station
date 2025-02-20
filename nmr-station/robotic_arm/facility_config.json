@@ -17,7 +17,7 @@
     "tube2": {
         "handle_tube": "handle_tube_at_tube_rack",
         "name": "tube1",
-        "pos_low": [-52.40685, 210.31685, 112, -90, -13.99204, 90],
+        "pos_low": [-52.03045, 211.95731, 111.99972, -90.00987, -13.79203, 89.99765],
         "pos_high_z": 345
     },
     "washer1": {
@@ -68,8 +68,8 @@
     },
     "dryer": {
         "handle_tube": "handle_cargo_at_spinsolve80",
-        "pos_low": [-180.84774, 29.01915, 98, -90, -80.88393, 90],
-        "pos_high_z": 355
+        "pos_low": [-177.47857, 28.79652, 102.95269, -90.06463, -80.78387, 89.93621],
+        "pos_high_z":355
     },
     "reference_slot": {
         "handle_tube": "reference_slot",

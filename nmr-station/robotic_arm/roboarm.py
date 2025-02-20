@@ -181,14 +181,16 @@ class RobotArm:
 
     def config_robot_after_activate(self, set_vel: str = "fast"):
         # short gripper
-        self.robo.SetGripperRange(0, 4.9)
+        self.robo.SetGripperRange(0, 5.3)
         # long gripper
         # self.robo.SetGripperRange(12, 30)
         limits = None
         if set_vel == "fast":
-            limits = (100, 150, 300, 200, 100, 150)
+            limits = (100, 150, 180, 200, 100, 150)
+            print('Will set speed as fast')
         elif set_vel == "default":
-            limits = (25*0.8, 100*0.8, 150*0.8, 45*0.8, 50*0.8, 100*0.8)
+            limits = (25*0.8, 100*0.8, 100*0.8, 45*0.8, 50*0.8, 100*0.8)
+            print('Will set speed as default')
         self.set_speed(limits)
 
         self.logger.info("meca500 config done after activation.")
@@ -1033,48 +1035,54 @@ class RobotArm:
             self.flip_tube(location='flip_stand_clean')
             self.place_tube(self.facilities['tube1'])
             print(f'Finished flip NO. {i}')
-
+    def wait_for_input(self):
+        if input() in ['y','Y']:
+            print('Continues')
+        else:
+            raise KeyError
     @timeit
-    def test_all(self, tube_id: int=1, pause:int = 3, n_times: int = 1):
+    def test_all(self, tube_id: int=1, n_times: int = 1, step_control: bool=True):
         for i in range(n_times):
+            print(f'runing: {i+1}/{n_times} at {time.time()}')
             self.pick_tube(self.facilities[f'tube{tube_id}'])
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.place_tube_to_spinsolve()
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            if step_control: self.wait_for_input()
+
             self.pick_tube_from_spinsolve()
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.flip_tube()
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.place_tube(self.facilities['washer1'])
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            if step_control: self.wait_for_input()
+
             self.pick_tube(self.facilities['washer1'])
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.place_tube(self.facilities['washer2'])
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            if step_control: self.wait_for_input()
+
             self.pick_tube(self.facilities['washer2'])
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.place_tube(self.facilities['dryer'])
-            self.pause_with_visual(200)
-            self.pause_with_visual(pause)
-            self.pause_with_visual(200)
+            # self.pause_with_visual(pause)
+            if step_control: self.wait_for_input()
+
             self.pick_tube(self.facilities['dryer'])
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.flip_tube('flip_stand_clean')
-            self.pause_with_visual(200)
+            if step_control: self.wait_for_input()
+
             self.place_tube(self.facilities[f'tube{tube_id}'])
-            self.pause_with_visual(200)
-
-
-            #This is for testing the reconnecting method in _robot_base.py. Use with caution.
-            # self.kill_all_command_threads()
-
-
+            if step_control: self.wait_for_input()
 
 if __name__ == '__main__':
     r = RobotArm()
@@ -1090,4 +1098,7 @@ if __name__ == '__main__':
     # r.robo.Connect(address="192.168.0.100", enable_synchronous_mode=True, disconnect_on_exception=False, )
     # print(r.robo)
     # print(r.robo._command_socket)
+    # for i in range(10):
+    #     r.place_tube(r.facilities['dryer'])
+    #     r.pick_tube(r.facilities['dryer'])
 

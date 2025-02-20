@@ -6,13 +6,11 @@ import tkinter as tk
 from tkinter import filedialog
 
 # minimum volume that can be preciously measure by the robot
-min_pipettable_volume = 10
+min_pipettable_volume = 50
 
 # how many times the stock solution will be diluted
 DILUTION = 10
 convert_uL_to_L = 0.000001
-
-
 
 def get_folder():
     tk.Tk().withdraw()
