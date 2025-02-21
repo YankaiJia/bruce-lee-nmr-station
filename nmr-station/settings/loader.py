@@ -26,7 +26,7 @@ div = 1
 T_WASTE_COLLECTOR = 30 / div
 T_WASHER1 = 60 / div
 T_WASHER2 = 60 / div
-T_DRYER = 180 / div
+T_DRYER = 120 / div
 
 ## for testing or taking video
 # T_WASTE_COLLECTOR = 2
@@ -69,7 +69,7 @@ MAX_SAMPLE_COUNT_AFTER_SHIMMING = 10
 REGULAR_SHIM_XML = """<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="SHIM">
-                <Option name="Shim" value="CheckShim" />
+                <Option name="Shim" value="QuickShim" />
         </Start>
 </Message>
 """

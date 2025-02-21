@@ -18,7 +18,7 @@ from tests.dummy_robotarm import DummyRobotArmControl
 from tests.dummy_pipetter import DummyPipetterControl
 from tests.dummy_spectrometer import DummySpectrometerRemoteControl
 
-
+measurement_info = None
 
 def setup_logger(name = 'Scheduler'):
     # better logging format in console
@@ -354,11 +354,11 @@ class NMR_SpectrometerDecision:
                 # If file doesn't exist, create it with headers
                 if not os.path.exists(log_file_path ):
                     df_here.to_csv(log_file_path, mode='w', header=True, index=False)
-                    logger.info(f"###### Finished first measurement ######")
+                    logger.warning(f"###### Finished first measurement ######")
                 else:
                     # Append to existing file without writing the header again
                     df_here.to_csv(log_file_path, mode='a', header=False, index=False)
-                    logger.info(f"###### Finished one measurement ######")
+                    logger.warning(f"###### Finished one measurement ######")
 
                 logger.warning(measurement_info)
                 tube_state.in_spectrometer(tube_id)
@@ -564,9 +564,12 @@ def extract_uuid_container_mapping(file_path):
 
 # @click.command()
 # @click.option('--test', is_flag=True, required=True, help='Use dummy components')
-def main():
+def main(use_gui=True, vials_to_measure=None):
 
-    measurement_info, vials_to_measure = get_measurement_info()
+    if use_gui:
+        measurement_info, vials_to_measure = get_measurement_info()
+        print(measurement_info)
+        print(vials_to_measure)
     # example: measurement_info
     # {'reaction_name': 'bromination',
     #  'user_name': 'YJ',
@@ -574,15 +577,27 @@ def main():
     #  'reaction_solvent': 'Ethanol',
     #  'reaction_excel_path': 'D:/dropbox/Dropbox/robochem/data/DPE_bromination/2025-01-23-run01/2025-01-23-run01.xlsx',
     #  }
+    else:
+        measurement_info = {'reaction_name': 'bromination',
+                            'user_name': 'YJ',
+                            'well_plate_number': '78',
+                            'reaction_solvent': 'DCE',
+                            'reaction_excel_path': 'D:/dropbox/Dropbox/brucelee/data/DPE_bromination/2025-02-19-run01_time_varied/2025-02-19-run01.xlsx'}
+    print(measurement_info)
+    print(vials_to_measure)
+
 
     container_uuid_dict = extract_uuid_container_mapping(file_path=measurement_info['reaction_excel_path'])
     measurement_info['container_uuid_dict']=container_uuid_dict
 
     logger.warning(measurement_info)
 
+    # raise KeyError
+
     pipetter_decision = PipetterDecision(PipetterControl(), vials_to_measure)
 
-    robot_arm_decision = RobotArmDecision(RobotArm())
+    robot_here = RobotArm()
+    robot_arm_decision = RobotArmDecision(robot_here)
 
     xml_sample = [f"""<?xml version="1.0" encoding="utf-8"?>
                 <Message>
@@ -637,7 +652,7 @@ def main():
                         <?xml version="1.0" encoding="utf-8"?>
                             <Message>
                                 <Start protocol="1D EXTENDED+">
-                                    <Option name="Number" value="4" />
+                                    <Option name="Number" value="32" />
                                     <Option name="AcquisitionTime" value="6.4" />
                                     <Option name="RepetitionTime" value="10" />
                                     <Option name="PulseAngle" value="30" />
@@ -675,8 +690,44 @@ def main():
 
     scheduler = Scheduler(robot_arm_decision, spectrometer_decision, pipetter_decision)
     scheduler.start()
+    time.sleep(600)
+    robot_here.robo.Disconnect()
+    time.sleep(10)
 
 
 if __name__ == "__main__":
 
-    main()
+    a = [0,1,2,3,4,5]
+
+    # # first two: 12 samples. 22:00
+    # main(use_gui=True, vials_to_measure= None)
+    # #
+    # # # 2h, 24:00
+    # time.sleep(3600 * 0.5)
+   # main(use_gui=False, vials_to_measure=[15, 16, 17])
+    #
+    # # 3h, 01:00
+    # time.sleep(3600* 0.5)
+    #main(use_gui=False, vials_to_measure=[18])
+    #main(use_gui=False, vials_to_measure=[19])
+    #main(use_gui=False, vials_to_measure=[20,21,22,23])
+
+    # # 5h, 03:00爱你,what?!!!哈哈 are you a ghost?no
+    #time.sleep(3600* 1)
+    # main(use_gui=False, vials_to_measure=[i+6*4 for i in a])
+
+    # # 9h 07:00
+    # time.sleep(3600* 3.5)
+    # main(use_gui=False, vials_to_measure=[i+6*5 for i in a])
+
+    # # 15h 13:00
+    # time.sleep(3600* 5.5)
+    main(use_gui=False, vials_to_measure=[i+6*6 for i in a])
+
+    # # 27h 01:00
+    # main(use_gui=False, vials_to_measure=[i+6*7 for i in a])
+
+    # # 48h 22:00
+    # main(use_gui=False, vials_to_measure=[i+6*8 for i in a])
+    #
+    print("All done!")
