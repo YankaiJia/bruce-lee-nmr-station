@@ -23,9 +23,9 @@ Time constant for each cleaning step
 div = 1
 
 ## for real run
-T_WASTE_COLLECTOR = 30 / div
-T_WASHER1 = 60 / div
-T_WASHER2 = 60 / div
+T_WASTE_COLLECTOR = 15 / div
+T_WASHER1 = 20 / div
+T_WASHER2 = 20 / div
 T_DRYER = 120 / div
 
 ## for testing or taking video
