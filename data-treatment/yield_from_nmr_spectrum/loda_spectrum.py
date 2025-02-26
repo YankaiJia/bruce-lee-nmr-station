@@ -60,6 +60,13 @@ def get_spectrum_path():
     path = filedialog.askdirectory()
     return path
 
+def peak_integration(ppm_axis, spectrum, start_ppm, end_ppm):
+
+    mask = (ppm_axis >= end_ppm) & (ppm_axis <= start_ppm)
+    ppm_axis, spectrum = ppm_axis[mask], spectrum[mask]
+    area = np.trapz(np.real(spectrum), ppm_axis)
+    return abs(area)
+
 if __name__ == "__main__":
 
     # get project_data_path from os variables
@@ -71,15 +78,17 @@ if __name__ == "__main__":
 
     # get all the subfolder in the path
     spectrum_folders = [f.path for f in os.scandir(path) if f.is_dir()]
+    spectrum_folders = [f for f in spectrum_folders if 'Reference' not in f]
     # sort the subfolders according to the last number in the folder name
-    spectrum_folders.sort(key=lambda x: int(x[-1]))
-
+    spectrum_folders.sort(key=lambda x: int(x.split('+-')[-1]))
+    spectrum_names = [int(i.split('+-')[-1]) for i in spectrum_folders]
+    print(spectrum_folders)
 
     dic_ls, data_ls = [], []
     ppm_axis_ls, spectrum_ls = [], []
-    for path in spectrum_folders:
+    for path_here in spectrum_folders:
     # read spectrum
-        dic,data = ng.spinsolve.read(path)
+        dic,data = ng.spinsolve.read(path_here)
         print(f"length of the spectrum: {data.shape[0]}")
         dic_ls.append(dic)
         data_ls.append(data)
@@ -91,23 +100,15 @@ if __name__ == "__main__":
     for ppm_axis, spectrum in zip(ppm_axis_ls, spectrum_ls):
         plt.plot(ppm_axis, np.real(spectrum))
 
-    plt.xlim(9, 0)
-    plt.ylim(0, 2e5)
+    plt.xlim(7, 6.6)
+    plt.ylim(0, 1e5)
     plt.xlabel('ppm')
     plt.ylabel('Intensity')
     plt.title('NMR spectrum')
     plt.show()
 
-    start_ppm = 7.0
-    end_ppm = 6.6
-
-    def peak_integration(ppm_axis, spectrum, start_ppm, end_ppm):
-
-        mask = (ppm_axis >= end_ppm) & (ppm_axis <= start_ppm)
-        ppm_axis, spectrum = ppm_axis[mask], spectrum[mask]
-        area = np.trapz(np.real(spectrum), ppm_axis)
-        return abs(area)
-        
+    start_ppm = 6.90
+    end_ppm = 6.65
 
     # peak integration
     integrals = []
@@ -115,10 +116,20 @@ if __name__ == "__main__":
         integral = peak_integration(ppm_axis, spectrum, start_ppm, end_ppm)
         integrals.append(integral)
     
-    conc_b = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
+    # conc = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
+
+    # save the integrals and concentrations to a csv file
+    import csv
+    with open(path + '/conc_integral_Bs.csv', mode='w') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Concentration(mM)', 'Integral'])
+        for c, i in zip(spectrum_names, integrals):
+            print(path)
+            writer.writerow([c, round(i,2)])
+            print(f"Concentration: {c}, Integral: {i}")
 
     # plot the integrals
-    plt.plot(conc_b, integrals)
+    plt.plot(integrals, 'o')
     plt.xlabel('Spectrum number')
     plt.ylabel('Integral')
     plt.title('Integral of the peak')
