@@ -6,16 +6,18 @@ import os
 
 peaks = None
 
-def slice_roi_data(uc, data, low_ppm = 3.25, high_ppm = 4.50):
-    
-    # Convert ppm to integer point indices
-    start_idx = int(uc.ppm_to_index(high_ppm))  # index for ~4.50 ppm
-    stop_idx  = int(uc.ppm_to_index(low_ppm))   # index for ~3.25 ppm
-    # Slice the data and create the corresponding ppm scale
-    roi_data = data[start_idx:stop_idx]
-    roi_ppm  = uc.ppm_scale()[start_idx:stop_idx]
+def reference_calibration(data, ppm_axis, real_ppm_of_CDE:float = 3.73):
 
-    return roi_data, roi_ppm
+    data_max = np.max(np.real(data)) # assume this is solvent peak
+    idx_of_data_max = np.argmax(np.real(data))    
+    ppm_of_data_max = ppm_axis[idx_of_data_max]
+
+    idx_of_CDE = np.argmin(np.abs(ppm_axis - real_ppm_of_CDE))
+
+    delta_points = idx_of_CDE - idx_of_data_max
+    data = np.roll(data, delta_points)
+
+    return data
 
 def pre_porcessing(dic, data):
     # DC offset correction
@@ -37,15 +39,7 @@ def pre_porcessing(dic, data):
     ppm_axis = uc.ppm_scale()
 
     # referencing/calibration of the spectrum
-    data_max = np.max(np.real(data)) # assume this is solvent peak
-    idx_of_data_max = np.argmax(np.real(data))    
-    ppm_of_data_max = ppm_axis[idx_of_data_max]
-
-    real_ppm_of_CDE = 3.73
-    idx_of_CDE = np.argmin(np.abs(ppm_axis - real_ppm_of_CDE))
-
-    delta_points = idx_of_CDE - idx_of_data_max
-    data = np.roll(data, delta_points)
+    data = reference_calibration(data, ppm_axis)
 
     # # baseline correction
     # ##Fit polynomial baseline to the real part of the spectrum
@@ -104,3 +98,28 @@ if __name__ == "__main__":
     plt.title('NMR spectrum')
     plt.show()
 
+    start_ppm = 7.0
+    end_ppm = 6.6
+
+    def peak_integration(ppm_axis, spectrum, start_ppm, end_ppm):
+
+        mask = (ppm_axis >= end_ppm) & (ppm_axis <= start_ppm)
+        ppm_axis, spectrum = ppm_axis[mask], spectrum[mask]
+        area = np.trapz(np.real(spectrum), ppm_axis)
+        return abs(area)
+        
+
+    # peak integration
+    integrals = []
+    for ppm_axis, spectrum in zip(ppm_axis_ls, spectrum_ls):
+        integral = peak_integration(ppm_axis, spectrum, start_ppm, end_ppm)
+        integrals.append(integral)
+    
+    conc_b = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
+
+    # plot the integrals
+    plt.plot(conc_b, integrals)
+    plt.xlabel('Spectrum number')
+    plt.ylabel('Integral')
+    plt.title('Integral of the peak')
+    plt.show()
