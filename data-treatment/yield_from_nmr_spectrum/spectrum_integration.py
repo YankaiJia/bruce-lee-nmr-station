@@ -2,7 +2,7 @@ import nmrglue as ng
 from nmrglue.analysis import peakpick
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+import os, csv
 
 peaks = None
 
@@ -67,21 +67,14 @@ def peak_integration(ppm_axis, spectrum, start_ppm, end_ppm):
     area = np.trapz(np.real(spectrum), ppm_axis)
     return abs(area)
 
-if __name__ == "__main__":
 
-    # get project_data_path from os variables
-    # project_data_path = os.environ['BRUCELEE_PROJECT_DATA_PATH']
-    # path = project_data_path + "\\DPE_bromination\\_Refs\\ref_B"
-
-    # get spectrum folder path
-    path = get_spectrum_path()
-
+def read_spectra(path:str):
     # get all the subfolder in the path
     spectrum_folders = [f.path for f in os.scandir(path) if f.is_dir()]
-    spectrum_folders = [f for f in spectrum_folders if 'Reference' not in f]
+    spectrum_folders = [f for f in spectrum_folders if '1D EXTENDED' in f]
     # sort the subfolders according to the last number in the folder name
     spectrum_folders.sort(key=lambda x: int(x.split('+-')[-1]))
-    spectrum_names = [int(i.split('+-')[-1]) for i in spectrum_folders]
+    spectrum_names = [i.split('+-')[-1] for i in spectrum_folders]
     print(spectrum_folders)
 
     dic_ls, data_ls = [], []
@@ -95,20 +88,22 @@ if __name__ == "__main__":
         ppm_axis, spectrum = pre_porcessing(dic, data)
         ppm_axis_ls.append(ppm_axis)
         spectrum_ls.append(spectrum)
+    return dic_ls, data_ls, ppm_axis_ls, spectrum_ls, spectrum_names
 
+
+def plot_spectrum(ppm_axis_ls, spectrum_ls):
     # plot the spectrum
     for ppm_axis, spectrum in zip(ppm_axis_ls, spectrum_ls):
         plt.plot(ppm_axis, np.real(spectrum))
 
-    plt.xlim(7, 6.6)
+    plt.xlim(9, 2)
     plt.ylim(0, 1e5)
     plt.xlabel('ppm')
     plt.ylabel('Intensity')
     plt.title('NMR spectrum')
     plt.show()
 
-    start_ppm = 6.90
-    end_ppm = 6.65
+def integrate_a_peak(ppm_axis_ls, spectrum_ls, start_ppm, end_ppm):
 
     # peak integration
     integrals = []
@@ -116,20 +111,65 @@ if __name__ == "__main__":
         integral = peak_integration(ppm_axis, spectrum, start_ppm, end_ppm)
         integrals.append(integral)
     
-    # conc = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
+    return integrals
 
-    # save the integrals and concentrations to a csv file
-    import csv
-    with open(path + '/conc_integral_Bs.csv', mode='w') as file:
+def write_csv(csv_path, spectrum_names, integrals):
+    with open(csv_path, mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(['Concentration(mM)', 'Integral'])
         for c, i in zip(spectrum_names, integrals):
-            print(path)
+            # print(path)
             writer.writerow([c, round(i,2)])
             print(f"Concentration: {c}, Integral: {i}")
 
+
+if __name__ == "__main__":
+
+    # get project_data_path from os variables
+    # project_data_path = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+    # path = project_data_path + "\\DPE_bromination\\_Refs\\ref_B"
+
+    # get spectrum folder path
+    path = get_spectrum_path()
+
+    dic_ls, data_ls, ppm_axis_ls, spectrum_ls, spectrum_names = read_spectra(path)
+
+    plot_spectrum(ppm_axis_ls, spectrum_ls)
+
+    ## for B
+    # integrals = integrate_a_peak(ppm_axis_ls, 
+    #                             spectrum_ls, 
+    #                             start_ppm = 6.95,
+    #                             end_ppm = 6.65)
+    # conc = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
+    # spectrum_names = conc
+
+    ### for S
+    # integrals = integrate_a_peak(ppm_axis_ls, 
+    #                             spectrum_ls, 
+    #                             start_ppm = 5.8,
+    #                             end_ppm = 5.1)
+    # conc = [422.75, 422.75/2, 422.75/4, 422.75/8, 422.75/16]
+    # spectrum_names = conc
+
+    ## for B of all specs
+    integrals = integrate_a_peak(ppm_axis_ls, 
+                                spectrum_ls, 
+                                start_ppm = 6.95,
+                                end_ppm = 6.65)
+
+    # ## for S of all specs
+    # integrals = integrate_a_peak(ppm_axis_ls, 
+    #                             spectrum_ls, 
+    #                             start_ppm = 5.6,
+    #                             end_ppm = 5.2)
+    
+    # save the integrals and concentrations to a csv file
+    csv_path = os.path.join(path, 'integrals_B.csv')
+    # write_csv(csv_path, spectrum_names, integrals)
+
     # plot the integrals
-    plt.plot(integrals, 'o')
+    plt.plot(spectrum_names, integrals, 'o')
     plt.xlabel('Spectrum number')
     plt.ylabel('Integral')
     plt.title('Integral of the peak')
