@@ -69,11 +69,13 @@ def peak_integration(ppm_axis, spectrum, start_ppm, end_ppm):
 
 
 def read_spectra(path:str):
+    print(f'path: {path}')
     # get all the subfolder in the path
     spectrum_folders = [f.path for f in os.scandir(path) if f.is_dir()]
     spectrum_folders = [f for f in spectrum_folders if '1D EXTENDED' in f]
-    # sort the subfolders according to the last number in the folder name
-    spectrum_folders.sort(key=lambda x: int(x.split('+-')[-1]))
+    if not '_Refs' in path:
+        # sort for data, not for references
+        spectrum_folders.sort(key=lambda x: int(x.split('+-')[-1]))
     spectrum_names = [i.split('+-')[-1] for i in spectrum_folders]
     print(spectrum_folders)
 
@@ -113,60 +115,110 @@ def integrate_a_peak(ppm_axis_ls, spectrum_ls, start_ppm, end_ppm):
     
     return integrals
 
-def write_csv(csv_path, spectrum_names, integrals):
+def write_csv(csv_path, spectrum_names, integrals, time_taken_ls, header):
     with open(csv_path, mode='w') as file:
         writer = csv.writer(file)
-        writer.writerow(['Concentration(mM)', 'Integral'])
-        for c, i in zip(spectrum_names, integrals):
+        writer.writerow(header)
+        for c, i, t in zip(spectrum_names, integrals, time_taken_ls):
             # print(path)
-            writer.writerow([c, round(i,2)])
-            print(f"Concentration: {c}, Integral: {i}")
+            writer.writerow([c, round(i,2), t])
+            print(f"Concentration: {c}, Integral: {i}, Time taken: {t}")
 
+def get_time_gap(time_start, time_current):
+        from datetime import datetime
+
+        timestamp1_str = time_start
+        timestamp2_str = time_current
+        # Define the format that matches your timestamps
+        fmt = '%Y-%m-%dT%H:%M:%S.%f'
+        # Convert the string timestamps to datetime objects
+        time1 = datetime.strptime(timestamp1_str, fmt)
+        time2 = datetime.strptime(timestamp2_str, fmt)
+        # Calculate the difference (a timedelta object)
+        time_diff = time2 - time1
+        # Convert the difference to total minutes
+        time_diff_hours = time_diff.total_seconds() / 60 /60
+
+        return time_diff_hours
 
 if __name__ == "__main__":
 
     # get project_data_path from os variables
-    # project_data_path = os.environ['BRUCELEE_PROJECT_DATA_PATH']
-    # path = project_data_path + "\\DPE_bromination\\_Refs\\ref_B"
+    project_data_path = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+    path_B_ref = project_data_path + "\\DPE_bromination\\_Refs\\ref_B"
+    path_S_ref = project_data_path + "\\DPE_bromination\\_Refs\\ref_S"
+    path_S_and_B = project_data_path + "\\DPE_bromination\\2025-02-19-run01_time_varied\\Results"
 
-    # get spectrum folder path
-    path = get_spectrum_path()
-
+    path = path_S_and_B
+    
+    # # get spectrum folder path
+    # path = get_spectrum_path()
+    
     dic_ls, data_ls, ppm_axis_ls, spectrum_ls, spectrum_names = read_spectra(path)
-
     plot_spectrum(ppm_axis_ls, spectrum_ls)
 
-    ## for B
+    # get measurement time of spectra
+    time_stamp_ls = [dic['acqu']['startTime'] for dic in dic_ls]
+    time_taken_ls = [get_time_gap(time_stamp_ls[0], time) for time in time_stamp_ls]
+    print(time_taken_ls)
+    
+
+###################################################################################################
+
+    # for B refs
     # integrals = integrate_a_peak(ppm_axis_ls, 
     #                             spectrum_ls, 
     #                             start_ppm = 6.95,
     #                             end_ppm = 6.65)
     # conc = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
     # spectrum_names = conc
+    # csv_path = os.path.join(path, 'integrals_S.csv')
+    # write_csv(csv_path, spectrum_names, integrals, header=['Concentration(mM)', 'Integral'])
 
-    ### for S
-    # integrals = integrate_a_peak(ppm_axis_ls, 
-    #                             spectrum_ls, 
-    #                             start_ppm = 5.8,
-    #                             end_ppm = 5.1)
-    # conc = [422.75, 422.75/2, 422.75/4, 422.75/8, 422.75/16]
-    # spectrum_names = conc
+###################################################################################################
 
-    ## for B of all specs
-    integrals = integrate_a_peak(ppm_axis_ls, 
+
+    ## for S refs
+    integrals_S_ref = integrate_a_peak(ppm_axis_ls, 
                                 spectrum_ls, 
-                                start_ppm = 6.95,
-                                end_ppm = 6.65)
+                                start_ppm = 5.8,
+                                end_ppm = 5.1)
+    conc = [422.75, 422.75/2, 422.75/4, 422.75/8, 422.75/16]
+    spectrum_names = conc
+    # ## save the integrals and concentrations to a csv file
+    # csv_path = os.path.join(path, 'integrals_B.csv')
+    # write_csv(csv_path, spectrum_names, integrals, header=['Concentration(mM)', 'Integral'])
 
-    # ## for S of all specs
+###################################################################################################
+
+    # ## for B of all specs
     # integrals = integrate_a_peak(ppm_axis_ls, 
     #                             spectrum_ls, 
-    #                             start_ppm = 5.6,
-    #                             end_ppm = 5.2)
-    
-    # save the integrals and concentrations to a csv file
-    csv_path = os.path.join(path, 'integrals_B.csv')
-    # write_csv(csv_path, spectrum_names, integrals)
+    #                             start_ppm = 6.95,
+    #                             end_ppm = 6.65)
+    # # save the integrals and concentrations to a csv file
+    # csv_path = os.path.join(path, 'integrals_B.csv')
+    # write_csv(csv_path, 
+    #         spectrum_names, 
+    #         integrals,
+    #         time_taken_ls, 
+    #         header=['Spectrum_id', 'Integral', 'Time(hrs)'])
+
+###################################################################################################
+
+    ## for S of all specs
+    integrals_S = integrate_a_peak(ppm_axis_ls, 
+                                spectrum_ls, 
+                                start_ppm = 5.6,
+                                end_ppm = 5.2)
+    #save the integrals and concentrations to a csv file
+    # csv_path = os.path.join(path, 'integrals_S.csv')
+    # write_csv(csv_path, 
+    #         spectrum_names, 
+    #         integrals,
+    #         time_taken_ls, 
+    #         header=['Spectrum_id', 'Integral', 'Time(hrs)'])
+###################################################################################################
 
     # plot the integrals
     plt.plot(spectrum_names, integrals, 'o')
