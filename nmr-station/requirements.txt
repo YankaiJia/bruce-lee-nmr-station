@@ -1,12 +1,10 @@
 mecademicpy
-
 click
 pynput
-
 pyautogui
-flask
-
 python-dotenv
-
 pyserial == 3.4
 numpy
+matplotlib
+scipy
+pandas
