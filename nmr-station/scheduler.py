@@ -482,7 +482,7 @@ def get_measurement_info():
 
         return sorted(vials)  # Return as a sorted list
 
-    sg.theme("DarkBlue")  # Choose a modern theme
+    sg.theme("LightBlue2")  # Choose a modern theme
 
     # Load previous data
     previous_data = load_previous_data()
@@ -490,33 +490,33 @@ def get_measurement_info():
     layout = [
         [sg.Text("Input Measurement Info", font=("Arial", 18, "bold"), justification="center", expand_x=True)],
 
-        [sg.Text("Reaction Name:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("reaction_name", ""), key="reaction_name", font=("Arial", 14), size=(30, 1))],
+        [sg.Text("Reaction Name:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("reaction_name", ""), key="reaction_name", font=("Arial", 18), size=(30, 1))],
 
-        [sg.Text("User Name:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("user_name", ""), key="user_name", font=("Arial", 14), size=(30, 1))],
+        [sg.Text("User Name:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("user_name", ""), key="user_name", font=("Arial", 18), size=(30, 1))],
 
-        [sg.Text("Well Plate Number:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("well_plate_number", ""), key="well_plate_number", font=("Arial", 14),
+        [sg.Text("Well Plate Number:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("well_plate_number", ""), key="well_plate_number", font=("Arial", 18),
                       size=(30, 1))],
 
-        [sg.Text("Reaction Solvent:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("reaction_solvent", ""), key="reaction_solvent", font=("Arial", 14),
+        [sg.Text("Reaction Solvent:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("reaction_solvent", ""), key="reaction_solvent", font=("Arial", 18),
                       size=(30, 1))],
 
-        [sg.Text("Reaction Excel Path:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("reaction_excel_path", ""), key="reaction_excel_path", font=("Arial", 14),
+        [sg.Text("Reaction Excel Path:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("reaction_excel_path", ""), key="reaction_excel_path", font=("Arial", 18),
                       size=(25, 1)),
-         sg.FileBrowse(font=("Arial", 12))],
+         sg.FileBrowse(font=("Arial", 18))],
 
-        [sg.Text("\t\tVials to Measure \n(e.g. 0-5, 7, 10-12 (both left and right are included)):", size=(40, 2), font=("Arial", 16))],
-        [sg.InputText(previous_data.get("vials_to_measure", ""), key="vials_to_measure", font=("Arial", 14),
+        [sg.Text("\t\tVials to Measure \n(e.g. 0-5, 7, 10-12 (both left and right are included)):", size=(40, 2), font=("Arial", 18))],
+        [sg.InputText(previous_data.get("vials_to_measure", ""), key="vials_to_measure", font=("Arial", 18),
                       size=(30, 1))],
 
-        [sg.Button("Submit", font=("Arial", 14), size=(10, 1)), sg.Button("Cancel", font=("Arial", 14), size=(10, 1))]
+        [sg.Button("Submit", font=("Arial", 20), size=(10, 1)), sg.Button("Cancel", font=("Arial", 20), size=(10, 1))]
     ]
 
-    window = sg.Window("Measurement Input", layout, size=(650, 400), element_justification='center',
+    window = sg.Window("Measurement Input", layout, size=(750, 450), element_justification='center',
                        finalize=True)
 
     while True:
@@ -561,6 +561,52 @@ def extract_uuid_container_mapping(file_path):
     except Exception as e:
         print(f"Error reading file: {e}")
         return {}
+
+def check_list_before_runing_gui():
+    checklist = [
+        "Turn on flight mode",
+        "Open Spinsolve software",
+        "Specify storage directory",
+        "Make well plate ready",
+        "Check/refill pipetting tips",
+        "Make two NMR tubes ready",
+        "Turn on air pressure",
+        "Turn on vacuum",
+        "Check/refill cleaning solvent",
+        "Empty waste bottle",
+        "Check reference sample",
+        "Turn on heat guns",]
+
+    sg.theme("LightBlue2")  # Choose a modern theme
+    layout = [
+        [sg.Text("Check list before running", font=("Arial", 20, "bold"), justification='left', expand_x=True)],
+        [sg.HorizontalSeparator()]
+    ]
+
+    for item in checklist:
+        layout.append([sg.Checkbox(item, key=item, font=("Arial", 18))])
+
+    layout.append([sg.HorizontalSeparator()])
+    layout.append(
+        [sg.Checkbox("Check All", enable_events=True, key="Check_All", font=("Arial", 20, "bold"), size=(15, 1))])
+    layout.append(
+        [sg.Button("Submit", size=(10, 1), font=("Arial", 20), button_color=("white", "green"), expand_x=True)])
+    layout.append([sg.Button("Exit", size=(10, 1), font=("Arial", 20), button_color=("white", "red"), expand_x=True)])
+
+    window = sg.Window("Checklist", layout, size=(550, 800), element_justification='left')
+
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED or event == "Exit":
+            window.close()
+            return None
+        if event == "Check_All":
+            for item in checklist:
+                window[item].update(values["Check_All"])
+        if event == "Submit":
+            unchecked_items = [item for item in checklist if not values.get(item, False)]
+            window.close()
+            return None if not unchecked_items else unchecked_items
 
 # @click.command()
 # @click.option('--test', is_flag=True, required=True, help='Use dummy components')
@@ -697,39 +743,12 @@ def main(use_gui=True, vials_to_measure=None):
 
 if __name__ == "__main__":
 
+    unchecked_options = check_list_before_runing_gui()
+
+    if unchecked_options:
+        logger.warning(f'Unchecked option: {unchecked_options}')
+        raise Exception("All options should be check before running!!")
+
     main()
-
-    # a = [0,1,2,3,4,5]
-
-    # # first two: 12 samples. 22:00
-    # main(use_gui=True, vials_to_measure= None)
-    # #
-    # # # 2h, 24:00
-    # time.sleep(3600 * 0.5)
-   # main(use_gui=False, vials_to_measure=[15, 16, 17])
-    #
-    # # 3h, 01:00
-    # time.sleep(3600* 0.5)
-    #main(use_gui=False, vials_to_measure=[18])
-    #main(use_gui=False, vials_to_measure=[19])
-    #main(use_gui=False, vials_to_measure=[20,21,22,23])
-
-    # # 5h, 03:00爱你,what?!!!哈哈 are you a ghost?no
-    #time.sleep(3600* 1)
-    # main(use_gui=False, vials_to_measure=[i+6*4 for i in a])
-
-    # # 9h 07:00
-    # time.sleep(3600* 3.5)
-    # main(use_gui=False, vials_to_measure=[i+6*5 for i in a])
-
-    # # 15h 13:00
-    # time.sleep(3600* 5.5)
-    # main(use_gui=True, vials_to_measure=[41])
-
-    # # 27h 01:00
-    # main(use_gui=False, vials_to_measure=[i+6*7 for i in a])
-
-    # # 48h 22:00
-    # main(use_gui=False, vials_to_measure=[i+6*8 for i in a])
-    #
     print("All done!")
+
