@@ -5,9 +5,9 @@ from functools import partial
 
 robot1 = mdr.Robot()
 robot1.logger.setLevel(logging.DEBUG)
-robot1.logger.addHandler(logging.FileHandler("debug_2025-02-24e.log"))
+robot1.logger.addHandler(logging.FileHandler("debug_2025-02-24YJ.log"))
 robot1.Connect(address='192.168.0.100')
-robot1.SetMonitoringInterval(1)
+# robot1.SetMonitoringInterval(1) #YJ
 
 robot1.ActivateRobot()
 robot1.Home()
@@ -15,12 +15,14 @@ robot1.WaitHomed()
 robot1.DeactivateRobot()
 robot1.Disconnect()
 
-robot1.Connect(address='192.168.0.100')
-robot1.SetMonitoringInterval(1)
+robot1.Connect(address='192.168.0.100', enable_synchronous_mode=True)
+# robot1.SetMonitoringInterval(1) #YJ
 
 robot1.ActivateRobot()
 robot1.Home()
 robot1.WaitHomed()
+robot1._enable_synchronous_mode = True # YJ
+
 
 time.sleep(5)
 robot1.MoveJoints(20, -30, 0, 0, 0, 0)

@@ -31,7 +31,7 @@ else:
     from .facility import *
 
 
-def setup_logger():
+def setup_logger(logging_level=logging.INFO):
     # better logging format in console
     class CustomFormatter(logging.Formatter):
         grey, yellow, red, bold_red, reset = [
@@ -59,13 +59,13 @@ def setup_logger():
 
     # create logger with 'main'
     logger = logging.getLogger("roboarm.py")
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging_level)
     # create file handler which logs even debug messages
     fh = logging.FileHandler(ROBOT_ARM_LOG_PATH + "nmr_station.log")
-    fh.setLevel(logging.INFO)
+    fh.setLevel(logging_level)
     # create console handler with a higher log level
     ch = logging.StreamHandler()
-    ch.setLevel(logging.WARNING)
+    ch.setLevel(logging_level)
     # create formatter and add it to the handlers
     formatter = logging.Formatter("%(asctime)s-%(name)s-%(levelname)s-%(message)s")
     fh.setFormatter(formatter)
@@ -75,8 +75,6 @@ def setup_logger():
     logger.addHandler(ch)
 
     return logger
-
-logger = setup_logger()
 
 def timeit(func):
     @wraps(func)
@@ -97,32 +95,32 @@ def log_exception(func):
         try:
             result = func(*args, **kwargs)
         except:
-            logger.exception(f'---Got exception in roboarm.py at function: {func.__name__}---')
+            setup_logger().exception(f'---Got exception in roboarm.py at function: {func.__name__}---')
             raise
         return result
     return log_exception_wrapper
 
 
 class RobotArm:
-    # def __init__(self, running_vel="fast"):
-    def __init__(self, running_vel="default"):
+    def __init__(self, running_vel="default",
+                 is_check_item_gripping: bool = True):
 
-        self.logger = logger
+        self.logger = setup_logger(logging.INFO)
         self.running_vel = running_vel
         self.facilities = load_facilities()
         self.robo = mdr.Robot()
         self.robo.Connect(
             address="192.168.0.100",
             enable_synchronous_mode=True,
-            disconnect_on_exception=False,
-        )
-        time.sleep(1)
+            disconnect_on_exception=True,)
+        # self.robo.SetMonitoringInterval(1)
         print('Robot connected!')
 
-        # self.config_robot_before_activate() # this needs to be run only once
-        self.robo.ActivateAndHome()
-        self.config_robot_after_activate()
+        self.robo.ActivateRobot()
+        self.robo.Home()
         self.robo.WaitHomed()
+
+        self.config_robot_after_activate() # this needs to be run only once
 
         self.robo.SetRealTimeMonitoring("all")
 
@@ -132,12 +130,11 @@ class RobotArm:
             if not self.tube_status in [0, -1, 1]:
                 raise ValueError("tube_status is incorrect!")
 
-        # self.retract_to_carousel()
-        # self.go_to_safe(mode='auto')
-
-        self.robo.StartMovementMonitor()
+        # self.robo.StartMovementMonitor()
 
         self.logger.info("Robotic arm is initiated!")
+
+        self.is_check_item_gripping = is_check_item_gripping
 
     def reset_robot(self):
         # self.robo.DeactivateRobot()
@@ -145,7 +142,7 @@ class RobotArm:
         self.robo.Connect(
             address=ROBOT_ARM_HOST,
             enable_synchronous_mode=True,
-            disconnect_on_exception=False,
+            disconnect_on_exception=True,
         )
         # self.config_robot_before_activate()
         self.robo.ActivateAndHome()
@@ -312,7 +309,12 @@ class RobotArm:
 
     def get_gripper_force(self):
         force = self.robo.GetRobotRtData().rt_gripper_force.data[0]
+        # force = self.robo.GetRtGripperForce()
+
+        # self.robo.SetRealTimeMonitoring(2321)
         return float(force)
+
+
 
     def is_gripper_gripping_item(self):
 
@@ -574,19 +576,24 @@ class RobotArm:
         for key, facility in self.facilities.items():
             # check if arm is at one of the facilities, by checking x and y.
             # if yes, overwrite high_z
+            self.logger.debug(self.get_cart_pos())
             if self.is_located_at(loc_coord=facility.pos['high'], coord_num=2):
+                self.logger.debug(f'Arm at a facility! {facility.name}-{facility.pos}')
                 high_z = facility.pos['high'][2] # z height
                 break
 
         cur_z = self.get_cart_pos()[2]
         d_z = high_z - cur_z
 
-        if not math.isclose(d_z, 0, abs_tol=0.01):
+        if not math.isclose(d_z, 0, abs_tol=0.05):
+            self.logger.debug(f'high_z: {high_z}')
+            self.logger.debug(f'cur_z: {cur_z}')
+            self.logger.debug(f'd_z: {d_z}')
             self.change_vertical_height(d_z)
 
         cur_cart = self.get_cart_pos()
         dr = carousel_radius - self.get_radial_distance(cur_cart[0], cur_cart[1])
-        if not math.isclose(dr, 0, abs_tol=0.01):
+        if not math.isclose(dr, 0, abs_tol=0.05):
             self.change_radial_distance(dr)
 
     def move_inside_carousel(
@@ -710,13 +717,16 @@ class RobotArm:
         self.change_vertical_height(d_z)
         time.sleep(wait_after_place)
 
+        # time.sleep(2)
+
         if is_retract:
             self.retract_to_carousel()
 
-        # make sure tube is gripped.
-        if not self.is_gripper_gripping_item():
-            self.logger.debug(f'gripper force: {self.get_gripper_force()}')
-            raise ValueError('No item is picked up for pick_tube(), please check!')
+        if self.is_check_item_gripping:
+            # make sure a tube is gripped.
+            if not self.is_gripper_gripping_item():
+                self.logger.debug(f'gripper force: {self.get_gripper_force()}')
+                raise ValueError('No item is picked up for pick_tube(), please check!')
 
         # update tube status
         self.tube_status = target_tube_status
@@ -744,8 +754,9 @@ class RobotArm:
                 "When put to tube stands, tube must be upright!"
                 f"\n current tube status: {self.tube_status}")
 
-        if not self.is_gripper_gripping_item():
-            raise ValueError("Gripper is not gripping item, action aborted!")
+        if self.is_check_item_gripping:
+            if not self.is_gripper_gripping_item():
+                raise ValueError("Gripper is not gripping item, action aborted!")
 
         target_cart_high, target_cart_low = location.pos["high"], location.pos["low"]
 
@@ -772,8 +783,9 @@ class RobotArm:
         self.change_vertical_height(-d_z * (1 - correction_factor))
         self.retract_to_carousel()
 
-        if self.is_gripper_gripping_item():
-            raise ValueError("Gripper is still gripping item, please check!")
+        if self.is_check_item_gripping:
+            if self.is_gripper_gripping_item():
+                raise ValueError("Gripper is still gripping item, please check!")
 
         # mark robotic arm not gripping tube
         self.tube_status = 0
@@ -920,9 +932,10 @@ class RobotArm:
         self.tilted_remove_tube()
         self.retract_to_carousel()
 
-        # make sure tube is gripped.
-        if not self.is_gripper_gripping_item():
-            raise ValueError('No item is picked up for pick_tube(), please check!')
+        if self.is_check_item_gripping:
+            # make sure tube is gripped.
+            if not self.is_gripper_gripping_item():
+                raise ValueError('No item is picked up for pick_tube(), please check!')
 
         self.tube_status = 1
 
@@ -1041,48 +1054,64 @@ class RobotArm:
         else:
             raise KeyError
     @timeit
-    def test_all(self, tube_id: int=1, n_times: int = 1, step_control: bool=True):
-        for i in range(n_times):
-            print(f'runing: {i+1}/{n_times} at {time.time()}')
+    def test_all(self,
+                 tube_id: int=1,
+                 n: int = 1,
+                 is_step_control: bool=False,
+                 is_pause: bool = True,
+                 pause: int = 1):
+        for i in range(n):
+            print(f'runing: {i+1}/{n} at {time.time()}')
             self.pick_tube(self.facilities[f'tube{tube_id}'])
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.place_tube_to_spinsolve()
-            # self.pause_with_visual(pause)
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.pick_tube_from_spinsolve()
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.flip_tube()
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.place_tube(self.facilities['washer1'])
-            # self.pause_with_visual(pause)
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.pick_tube(self.facilities['washer1'])
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.place_tube(self.facilities['washer2'])
-            # self.pause_with_visual(pause)
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.pick_tube(self.facilities['washer2'])
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.place_tube(self.facilities['dryer'])
-            # self.pause_with_visual(pause)
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
 
             self.pick_tube(self.facilities['dryer'])
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
+
 
             self.flip_tube('flip_stand_clean')
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
+
 
             self.place_tube(self.facilities[f'tube{tube_id}'])
-            if step_control: self.wait_for_input()
+            if is_pause: self.pause_with_visual(pause)
+            if is_step_control: self.wait_for_input()
+
 
 if __name__ == '__main__':
     r = RobotArm()

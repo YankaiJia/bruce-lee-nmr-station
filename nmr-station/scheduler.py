@@ -697,9 +697,9 @@ def main(use_gui=True, vials_to_measure=None):
 
 if __name__ == "__main__":
 
-    # main()
+    main()
 
-    a = [0,1,2,3,4,5]
+    # a = [0,1,2,3,4,5]
 
     # # first two: 12 samples. 22:00
     # main(use_gui=True, vials_to_measure= None)
@@ -727,9 +727,9 @@ if __name__ == "__main__":
     # main(use_gui=True, vials_to_measure=[41])
 
     # # 27h 01:00
-    main(use_gui=False, vials_to_measure=[i+6*7 for i in a])
+    # main(use_gui=False, vials_to_measure=[i+6*7 for i in a])
 
     # # 48h 22:00
     # main(use_gui=False, vials_to_measure=[i+6*8 for i in a])
     #
-    # print("All done!")
+    print("All done!")
