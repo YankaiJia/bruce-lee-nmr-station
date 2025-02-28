@@ -690,46 +690,9 @@ def main(use_gui=True, vials_to_measure=None):
 
     scheduler = Scheduler(robot_arm_decision, spectrometer_decision, pipetter_decision)
     scheduler.start()
-    time.sleep(600)
-    robot_here.robo.Disconnect()
-    time.sleep(10)
 
 
 if __name__ == "__main__":
 
     main()
 
-    # a = [0,1,2,3,4,5]
-
-    # # first two: 12 samples. 22:00
-    # main(use_gui=True, vials_to_measure= None)
-    # #
-    # # # 2h, 24:00
-    # time.sleep(3600 * 0.5)
-   # main(use_gui=False, vials_to_measure=[15, 16, 17])
-    #
-    # # 3h, 01:00
-    # time.sleep(3600* 0.5)
-    #main(use_gui=False, vials_to_measure=[18])
-    #main(use_gui=False, vials_to_measure=[19])
-    #main(use_gui=False, vials_to_measure=[20,21,22,23])
-
-    # # 5h, 03:00爱你,what?!!!哈哈 are you a ghost?no
-    #time.sleep(3600* 1)
-    # main(use_gui=False, vials_to_measure=[i+6*4 for i in a])
-
-    # # 9h 07:00
-    # time.sleep(3600* 3.5)
-    # main(use_gui=False, vials_to_measure=[i+6*5 for i in a])
-
-    # # 15h 13:00
-    # time.sleep(3600* 5.5)
-    # main(use_gui=True, vials_to_measure=[41])
-
-    # # 27h 01:00
-    # main(use_gui=False, vials_to_measure=[i+6*7 for i in a])
-
-    # # 48h 22:00
-    # main(use_gui=False, vials_to_measure=[i+6*8 for i in a])
-    #
-    print("All done!")

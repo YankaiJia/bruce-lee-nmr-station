@@ -23,10 +23,10 @@ Time constant for each cleaning step
 div = 1
 
 ## for real run
-T_WASTE_COLLECTOR = 30 / div
-T_WASHER1 = 60 / div
-T_WASHER2 = 60 / div
-T_DRYER = 180 / div
+T_WASTE_COLLECTOR = 15 / div
+T_WASHER1 = 30 / div
+T_WASHER2 = 30 / div
+T_DRYER = 120 / div
 
 ## for testing or taking video
 # T_WASTE_COLLECTOR = 2
@@ -50,7 +50,7 @@ ROBOT_ARM_HOST = os.getenv('ROBOT_ARM_HOST')
 ROBOT_ARM_LOG_PATH = os.getenv('ROBOT_ARM_LOG_PATH')
 TUBE_LENGTH = 275
 SAFE_POS = [0, -23.27248, -44.76893, 0, 68.04142, 0]
-HIGH_Z = 345  # this is the Z position for arm when moving between spots.
+HIGH_Z = 340  # this is the Z position for arm when moving between spots.
 CAROUSEL_RADIUS = 25
 
 
@@ -69,7 +69,7 @@ MAX_SAMPLE_COUNT_AFTER_SHIMMING = 10
 REGULAR_SHIM_XML = """<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="SHIM">
-                <Option name="Shim" value="CheckShim" />
+                <Option name="Shim" value="QuickShim" />
         </Start>
 </Message>
 """

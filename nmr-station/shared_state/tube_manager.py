@@ -87,7 +87,7 @@ class TubeManager:
                     if mn > self.sample_in_tube[i]:
                         mn = self.sample_in_tube[i]
                         rt = i
-            print(f"TubeManager: next filled tubeId is {rt} with the sampleId {mn}")
+            # print(f"TubeManager: next filled tubeId is {rt} with the sampleId {mn}")
             return rt
     
     def find_next_empty_tube(self) -> int:
