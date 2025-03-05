@@ -1,0 +1,11 @@
+mecademicpy
+click
+pynput
+pyautogui
+python-dotenv
+pyserial == 3.4
+numpy
+matplotlib
+scipy
+pandas
+nmrglue

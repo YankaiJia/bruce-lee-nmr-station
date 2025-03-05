@@ -318,6 +318,7 @@ if __name__ == "__main__":
         r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv"
         ]
     path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
+    
     # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
     master_path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\"
     ##########################
@@ -364,7 +365,6 @@ if __name__ == "__main__":
         print(f"\n{experiment_name}: {experiment_dictionary}")
         total_result_dictionary.update({experiment_name : experiment_dictionary}) 
 
-    # exit()
     # Get current date in YYYY-MM-DD format
     current_date = datetime.now().strftime("%Y-%m-%d")
 
