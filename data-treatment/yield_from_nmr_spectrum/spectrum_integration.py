@@ -144,15 +144,17 @@ def get_time_gap(time_start, time_current):
 if __name__ == "__main__":
 
     # get project_data_path from os variables
-    project_data_path = os.environ['BRUCELEE_PROJECT_DATA_PATH']
-    path_B_ref = project_data_path + "\\DPE_bromination\\_Refs\\ref_B"
-    path_S_ref = project_data_path + "\\DPE_bromination\\_Refs\\ref_S"
-    path_S_and_B = project_data_path + "\\DPE_bromination\\2025-02-19-run01_time_varied\\Results"
+    # project_data_path = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+    # path_B_ref = project_data_path + "\\DPE_bromination\\_Refs\\ref_B"
+    # path_S_ref = project_data_path + "\\DPE_bromination\\_Refs\\ref_S"
+    # path_S_and_B = project_data_path + "\\DPE_bromination\\2025-02-19-run01_time_varied\\Results"
 
-    path = path_S_and_B
-    
-    # # get spectrum folder path
-    # path = get_spectrum_path()
+    # path = path_S_and_B
+    # path = path_B_ref
+    # path = path_S_ref
+
+    # get spectrum folder path
+    path = get_spectrum_path()
     
     dic_ls, data_ls, ppm_axis_ls, spectrum_ls, spectrum_names = read_spectra(path)
     plot_spectrum(ppm_axis_ls, spectrum_ls)
@@ -165,26 +167,26 @@ if __name__ == "__main__":
 
 ###################################################################################################
 
-    # for B refs
-    # integrals = integrate_a_peak(ppm_axis_ls, 
-    #                             spectrum_ls, 
-    #                             start_ppm = 6.95,
-    #                             end_ppm = 6.65)
-    # conc = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
-    # spectrum_names = conc
-    # csv_path = os.path.join(path, 'integrals_S.csv')
-    # write_csv(csv_path, spectrum_names, integrals, header=['Concentration(mM)', 'Integral'])
+    ## for B refs
+    integrals = integrate_a_peak(ppm_axis_ls, 
+                                spectrum_ls, 
+                                start_ppm = 6.95,
+                                end_ppm = 6.65)
+    conc = [484.48, 484.48/2, 484.48/4, 484.48/8, 484.48/16]
+    spectrum_names = conc
+    csv_path = os.path.join(path, 'integrals_S.csv')
+    write_csv(csv_path, spectrum_names, integrals, header=['Concentration(mM)', 'Integral'])
 
 ###################################################################################################
 
 
-    ## for S refs
-    integrals_S_ref = integrate_a_peak(ppm_axis_ls, 
-                                spectrum_ls, 
-                                start_ppm = 5.8,
-                                end_ppm = 5.1)
-    conc = [422.75, 422.75/2, 422.75/4, 422.75/8, 422.75/16]
-    spectrum_names = conc
+    # ## for S refs
+    # integrals_S_ref = integrate_a_peak(ppm_axis_ls, 
+    #                             spectrum_ls, 
+    #                             start_ppm = 5.8,
+    #                             end_ppm = 5.1)
+    # conc = [422.75, 422.75/2, 422.75/4, 422.75/8, 422.75/16]
+    # spectrum_names = conc
     # ## save the integrals and concentrations to a csv file
     # csv_path = os.path.join(path, 'integrals_B.csv')
     # write_csv(csv_path, spectrum_names, integrals, header=['Concentration(mM)', 'Integral'])
@@ -207,17 +209,18 @@ if __name__ == "__main__":
 ###################################################################################################
 
     ## for S of all specs
-    integrals_S = integrate_a_peak(ppm_axis_ls, 
-                                spectrum_ls, 
-                                start_ppm = 5.6,
-                                end_ppm = 5.2)
-    #save the integrals and concentrations to a csv file
+    # integrals_S = integrate_a_peak(ppm_axis_ls, 
+    #                             spectrum_ls, 
+    #                             start_ppm = 5.6,
+    #                             end_ppm = 5.2)
+    # ## save the integrals and concentrations to a csv file
     # csv_path = os.path.join(path, 'integrals_S.csv')
     # write_csv(csv_path, 
     #         spectrum_names, 
-    #         integrals,
+    #         integrals_S,
     #         time_taken_ls, 
     #         header=['Spectrum_id', 'Integral', 'Time(hrs)'])
+    # integrals = integrals_S
 ###################################################################################################
 
     # plot the integrals

@@ -24,11 +24,11 @@ yb = [float(value) for key, value in yb_ori.items()]
 xb_init = 252.1
 xb = [xb_init,xb_init/2,xb_init/4,xb_init/8,xb_init/16 ]
 
-plt.plot(xs, ys,'o', ls = '-')
-plt.plot(xb, yb, 'o', ls = '-')
+# plt.plot(xs, ys,'o', ls = '-')
+# plt.plot(xb, yb, 'o', ls = '-')
 
 # plt.xscale('log')  # Set the x-axis to logarithmic scale
-plt.plot()
+# plt.plot()
 # plt.show()
 
 import pandas as pd
@@ -36,3 +36,7 @@ import pandas as pd
 path ="D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B_TEST\\205244-1D EXTENDED+-B1\\data.csv"
 
 df = pd.read_csv(path)
+print(df.head())
+plt.plot(df['x'], df['y'], 'o', ls = '-')
+plt.plot()
+plt.show()
