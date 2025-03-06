@@ -4,6 +4,8 @@ import pandas as pd
 from scipy.interpolate import interp1d
 import json
 
+# import gui_utils as gui
+
 def plot_integral(df, column_name_x, column_name_y, plot_name):
     labels = [f'reaction_{i}' for i in range(6)]
     ls=[i*6 for i in range(9)]
@@ -34,12 +36,15 @@ def interpolate(interp_func, measured_integrals):
         # If successful, treat measured_integrals as an iterable of values
         conc_ls = []
         for val in measured_integrals:
+            if val == 0:
+                conc_ls.append(0)
+                continue
             estimated_conc = interp_func(val)
             conc_ls.append(abs(estimated_conc))
         return conc_ls
     except TypeError:
         # If we get a TypeError, measured_integrals is a single value
-        return abs(interp_func(measured_integrals))
+        return 0 if measured_integrals == 0 else abs(interp_func(measured_integrals))
 
 
 def json_to_dataframe(json_file):
@@ -65,8 +70,8 @@ def json_to_dataframe(json_file):
     # df = df.reindex(columns=desired_cols)
     return df
 
-if __name__ == "__main__":
 
+def get_interp_funcs():
     # ref data
     folder_ref = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\"
 
@@ -84,39 +89,43 @@ if __name__ == "__main__":
     interp_func_B = interp1d(df_ref_B['Prod_B'],ref_conc_B, 
                             kind='linear',fill_value="extrapolate")
 
-    # read from json file
-    json_file = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results\\integration_results.json"
+    return interp_func_S, interp_func_B
 
-    df = json_to_dataframe(json_file)
-    # fill the NaN values with 0
-    df = df.fillna(0)
-    print(df.head())
+if __name__ == "__main__":
+
+    interp_func_S, interp_func_B = get_interp_funcs()
+
+    # folder to analyze
+    # data_folders = gui.select_folders()
+
+    data_folders = ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+                    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
+                    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
+                    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\"
+                    ]
+    data_folders = [i+"\\Results" for i in data_folders]
     
-    # Interpolate the concentrations
-    interpolated_conc_S = interpolate(interp_func = interp_func_S, 
-                                    measured_integrals=df['DPE'])
+    for data_folder in data_folders:
+        print(f"Analyzing {data_folder}")
+        
+        # read from json file
+        json_file = data_folder+ "\\integration_results.json"
 
-    interpolated_conc_B = interpolate(interp_func = interp_func_B,
-                                    measured_integrals=df['Prod_B'])
+        df = json_to_dataframe(json_file)
+        # fill the NaN values with 0
+        df = df.fillna(0)
+        print(df.head())
+        
+        # Interpolate the concentrations
+        interpolated_conc_S = interpolate(interp_func = interp_func_S, 
+                                        measured_integrals=df['DPE'])
 
-    exit()
+        interpolated_conc_B = interpolate(interp_func = interp_func_B,
+                                        measured_integrals=df['Prod_B'])
 
+        df['S_from_S'] = interpolated_conc_S
+        df['B_from_B'] = interpolated_conc_B
+        print(df.head())
 
-
-
-
-
-
-
-
-
-
-    # Save the interpolated concentrations to a csv file
-    df_S['Concentration(mM)'] = np.array(conc_S)*5.6
-    df_B['Concentration(mM)'] = conc_B
-    df_S.to_csv(folder + 'conc_S.csv', index=False)
-    df_B.to_csv(folder + 'conc_B.csv', index=False)
-
-    df_B['Concentration(mM)'][41] = 230 # this is an outlier
-    plot_integral(df_S, 'Time(hrs)', 'Concentration(mM)', 'S')
-    plot_integral(df_B, 'Time(hrs)', 'Concentration(mM)', 'B')
+        # save df to csv
+        df.to_csv(data_folder+"\\conc_interpolated.csv")

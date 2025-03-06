@@ -319,13 +319,13 @@ if __name__ == "__main__":
         ]
     path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
 
-    # master_path_ls = \
-    # ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
-    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
-    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run"]
+    master_path_ls = \
+    ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run"]
 
-    master_path_ls = ['D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S\\']
+    # master_path_ls = ['D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S\\']
 
     # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
     for master_path in master_path_ls:
