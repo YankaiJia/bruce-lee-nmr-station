@@ -46,6 +46,7 @@ def plot2():
   plt.plot()
   plt.show()
 
+
 def ask_folder_path():
 
   # Create a root window and hide it
@@ -74,16 +75,17 @@ def arrange_folder_name():
     file_path = os.path.join(subfolder, 'data.1d')
     if os.path.exists(file_path):
       # print(f"File does exist: {file_path}")
-      # get creation time of the file
-      creation_time = os.path.getctime(file_path)
-      # print(f"Creation time: {creation_time}")
+      # get modification time of the folder
+      mod_time = os.path.getmtime(file_path)
       # get the date in the format yymmdd-hhmmss
       import datetime
       import time
-      date = time.strftime('%y%m%d-%H%M%S', time.localtime(creation_time))
+      # date = time.strftime('%y%m%d-%H%M%S', time.localtime(mod_time))
+      date = time.strftime('%y%m%d', time.localtime(mod_time))
       print(f"Date: {date}")
-      ls = subfolder.split("Results")[-1].split('-')
-      new_name = subfolder+'-'.join([ls[2], ls[1], str(date)])
+      ls = subfolder.split("Results\\")[-1].split('-')
+      # print(ls)
+      new_name = subfolder.split("Results")[0]+'/Results/'+'-'.join([str(int(ls[2])).zfill(2), ls[1], str(date), ls[0]])
       # new_name = subfolder.replace('1D', '1D EXTENDED')
       print(f"New name: {new_name}")
       os.rename(subfolder, new_name)
