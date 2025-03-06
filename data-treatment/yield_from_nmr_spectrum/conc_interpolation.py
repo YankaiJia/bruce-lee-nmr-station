@@ -2,8 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
-
-
+import json
 
 def plot_integral(df, column_name_x, column_name_y, plot_name):
     labels = [f'reaction_{i}' for i in range(6)]
@@ -27,44 +26,90 @@ def plot_integral(df, column_name_x, column_name_y, plot_name):
     plt.show()
 
 # Example data (same as above)
-def interpolate(ref_concs, ref_integrals, measured_integrals):
-    conc_ls = []
-    # Create an interpolation function (linear by default)
-    interp_func = interp1d(ref_integrals, ref_concs, kind='linear',fill_value="extrapolate")
-    for measured_integral in measured_integrals:
-        # Estimate the concentration for the new integral
-        estimated_conc_scipy = interp_func(measured_integral)
-        conc_ls.append(abs(estimated_conc_scipy))
-    return conc_ls
+def interpolate(interp_func, measured_integrals):
+    
+    try:
+        # Attempt to get an iterator for measured_integrals
+        _ = iter(measured_integrals)
+        # If successful, treat measured_integrals as an iterable of values
+        conc_ls = []
+        for val in measured_integrals:
+            estimated_conc = interp_func(val)
+            conc_ls.append(abs(estimated_conc))
+        return conc_ls
+    except TypeError:
+        # If we get a TypeError, measured_integrals is a single value
+        return abs(interp_func(measured_integrals))
 
+
+def json_to_dataframe(json_file):
+    # Load the JSON from a file (or you can pass the JSON string directly to json.loads)
+    with open(json_file, "r") as f:
+        data = json.load(f)
+
+    # Convert to DataFrame:
+    #   - orient="index" treats the top-level keys (reaction names) as row indices
+    df = pd.DataFrame.from_dict(data, orient="index")
+
+    # Make sure all columns exist in the desired order:
+    desired_cols = ["Starting material", "Product A", "Product B"]
+    df = df.reindex(columns=desired_cols)
+
+    # Move the index into a regular column named "Reaction name"
+    df = df.reset_index().rename(columns={"index": "Reaction name"})
+
+    # At this point, df will have columns:
+    #   Reaction name | Starting material | Product A | Product B
+
+    df.columns = ['name', "DPE", "Prod_A", "Prod_B"]
+    # df = df.reindex(columns=desired_cols)
+    return df
 
 if __name__ == "__main__":
 
-    folder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run01_time_varied\\Results\\"
-    path_S = folder + "integrals_S.csv"
-    path_B = folder + "integrals_B.csv"
-
-    df_S = pd.read_csv(path_S)
-    df_B = pd.read_csv(path_B)
-
-    plot_integral(df_S, 'Time(hrs)', 'Integral', 'S')
-    plot_integral(df_B, 'Time(hrs)', 'Integral', 'B')
-
-    # Interpolation
+    # ref data
     folder_ref = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\"
-    path_ref_S = folder_ref + "\\ref_S\\integrals.csv"
-    path_ref_B = folder_ref + "\\ref_B\\integrals.csv"
-    df_ref_S = pd.read_csv(path_ref_S)
-    df_ref_B = pd.read_csv(path_ref_B)
+
+    df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\integration_results.json")
+    df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\integration_results.json")
+    print(df_ref_S.head())
+    print(df_ref_B.head())
+    ref_conc_S = tuple([422.75, 211.375, 105.6875, 52.84375, 26.421875]) # conc in mM
+    ref_conc_B = tuple([484.48, 242.24, 121.12, 60.56, 30.28]) # conc in mM
+
+    # Create interpolation functions (linear by default)
+    interp_func_S = interp1d(df_ref_S['DPE'], ref_conc_S, 
+                            kind='linear',fill_value="extrapolate")
+
+    interp_func_B = interp1d(df_ref_B['Prod_B'],ref_conc_B, 
+                            kind='linear',fill_value="extrapolate")
+
+    # read from json file
+    json_file = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results\\integration_results.json"
+
+    df = json_to_dataframe(json_file)
+    # fill the NaN values with 0
+    df = df.fillna(0)
+    print(df.head())
+    
+    # Interpolate the concentrations
+    interpolated_conc_S = interpolate(interp_func = interp_func_S, 
+                                    measured_integrals=df['DPE'])
+
+    interpolated_conc_B = interpolate(interp_func = interp_func_B,
+                                    measured_integrals=df['Prod_B'])
+
+    exit()
 
 
-    conc_S = interpolate(ref_concs=df_ref_S['Concentration(mM)'], 
-                ref_integrals=df_ref_S['Integral'], 
-                measured_integrals=df_S['Integral'])
 
-    conc_B = interpolate(ref_concs=df_ref_B['Concentration(mM)'],
-                ref_integrals=df_ref_B['Integral'],
-                measured_integrals=df_B['Integral'])
+
+
+
+
+
+
+
 
     # Save the interpolated concentrations to a csv file
     df_S['Concentration(mM)'] = np.array(conc_S)*5.6

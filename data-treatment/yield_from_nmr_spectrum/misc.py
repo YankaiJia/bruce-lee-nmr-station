@@ -90,4 +90,4 @@ def arrange_folder_name():
       print(f"New name: {new_name}")
       os.rename(subfolder, new_name)
 
-arrange_folder_name()
+# arrange_folder_name()

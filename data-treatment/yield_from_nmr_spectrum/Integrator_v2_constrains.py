@@ -318,69 +318,83 @@ if __name__ == "__main__":
         r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv"
         ]
     path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
-    
+
+    # master_path_ls = \
+    # ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run"]
+
+    master_path_ls = ['D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S\\']
+
     # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
-    master_path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\"
+    for master_path in master_path_ls:
     ##########################
 
-    ########Variables#########
-    threshold_amplitude = 1E-10  #Minimum threshold to be integrated
-    total_result_dictionary = {}
-    list_experiment_loaded = []
-    ##########################
+        ########Variables#########
+        threshold_amplitude = 1E-10  #Minimum threshold to be integrated
+        total_result_dictionary = {}
+        list_experiment_loaded = []
+        ##########################
 
-    if master_path is not None:
-        # Initialize list to store full paths of matching folders
-        matching_folders = []
+        if master_path is not None:
+            # Initialize list to store full paths of matching folders
+            matching_folders = []
 
-        # Define the target folder name
-        target_folder = "Results"
+            # Define the target folder name
+            target_folder = "Results"
 
-        # Check if "Results" folder exists
-        results_path = os.path.join(master_path, target_folder)
-        # print(f'results_path: {results_path}')
-        if os.path.isdir(results_path):  # Ensure "Results" is a directory
-            # print(f"'{target_folder}' folder found at: {results_path}")
+            # Check if "Results" folder exists
+            results_path = os.path.join(master_path, target_folder)
+            # print(f'results_path: {results_path}')
+            if os.path.isdir(results_path):  # Ensure "Results" is a directory
+                # print(f"'{target_folder}' folder found at: {results_path}")
 
-            # Iterate through subfolders inside "Results"
-            for folder in os.listdir(results_path):
-                folder_path = os.path.join(results_path, folder)
-                # print(f'folder_path: {folder_path}')
-                
-                # Check if it's a directory and contains "1D EXTENDED"
-                if os.path.isdir(folder_path) and "1D EXTENDED" in folder:
-                    folder_path_extended=folder_path+"\\data.csv"
-                    matching_folders.append(folder_path_extended)
-                    print(folder_path_extended, end="\n\n")
+                # Iterate through subfolders inside "Results"
+                for folder in os.listdir(results_path):
+                    folder_path = os.path.join(results_path, folder)
+                    # print(f'folder_path: {folder_path}')
+                    
+                    # Check if it's a directory and contains "1D EXTENDED"
+                    if os.path.isdir(folder_path) and "1D EXTENDED" in folder:
+                        folder_path_extended=folder_path+"\\data.csv"
+                        matching_folders.append(folder_path_extended)
+                        print(folder_path_extended, end="\n\n")
 
-        file_list = matching_folders
+            file_list = matching_folders
+        # sort the list according to the first two digits of the file name
+        file_list.sort(key=lambda x: int(x.split('\\')[-2].split("-")[0]))
+        
+        for file in file_list:
+            print(file)
 
-    # Iterate through CSV from the list to fit and obtain absolute area
-    for file_name in file_list:
-        print(f"\nProcessing: {file_name}")
-        experiment_dictionary, experiment_name=integrate_spectrum(file_name,
-                                                                  plot_whole_spectrum=False,
-                                                                  show_slices=False)
-        list_experiment_loaded.append(experiment_name)
-        print(f"\n{experiment_name}: {experiment_dictionary}")
-        total_result_dictionary.update({experiment_name : experiment_dictionary}) 
+        # Iterate through CSV from the list to fit and obtain absolute area
+        for file_name in file_list:
+            print(f"\nProcessing: {file_name}")
+            experiment_dictionary, experiment_name=integrate_spectrum(file_name,
+                                                                    plot_whole_spectrum=False,
+                                                                    show_slices=False)
+            list_experiment_loaded.append(experiment_name)
+            print(f"\n{experiment_name}: {experiment_dictionary}")
+            total_result_dictionary.update({experiment_name : experiment_dictionary}) 
 
-    # Get current date in YYYY-MM-DD format
-    current_date = datetime.now().strftime("%Y-%m-%d")
+        # Get current date in YYYY-MM-DD format
+        current_date = datetime.now().strftime("%Y-%m-%d")
 
-    # Define full JSON file path
-    path_to_json = results_path
-    json_filename = os.path.join(path_to_json, f"Fitting_results_{current_date}.json")
+        # Define full JSON file path
+        path_to_json = results_path
+        # json_filename = os.path.join(path_to_json, f"Fitting_results_{current_date}.json")
+        json_filename = os.path.join(path_to_json, "integration_results.json")
 
-    # Save dictionary as JSON
-    with open(json_filename, "w") as json_file:
-        json.dump(total_result_dictionary, json_file, indent=4)
+        # Save dictionary as JSON
+        with open(json_filename, "w") as json_file:
+            json.dump(total_result_dictionary, json_file, indent=4)
 
-    # Define the text file path
-    text_filename = os.path.join(path_to_json, f"Fitting_list_{current_date}.txt")
+        # Define the text file path
+        text_filename = os.path.join(path_to_json, f"reaction_name_list.txt")
 
-    # Save list to text file (each entry on a new line)
-    with open(text_filename, "w") as text_file:
-        text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
+        # Save list to text file (each entry on a new line)
+        with open(text_filename, "w") as text_file:
+            text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
 
-    print(f"\nResults saved to: {path_to_json}")
+        print(f"\nResults saved to: {path_to_json}")
