@@ -10,6 +10,31 @@ import json
 from datetime import datetime
 ########################
 
+###########Settings###########
+solvent_shift = 3.73 #ppm DCE
+peak_width_50 = 0.01 #ppm at 50%
+threshold_amplitude = 1E-10  #Minimum threshold to be integrated
+
+
+peaks_info = [  #Begining of region of itnerest, End of region of interest, expected peak number
+[5.30, 5.60], #Substrate SM, 2H
+[4.30, 5.00], #DCE    
+[6.5, 7.1], # Product B, 1H
+[4.45, 4.70], #Product A, 2H
+[6.4, 6.6],#Unknown impurity SM peak1
+[4.35, 4.55],#Unknown impurity SM peak 2
+            ]
+reference_shift={
+    "Starting material": [5.467], #ppm
+    "Product A": [4.527], #ppm
+    "Product B": [6.807], #ppm
+    "Solvent": [4.775, 4.693, 4.605], #ppm
+    "Unknown impurity SM peak 1": [6.453],
+    "Unknown impurity SM peak 2": [4.474],
+                }
+##########################
+
+
 ########Functions#########
 def CSV_Loader(name_file, Yankai_temporary_fix=True):   #Yankai_temporary_fix: quick fix for the iunverted ppm scale
 
@@ -277,62 +302,9 @@ def integrate_spectrum(file_name, plot_whole_spectrum=False, show_slices=False):
 
     return results_dictionary, experiment_name
 
-
-if __name__ == "__main__":
-
-    ###########DATA#############
-    solvent_shift = 3.73 #ppm DCE
-    peak_width_50 = 0.01 #ppm at 50%
-
-    peaks_info = [  #Begining of region of itnerest, End of region of interest, expected peak number
-    [5.30, 5.60], #Substrate SM, 2H
-    [4.30, 5.00], #DCE    
-    [6.5, 7.1], # Product B, 1H
-    [4.45, 4.70], #Product A, 2H
-    [6.4, 6.6],#Unknown impurity SM peak1
-    [4.35, 4.55],#Unknown impurity SM peak 2
-                ]
-    reference_shift={
-        "Starting material": [5.467], #ppm
-        "Product A": [4.527], #ppm
-        "Product B": [6.807], #ppm
-        "Solvent": [4.775, 4.693, 4.605], #ppm
-        "Unknown impurity SM peak 1": [6.453],
-        "Unknown impurity SM peak 2": [4.474],
-                    }
-    ##########################
-
-    #####File location########
-    file_list =[
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv"
-        ]
-    path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
-
-    master_path_ls = \
-    ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
-    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
-    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run"]
-
-    # master_path_ls = ['D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S\\']
-
-    # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
-    for master_path in master_path_ls:
-    ##########################
-
+def integrate_one_folder(master_path, is_save_json=False):
+    
         ########Variables#########
-        threshold_amplitude = 1E-10  #Minimum threshold to be integrated
         total_result_dictionary = {}
         list_experiment_loaded = []
         ##########################
@@ -364,9 +336,6 @@ if __name__ == "__main__":
             file_list = matching_folders
         # sort the list according to the first two digits of the file name
         file_list.sort(key=lambda x: int(x.split('\\')[-2].split("-")[0]))
-        
-        for file in file_list:
-            print(file)
 
         # Iterate through CSV from the list to fit and obtain absolute area
         for file_name in file_list:
@@ -376,7 +345,9 @@ if __name__ == "__main__":
                                                                     show_slices=False)
             list_experiment_loaded.append(experiment_name)
             print(f"\n{experiment_name}: {experiment_dictionary}")
-            total_result_dictionary.update({experiment_name : experiment_dictionary}) 
+            # total_result_dictionary.update({experiment_name : experiment_dictionary}) 
+            total_result_dictionary[experiment_name] = experiment_dictionary
+
 
         # Get current date in YYYY-MM-DD format
         current_date = datetime.now().strftime("%Y-%m-%d")
@@ -387,14 +358,51 @@ if __name__ == "__main__":
         json_filename = os.path.join(path_to_json, "integration_results.json")
 
         # Save dictionary as JSON
-        with open(json_filename, "w") as json_file:
-            json.dump(total_result_dictionary, json_file, indent=4)
+        if is_save_json:
+            with open(json_filename, "w") as json_file:
+                json.dump(total_result_dictionary, json_file, indent=4)
 
         # Define the text file path
         text_filename = os.path.join(path_to_json, f"reaction_name_list.txt")
 
         # Save list to text file (each entry on a new line)
-        with open(text_filename, "w") as text_file:
-            text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
+        if is_save_json:
+            with open(text_filename, "w") as text_file:
+                text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
 
-        print(f"\nResults saved to: {path_to_json}")
+            print(f"\nResults saved to: {path_to_json}")
+
+if __name__ == "__main__":
+
+    
+    #####File location########
+    file_list =[
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv"
+        ]
+    path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
+
+    master_path_ls = \
+    ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run"
+    ]
+
+    # master_path_ls = ['D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S\\']
+
+    # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
+    for master_path in master_path_ls:
+    ##########################
+
+        integrate_one_folder(master_path)
