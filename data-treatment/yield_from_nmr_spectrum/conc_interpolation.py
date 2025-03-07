@@ -66,7 +66,7 @@ def json_to_dataframe(json_file):
     # At this point, df will have columns:
     #   Reaction name | Starting material | Product A | Product B
 
-    df.columns = ['name', "DPE", "Prod_A", "Prod_B"]
+    df.columns = ['name', "intg_S", "intg_A", "intg_B"]
     # df = df.reindex(columns=desired_cols)
     return df
 
@@ -77,18 +77,22 @@ def get_interp_funcs():
 
     df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\integration_results.json")
     df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\integration_results.json")
+    df_ref_S.columns = ['name', "intg_S", "intg_A", "intg_B"]
+    df_ref_B.columns = ['name', "intg_S", "intg_A", "intg_B"]
+
+
     print(df_ref_S.head())
     print(df_ref_B.head())
     ref_conc_S = tuple([422.75, 211.375, 105.6875, 52.84375, 26.421875]) # conc in mM
     ref_conc_B = tuple([484.48, 242.24, 121.12, 60.56, 30.28]) # conc in mM
 
     # Create interpolation functions (linear by default)
-    interp_func_S = interp1d(df_ref_S['DPE'], ref_conc_S, 
+    interp_func_S = interp1d(df_ref_S['intg_S'], ref_conc_S, 
                             kind='linear',fill_value="extrapolate")
 
-    interp_func_B = interp1d(df_ref_B['Prod_B'],ref_conc_B, 
+    interp_func_B = interp1d(df_ref_B['intg_B'],ref_conc_B, 
                             kind='linear',fill_value="extrapolate")
-
+    
     return interp_func_S, interp_func_B
 
 if __name__ == "__main__":
@@ -98,34 +102,55 @@ if __name__ == "__main__":
     # folder to analyze
     # data_folders = gui.select_folders()
 
-    data_folders = ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+    run_folders = ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
                     "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
                     "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
                     "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\"
                     ]
-    data_folders = [i+"\\Results" for i in data_folders]
+
+    # results_folders = [i+"\\Results" for i in run_folders]
     
-    for data_folder in data_folders:
-        print(f"Analyzing {data_folder}")
+    for run_folder in run_folders:
+
+        result_folder = run_folder + "\\Results"
         
         # read from json file
-        json_file = data_folder+ "\\integration_results.json"
+        json_file = result_folder+ "\\integration_results.json"
 
         df = json_to_dataframe(json_file)
         # fill the NaN values with 0
         df = df.fillna(0)
         print(df.head())
         
-        # Interpolate the concentrations
-        interpolated_conc_S = interpolate(interp_func = interp_func_S, 
-                                        measured_integrals=df['DPE'])
+        # S: 2H, B: 1H, A: 1H. S is DPE
+        # int_s / (2 * conc_s) = int_b / conc_b = int_a / (2 * conc_a)
+        interpolated_conc_S_from_ref_S = interpolate(interp_func = interp_func_S, 
+                                        measured_integrals=df['intg_S'])
+        # get conc from reference curve of S and use it as internal standard             
+        interpolated_conc_B_from_ref_S = 2 * df['intg_B'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
+        interpolated_conc_A_from_ref_S = 1 * df['intg_A'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
+        
+        
+        # get conc from reference curve of B and use it as internal standard        
+        interpolated_conc_B_from_ref_B = interpolate(interp_func = interp_func_B,
+                                        measured_integrals=df['intg_B'])
+        interpolated_conc_S_from_ref_B = 0.5 * df['intg_S'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
+        interpolated_conc_A_from_ref_B = 0.5 * df['intg_A'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
 
-        interpolated_conc_B = interpolate(interp_func = interp_func_B,
-                                        measured_integrals=df['Prod_B'])
+        df['S_from_S'] = interpolated_conc_S_from_ref_S
+        df['S_from_B'] = interpolated_conc_S_from_ref_B
+        df['B_from_S'] = interpolated_conc_B_from_ref_S
+        df['B_from_B'] = interpolated_conc_B_from_ref_B
+        df['A_from_S'] = interpolated_conc_A_from_ref_S
+        df['A_from_B'] = interpolated_conc_A_from_ref_B
 
-        df['S_from_S'] = interpolated_conc_S
-        df['B_from_B'] = interpolated_conc_B
-        print(df.head())
+        print(df.head(20))
 
         # save df to csv
-        df.to_csv(data_folder+"\\conc_interpolated.csv")
+        # df.to_csv(result_folder + "\\conc_interpolated.csv")
+
+        # read volumns from the excel file of pipetting
+        run_name = os.path.basename(run_folder)
+        # formation of run folder: yyyy-mm-dd-run0x(-note1-note2)
+        # get real run name with regex
+        excel_file = data_folder
