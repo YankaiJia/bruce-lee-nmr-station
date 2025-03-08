@@ -9,3 +9,5 @@ matplotlib
 scipy
 pandas
 nmrglue
+mayavi: pip install https://github.com/enthought/mayavi/zipball/main
+
