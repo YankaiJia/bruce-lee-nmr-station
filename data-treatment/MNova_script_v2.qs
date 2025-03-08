@@ -211,8 +211,11 @@ function getSubfolderPath_file(folderPath){
 	var limits = spec.getFullScaleLimits();
 	
 	// Be careful about the sequence
-	var toX = limits.fromX;
-	var fromX = limits.toX;
+	var fromX = limits.fromX;
+	var toX = limits.toX;
+	
+	//MessageBox.information(fromX)
+	//MessageBox.information(toX)
 		
 	// Calculate x-axis values (linearly spaced)
 	var xData = [];
@@ -220,8 +223,10 @@ function getSubfolderPath_file(folderPath){
 	for (var i = 0; i < N; i++) {
 			xData.push(fromX + i * step);
 	}                
-
-	// Build CSV content with header
+	//MessageBox.information(xData[0]);
+	//MessageBox.information(xData[100]);
+		
+		// Build CSV content with header
 	var csvContent = "x,y\n";
 	for (var i = 0; i < N; i++) {
 		csvContent += xData[i] + "," + yData[i] + "\n";
