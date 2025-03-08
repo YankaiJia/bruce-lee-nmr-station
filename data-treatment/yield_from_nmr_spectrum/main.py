@@ -33,7 +33,44 @@ def check_and_return_folder_structure():
     assert os.path.exists(result_folder), "Results folder does not exist!"
     return result_folder, excel_file, out_conc_file, out_vol_file
 
+      
+def combine_data(df_final_conc, 
+                excel_file, out_conc_file, out_vol_file, result_folder, is_save_csv=True):   
+    # assign the vial index from reaction name. vial_index is the same as local_index
+    vial_index = [int(i[0]) for i in df_final_conc['spectrum_name'].str.split('-')]
+    df_final_conc['local_index'] = vial_index
+    # move the vial_index to the first column
+    df_final_conc = df_final_conc[['local_index'] + [col for col in df_final_conc.columns if col != 'local_index']]
 
+    # attach reaction conditions to the dataframe
+    # load exce file into df
+    df_excel = pd.read_excel(excel_file, engine='openpyxl')
+    vol_cols = [col for col in df_excel.columns if 'vol#' in col]
+    # get the volume data
+    df_vols = df_excel[['local_index','global_index']+vol_cols]
+    print(df_vols.head())
+
+    # get the conc data
+    df_init_conc = pd.read_csv(out_conc_file)
+    # multiply the conc data with 1000 to convert to mM, except the first column
+    df_init_conc.iloc[:, 1:] = df_init_conc.iloc[:, 1:] * 1000
+    # rename the first column to global_index
+    df_init_conc.columns.values[0] = 'global_index'
+
+    # merge the df_vols with df_init_conc according to global_index
+    df_merged_vols_with_init_conc = pd.merge(df_init_conc, df_vols, on='global_index', how='inner')
+
+    # merge the result with the df_final_conc according to local_index (vial_index)
+    df_final = pd.merge(df_merged_vols_with_init_conc, df_final_conc, on='local_index', how='inner')
+
+    # sort the final dataframe according to local_index
+    df_final = df_final.sort_values(by='local_index')
+
+    # save the final dataframe to csv
+    if is_save_csv:
+        df_final.to_csv(result_folder + "\\final_results.csv", index=False) 
+
+    return df_final
 
 if __name__ == "__main__":
 
@@ -51,39 +88,13 @@ if __name__ == "__main__":
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
-        # Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
+        Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
 
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, is_save_csv=True)
-        
-        # assign the vial index from reaction name. vial_index is the same as local_index
-        vial_index = [int(i[0]) for i in df_final_conc['spectrum_name'].str.split('-')]
-        df_final_conc['local_index'] = vial_index
-        # move the vial_index to the first column
-        df_final_conc = df_final_conc[['local_index'] + [col for col in df_final_conc.columns if col != 'local_index']]
-
-        # attach reaction conditions to the dataframe
-        # load exce file into df
-        df_excel = pd.read_excel(excel_file, engine='openpyxl')
-        vol_cols = [col for col in df_excel.columns if 'vol#' in col]
-        # get the volume data
-        df_vols = df_excel[['local_index','global_index']+vol_cols]
-        print(df_vols.head())
-
-        # get the conc data
-        df_init_conc = pd.read_csv(out_conc_file)
-        # multiply the conc data with 1000 to convert to mM, except the first column
-        df_init_conc.iloc[:, 1:] = df_init_conc.iloc[:, 1:] * 1000
-        # rename the first column to global_index
-        df_init_conc.columns.values[0] = 'global_index'
-
-        # merge the df_vols with df_init_conc according to global_index
-        df_merged_vols_with_init_conc = pd.merge(df_init_conc, df_vols, on='global_index', how='inner')
-
-        # merge the result with the df_final_conc according to local_index (vial_index)
-        df_final = pd.merge(df_merged_vols_with_init_conc, df_final_conc, on='local_index', how='inner')
-
-        # sort the final dataframe according to local_index
-        df_final = df_final.sort_values(by='local_index')
-
-        # save the final dataframe to csv
-        df_final.to_csv(result_folder + "\\final_results.csv", index=False)
+  
+        df_final = combine_data(df_final_conc, 
+                                excel_file, 
+                                out_conc_file, 
+                                out_vol_file, 
+                                result_folder, 
+                                is_save_csv=True)
