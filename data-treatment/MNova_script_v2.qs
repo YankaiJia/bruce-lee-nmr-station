@@ -34,19 +34,29 @@ function processSpectrum(){
 
 	var spec = new NMRSpectrum(nmr.activeSpectrum());
 	var p = new NMRProcessing(spec.proc);		
+	
+	page_info = spec.originalFileName;		
+	
+						
+	print(spec.originalFileName);
+								
 
 	//**********************************Trimming*************************************//
-var regs = new Array(2);
-regs[0]  = new SpectrumRegion(-28, 0);
-regs[1] = new SpectrumRegion(9, 36);
-p.setParameter("cuts.apply", true);
-p.setParameter("cuts.list", regs);
+	var regs = new Array(2);
+	regs[0]  = new SpectrumRegion(-28, 0);
+	regs[1] = new SpectrumRegion(9, 36);
+	p.setParameter("cuts.apply", true);
+	p.setParameter("cuts.list", regs);
+	
+	
+	
+	
 
 	//*******************************************************************************//
 
 	//*****************************PHASE CORRECTION**********************************//
 	//p.setParameter("PC.method", "NoPC")
-	p.setParameter("PC.method", "Global, Metabonomics") // this is good for DPE
+	p.setParameter("PC.method", "Global, Metabonomics"); // this is good for DPE
 	//MessageBox.information(p.getParameter("PC"))
 	//	p.setParameter("PC.method", "Min Entropy")
 	//Reassign the updated processing object to the spectrum and process
@@ -90,7 +100,7 @@ p.setParameter("cuts.list", regs);
     // Process the spectrum with the updated processing parameters
 	spec.proc = p;
     spec.process();
-    	spec.update();	
+    spec.update();	
     	  	
 //*****************************REFERENCING*******************************************//
     // Retrieve the list of detected peaks
@@ -122,11 +132,11 @@ p.setParameter("cuts.list", regs);
                                                              
 //******************************************************************************//
 	// Process the spectrum with the updated processing parameters
-	print(p.getParameter("cuts"));	
-	print(p.getParameter("PC"))
-	print(p.getParameter("BC"))
-	print(p.getParameter("Ref"))
-	print(p.getParameter("PP"))
+	//print(p.getParameter("cuts"));	
+	//print(p.getParameter("PC"))
+	//print(p.getParameter("BC"))
+	//print(p.getParameter("Ref"))
+	//print(p.getParameter("PP"))
 	spec.proc = p;
    spec.process();   
 	
@@ -159,6 +169,13 @@ p.setParameter("cuts.list", regs);
 	
 	//spec.scaleToPage();
 	//spec.selectSpectra(2000);
+	
+	//**********************ZOOM*****************************//
+	//spec.horZoom(0, 12);
+	spec.vertZoom(-0.5, 4);
+	spec.update();
+	//**********************************************************//
+	
 	return spec;
 }
 
@@ -257,12 +274,16 @@ var fileFullPathList=getSubfolderPath_file(parentFolder);
 //MessageBox.information(dirFullPathList);
 //MessageBox.information(fileFullPathList);
 for (var j=0; j<dirFullPathList.length; j++){
+	print('**************************************')
+	print("Window NO: ", j+1);
 	var file_path = fileFullPathList[j];
 	var dir_path = dirFullPathList[j];
 	var serObj  = serialization.open(file_path);
 	spec = processSpectrum();
-	print(j);
+
 	saveOneSpectrum(spec, dir_path);
+	print('**************************************\n\n')
+		
 }
 
 //print("B integrals:", prd_B_peak_integration_ls);
