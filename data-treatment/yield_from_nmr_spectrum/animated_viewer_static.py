@@ -1,5 +1,6 @@
 import importlib
 import os
+import pandas as pd
 
 import numpy as np
 from mayavi import mlab
@@ -154,25 +155,35 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
 
 
 if __name__ == '__main__':
+
+    # get data from path
+    path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
+
+    df = pd.read_csv(path)
+
     # Initial generation of the data
     npoints = 7j
-    x_raw, y_raw, z_raw = np.mgrid[1:5:npoints,
-                          10:50:npoints,
-                          100:500:npoints]
-    # flatten all arrays
-    x_raw = x_raw.flatten()
-    y_raw = y_raw.flatten()
-    z_raw = z_raw.flatten()
-    # k_raw = x_raw * y_raw * z_raw
-    k_raw = x_raw + y_raw + z_raw
+    # x_raw, y_raw, z_raw = np.mgrid[1:5:npoints,
+    #                       10:50:npoints,
+    #                       100:500:npoints]
 
-    print(x_raw)
-    print(y_raw)
-    print(z_raw)
-    print(k_raw)
+    x_raw, y_raw, z_raw = df['DPE'], df['TBABr'], df['Br2']
+
+
+    # flatten all arrays
+    # x_raw = x_raw.flatten()
+    # y_raw = y_raw.flatten()
+    # z_raw = z_raw.flatten()
+    # k_raw = x_raw * y_raw * z_raw
+    k_raw = 1-df['S_conversion']
+
+    # print(x_raw)
+    # print(y_raw)
+    # print(z_raw)
+    # print(k_raw)
 
     plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw,
-                            substance_titles=('Alcohol', 'HBr', 'Temperature'),
-                            colorbar_title='Yield',
+                            substance_titles=('DPE', 'TBABr', 'Br2'),
+                            colorbar_title='Conversion_DPE',
                             npoints=30, sparse_npoints=4, rbf_epsilon=0.04,
                             rbf_smooth=0.001)

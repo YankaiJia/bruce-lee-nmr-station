@@ -44,7 +44,9 @@ def combine_data(df_final_conc,
 
     # attach reaction conditions to the dataframe
     # load exce file into df
-    df_excel = pd.read_excel(excel_file, engine='openpyxl')
+    # df_excel = pd.read_excel(excel_file, engine='openpyxl')
+    df_excel = pd.read_excel(excel_file)
+
     vol_cols = [col for col in df_excel.columns if 'vol#' in col]
     # get the volume data
     df_vols = df_excel[['local_index','global_index']+vol_cols]
@@ -95,7 +97,7 @@ if __name__ == "__main__":
                                 result_folder)
 
         # calc the S conversion
-        df_all['S_conversion'] = df_all['S_from_S'] / df_all['DPE']
+        df_all['S_conversion'] = 1 - df_all['S_from_S'] / df_all['DPE']
 
         # save the final dataframe to csv
         df_all.to_csv(result_folder + "\\final_results.csv", index=False)
