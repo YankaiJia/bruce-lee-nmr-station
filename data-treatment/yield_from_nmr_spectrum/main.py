@@ -35,7 +35,7 @@ def check_and_return_folder_structure():
 
       
 def combine_data(df_final_conc, 
-                excel_file, out_conc_file, out_vol_file, result_folder, is_save_csv=True):   
+                excel_file, out_conc_file, out_vol_file, result_folder):   
     # assign the vial index from reaction name. vial_index is the same as local_index
     vial_index = [int(i[0]) for i in df_final_conc['spectrum_name'].str.split('-')]
     df_final_conc['local_index'] = vial_index
@@ -66,10 +66,6 @@ def combine_data(df_final_conc,
     # sort the final dataframe according to local_index
     df_final = df_final.sort_values(by='local_index')
 
-    # save the final dataframe to csv
-    if is_save_csv:
-        df_final.to_csv(result_folder + "\\final_results.csv", index=False) 
-
     return df_final
 
 if __name__ == "__main__":
@@ -88,13 +84,27 @@ if __name__ == "__main__":
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
-        Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
+        # Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
 
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, is_save_csv=True)
   
-        df_final = combine_data(df_final_conc, 
+        df_all = combine_data(df_final_conc, 
                                 excel_file, 
                                 out_conc_file, 
                                 out_vol_file, 
-                                result_folder, 
-                                is_save_csv=True)
+                                result_folder)
+
+        # calc the S conversion
+        df_all['S_conversion'] = df_all['S_from_S'] / df_all['DPE']
+
+        # save the final dataframe to csv
+        df_all.to_csv(result_folder + "\\final_results.csv", index=False)
+
+    # merge all the final_results.csv into one file
+    df_full_experiment = pd.DataFrame()
+    for run_folder in run_folders:
+        result_folder = run_folder + "\\Results"
+        df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
+
+    df_full_experiment.to_csv("D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv", index=False)
+
