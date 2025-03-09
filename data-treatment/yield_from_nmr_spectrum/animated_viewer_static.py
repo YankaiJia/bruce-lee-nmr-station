@@ -34,18 +34,6 @@ def Arrow_From_A_to_B(x1, y1, z1, x2, y2, z2):
     ar1.axis = [x2-x1, y2-y1, z2-z1]
     return ar1
 
-def create_folder_unless_it_exists(path):
-    """
-    Create folder if it does not exist. If it exists, do nothing.
-
-    Parameters
-    ----------
-    path: str
-        Path to the folder to be created or checked.
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-
 
 def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alcohol', 'HBr', 'Temperature'),
                             npoints=30, sparse_npoints=4, rbf_epsilon=0.01, rbf_smooth=0.001,
