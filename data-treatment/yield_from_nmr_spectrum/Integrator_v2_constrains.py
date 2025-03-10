@@ -132,14 +132,19 @@ def fit_with_bounds(shift_array,intensity_array,initial_guesses,std_deviation,lo
                             )
         return popt, covariance_matrix
 
-def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, constrained_fit=True):
+def fit_peaks(NMR_spectrum, 
+             std_deviation, 
+             estimated_peak_width_for_indexes, 
+             constrained_fit=True,
+             is_plot_fitting=False):
+             
     shift_array = NMR_spectrum [:,0] 
     intensity_array = NMR_spectrum [:,1]
     peaks, _ = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
-    # If no peaks are found, stop
+
     if len(peaks) == 0:
         print(f"Slices skipped, no peak found.")
-        return [], []
+        return [], [], None  # ✅ Now returns 3 values
     
     if False:
         print(f"{len(peaks)} found in slice: {round(shift_array[0],2)} - {round(shift_array[-1],2)} ppm.")
@@ -163,8 +168,6 @@ def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, con
         lower_bounds.extend([0, shift_array[0], 0])
         upper_bounds.extend([amp_guess*2, shift_array[-1], wid_guess*4])
 
-
-
     # Fit peaks
     try:
         if constrained_fit == False:
@@ -178,28 +181,32 @@ def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, con
        
         # Generate fitted curve
         fitted_y = sum_of_lorentzian(shift_array, *popt)
+
         # Plot original data and fit results
-        if False:
-            for indice, parameter in enumerate(opti_parameter):
-                print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
+        for indice, parameter in enumerate(opti_parameter):
+            print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
 
-            plt.imshow(covariance_matrix, cmap='seismic', vmin=-1*np.max(np.abs(covariance_matrix)), vmax=np.max(np.abs(covariance_matrix)))
-            plt.colorbar()
-            plt.figure(figsize=(10, 5))
-            plt.plot(shift_array, intensity_array, 'b-', label="Original Spectrum")
-            plt.plot(shift_array, fitted_y, 'r--', label="Lorentzian Fit")
-            plt.scatter(shift_array[peaks], intensity_array[peaks], color='green', marker='o', label="Detected Peaks")
-            plt.xlabel("Shift (ppm)")
-            plt.ylabel("Intensity")
-            plt.legend()
-            plt.title("Peak Fitting")
-            plt.show()
+        # make two subplots
+        fig, ax = plt.subplots(1, 2, figsize=(8, 5))
+        cax = ax[0].imshow(covariance_matrix, cmap='seismic', vmin=-1*np.max(np.abs(covariance_matrix)), vmax=np.max(np.abs(covariance_matrix)))
+        fig.colorbar(cax, ax=ax[0])
+        ax[0].set_title("Covariance Matrix")
+        ax[1].plot(shift_array, intensity_array, 'b-', label="Original Spectrum")
+        ax[1].plot(shift_array, fitted_y, 'r--', label="Lorentzian Fit")
+        ax[1].scatter(shift_array[peaks], intensity_array[peaks], color='green', marker='o', label="Detected Peaks")
+        ax[1].set_xlabel("Shift (ppm)")
+        ax[1].set_ylabel("Intensity")
+        ax[1].legend()
+        ax[1].set_title("Peak Fitting")
+       
+        if is_plot_fitting:
+            fig.show()
 
-        return opti_parameter, opti_parameter_error
+        return opti_parameter, opti_parameter_error, fig
 
     except RuntimeError:
         print("Curve fitting failed for this slice.")
-        return [], []
+        return [], [], []
 
 def integration_peak (amp, cen, wid):
     return (amp/(wid))
@@ -229,21 +236,33 @@ def find_closest_reference(fitted_center, reference_dict):
 
     return closest_product, closest_shift
 
-def integrate_spectrum(file_name, plot_whole_spectrum=False, show_slices=False):
+def integrate_spectrum(file_name, 
+                       is_plot_whole_spectrum=False, 
+                       is_show_slices=False):
     # Extract the filename with extension
     filename_with_ext = os.path.basename(file_name)
+    # get the dir name of the file
+    dir_for_file = os.path.dirname(file_name)
     # Remove the extension
     experiment_name =os.path.basename(os.path.dirname(file_name)) #= os.path.splitext(filename_with_ext)[0]
     
     NMR_spectrum = CSV_Loader(file_name)
 
-    if plot_whole_spectrum:
-        plt.figure(figsize = (12, 6)) 
-        plt.plot(NMR_spectrum[:,0],NMR_spectrum[:,1], alpha=0.9,linewidth=1)
-        plt.gca().invert_xaxis() # show the plot from right to left
-        plt.xlabel('Shift (ppm)')
-        plt.ylabel('Intensity')
-        plt.title('Whole NMR spectrum')
+    # plot the whole spectrum
+    plt.figure(figsize = (12, 6)) 
+    plt.plot(NMR_spectrum[:,0],NMR_spectrum[:,1], alpha=0.9,linewidth=1)
+    plt.gca().invert_xaxis() # show the plot from right to left
+    plt.xlabel('Shift (ppm)')
+    plt.ylabel('Intensity')
+    # set x limit to [0.5, 8], y limit to [-0.1, 1.8]
+    plt.xlim(0.5, 8)
+    plt.ylim(-0.1, 1.8)
+    plt.title('Whole NMR spectrum')
+
+    # save the plot to the folder
+    plt.savefig(dir_for_file + f'\\whole_spectrum.png', dpi=300)
+
+    if is_plot_whole_spectrum:
         plt.show()
 
     std_deviation=float(np.std(NMR_spectrum[-2000:,1]))
@@ -257,30 +276,51 @@ def integrate_spectrum(file_name, plot_whole_spectrum=False, show_slices=False):
 
     NMR_slices = extract_slices(NMR_spectrum, interval_to_slice_spectrum)
 
+    # make a plot containing all the slices 
+    num_slices = len(NMR_slices)
+    # make 1 row and num_slices columns
+    fig, axs = plt.subplots(1, num_slices, figsize=( 7*num_slices, 10))
+    for i, slice in enumerate(NMR_slices):
+        axs[i].plot(slice[:,0], slice[:,1], alpha=0.9,linewidth=2.5)
+        axs[i].set_xlabel('Shift (ppm)')
+        axs[i].set_ylabel('Intensity')
+        start=round(slice[0,0], 2)
+        end=round(slice[-1,0], 2)
+        axs[i].set_title(f'NMR slice:{i}, {start} - {end} ppm')
+    
+    # save the plot to the folder
+    plt.savefig(dir_for_file + f'\\slices.png', dpi=300)
 
-    if show_slices:
-        for  indice, slice in enumerate(NMR_slices):
-            plt.figure(figsize = (12, 6)) 
-            plt.plot(slice[:,0],slice[:,1], alpha=0.9,linewidth=2.5)
-            plt.xlabel('Shift (ppm)')
-            plt.ylabel('Intensity')
-            start=round(slice[0,0], 2)
-            end=round(slice[-1,0], 2)
-            plt.title(f'NMR slice:{indice}, {start} - {end} ppm')
-
-            plt.figure(figsize = (12, 6)) 
-            plt.plot(slice[:,1], alpha=0.9,linewidth=2.5)
-            plt.xlabel('Indices')
-            plt.ylabel('Intensity')
-            plt.title(f'NMR slice:{indice}, {start} - {end} ppm')
+    if is_show_slices:
         plt.show()
+
+    # for  indice, slice in enumerate(NMR_slices):
+    #     plt.figure(figsize = (12, 6)) 
+    #     plt.plot(slice[:,0],slice[:,1], alpha=0.9,linewidth=2.5)
+    #     plt.xlabel('Shift (ppm)')
+    #     plt.ylabel('Intensity')
+    #     start=round(slice[0,0], 2)
+    #     end=round(slice[-1,0], 2)
+    #     plt.title(f'NMR slice:{indice}, {start} - {end} ppm')
+
+    #     plt.figure(figsize = (12, 6)) 
+    #     plt.plot(slice[:,1], alpha=0.9,linewidth=2.5)
+    #     plt.xlabel('Indices')
+    #     plt.ylabel('Intensity')
+    #     plt.title(f'NMR slice:{indice}, {start} - {end} ppm')
 
     results_dictionary={}
 
+    figures = []
+
     for slice in NMR_slices:
-        
-        parameters, error = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
-        
+
+        parameters, error, figure = fit_peaks(slice, 
+                                            std_deviation, 
+                                            estimated_peak_width_for_indexes)
+        if figure is not None:
+            figures.append(figure)
+
         # Iterate through fitted peak parameters
         for parameter in parameters:
             if parameter[0]<threshold_amplitude:
@@ -300,9 +340,35 @@ def integrate_spectrum(file_name, plot_whole_spectrum=False, show_slices=False):
                 else:
                     results_dictionary[closest_product] = peak_area  # Create new list
 
+    if figures: 
+        # save the all the figs to one plot
+        num_plots = len(figures)
+        fig, axs = plt.subplots(num_plots, 2, figsize=(10, 5 * num_plots))  # Assuming each fig has 2 subplots
+        # Iterate over stored figures and re-plot their data
+        for i, fig_obj in enumerate(figures):
+            for j, ax in enumerate(fig_obj.axes):  # Extract axes from original fig
+                if j == 0:  # First subplot (Covariance Matrix - imshow)
+                    for image in ax.images:  # Extract imshow images
+                        axs[i, j].imshow(image.get_array(), cmap=image.get_cmap(),
+                                        vmin=image.get_clim()[0], vmax=image.get_clim()[1])
+                    axs[i, j].set_title(ax.get_title())
+                
+                elif j == 1:  # Second subplot (Peak Fitting - plot)
+                    for line in ax.lines:  # Extract line plots
+                        x_data, y_data = line.get_data()
+                        axs[i, j].plot(x_data, y_data, label=line.get_label())
+                    axs[i, j].set_title(ax.get_title())
+                    axs[i, j].legend()
+
+        # save the plot to the folder
+        fig.savefig(dir_for_file + f'\\fitting_results.png', dpi = 300)
+
     return results_dictionary, experiment_name
 
-def integrate_one_folder(master_path, is_save_json=False):
+def integrate_one_folder(master_path, 
+                        is_save_json=False, 
+                        is_save_fitting_plot = True, 
+                        is_show_slices=False):
     
         ########Variables#########
         total_result_dictionary = {}
@@ -341,8 +407,8 @@ def integrate_one_folder(master_path, is_save_json=False):
         for file_name in file_list:
             print(f"\nProcessing: {file_name}")
             experiment_dictionary, experiment_name=integrate_spectrum(file_name,
-                                                                    plot_whole_spectrum=False,
-                                                                    show_slices=False)
+                                                                    is_plot_whole_spectrum=False,
+                                                                    is_show_slices=False)
             list_experiment_loaded.append(experiment_name)
             print(f"\n{experiment_name}: {experiment_dictionary}")
             # total_result_dictionary.update({experiment_name : experiment_dictionary}) 
@@ -374,35 +440,33 @@ def integrate_one_folder(master_path, is_save_json=False):
 
 if __name__ == "__main__":
 
-    
     #####File location########
-    file_list =[
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv"
-        ]
-    path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
-
-    master_path_ls = \
-    ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
-    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
-    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run"
-    ]
+    # file_list =[
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
+    #     r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv"
+    #     ]
+    # path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
 
     # master_path_ls = ['D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S\\']
-
     # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
-    for master_path in master_path_ls:
-    ##########################
 
+    master_path_ls = \
+    ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run",
+    "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run",
+    ]
+
+    for master_path in master_path_ls:
         integrate_one_folder(master_path)

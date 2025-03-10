@@ -41,7 +41,8 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                             colorbar_title="Yield", rbf_function="multiquadric", axes_ticks_format='%.2f', axes_font_factor=0.83,
                             contour_opacity=1, single_size_of_points=False,
                             forced_kmax=None, dont_mlabshow=False, reorient_callable=None, savefig=None,
-                            transparent=False):
+                            transparent=False, 
+                            spectrum_name=None):
     # get mayavi engine
     # mlab_engine = mlab.get_engine()
     # scene.scene.camera.focal_point = [0.5206201337277889, 0.4916610289365053, 0.5019663814455271]
@@ -92,11 +93,11 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     
     mlab.figure(size=(1024, 1224), bgcolor=(1, 1, 1), fgcolor=(0.2, 0.2, 0.2))
     
-    
     plot = mlab.contour3d(xnew, ynew, znew, wnew, extent=[np.min(xs0), max_xs0,
                                                           np.min(ys0), max_ys0,
                                                           np.min(zs0), max_zs0],
-                          contours=contours, opacity=contour_opacity, vmin=0, vmax=max_ks0, colormap=colormap,
+                          contours=contours, opacity=contour_opacity, vmin=0, 
+                          vmax=max_ks0, colormap=colormap,
                           transparent=transparent)
     plot.actor.actor.property.ambient = 0.0
     # for i in range(3):
@@ -119,16 +120,30 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     ax1.axes.font_factor = axes_font_factor
     ax1.axes.label_format= axes_ticks_format
     ax1.axes.corner_offset = 0.05
+
+    ks_scaled = (ks - np.min(ks)) / (np.max(ks) - np.min(ks))
+
     if forced_kmax is not None:
-        ks_scaled = (ks - np.min(ks)) / (np.max(ks) - np.min(ks))
-        plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max((forced_kmax - np.min(ks)) / (np.max(ks) - np.min(ks))),
-                                    resolution=16, scale_factor=0.1, colormap=colormap)
-    else:
-        ks_scaled = (ks - np.min(ks)) / (np.max(ks) - np.min(ks))
-        plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max((ks0 - np.min(ks)) / (np.max(ks) - np.min(ks))),
-                                    resolution=16, scale_factor=0.1, colormap=colormap)
-    # plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, vmax=np.max(ks_scaled),
-    #                             resolution=16, scale_factor=0.1, colormap=colormap)
+        vmax=np.max((forced_kmax - np.min(ks)) / (np.max(ks) - np.min(ks)))
+    else: 
+        vmax=np.max((ks0 - np.min(ks)) / (np.max(ks) - np.min(ks)))                              
+
+    plot_points = mlab.points3d(xs, ys, zs, ks_scaled, vmin=0, 
+                                vmax=vmax,
+                                resolution=16, scale_factor=0.1, colormap=colormap)
+
+    plot_points.actor.property.opacity = 0.5
+
+    # Print each point's index and coordinates
+    print("Index | X       | Y       | Z       |spectrum name")
+    print("-----------------------------")
+    for i in range(len(xs)):
+        mlab.text3d(xs[i], ys[i], zs[i], str(i), scale=0.03, color=(0, 0, 0))
+
+        if spectrum_name is not None:
+            print(f"{i:<5} | {xs[i]:.3f} | {ys[i]:.3f} | {zs[i]:.3f} |{spectrum_name[i]}")
+        else:
+            print(f"{i:<5} | {xs[i]:.3f} | {ys[i]:.3f} | {zs[i]:.3f}")
 
     # get current mayavi scene
     if reorient_callable is not None:
@@ -141,37 +156,35 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
     if not dont_mlabshow:
         mlab.show()
 
-
 if __name__ == '__main__':
-
     # get data from path
     path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
-
     df = pd.read_csv(path)
+    df.fillna(0, inplace=True)
 
-    # Initial generation of the data
     npoints = 7j
-    # x_raw, y_raw, z_raw = np.mgrid[1:5:npoints,
-    #                       10:50:npoints,
-    #                       100:500:npoints]
-
-    x_raw, y_raw, z_raw = df['DPE'], df['TBABr'], df['Br2']
-
-
+    # Test data
+    # x_raw, y_raw, z_raw = np.mgrid[1:5:npoints, 10:50:npoints, 100:500:npoints]
     # flatten all arrays
     # x_raw = x_raw.flatten()
     # y_raw = y_raw.flatten()
     # z_raw = z_raw.flatten()
     # k_raw = x_raw * y_raw * z_raw
-    k_raw = 1-df['S_conversion']
 
-    # print(x_raw)
-    # print(y_raw)
-    # print(z_raw)
-    # print(k_raw)
+    x_raw, y_raw, z_raw = df['DPE'], df['TBABr'], df['Br2']
 
-    plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw,
-                            substance_titles=('DPE', 'TBABr', 'Br2'),
-                            colorbar_title='Conversion_DPE',
-                            npoints=30, sparse_npoints=4, rbf_epsilon=0.04,
-                            rbf_smooth=0.001)
+    k_raw_ls = [df['S_conversion'], df['A_from_B'], df['B_from_B']]
+    title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B']
+    spectrum_name_ls = [df['spectrum_name']] * 3
+ 
+    for k_raw, title, spectrum_name in zip(k_raw_ls, title_ls, spectrum_name_ls):
+
+        plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw,
+                                substance_titles=('DPE', 'TBABr', 'Br2'),
+                                colorbar_title=title,
+                                npoints=30, 
+                                sparse_npoints=4, 
+                                rbf_epsilon=0.04,
+                                rbf_smooth=0.001,
+                                contours=1,
+                                spectrum_name = spectrum_name)

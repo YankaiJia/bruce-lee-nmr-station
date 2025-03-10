@@ -143,9 +143,8 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
 
 if __name__ == "__main__":
 
-    for run_folder in run_folders:
+    pass
 
-        result_folder = run_folder + "\\Results"
         
         
 
