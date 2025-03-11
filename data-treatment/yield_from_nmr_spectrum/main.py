@@ -86,7 +86,7 @@ if __name__ == "__main__":
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
-        # Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
+        Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
 
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, 
                                                                   is_save_csv=True)

@@ -90,4 +90,21 @@ def arrange_folder_name():
       print(f"New name: {new_name}")
       os.rename(subfolder, new_name)
 
-# arrange_folder_name()
+def rename_folder():
+  # add the sring "bad_shiming" to each of the subfolders
+  folder = ask_folder_path()
+  print(folder)
+  folder = folder + '/Results/bad_shimming_data'
+
+  # get all the subfolders
+  import os
+  subfolders = [f.path for f in os.scandir(folder) if f.is_dir()]
+  subfolders = [f for f in subfolders if '1D' in f]
+
+  # rename the subfolders
+  for subfolder in subfolders:
+    new_name = subfolder + '_bad_shimming'
+    print(f"New name: {new_name}")
+    os.rename(subfolder, new_name)
+
+rename_folder()

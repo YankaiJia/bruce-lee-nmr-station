@@ -42,7 +42,8 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                             contour_opacity=1, single_size_of_points=False,
                             forced_kmax=None, dont_mlabshow=False, reorient_callable=None, savefig=None,
                             transparent=False, 
-                            spectrum_name=None):
+                            spectrum_name=None,
+                            is_label_points=False):
     # get mayavi engine
     # mlab_engine = mlab.get_engine()
     # scene.scene.camera.focal_point = [0.5206201337277889, 0.4916610289365053, 0.5019663814455271]
@@ -100,13 +101,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                           vmax=max_ks0, colormap=colormap,
                           transparent=transparent)
     plot.actor.actor.property.ambient = 0.0
-    # for i in range(3):
-    #     start = np.array([np.min(xs0), np.min(ys0), np.min(zs0)])
-    #     end = np.array([np.min(xs0), np.min(ys0), np.min(zs0)])
-    #     end[i] = list([max_xs0, max_ys0, max_zs0])[i]
-    #     arr = Arrow_From_A_to_B(start[0], start[1], start[2], end[0], end[1], end[2])
-    # arr_temp = Arrow_From_A_to_B(np.max(xs0), np.min(ys0), np.min(zs0),
-    #                                   np.max(xs0), np.min(ys0), np.max(zs0))
+
     ax1 = mlab.axes(color=(0.5, 0.5, 0.5), nb_labels=sparse_npoints, ranges=[np.min(x_raw), np.max(x_raw),
                                                                 np.min(y_raw), np.max(y_raw),
                                                                 np.min(z_raw), np.max(z_raw)])
@@ -134,16 +129,17 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
 
     plot_points.actor.property.opacity = 0.5
 
-    # Print each point's index and coordinates
-    print("Index | X       | Y       | Z       |spectrum name")
-    print("-----------------------------")
-    for i in range(len(xs)):
-        mlab.text3d(xs[i], ys[i], zs[i], str(i), scale=0.03, color=(0, 0, 0))
+    if is_label_points:
+        # Print each point's index and coordinates
+        print("Index | X       | Y       | Z       |spectrum name")
+        print("-----------------------------")
+        for i in range(len(xs)):
+            mlab.text3d(xs[i], ys[i], zs[i], str(i), scale=0.03, color=(0, 0, 0))
 
-        if spectrum_name is not None:
-            print(f"{i:<5} | {xs[i]:.3f} | {ys[i]:.3f} | {zs[i]:.3f} |{spectrum_name[i]}")
-        else:
-            print(f"{i:<5} | {xs[i]:.3f} | {ys[i]:.3f} | {zs[i]:.3f}")
+            if spectrum_name is not None:
+                print(f"{i:<5} | {xs[i]:.3f} | {ys[i]:.3f} | {zs[i]:.3f} |{spectrum_name[i]}")
+            else:
+                print(f"{i:<5} | {xs[i]:.3f} | {ys[i]:.3f} | {zs[i]:.3f}")
 
     # get current mayavi scene
     if reorient_callable is not None:
@@ -187,4 +183,5 @@ if __name__ == '__main__':
                                 rbf_epsilon=0.04,
                                 rbf_smooth=0.001,
                                 contours=1,
-                                spectrum_name = spectrum_name)
+                                spectrum_name = spectrum_name,
+                                is_label_points=False)
