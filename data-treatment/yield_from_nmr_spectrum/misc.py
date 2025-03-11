@@ -1,7 +1,10 @@
 from matplotlib import pyplot as plt
+import pandas as pd
 
 import tkinter as tk
 from tkinter import filedialog
+import os
+
 
 def plot1():
   ys_ori = {
@@ -107,4 +110,64 @@ def rename_folder():
     print(f"New name: {new_name}")
     os.rename(subfolder, new_name)
 
-rename_folder()
+  
+def collect_conditions_of_bad_shimming_specs(folder):
+
+  # get the folder path
+  # folder = ask_folder_path()
+
+  # folder = ask_folder_path()
+  print(folder)
+  folder_bad_shimming = folder + '/Results/bad_shimming_data'
+
+  # get the subfolders
+  subfolders = [f.path for f in os.scandir(folder_bad_shimming) if f.is_dir()]
+  subfolders = [f for f in subfolders if '1D' in f]
+  # get the subfolder names
+  subfolder_names = [os.path.basename(f) for f in subfolders]
+  target_index = [int(f.split('-')[0]) for f in subfolder_names]
+  print(target_index)
+
+  # get the excel file in the folder
+  excel_file = [f.path for f in os.scandir(folder) if f.is_file() and f.name.endswith('.xlsx')][0]
+  print(excel_file)
+
+  # read the excel file
+  df = pd.read_excel(excel_file)
+  print(df.head())
+
+  # get the target rows where the 'local_index' is in the target_index
+  df_target = df[df['local_index'].isin(target_index)]
+  print(df_target)
+
+  # save the target rows to a new excel file
+  new_excel_file = folder + '/Results/bad_shimming_data/conditions_of_bad_shimming_specs.xlsx'
+  df_target.to_excel(new_excel_file, index=False)
+  print(f"Saved to {new_excel_file}")
+
+  return df_target
+
+
+folder_list = [
+"D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-02-19-run02_normal_run",
+"D:\Dropbox\\brucelee\data\DPE_bromination\\2025-03-01-run01_normal_run",
+"D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run01_normal_run",
+"D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run02_normal_run",
+"D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-05-run01_normal_run",
+
+]
+
+# append all the dataframes
+df_list = []
+for folder in folder_list:
+  df = collect_conditions_of_bad_shimming_specs(folder)
+  df_list.append(df)
+
+# concatenate the dataframes
+df_all = pd.concat(df_list)
+# if not exist, create the folder
+new_excel_file = 'D:\Dropbox\\brucelee\data\DPE_bromination/conditions_of_bad_shimming_specs_all.xlsx'
+if not os.path.exists(os.path.dirname(new_excel_file)):
+  os.makedirs(os.path.dirname(new_excel_file))
+df_all.to_excel(new_excel_file, index=False)
+print(f"Saved to {new_excel_file}")
