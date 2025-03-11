@@ -2,6 +2,7 @@ import os, re
 import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
+import numpy as np
 
 import Integrator_v2_constrains
 import conc_interpolation
@@ -86,7 +87,7 @@ if __name__ == "__main__":
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
-        Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
+        # Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
 
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, 
                                                                   is_save_csv=True)
@@ -98,7 +99,20 @@ if __name__ == "__main__":
                                 result_folder)
 
         # calc the S conversion
-        df_all['S_conversion'] = 1 - df_all['S_from_S'] / df_all['DPE']
+        df_all['S_conversion'] = 1 - df_all['c#_S_from_S'] / df_all['DPE']
+
+        # get the limitting reagent
+        df_all['limitting_conc'] = df_all[['DPE', 'Br2']].min(axis=1)        
+        df_all['c#_A_from_B'] = pd.to_numeric(df_all['c#_A_from_B'], errors='coerce')
+        df_all['c#_B_from_B'] = pd.to_numeric(df_all['c#_B_from_B'], errors='coerce')
+        df_all['limitting_conc'] = pd.to_numeric(df_all['limitting_conc'], errors='coerce')
+        # get the yield of A 
+        df_all['yield_A'] = np.where(df_all['limitting_conc'] != 0, 
+                             df_all['c#_A_from_B'] / df_all['limitting_conc'], 0)
+        
+        df_all['yield_B'] = np.where(df_all['limitting_conc'] != 0, 
+                             df_all['c#_B_from_B'] / df_all['limitting_conc'], 0)
+        
 
         # save the final dataframe to csv
         df_all.to_csv(result_folder + "\\final_results.csv", index=False)

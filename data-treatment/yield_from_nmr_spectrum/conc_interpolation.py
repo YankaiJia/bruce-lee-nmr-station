@@ -126,12 +126,12 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
     interpolated_conc_S_from_ref_B = 0.5 * df['intg_S'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
     interpolated_conc_A_from_ref_B = 0.5 * df['intg_A'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
 
-    df['S_from_S'] = interpolated_conc_S_from_ref_S
-    df['S_from_B'] = interpolated_conc_S_from_ref_B
-    df['B_from_S'] = interpolated_conc_B_from_ref_S
-    df['B_from_B'] = interpolated_conc_B_from_ref_B
-    df['A_from_S'] = interpolated_conc_A_from_ref_S
-    df['A_from_B'] = interpolated_conc_A_from_ref_B
+    df['c#_S_from_S'] = interpolated_conc_S_from_ref_S
+    df['c#_S_from_B'] = interpolated_conc_S_from_ref_B
+    df['c#_B_from_S'] = interpolated_conc_B_from_ref_S
+    df['c#_B_from_B'] = interpolated_conc_B_from_ref_B
+    df['c#_A_from_S'] = interpolated_conc_A_from_ref_S
+    df['c#_A_from_B'] = interpolated_conc_A_from_ref_B
 
     print(df.head(20))
 

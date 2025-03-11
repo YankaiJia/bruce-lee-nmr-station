@@ -169,9 +169,13 @@ if __name__ == '__main__':
 
     x_raw, y_raw, z_raw = df['DPE'], df['TBABr'], df['Br2']
 
-    k_raw_ls = [df['S_conversion'], df['A_from_B'], df['B_from_B']]
-    title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B']
-    spectrum_name_ls = [df['spectrum_name']] * 3
+    k_raw_ls = [df['S_conversion'], 
+                df['c#_A_from_B'], 
+                df['c#_B_from_B'], 
+                df['yield_A'], 
+                df['yield_B']]
+    title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B', 'Yield_A', 'Yield_B']
+    spectrum_name_ls = [df['spectrum_name']] * len(k_raw_ls)
  
     for k_raw, title, spectrum_name in zip(k_raw_ls, title_ls, spectrum_name_ls):
 
