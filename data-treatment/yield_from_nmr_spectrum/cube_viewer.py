@@ -176,8 +176,9 @@ if __name__ == '__main__':
                 df['yield_B']]
     title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B', 'Yield_A', 'Yield_B']
     spectrum_name_ls = [df['spectrum_name']] * len(k_raw_ls)
+    k_upper_bound_ls = [200, 200, 200, 1, 1]
  
-    for k_raw, title, spectrum_name in zip(k_raw_ls, title_ls, spectrum_name_ls):
+    for k_raw, title, spectrum_name, k_upper_bound in zip(k_raw_ls, title_ls, spectrum_name_ls, k_upper_bound_ls):
 
         plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw,
                                 substance_titles=('DPE', 'TBABr', 'Br2'),
@@ -188,4 +189,6 @@ if __name__ == '__main__':
                                 rbf_smooth=0.001,
                                 contours=1,
                                 spectrum_name = spectrum_name,
-                                is_label_points=False)
+                                is_label_points=False,
+                                forced_kmax = k_upper_bound,
+                                )
