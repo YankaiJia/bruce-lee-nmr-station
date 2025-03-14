@@ -166,6 +166,11 @@ if __name__ == '__main__':
     # y_raw = y_raw.flatten()
     # z_raw = z_raw.flatten()
     # k_raw = x_raw * y_raw * z_raw
+    
+    # skip the first two rows of df 
+    df = df.iloc[2:]
+    df.fillna(0, inplace=True)
+
 
     x_raw, y_raw, z_raw = df['DPE'], df['TBABr'], df['Br2']
 
@@ -189,6 +194,6 @@ if __name__ == '__main__':
                                 rbf_smooth=0.001,
                                 contours=1,
                                 spectrum_name = spectrum_name,
-                                is_label_points=False,
-                                forced_kmax = k_upper_bound,
+                                # is_label_points=True,
+                                forced_kmax = None,
                                 )

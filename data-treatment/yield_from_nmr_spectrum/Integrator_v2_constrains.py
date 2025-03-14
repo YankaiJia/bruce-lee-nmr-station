@@ -8,6 +8,7 @@ from numpy.polynomial.polynomial import Polynomial
 import os
 import json
 from datetime import datetime
+import statsmodels.api as sm
 ########################
 
 ###########Settings###########
@@ -17,20 +18,28 @@ threshold_amplitude = 1E-10  #Minimum threshold to be integrated
 
 
 peaks_info = [  #Begining of region of itnerest, End of region of interest, expected peak number
-[5.30, 5.60], #Substrate SM, 2H
-[4.30, 5.00], #DCE    
-[6.5, 7.1], # Product B, 1H
-[4.45, 4.70], #Product A, 2H
-[6.4, 6.6],#Unknown impurity SM peak1
-[4.35, 4.55],#Unknown impurity SM peak 2
+ [5.20, 5.70], #Substrate SM, 2H
+ [4.1, 5.00], #DCE 
+ [2.5, 3.05],   
+ [6.5, 7.0], # Product B, 1H
+ [4.45, 4.70], #Product A, 2H
+ [2.2, 2.7], # HBr adduct
             ]
+
 reference_shift={
     "Starting material": [5.467], #ppm
     "Product A": [4.527], #ppm
     "Product B": [6.807], #ppm
     "Solvent": [4.775, 4.693, 4.605], #ppm
-    "Unknown impurity SM peak 1": [6.453],
-    "Unknown impurity SM peak 2": [4.474],
+    "Solvent": [2.850, 2.764, 2.682], #ppm
+    "Unknown impurity SM peak 1": [6.453], #ppm
+    "Unknown impurity SM peak 2": [4.474], #ppm
+    "Unknown impurity 1": [6.523],
+    "Unknown impurity 2": [5.509], #ppm
+    "Unknown impurity 3": [4.340], #ppm
+    "Unknown impurity 4": [2.549], #ppm
+    "Alcohol": [6.727], #ppm
+    "HBr adduct":[2.463], #ppm
                 }
 ##########################
 
@@ -132,14 +141,86 @@ def fit_with_bounds(shift_array,intensity_array,initial_guesses,std_deviation,lo
                             )
         return popt, covariance_matrix
 
+
+def exponential_decay(x, a, b, c, d):
+    return a * np.exp(b * (x+d)) + c
+
+def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window = 0.1):
+    indices_to_keep = int(ppm_window / ppm_per_index)
+    shift_offset = shift_array[0]
+
+    if False:
+        # Plot data and fitted curve
+        plt.plot(shift_array, intensity_array, label='Data', color='Black')
+        plt.axvline(shift_array[indices_to_keep], color='blue', linestyle='--', label='Ignored Region Start')
+        plt.axvline(shift_array[-indices_to_keep], color='blue', linestyle='--', label='Ignored Region End')
+        plt.legend()
+        plt.xlabel('Shift (ppm)')
+        plt.ylabel('Intensity')
+        plt.title('Baseline fitting')
+        plt.show()
+
+    # Define weights 
+    weights = np.ones_like(intensity_array)  # Default all weights = 1
+
+    # Mask data
+    weights[indices_to_keep:-indices_to_keep] = 100
+
+    # Select baseline function
+
+    baseline_function = exponential_decay
+    initial_guess = [
+        np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
+        -0.1 if intensity_array[0] > intensity_array[-1] else 0.1,  # B_guess (Decay/Growth)
+        np.min(intensity_array),  # C_guess (Offset)
+        shift_array[np.argmax(np.gradient(intensity_array))]  # D_guess (Delay point)
+    ]
+
+
+    params, covariance = curve_fit(baseline_function, 
+                                    shift_array-shift_offset,
+                                    intensity_array, 
+                                    p0=initial_guess,
+                                    sigma=weights,
+                                    maxfev=10000,   # Increase max function evaluations
+                                    ftol=1e-14,     # Function tolerance 
+                                    xtol=1e-14,     # Parameter change tolerance
+                                    gtol=1e-14,     # Gradient tolerance
+                                    )
+    a_fit, b_fit, c_fit, d_fit = params
+
+
+
+    baseline = baseline_function(shift_array-shift_offset, a_fit, b_fit, c_fit, d_fit)
+
+    label=f'Baseline: {a_fit:.2f} * exp({b_fit:.2f} (x-{d_fit:.2f})) + {c_fit:.2f}'
+
+    if False:
+        # Plot data and fitted curve
+        plt.plot(shift_array, intensity_array, label='Data', color='Black')
+        plt.plot(shift_array, baseline, label=label, color='red')
+        plt.legend()
+        plt.xlabel('Shift (ppm)')
+        plt.ylabel('Intensity')
+        plt.title('Baseline fitting')
+        plt.show()
+
+    return baseline
+
+
 def fit_peaks(NMR_spectrum, 
              std_deviation, 
              estimated_peak_width_for_indexes, 
              constrained_fit=True,
-             is_plot_fitting=False):
+             is_plot_fitting=False,
+             is_baseline_subtraction=True):
              
     shift_array = NMR_spectrum [:,0] 
     intensity_array = NMR_spectrum [:,1]
+    intensity_array_original = intensity_array.copy()
+    ppm_step = shift_array[1]-shift_array[0]
+    warning_string=None
+
     peaks, _ = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
 
     if len(peaks) == 0:
@@ -168,7 +249,25 @@ def fit_peaks(NMR_spectrum,
         lower_bounds.extend([0, shift_array[0], 0])
         upper_bounds.extend([amp_guess*2, shift_array[-1], wid_guess*4])
 
-    # Fit peaks
+    if is_baseline_subtraction:
+        # Fit peaks
+        try:
+            baseline = baseline_fit(shift_array, intensity_array, ppm_step)
+        except:
+            print("Baseline could not be corrected, attempt with reduced window...")
+            try:
+                baseline = baseline_fit(shift_array, intensity_array, ppm_step,ppm_window = 0.05)
+            except:
+                warning_string = "Baseline difficult to fit"
+                try:
+                    baseline = baseline_fit(shift_array, intensity_array, ppm_step,ppm_window = 0.025)
+                except:
+                    print("Baseline could not be fitted")
+                    warning_string = "Baseline could not be fitted"
+                    baseline=np.zeros_like(intensity_array)
+        finally:
+            intensity_array -= baseline
+
     try:
         if constrained_fit == False:
             popt, covariance_matrix = fit_without_bounds(shift_array,intensity_array,initial_guesses,std_deviation)
@@ -178,7 +277,7 @@ def fit_peaks(NMR_spectrum,
         opti_parameter=popt.reshape(-1, 3)
         opti_parameter_error=errors_of_parameters.reshape(-1, 3) 
 
-       
+    
         # Generate fitted curve
         fitted_y = sum_of_lorentzian(shift_array, *popt)
 
@@ -198,7 +297,7 @@ def fit_peaks(NMR_spectrum,
         ax[1].set_ylabel("Intensity")
         ax[1].legend()
         ax[1].set_title("Peak Fitting")
-       
+    
         if is_plot_fitting:
             fig.show()
 
@@ -339,13 +438,16 @@ def integrate_spectrum(file_name,
                     results_dictionary[closest_product] += peak_area  # Cumulate for multiplet
                 else:
                     results_dictionary[closest_product] = peak_area  # Create new list
-
-    if figures: 
+    
+    if figures and len(figures) > 0:
+        print(f'figures: {figures}') 
         # save the all the figs to one plot
         num_plots = len(figures)
         fig, axs = plt.subplots(num_plots, 2, figsize=(10, 5 * num_plots))  # Assuming each fig has 2 subplots
         # Iterate over stored figures and re-plot their data
         for i, fig_obj in enumerate(figures):
+            if not fig_obj:
+                continue
             for j, ax in enumerate(fig_obj.axes):  # Extract axes from original fig
                 if j == 0:  # First subplot (Covariance Matrix - imshow)
                     for image in ax.images:  # Extract imshow images
@@ -366,7 +468,7 @@ def integrate_spectrum(file_name,
     return results_dictionary, experiment_name
 
 def integrate_one_folder(master_path, 
-                        is_save_json=False, 
+                        is_save_json=True, 
                         is_save_fitting_plot = True, 
                         is_show_slices=False):
     
@@ -406,9 +508,12 @@ def integrate_one_folder(master_path,
         # Iterate through CSV from the list to fit and obtain absolute area
         for file_name in file_list:
             print(f"\nProcessing: {file_name}")
-            experiment_dictionary, experiment_name=integrate_spectrum(file_name,
-                                                                    is_plot_whole_spectrum=False,
-                                                                    is_show_slices=False)
+
+            experiment_dictionary, experiment_name=\
+                                    integrate_spectrum(file_name,
+                                                    is_plot_whole_spectrum=False, 
+                                                    is_show_slices=False)
+                                    
             list_experiment_loaded.append(experiment_name)
             print(f"\n{experiment_name}: {experiment_dictionary}")
             # total_result_dictionary.update({experiment_name : experiment_dictionary}) 
@@ -425,8 +530,11 @@ def integrate_one_folder(master_path,
 
         # Save dictionary as JSON
         if is_save_json:
+            print('***************SAVING JSON FILE*****************')
             with open(json_filename, "w") as json_file:
                 json.dump(total_result_dictionary, json_file, indent=4)
+            print('***************SAVING JSON FILE*****************')
+
 
         # Define the text file path
         text_filename = os.path.join(path_to_json, f"reaction_name_list.txt")
@@ -461,7 +569,8 @@ if __name__ == "__main__":
     # master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
 
     master_path_ls = \
-    ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run",
+    [
+    # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run",
     "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run",
     "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run",
     "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run",
@@ -469,4 +578,7 @@ if __name__ == "__main__":
     ]
 
     for master_path in master_path_ls:
-        integrate_one_folder(master_path)
+        integrate_one_folder(master_path, 
+                            is_save_json=True, 
+                            is_save_fitting_plot = True, 
+                            is_show_slices=False)
