@@ -157,20 +157,24 @@ if __name__ == '__main__':
     path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
     df = pd.read_csv(path)
     df.fillna(0, inplace=True)
-
     npoints = 7j
-    # Test data
-    # x_raw, y_raw, z_raw = np.mgrid[1:5:npoints, 10:50:npoints, 100:500:npoints]
-    # flatten all arrays
-    # x_raw = x_raw.flatten()
-    # y_raw = y_raw.flatten()
-    # z_raw = z_raw.flatten()
-    # k_raw = x_raw * y_raw * z_raw
-    
+
     # skip the first two rows of df 
-    df = df.iloc[2:]
+    # df = df.iloc[2:]
     df.fillna(0, inplace=True)
 
+    # skip row by time mark. if df['spectrum_dir'] includes 2025, delete row
+    row_str = [
+        '20250304-190538',
+        '20250304-191203',
+        '20250305-005641',
+        '20250305-010307',
+        '20250304-233322',
+        '20250307-013502',
+        ]
+    for i in row_str:
+        df = df[~df['spectrum_dir'].str.contains(i)]
+        print(f'Deleted: {i}')
 
     x_raw, y_raw, z_raw = df['DPE'].tolist(), df['TBABr'].tolist(), df['Br2'].tolist()
 
@@ -178,11 +182,14 @@ if __name__ == '__main__':
                 df['c#_A_from_B'].tolist(),
                 df['c#_B_from_B'].tolist(),
                 df['yield_A'].tolist(),
-                df['yield_B'].tolist()]
+                df['yield_B'].tolist(),
+                df['sel_A'].tolist(),
+                df['sel_B'].tolist(),
+                ]
 
-    title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B', 'Yield_A', 'Yield_B']
+    title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B', 'Yield_A', 'Yield_B', 'Sel_A', 'Sel_B']
     spectrum_name_ls = [df['spectrum_dir'].tolist()] * len(k_raw_ls)
-    k_upper_bound_ls = [200, 200, 200, 1, 1]
+    k_upper_bound_ls = [200, 200, 200, 1, 1,1,1]
  
     for k_raw, title, spectrum_name, k_upper_bound in zip(k_raw_ls, title_ls, spectrum_name_ls, k_upper_bound_ls):
 
