@@ -36,7 +36,8 @@ def check_and_return_folder_structure():
 
       
 def combine_data(df_final_conc, 
-                excel_file, out_conc_file, out_vol_file, result_folder):   
+                excel_file, out_conc_file, out_vol_file, result_folder):
+
     # assign the vial index from reaction name. vial_index is the same as local_index
     vial_index = [int(i[0]) for i in df_final_conc['spectrum_name'].str.split('-')]
     df_final_conc['local_index'] = vial_index
@@ -85,6 +86,7 @@ if __name__ == "__main__":
                 ]
     
     for run_folder in run_folders:
+
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
@@ -94,7 +96,7 @@ if __name__ == "__main__":
                                                                   is_save_csv=True)
   
         df_all = combine_data(df_final_conc, 
-                                excel_file, 
+                                excel_file,
                                 out_conc_file, 
                                 out_vol_file, 
                                 result_folder)

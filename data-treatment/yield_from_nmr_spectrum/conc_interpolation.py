@@ -70,6 +70,11 @@ def json_to_dataframe(json_file):
 
     df.columns = ['spectrum_name', "intg_S", "intg_A", "intg_B"]
 
+    # get the dir of the json file
+    json_dir = os.path.dirname(json_file)
+    spectrum_dir = [os.path.join(json_dir, spectrum_name) for spectrum_name in df['spectrum_name']]
+    df['spectrum_dir'] = spectrum_dir
+
     # df = df.reindex(columns=desired_cols)
     return df
 
@@ -81,8 +86,8 @@ def get_interp_funcs():
     df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
     df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
 
-    df_ref_S.columns = ['name', "intg_S", "intg_A", "intg_B"]
-    df_ref_B.columns = ['name', "intg_S", "intg_A", "intg_B"]
+    df_ref_S.columns = ['name', "intg_S", "intg_A", "intg_B", "dir"]
+    df_ref_B.columns = ['name', "intg_S", "intg_A", "intg_B", "dir"]
 
     # logger.info(df_ref_S.head())
     # logger.info(df_ref_B.head())
