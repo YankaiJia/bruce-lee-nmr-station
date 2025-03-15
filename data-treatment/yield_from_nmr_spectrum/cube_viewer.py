@@ -127,7 +127,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                                 vmax=vmax,
                                 resolution=16, scale_factor=0.1, colormap=colormap)
 
-    plot_points.actor.property.opacity = 0.5
+    plot_points.actor.property.opacity = 0.9
 
     if is_label_points:
         # Print each point's index and coordinates
@@ -176,22 +176,26 @@ if __name__ == '__main__':
         df = df[~df['spectrum_dir'].str.contains(i)]
         print(f'Deleted: {i}')
 
+    # if the yield of A or B is larger than 1, delete the row
+    df = df[df['yield_A'] <= 1]
+    df = df[df['yield_B'] <= 1]
+
     x_raw, y_raw, z_raw = df['DPE'].tolist(), df['TBABr'].tolist(), df['Br2'].tolist()
 
-    k_raw_ls = [df['S_conversion'].tolist(),
-                df['c#_A_from_B'].tolist(),
-                df['c#_B_from_B'].tolist(),
-                df['yield_A'].tolist(),
-                df['yield_B'].tolist(),
-                df['sel_A'].tolist(),
-                df['sel_B'].tolist(),
-                ]
+    # k_raw, title, k_upper_bound, spectrum_name
+    items = [
+        [df['S_conversion'].tolist(),'Conversion_DPE', 200, df['spectrum_dir'].tolist()],
+        [df['c#_A_from_B'].tolist(),'Conc_A', 200, df['spectrum_dir'].tolist()],
+        [df['c#_B_from_B'].tolist(),'Conc_B', 200, df['spectrum_dir'].tolist()],
+        [df['yield_A'].tolist(),'Yield_A', 1, df['spectrum_dir'].tolist()],
+        [df['yield_B'].tolist(),'Yield_B', 1, df['spectrum_dir'].tolist()],
+        [df['sel_A'].tolist(),'Sel_A', 1, df['spectrum_dir'].tolist()],
+        [df['sel_B'].tolist(),'Sel_B', 1, df['spectrum_dir'].tolist()],
+        ]
 
-    title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B', 'Yield_A', 'Yield_B', 'Sel_A', 'Sel_B']
-    spectrum_name_ls = [df['spectrum_dir'].tolist()] * len(k_raw_ls)
-    k_upper_bound_ls = [200, 200, 200, 1, 1,1,1]
- 
-    for k_raw, title, spectrum_name, k_upper_bound in zip(k_raw_ls, title_ls, spectrum_name_ls, k_upper_bound_ls):
+    for item in items:
+
+        k_raw, title, k_upper_bound, spectrum_name = item[0], item[1], item[2], item[3]
 
         plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw,
                                 substance_titles=('DPE', 'TBABr', 'Br2'),
@@ -202,6 +206,6 @@ if __name__ == '__main__':
                                 rbf_smooth=0.001,
                                 contours=1,
                                 spectrum_name=spectrum_name,
-                                is_label_points=True,
+                                is_label_points=False,
                                 forced_kmax=None,
                                 )
