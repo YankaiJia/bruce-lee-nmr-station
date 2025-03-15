@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 import numpy as np
 
-import Integrator_v2_constrains
+import Integrator_v3_baseline
 import conc_interpolation
 from conc_interpolation import interp_func_S, interp_func_B
 
@@ -30,7 +30,7 @@ def check_and_return_folder_structure():
     assert os.path.exists(out_vol_file), "out_volumes_shuffled.csv does not exist!"
 
     # make sure Results folder exists
-    result_folder = run_folder + "\\Results"
+    result_folder = run_folder + "Results"
     assert os.path.exists(result_folder), "Results folder does not exist!"
     return result_folder, excel_file, out_conc_file, out_vol_file
 
@@ -81,13 +81,14 @@ if __name__ == "__main__":
                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
+                "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
                 ]
     
     for run_folder in run_folders:
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
-        # Integrator_v2_constrains.integrate_one_folder(run_folder, is_save_json=True)
+        # Integrator_v3_baseline.analyze_one_run_folder(run_folder)
 
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, 
                                                                   is_save_csv=True)
@@ -123,5 +124,8 @@ if __name__ == "__main__":
         result_folder = run_folder + "\\Results"
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
-    df_full_experiment.to_csv("D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv", index=False)
+    csv_path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
+
+    # if the file exists, overwrite it
+    df_full_experiment.to_csv(csv_path, index=False, mode='w')
 

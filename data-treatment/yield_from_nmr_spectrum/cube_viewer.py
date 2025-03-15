@@ -172,15 +172,16 @@ if __name__ == '__main__':
     df.fillna(0, inplace=True)
 
 
-    x_raw, y_raw, z_raw = df['DPE'], df['TBABr'], df['Br2']
+    x_raw, y_raw, z_raw = df['DPE'].tolist(), df['TBABr'].tolist(), df['Br2'].tolist()
 
-    k_raw_ls = [df['S_conversion'], 
-                df['c#_A_from_B'], 
-                df['c#_B_from_B'], 
-                df['yield_A'], 
-                df['yield_B']]
+    k_raw_ls = [df['S_conversion'].tolist(),
+                df['c#_A_from_B'].tolist(),
+                df['c#_B_from_B'].tolist(),
+                df['yield_A'].tolist(),
+                df['yield_B'].tolist()]
+
     title_ls = ['Conversion_DPE', 'Conc_A', 'Conc_B', 'Yield_A', 'Yield_B']
-    spectrum_name_ls = [df['spectrum_name']] * len(k_raw_ls)
+    spectrum_name_ls = [df['spectrum_name'].tolist()] * len(k_raw_ls)
     k_upper_bound_ls = [200, 200, 200, 1, 1]
  
     for k_raw, title, spectrum_name, k_upper_bound in zip(k_raw_ls, title_ls, spectrum_name_ls, k_upper_bound_ls):
@@ -193,7 +194,7 @@ if __name__ == '__main__':
                                 rbf_epsilon=0.04,
                                 rbf_smooth=0.001,
                                 contours=1,
-                                spectrum_name = spectrum_name,
-                                # is_label_points=True,
-                                forced_kmax = None,
+                                spectrum_name=spectrum_name,
+                                is_label_points=True,
+                                forced_kmax=None,
                                 )

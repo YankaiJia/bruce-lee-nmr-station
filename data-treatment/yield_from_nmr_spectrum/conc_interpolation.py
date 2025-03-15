@@ -78,8 +78,9 @@ def get_interp_funcs():
     # ref data
     folder_ref = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\"
 
-    df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\integration_results.json")
-    df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\integration_results.json")
+    df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
+    df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
+
     df_ref_S.columns = ['name', "intg_S", "intg_A", "intg_B"]
     df_ref_B.columns = ['name', "intg_S", "intg_A", "intg_B"]
 
@@ -104,7 +105,7 @@ interp_func_S, interp_func_B = get_interp_funcs()
 
 def interpolate_one_folder(result_folder, is_save_csv=False):
     # read from integrations json file 
-    json_file = result_folder+ "\\integration_results.json"
+    json_file = result_folder + "\\fitting_results.json"
 
     df = json_to_dataframe(json_file)
     # fill the NaN values with 0
@@ -143,7 +144,9 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
 
 if __name__ == "__main__":
 
-    pass
+    result_folder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+
+    df_final_conc = interpolate_one_folder(result_folder,is_save_csv=True)
 
         
         
