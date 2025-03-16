@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 import numpy as np
 
-import Integrator_v3_baseline
+# import Integrator_v3_baseline
 import conc_interpolation
 from conc_interpolation import interp_func_S, interp_func_B
 
@@ -95,30 +95,30 @@ if __name__ == "__main__":
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, 
                                                                   is_save_csv=True)
   
-        df_all = combine_data(df_final_conc, 
-                                excel_file,
-                                out_conc_file, 
-                                out_vol_file, 
-                                result_folder)
+        df = combine_data(df_final_conc,
+                          excel_file,
+                          out_conc_file,
+                          out_vol_file,
+                          result_folder)
 
         # calc the S conversion
-        df_all['S_conversion'] = 1 - df_all['c#_S_from_S'] / df_all['DPE']
+        df['S_conversion'] = 1 - df['c#_S_from_S'] / df['DPE']
+        df['consumed_S'] = df['DPE'] - df['c#_S_from_S']
 
         # get the limitting reagent
-        df_all['limitting_conc'] = df_all[['DPE', 'Br2']].min(axis=1)        
-        df_all['c#_A_from_B'] = pd.to_numeric(df_all['c#_A_from_B'], errors='coerce')
-        df_all['c#_B_from_B'] = pd.to_numeric(df_all['c#_B_from_B'], errors='coerce')
-        df_all['limitting_conc'] = pd.to_numeric(df_all['limitting_conc'], errors='coerce')
+        df['limitting_conc'] = df[['DPE', 'Br2']].min(axis=1)
+        df['c#_A_from_B'] = pd.to_numeric(df['c#_A_from_B'], errors='coerce')
+        df['c#_B_from_B'] = pd.to_numeric(df['c#_B_from_B'], errors='coerce')
+        df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
         # get the yield of A 
-        df_all['yield_A'] = np.where(df_all['limitting_conc'] != 0, 
-                             df_all['c#_A_from_B'] / df_all['limitting_conc'], 0)
-        
-        df_all['yield_B'] = np.where(df_all['limitting_conc'] != 0, 
-                             df_all['c#_B_from_B'] / df_all['limitting_conc'], 0)
-        
+        df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A_from_B'] / df['limitting_conc'], 0)
+        df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B_from_B'] / df['limitting_conc'], 0)
+        # selectivity matrix
+        df['sel_A'] = df['c#_A_from_B'] / df['consumed_S']
+        df['sel_B'] = df['c#_B_from_B'] / df['consumed_S']
 
         # save the final dataframe to csv
-        df_all.to_csv(result_folder + "\\final_results.csv", index=False)
+        df.to_csv(result_folder + "\\final_results.csv", index=False)
 
     # merge all the final_results.csv into one file
     df_full_experiment = pd.DataFrame()
