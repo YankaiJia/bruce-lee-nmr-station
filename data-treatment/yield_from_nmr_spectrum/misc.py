@@ -207,7 +207,7 @@ def list_reaction_condtions_into_each_folder():
     new_excel_file = subfolder + '/conditions_of_bad_shimming_specs.xlsx'
     df_target.to_excel(new_excel_file, index=False)
     print(f"Saved to {new_excel_file}")
-    local_index = 
+    # local_index =
 
   # get the excel file in the folder
   excel_file = [f.path for f in os.scandir(folder) if f.is_file() and f.name.endswith('.xlsx')][0]
@@ -227,3 +227,31 @@ def list_reaction_condtions_into_each_folder():
   print(f"Saved to {new_excel_file}")
 
   return df_target
+
+def delete_unused_file():
+  run_folders = ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
+                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
+                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
+                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
+                 "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
+                 ]
+  result_folders = [i + 'Results' for i in run_folders]
+
+  # get all the subfolders for each folder
+  for folder in result_folders:
+    subfolders = [f.path for f in os.scandir(folder) if f.is_dir()]
+    subfolders = [f for f in subfolders if '1D EXTENDED' in f]
+    print(subfolders)
+    for dir in subfolders:
+      # if there is a file named slices.png, delete it
+      if os.path.exists(dir + '/slices.png'):
+        os.remove(dir + '/slices.png')
+        print(f"Deleted: {dir + '/slices.png'}")
+      if os.path.exists(dir + '/fitting_slices.png'):
+        os.remove(dir + '/fitting_slices.png')
+        print(f"Deleted: {dir + '/fitting_slices.png'}")
+
+delete_unused_file()
+
+

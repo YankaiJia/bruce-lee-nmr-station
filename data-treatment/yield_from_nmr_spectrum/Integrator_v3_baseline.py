@@ -8,7 +8,11 @@ import statsmodels.api as sm
 from numpy.polynomial.polynomial import Polynomial
 import os
 import json
-from datetime import datetime
+import math
+
+# change backend for matplotlib to Qt5Agg
+plt.switch_backend('TkAgg')
+
 ########################
 
 ####Last fix#######
@@ -49,8 +53,7 @@ reference_shift = {
 }
 
 ########Variables#########
-threshold_amplitude = 1E-10  # Minimum threshold to be integrated
-
+threshold_amplitude = 1E-5  # Minimum threshold to be integrated
 
 
 ########Functions#########
@@ -216,7 +219,12 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window = 0.1):
 
     return baseline
 
-def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, constrained_fit=True, baseline_correction=True):
+def fit_peaks(NMR_spectrum, std_deviation,
+              estimated_peak_width_for_indexes,
+              constrained_fit=True,
+              baseline_correction=True,
+              is_show_plot=False):
+
     shift_array = NMR_spectrum [:,0] 
     intensity_array = NMR_spectrum [:,1]
     intensity_array_original = intensity_array.copy()
@@ -226,7 +234,7 @@ def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, con
     # If no peaks are found, stop
     if len(peaks) == 0:
         print(f"Slices skipped, no peak found.")
-        return [], [], None
+        return [], [], None, []
     
     if False:
         print(f"{len(peaks)} found in slice: {round(shift_array[0],2)} - {round(shift_array[-1],2)} ppm.")
@@ -234,10 +242,8 @@ def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, con
     # Get initial guesses for peak parameters (amplitude, center, width)
     initial_guesses = []
 
-    
     lower_bounds = []
     upper_bounds = []
-    
 
     for peak in peaks[:]:
         if intensity_array[peak] > 0:
@@ -270,6 +276,7 @@ def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, con
 
     # Fit peaks
     try:
+        fig = []
         #Fitting
         if constrained_fit == False:
             popt, covariance_matrix = fit_without_bounds(shift_array,intensity_array,initial_guesses,std_deviation)
@@ -295,30 +302,43 @@ def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, con
         max_residuals =np.max(intensity_array - sum_of_lorentzian(shift_array, *popt))
         if max_residuals >0.1 and warning_string==None:
             warning_string = "Strong residual, a peak might have been not fitted"
+
         # Plot original data and fit results
-        if False:
-            for indice, parameter in enumerate(opti_parameter):
-                print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
+        for indice, parameter in enumerate(opti_parameter):
+            print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
 
-            plt.imshow(covariance_matrix, cmap='seismic', vmin=-1*np.max(np.abs(covariance_matrix)), vmax=np.max(np.abs(covariance_matrix)))
-            plt.colorbar()
-            plt.figure(figsize=(10, 5))
-            plt.plot(shift_array, intensity_array_original, color='black', label="Original Spectrum")
-            plt.plot(shift_array, fitted_y+baseline, 'r--', label="Lorentzian Fit")
-            plt.plot(shift_array, baseline, 'b--', label="Baseline Fit")
-            plt.plot(shift_array, intensity_array_original-fitted_y, color='silver', label="Residuals")
-            plt.scatter(shift_array[peaks], intensity_array_original[peaks], color='green', marker='o', label="Detected Peaks")
-            plt.xlabel("Shift (ppm)")
-            plt.ylabel("Intensity")
-            plt.legend()
-            plt.title("Peak Fitting")
+        fig, axes = plt.subplots(1, 2, figsize=(14, 5))  # Two subplots (1 row, 2 columns)
+        # ---- Subplot 1: Covariance Matrix ----
+        ax1 = axes[0]
+        cax = ax1.imshow(covariance_matrix, cmap='seismic',
+                         vmin=-1 * np.max(np.abs(covariance_matrix)),
+                         vmax=np.max(np.abs(covariance_matrix)))
+        fig.colorbar(cax, ax=ax1)
+        ax1.set_title("Covariance Matrix")
+        # ---- Subplot 2: Spectral Data and Fitting Results ----
+        ax2 = axes[1]
+        ax2.plot(shift_array, intensity_array_original, color='black', label="Original Spectrum")
+        ax2.plot(shift_array, fitted_y + baseline, 'r--', label="Lorentzian Fit")
+        ax2.plot(shift_array, baseline, 'b--', label="Baseline Fit")
+        ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver', label="Residuals")
+        ax2.scatter(shift_array[peaks], intensity_array_original[peaks], color='green', marker='o',
+                    label="Detected Peaks")
+        ax2.set_xlabel("Shift (ppm)")
+        ax2.set_ylabel("Intensity")
+        ax2.legend()
+        ax2.set_title("Peak Fitting")
+
+        if is_show_plot:
+            plt.tight_layout()  # Adjust spacing between plots
             plt.show()
+        else:
+            plt.close(fig)
 
-        return opti_parameter, opti_parameter_error, warning_string
+        return opti_parameter, opti_parameter_error, warning_string, fig
 
     except RuntimeError:
         print("Curve fitting failed for this slice.")
-        return [], [], ["Fit failed"]
+        return [], [], ["Fit failed"], 0
 
 def integration_peak (amp, cen, wid):
     return (amp/(wid))
@@ -348,16 +368,68 @@ def find_closest_reference(fitted_center, reference_dict):
 
     return closest_product, closest_shift
 
-def integrate_spectrum(file_name):
-    # Extract the filename with extension
-    filename_with_ext = os.path.basename(file_name)
+def replot_fittings(figures, is_show_plot=False, dir=None):
+    num_figs = len(figures)
+
+    if num_figs == 0:
+        print("No figures to plot.")
+        return None
+
+    num_cols = 3
+    num_rows = math.ceil(num_figs / num_cols)
+
+    # Create the figure with the correct number of rows and columns
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(4*num_cols, 4*num_rows))
+    fig.suptitle(dir, fontsize=12, fontweight="bold")
+
+    # Flatten axes array for easy indexing
+    axes = axes.flatten()
+
+    # Iterate over stored figures and plot on the new shared figure
+    for i, fig_old in enumerate(figures):
+        for ax_old in fig_old.axes:  # Extract each axis from the stored figure
+            for line in ax_old.get_lines():  # Extract line plots
+                axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
+
+                # if 5.4 within the x axis range, change the title to Substrate
+                x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
+                if 5.4 >= x_min and 5.4 <= x_max:
+                    axes[i].set_title("Substrate")  # Change title if 5.4 is in range
+                elif 4.5 >= x_min and 4.5 <= x_max:
+                    axes[i].set_title("Prod_A")
+                elif 6.7 >= x_min and 6.7 <= x_max:
+                    axes[i].set_title("Prod_B")
+                else:
+                    axes[i].set_title("Unknown")
+
+            # axes[i].set_title(ax_old.get_title())
+            axes[i].set_xlabel(ax_old.get_xlabel())
+            axes[i].set_ylabel(ax_old.get_ylabel())
+            if axes[i].has_data():  # Only add legend if data exists
+                axes[i].legend()
+
+    # Hide any unused subplots (if the last row is not full)
+    for j in range(num_figs, len(axes)):
+        axes[j].axis("off")  # Instead of fig.delaxes(), just hide the extra axes
+
+    plt.tight_layout()
+
+    if is_show_plot:
+        plt.show(block=True)  # Show only the combined figure and block execution
+
+    return fig
+
+def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
+
+    # get the dir path of the file
+    file_dir = os.path.dirname(file_name)
     # Remove the extension
     experiment_name =os.path.basename(os.path.dirname(file_name)) #= os.path.splitext(filename_with_ext)[0]
     
     NMR_spectrum = CSV_Loader(file_name)
-    std_deviation=float(np.std(NMR_spectrum[-2000:,1]))
-    spectral_resolution= abs(NMR_spectrum[1,0]-NMR_spectrum[0,0])
-    estimated_peak_width_for_indexes = peak_width_50 /spectral_resolution
+    std_deviation=float(np.std(NMR_spectrum[-2000:, 1]))
+    spectral_resolution= abs(NMR_spectrum[1, 0]-NMR_spectrum[0, 0])
+    estimated_peak_width_for_indexes = peak_width_50 / spectral_resolution
 
     interval_to_slice_spectrum = merge_overlapping_intervals(peaks_info)
 
@@ -380,16 +452,20 @@ def integrate_spectrum(file_name):
 
     results_dictionary={}
     results_dictionary["Warning"] = {}
+
+    figures = []
+
     for slice in NMR_slices:
         
-        parameters, error, warning_string = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
-        
-        # Iterate through fitted peak parameters
+        parameters, error, warning_string, fig = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
+
+       # Iterate through fitted peak parameters
         for parameter in parameters:
-            if parameter[0]<threshold_amplitude:
+            if parameter[0] < threshold_amplitude:
+                fig = None
                 continue
             fitted_center = parameter[1]  # Extract the center of the fitted peak
-            peak_area = integration_peak(*parameter) *1000 # Compute peak area
+            peak_area = integration_peak(*parameter) * 1000 # Compute peak area
 
             # Find the closest matching reference shift
             closest_product, closest_shift = find_closest_reference(fitted_center, reference_shift)
@@ -404,11 +480,19 @@ def integrate_spectrum(file_name):
                     results_dictionary[closest_product] = peak_area  # Create new list
 
             if warning_string is not None:
-                results_dictionary["Warning"][closest_product]=warning_string 
+                results_dictionary["Warning"][closest_product] = warning_string
+
+        if fig:
+            figures.append(fig)
+
+    fig_combined = replot_fittings(figures, is_show_plot=False, dir=file_dir)
+
+    if is_save_plot and fig_combined:
+        fig_combined.savefig(file_dir + "\\fitting_results.png")
 
     return results_dictionary, experiment_name
 
-def analyze_one_run_folder(master_path):
+def analyze_one_run_folder(master_path, is_show_plot=False):
 
     total_result_dictionary = {}
     list_experiment_loaded = []
@@ -431,7 +515,7 @@ def analyze_one_run_folder(master_path):
 
     # Iterate through CSV from the list to fit and obtain absolute area
     for file_name in data_file_ls:
-        experiment_dictionary, experiment_name = integrate_spectrum(file_name)
+        experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True, is_show_plot=is_show_plot)
         list_experiment_loaded.append(experiment_name)
         print(f"\n{experiment_name}: {experiment_dictionary}")
         total_result_dictionary.update({experiment_name : experiment_dictionary})
@@ -447,8 +531,6 @@ def analyze_one_run_folder(master_path):
         text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
 
 if __name__ == "__main__":
-
-
 
     ##TEST###
     file_list = [
@@ -474,6 +556,9 @@ if __name__ == "__main__":
     # path_to_json = r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"  # Path where resutls are saved
 
     master_path_ls = [
+        # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
+        # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
+
         'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
         'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
         'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
@@ -481,8 +566,6 @@ if __name__ == "__main__":
         'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
         'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
         ]
-
-
 
     for path in master_path_ls:
         if path:

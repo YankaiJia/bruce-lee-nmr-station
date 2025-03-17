@@ -5,9 +5,9 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 # import Integrator_v3_baseline
-import conc_interpolation
-from conc_interpolation import interp_func_S, interp_func_B
 
+import conc_interpolation
+interp_func_S, interp_func_B = conc_interpolation.get_interp_funcs()
 def check_and_return_folder_structure():
 
     # make sure run name exists
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                           result_folder)
 
         # calc the S conversion
-        df['S_conversion'] = 1 - df['c#_S_from_S'] / df['DPE']
+        df['S_conversion'] = 1 - df['c#_S_from_S'] / df['DPE'].replace(0, np.nan)
         df['consumed_S'] = df['DPE'] - df['c#_S_from_S']
 
         # get the limitting reagent
@@ -110,12 +110,17 @@ if __name__ == "__main__":
         df['c#_A_from_B'] = pd.to_numeric(df['c#_A_from_B'], errors='coerce')
         df['c#_B_from_B'] = pd.to_numeric(df['c#_B_from_B'], errors='coerce')
         df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
+
         # get the yield of A 
         df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A_from_B'] / df['limitting_conc'], 0)
         df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B_from_B'] / df['limitting_conc'], 0)
-        # selectivity matrix
+
+        # selectivity metrics
         df['sel_A'] = df['c#_A_from_B'] / df['consumed_S']
         df['sel_B'] = df['c#_B_from_B'] / df['consumed_S']
+
+        # mole fraction of A
+        df['mole_fraction_A'] = df['c#_A_from_B'] / (df['c#_A_from_B'] + df['c#_B_from_B'])
 
         # save the final dataframe to csv
         df.to_csv(result_folder + "\\final_results.csv", index=False)
@@ -127,7 +132,8 @@ if __name__ == "__main__":
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
     csv_path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
-
     # if the file exists, overwrite it
     df_full_experiment.to_csv(csv_path, index=False, mode='w')
+
+    print(f'Full experiment data saved to {csv_path}')
 
