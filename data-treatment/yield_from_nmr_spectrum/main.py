@@ -2,7 +2,6 @@ import os, re
 import time
 
 import pandas as pd
-from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 import numpy as np
 
@@ -81,7 +80,7 @@ def process_one_folder(run_folder):
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
     print(f'Analyzing {run_folder}')
 
-    Integrator_v3_baseline.analyze_one_run_folder(run_folder)
+    # Integrator_v3_baseline.analyze_one_run_folder(run_folder)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,
                                                               is_save_csv=True)
@@ -147,6 +146,7 @@ if __name__ == "__main__":
 
     for run_folder in run_folders:
         process_one_folder(run_folder)
+        print(f'Finished processing {run_folder}')
 
     # merge all the final_results.csv into one file
     df_full_experiment = pd.DataFrame()
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
     # save final results to csv
-    csv_path = data_dir + "\\data\\DPE_bromination\\full_experiment.csv"
+    csv_path = data_dir + "\\data\\DPE_bromination\\full_experiment_test_YJ.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
