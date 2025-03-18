@@ -76,71 +76,77 @@ def combine_data(df_final_conc,
 
     return df_final
 
-if __name__ == "__main__":
+def process_one_folder(run_folder):
 
+    result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
+    print(f'Analyzing {run_folder}')
+
+    Integrator_v3_baseline.analyze_one_run_folder(run_folder)
+
+    df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,
+                                                              is_save_csv=True)
+    df = combine_data(df_final_conc,
+                      excel_file,
+                      out_conc_file,
+                      out_vol_file,
+                      result_folder)
+
+    # calc the S conversion
+    df['S_conversion'] = 1 - df['c#_S_from_S'] / df['DPE'].replace(0, np.nan)
+    df['consumed_S'] = df['DPE'] - df['c#_S_from_S']
+
+    # get the limitting reagent
+    df['limitting_conc'] = df[['DPE', 'Br2']].min(axis=1)
+    df['c#_A_from_B'] = pd.to_numeric(df['c#_A_from_B'], errors='coerce')
+    df['c#_B_from_B'] = pd.to_numeric(df['c#_B_from_B'], errors='coerce')
+    df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
+
+    # get the yield of A
+    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A_from_B'] / df['limitting_conc'], 0)
+    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B_from_B'] / df['limitting_conc'], 0)
+
+    # get the yield of other products
+    col_list = ['intg_sol_down', 'intg_sol_up', 'intg_impr_SM1', 'intg_impr_SM2',
+                'intg_impr1', 'intg_impr2', 'intg_impr3', 'intg_impr4',
+                'intg_alcohol', 'intg_HBr_adduct', 'intg_acid']
+    for col_name in col_list:
+        if not col_name in df.columns:
+            continue
+        yield_str = col_name.replace('intg_', 'yield_')
+        df[yield_str] = np.where(df['limitting_conc'] != 0, df[col_name] / df['limitting_conc'], 0)
+
+    time.sleep(1)
+
+    # selectivity metrics
+    df['sel_A'] = df['c#_A_from_B'] / df['consumed_S']
+    df['sel_B'] = df['c#_B_from_B'] / df['consumed_S']
+
+    # mole fraction of A
+    df['mole_fraction_A'] = df['c#_A_from_B'] / (df['c#_A_from_B'] + df['c#_B_from_B'])
+
+    # save the final dataframe to csv
+    df.to_csv(result_folder + "\\final_results.csv", index=False)
+
+    return df
+
+if __name__ == "__main__":
 
     data_dir = gui.select_folder()
 
-    run_folders = ["\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+    run_folders = [
+                "\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
                 "\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
                 "\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
                 "\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
                 "\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
                 "\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
                 ]
+
     run_folders = [data_dir + run_folder for run_folder in run_folders]
     print(run_folders)
 
     for run_folder in run_folders:
-
-        result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
-        print(f'Analyzing {run_folder}')
-
-        Integrator_v3_baseline.analyze_one_run_folder(run_folder)
-
-        df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, 
-                                                                  is_save_csv=True)
-        df = combine_data(df_final_conc,
-                          excel_file,
-                          out_conc_file,
-                          out_vol_file,
-                          result_folder)
-
-        # calc the S conversion
-        df['S_conversion'] = 1 - df['c#_S_from_S'] / df['DPE'].replace(0, np.nan)
-        df['consumed_S'] = df['DPE'] - df['c#_S_from_S']
-
-        # get the limitting reagent
-        df['limitting_conc'] = df[['DPE', 'Br2']].min(axis=1)
-        df['c#_A_from_B'] = pd.to_numeric(df['c#_A_from_B'], errors='coerce')
-        df['c#_B_from_B'] = pd.to_numeric(df['c#_B_from_B'], errors='coerce')
-        df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
-
-        # get the yield of A 
-        df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A_from_B'] / df['limitting_conc'], 0)
-        df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B_from_B'] / df['limitting_conc'], 0)
-
-        # get the yield of other products
-        col_list = ['intg_sol_down', 'intg_sol_up', 'intg_impr_SM1', 'intg_impr_SM2',
-                    'intg_impr1', 'intg_impr2', 'intg_impr3', 'intg_impr4',
-                    'intg_alcohol', 'intg_HBr_adduct', 'intg_acid']
-        for col_name in col_list:
-            if not col_name in df.columns:
-                continue
-            yield_str = col_name.replace('intg_', 'yield_')
-            df[yield_str] = np.where(df['limitting_conc'] != 0, df[col_name] / df['limitting_conc'], 0)
-
-        time.sleep(1)
-
-        # selectivity metrics
-        df['sel_A'] = df['c#_A_from_B'] / df['consumed_S']
-        df['sel_B'] = df['c#_B_from_B'] / df['consumed_S']
-
-        # mole fraction of A
-        df['mole_fraction_A'] = df['c#_A_from_B'] / (df['c#_A_from_B'] + df['c#_B_from_B'])
-
-        # save the final dataframe to csv
-        df.to_csv(result_folder + "\\final_results.csv", index=False)
+        process_one_folder(run_folder)
 
     # merge all the final_results.csv into one file
     df_full_experiment = pd.DataFrame()
@@ -148,7 +154,8 @@ if __name__ == "__main__":
         result_folder = run_folder + "\\Results"
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
-    csv_path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
+    # save final results to csv
+    csv_path = data_dir + "\\data\\DPE_bromination\\full_experiment.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
