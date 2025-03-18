@@ -11,8 +11,6 @@ import sys
 import matplotlib
 matplotlib.use('TkAgg')
 
-import gui_tools as gui
-
 def plot_integral(df, column_name_x, column_name_y, plot_name):
     labels = [f'reaction_{i}' for i in range(6)]
     ls=[i*6 for i in range(9)]
@@ -114,10 +112,8 @@ def json_to_dataframe(json_file, is_delete_entry_with_warning=False):
 
 
 def get_interp_funcs(is_show_ref_curve=False):
-
-    brucelee_path = gui.select_folder()
     # ref data
-    folder_ref = brucelee_path + "\\data\\DPE_bromination\\_Refs\\"
+    folder_ref = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\"
 
     df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json",
                                 is_delete_entry_with_warning=False)
@@ -264,8 +260,7 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
 
 if __name__ == "__main__":
 
-    brucelee_path = gui.select_folder()
-    result_folder = brucelee_path + "\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+    result_folder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
     #
     df= interpolate_one_folder(result_folder,is_save_csv=True)
 

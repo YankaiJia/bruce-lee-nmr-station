@@ -72,7 +72,6 @@ def CSV_Loader(name_file, Yankai_temporary_fix=True):   #Yankai_temporary_fix: q
         plt.ylabel('Intensity')
         plt.title('Loading check')
         plt.show()
-        plt.close()
     
     return(data)
 
@@ -219,8 +218,6 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window = 0.1):
         plt.ylabel('Intensity')
         plt.title('Baseline fitting')
         plt.show()
-        plt.close()
-
 
     return baseline
 
@@ -421,8 +418,6 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
 
     if is_show_plot:
         plt.show(block=True)  # Show only the combined figure and block execution
-    else:
-        plt.close(fig)  # Close the figure if not showing
 
     return fig
 
@@ -456,7 +451,6 @@ def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
             plt.title(f'NMR slice:{indice}, {start} - {end} ppm')
 
         plt.show()
-        plt.close()
 
     results_dictionary={}
     results_dictionary["Warning"] = {}
@@ -542,21 +536,20 @@ if __name__ == "__main__":
 
     ##TEST###
     file_list = [
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",
-        # r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"
-        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results\\52-1D EXTENDED+-250228-040451\data.csv"
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",
+        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"
     ]
     ###Problematic samples
     # file_list =[r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"]
@@ -564,21 +557,17 @@ if __name__ == "__main__":
 
     # path_to_json = r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"  # Path where resutls are saved
 
-    import gui_tools as gui
-    brucelee_path = gui.select_folder()
-
     master_path_ls = [
-        # "\\data\\DPE_bromination\\_Refs\\ref_B",
-        # "\\data\\DPE_bromination\\_Refs\\ref_S",
+        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
+        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
 
-        '\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
-        # '\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
-        # '\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
-        # '\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
-        # '\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
-        # '\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
         ]
-    master_path_ls = [brucelee_path + path for path in master_path_ls]
 
     for path in master_path_ls:
         if path:
