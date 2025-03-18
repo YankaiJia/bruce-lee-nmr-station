@@ -557,17 +557,20 @@ if __name__ == "__main__":
 
     # path_to_json = r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"  # Path where resutls are saved
 
+    import gui_tools as gui
+    brucelee_path = gui.select_folder()
     master_path_ls = [
-        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
-        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
+        # "\\data\\DPE_bromination\\_Refs\\ref_B",
+        # "\\data\\DPE_bromination\\_Refs\\ref_S",
 
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
+        '\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
+        # '\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
+        # '\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
+        # '\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
+        # '\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
+        # '\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
         ]
+    master_path_ls = [brucelee_path + path for path in master_path_ls]
 
     for path in master_path_ls:
         if path:
