@@ -35,13 +35,14 @@ peaks_info = [  # Begining of region of itnerest, End of region of interest, exp
     [6.5, 7.0],  # Product B, 1H
     [4.45, 4.70],  # Product A, 2H
     [2.2, 2.7],  # HBr adduct
+    [7.80, 14], #Acid?
 ]
 reference_shift = {
     "Starting material": [5.467],  # ppm
     "Product A": [4.527],  # ppm
     "Product B": [6.807],  # ppm
-    "Solvent": [4.775, 4.693, 4.605],  # ppm
-    "Solvent": [2.850, 2.764, 2.682],  # ppm
+    "SolventDown": [4.775, 4.693, 4.605],  # ppm
+    "SolventUp": [2.850, 2.764, 2.682],  # ppm
     "Unknown impurity SM peak 1": [6.453],  # ppm
     "Unknown impurity SM peak 2": [4.474],  # ppm
     "Unknown impurity 1": [6.523],
@@ -49,11 +50,12 @@ reference_shift = {
     "Unknown impurity 3": [4.340],  # ppm
     "Unknown impurity 4": [2.549],  # ppm
     "Alcohol": [6.727],  # ppm
-    "HBr adduct": [2.463],  # ppm
+    "HBr_adduct": [2.463],  # ppm
+    "Acid": [8.0]
 }
 
 ########Variables#########
-threshold_amplitude = 1E-5  # Minimum threshold to be integrated
+threshold_amplitude = 1E-7  # Minimum threshold to be integrated
 
 
 ########Functions#########
@@ -462,7 +464,7 @@ def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
        # Iterate through fitted peak parameters
         for parameter in parameters:
             if parameter[0] < threshold_amplitude:
-                fig = None
+                # fig = None # do this if you do not want to show the unfitted peaks
                 continue
             fitted_center = parameter[1]  # Extract the center of the fitted peak
             peak_area = integration_peak(*parameter) * 1000 # Compute peak area
@@ -471,7 +473,7 @@ def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
             closest_product, closest_shift = find_closest_reference(fitted_center, reference_shift)
             
             # Append the peak area instead of overwriting
-            if closest_product=='Solvent' or 'impurity' in closest_product: #Do not report solvent and impurities
+            if 'SolventDown' in closest_product or 'SolventUp' in closest_product: #Do not report solvent and impurities
                 continue
             else:
                 if closest_product in results_dictionary:
@@ -556,15 +558,15 @@ if __name__ == "__main__":
     # path_to_json = r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"  # Path where resutls are saved
 
     master_path_ls = [
-        # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
-        # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
+        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
+        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
 
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
+        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
         ]
 
     for path in master_path_ls:

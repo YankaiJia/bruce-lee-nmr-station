@@ -127,7 +127,7 @@ def plot_3d_dataset_as_cube(x_raw, y_raw, z_raw, k_raw, substance_titles = ('Alc
                                 vmax=vmax,
                                 resolution=16, scale_factor=0.1, colormap=colormap)
 
-    plot_points.actor.property.opacity = 1
+    plot_points.actor.property.opacity = 0.5
 
     if is_label_points:
         # Print each point's index and coordinates
@@ -180,15 +180,17 @@ if __name__ == '__main__':
         '171012',
         '152853'
         ]
-    for i in row_str:
-        df = df[~df['spectrum_dir'].str.contains(i)]
-        print(f'Deleted: {i}')
+    # for i in row_str:
+    #     df = df[~df['spectrum_dir'].str.contains(i)]
+    #     print(f'Deleted: {i}')
 
     # if the yield of A or B is larger than 1, delete the row
-    df = df[df['yield_A'] <= 2]
-    df = df[df['yield_B'] <= 2]
+    # df = df[df['yield_A'] <= 2]
+    # df = df[df['yield_B'] <= 2]
     df = df[df['S_conversion'] >= 0]
 
+    print(df.columns)
+    # exit()
 
     x_raw, y_raw, z_raw = df['DPE'].tolist(), df['TBABr'].tolist(), df['Br2'].tolist()
 
@@ -218,6 +220,6 @@ if __name__ == '__main__':
                                 contours=1,
                                 data_for_spheres='raw',
                                 spectrum_name=spectrum_name,
-                                is_label_points=False,
+                                is_label_points=True,
                                 forced_kmax=None,
                                 )

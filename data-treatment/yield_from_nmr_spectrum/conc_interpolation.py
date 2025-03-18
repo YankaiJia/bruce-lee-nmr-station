@@ -52,10 +52,15 @@ def interpolate(interp_func, measured_integrals):
         return 0 if measured_integrals == 0 else abs(interp_func(measured_integrals))
 
 
-def json_to_dataframe(json_file, is_delete_entry_with_warning=True):
+def json_to_dataframe(json_file, is_delete_entry_with_warning=False):
     # Load the JSON from a file (or you can pass the JSON string directly to json.loads)
     with open(json_file, "r") as f:
         data = json.load(f)
+
+    print(f'data: {data}')
+
+    # exit()
+    # raise ValueError("Stop here")
 
     # Convert to DataFrame:
     #   - orient="index" treats the top-level keys (reaction names) as row indices
@@ -68,21 +73,39 @@ def json_to_dataframe(json_file, is_delete_entry_with_warning=True):
             # df.drop(columns=['Warning'], inplace=True)  # Drop Warning column
 
     # Make sure all columns exist in the desired order:
-    desired_cols = ["Starting material", "Product A", "Product B"]
-    df = df.reindex(columns=desired_cols)
+    # desired_cols = ["Starting material", "Product A", "Product B"]
+    # df = df.reindex(columns=desired_cols)
 
     # Move the index into a regular column named "Reaction name"
-    df = df.reset_index().rename(columns={"index": "Reaction name"})
+    df = df.reset_index().rename(columns={"index": "spectrum_name"})
 
-    # At this point, df will have columns:
-    #   Reaction name | Starting material | Product A | Product B
-
-    df.columns = ['spectrum_name', "intg_S", "intg_A", "intg_B"]
+    # df.columns = ['spectrum_name', "intg_S", "intg_A", "intg_B"]
 
     # get the dir of the json file
     json_dir = os.path.dirname(json_file)
     spectrum_dir = [os.path.join(json_dir, spectrum_name) for spectrum_name in df['spectrum_name']]
     df['spectrum_dir'] = spectrum_dir
+
+    # change the column names according to the following dictionary
+    col_names = {
+        "Starting material": 'intg_S',  # ppm
+        "Product A": 'intg_A',  # ppm
+        "Product B": 'intg_B',  # ppm
+        "SolventDown": 'intg_sol_down',  # ppm
+        "SolventUp": 'intg_sol_up',  # ppm
+        "Unknown impurity SM peak 1": 'intg_impr_SM1',  # ppm
+        "Unknown impurity SM peak 2": 'intg_impr_SM2',  # ppm
+        "Unknown impurity 1": 'intg_impr1',
+        "Unknown impurity 2": 'intg_impr2',  # ppm
+        "Unknown impurity 3": 'intg_impr3',  # ppm
+        "Unknown impurity 4": 'intg_impr4',  # ppm
+        "Alcohol": 'intg_alcohol',  # ppm
+        "HBr_adduct": 'intg_HBr_adduct',  # ppm
+        "Acid": 'intg_acid',  # ppm
+    }
+
+    # Rename columns
+    df.rename(columns=col_names, inplace=True)
 
     return df
 
@@ -96,8 +119,8 @@ def get_interp_funcs(is_show_ref_curve=False):
     df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json",
                                 is_delete_entry_with_warning=False)
 
-    df_ref_S.columns = ['name', "intg_S", "intg_A", "intg_B", "dir"]
-    df_ref_B.columns = ['name', "intg_S", "intg_A", "intg_B", "dir"]
+    # df_ref_S.columns = ['name', "intg_S", "intg_A", "intg_B", "dir"]
+    # df_ref_B.columns = ['name', "intg_S", "intg_A", "intg_B", "dir"]
 
     print(df_ref_S.head())
     print(df_ref_B.head())
@@ -122,6 +145,10 @@ def get_interp_funcs(is_show_ref_curve=False):
 
     interp_func_B = interp1d(df_ref_B['intg_B'],ref_conc_B, 
                             kind='linear',fill_value="extrapolate")
+
+    # display the interpolation curve and the parameters
+    print(interp_func_S)
+    print(interp_func_B)
 
 
     # Generate fine-grained x values for smooth interpolation curve
@@ -152,7 +179,7 @@ def get_interp_funcs(is_show_ref_curve=False):
 
     return interp_func_S, interp_func_B
 
-interp_func_S, interp_func_B = get_interp_funcs()
+# interp_func_S, interp_func_B = get_interp_funcs()
 
 
 def interpolate_one_folder(result_folder, is_save_csv=False):
@@ -162,7 +189,7 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
     # read from integrations json file
     json_file = result_folder + "\\fitting_results.json"
 
-    df = json_to_dataframe(json_file)
+    df = json_to_dataframe(json_file, is_delete_entry_with_warning=False)
     # fill the NaN values with 0
     df = df.fillna(0)
     print(df.head())
@@ -171,13 +198,35 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
     # int_s / (2 * conc_s) = int_b / conc_b = int_a / (2 * conc_a)
     # get conc from reference curve of S and use it as internal standard
     interpolated_conc_S_from_ref_S = interpolate(interp_func = interp_func_S, measured_integrals=df['intg_S'])
-    interpolated_conc_B_from_ref_S = 2 * df['intg_B'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
-    interpolated_conc_A_from_ref_S = 1 * df['intg_A'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
-    
+    # interpolated_conc_B_from_ref_S = 2 * df['intg_B'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
+    # interpolated_conc_A_from_ref_S = 1 * df['intg_A'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
+    interpolated_conc_B_from_ref_S = interpolate(interp_func = interp_func_S, measured_integrals=df['intg_B'] * 2)
+    interpolated_conc_A_from_ref_S = interpolate(interp_func = interp_func_S, measured_integrals=df['intg_A'] * 1)
+
     # get conc from reference curve of B and use it as internal standard        
     interpolated_conc_B_from_ref_B = interpolate(interp_func = interp_func_B,measured_integrals=df['intg_B'])
-    interpolated_conc_S_from_ref_B = 0.5 * df['intg_S'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
-    interpolated_conc_A_from_ref_B = 0.5 * df['intg_A'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
+    # interpolated_conc_S_from_ref_B = 0.5 * df['intg_S'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
+    # interpolated_conc_A_from_ref_B = 0.5 * df['intg_A'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
+    interpolated_conc_S_from_ref_B = interpolate(interp_func = interp_func_B,measured_integrals=df['intg_S'] * 0.5)
+    interpolated_conc_A_from_ref_B = interpolate(interp_func = interp_func_B,measured_integrals=df['intg_A'] * 0.5)
+
+    df['c#_S_from_S'] = interpolated_conc_S_from_ref_S
+    df['c#_S_from_B'] = interpolated_conc_S_from_ref_B
+    df['c#_B_from_S'] = interpolated_conc_B_from_ref_S
+    df['c#_B_from_B'] = interpolated_conc_B_from_ref_B
+    df['c#_A_from_S'] = interpolated_conc_A_from_ref_S
+    df['c#_A_from_B'] = interpolated_conc_A_from_ref_B
+
+    col_list = ['intg_sol_down', 'intg_sol_up',  'intg_impr_SM1',  'intg_impr_SM2',
+                 'intg_impr1','intg_impr2',  'intg_impr3',  'intg_impr4',
+                 'intg_alcohol',  'intg_HBr_adduct',  'intg_acid']
+
+    for col_name in col_list:
+        if not col_name in df.columns:
+            continue
+        conc_str = col_name.replace('intg_', 'c#_')
+        df[conc_str+'_from_S'] = interpolate(interp_func = interp_func_S,measured_integrals=df[col_name])
+        df[conc_str+'_from_B'] = interpolate(interp_func = interp_func_B,measured_integrals=df[col_name])
 
     # plot the integral vs conc on the reference curve
     # Prepare data for plotting
@@ -200,14 +249,8 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
     plt.xlim(0, 50)
     # set y limit to 0 to 300
     plt.ylim(0, 250)
-    plt.show()
-
-    df['c#_S_from_S'] = interpolated_conc_S_from_ref_S
-    df['c#_S_from_B'] = interpolated_conc_S_from_ref_B
-    df['c#_B_from_S'] = interpolated_conc_B_from_ref_S
-    df['c#_B_from_B'] = interpolated_conc_B_from_ref_B
-    df['c#_A_from_S'] = interpolated_conc_A_from_ref_S
-    df['c#_A_from_B'] = interpolated_conc_A_from_ref_B
+    # plt.show()
+    plt.savefig(result_folder + 'integral_vs_conc.png')
 
     print(df.head(20))
 
@@ -219,9 +262,11 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
 
 if __name__ == "__main__":
 
-    # result_folder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+    result_folder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
     #
-    # df= interpolate_one_folder(result_folder,is_save_csv=True)
+    df= interpolate_one_folder(result_folder,is_save_csv=True)
 
-    get_interp_funcs(is_show_ref_curve=True)
+    # interp_func_S, interp_func_B = get_interp_funcs(is_show_ref_curve=False)
+
+
         

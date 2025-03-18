@@ -1,10 +1,13 @@
 import os, re
+import time
+
 import pandas as pd
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 import numpy as np
 
-# import Integrator_v3_baseline
+import Integrator_v3_baseline
+import gui_tools as gui
 
 import conc_interpolation
 interp_func_S, interp_func_B = conc_interpolation.get_interp_funcs()
@@ -15,6 +18,7 @@ def check_and_return_folder_structure():
     run_name = re.search(r"\d{4}-\d{2}-\d{2}-run\d{2}", run_folder).group(0)
     assert run_name is not None, "Run folder name is in wrong format!"
     excel_file = run_folder + f'{run_name}.xlsx'
+    print(f'Excel file: {excel_file}')
 
     # make sure the excel file exists
     assert os.path.exists(excel_file), "Excel file does not exist or in wrong name!"
@@ -74,27 +78,28 @@ def combine_data(df_final_conc,
 
 if __name__ == "__main__":
 
-    # folder to analyze
-    # run_folders = gui.select_folders()
 
-    run_folders = ["D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-                "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
-                "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
-                "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
-                "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
-                "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
+    data_dir = gui.select_folder()
+
+    run_folders = ["\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+                "\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
+                "\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
+                "\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
+                "\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
+                "\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
                 ]
-    
+    run_folders = [data_dir + run_folder for run_folder in run_folders]
+    print(run_folders)
+
     for run_folder in run_folders:
 
         result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
         print(f'Analyzing {run_folder}')
 
-        # Integrator_v3_baseline.analyze_one_run_folder(run_folder)
+        Integrator_v3_baseline.analyze_one_run_folder(run_folder)
 
         df_final_conc = conc_interpolation.interpolate_one_folder(result_folder, 
                                                                   is_save_csv=True)
-  
         df = combine_data(df_final_conc,
                           excel_file,
                           out_conc_file,
@@ -115,6 +120,18 @@ if __name__ == "__main__":
         df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A_from_B'] / df['limitting_conc'], 0)
         df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B_from_B'] / df['limitting_conc'], 0)
 
+        # get the yield of other products
+        col_list = ['intg_sol_down', 'intg_sol_up', 'intg_impr_SM1', 'intg_impr_SM2',
+                    'intg_impr1', 'intg_impr2', 'intg_impr3', 'intg_impr4',
+                    'intg_alcohol', 'intg_HBr_adduct', 'intg_acid']
+        for col_name in col_list:
+            if not col_name in df.columns:
+                continue
+            yield_str = col_name.replace('intg_', 'yield_')
+            df[yield_str] = np.where(df['limitting_conc'] != 0, df[col_name] / df['limitting_conc'], 0)
+
+        time.sleep(1)
+
         # selectivity metrics
         df['sel_A'] = df['c#_A_from_B'] / df['consumed_S']
         df['sel_B'] = df['c#_B_from_B'] / df['consumed_S']
@@ -132,8 +149,7 @@ if __name__ == "__main__":
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
     csv_path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\full_experiment.csv"
-    # if the file exists, overwrite it
-    df_full_experiment.to_csv(csv_path, index=False, mode='w')
+    df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
 
