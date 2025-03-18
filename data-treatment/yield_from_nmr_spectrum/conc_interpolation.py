@@ -33,6 +33,7 @@ def plot_integral(df, column_name_x, column_name_y, plot_name):
     # save the plot
     plt.savefig(folder + f'{column_name_y}_{plot_name}.png')
     plt.show()
+    plt.close()
 
 # Example data (same as above)
 def interpolate(interp_func, measured_integrals):
@@ -142,6 +143,8 @@ def get_interp_funcs(is_show_ref_curve=False):
     plt.savefig(folder_ref + 'ref_curve.png')
     if is_show_ref_curve:
         plt.show()
+    else:
+        plt.close()
 
     # Create interpolation functions (linear by default)
     interp_func_S = interp1d(df_ref_S['intg_S'], ref_conc_S, 
@@ -180,6 +183,8 @@ def get_interp_funcs(is_show_ref_curve=False):
     plt.savefig(folder_ref + 'interp_curve.png')
     if is_show_ref_curve:
         plt.show()
+    else:
+        plt.close()
 
     return interp_func_S, interp_func_B
 
@@ -202,15 +207,11 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
     # int_s / (2 * conc_s) = int_b / conc_b = int_a / (2 * conc_a)
     # get conc from reference curve of S and use it as internal standard
     interpolated_conc_S_from_ref_S = interpolate(interp_func = interp_func_S, measured_integrals=df['intg_S'])
-    # interpolated_conc_B_from_ref_S = 2 * df['intg_B'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
-    # interpolated_conc_A_from_ref_S = 1 * df['intg_A'] / (df['intg_S'] / interpolated_conc_S_from_ref_S)
     interpolated_conc_B_from_ref_S = interpolate(interp_func = interp_func_S, measured_integrals=df['intg_B'] * 2)
     interpolated_conc_A_from_ref_S = interpolate(interp_func = interp_func_S, measured_integrals=df['intg_A'] * 1)
 
     # get conc from reference curve of B and use it as internal standard        
     interpolated_conc_B_from_ref_B = interpolate(interp_func = interp_func_B,measured_integrals=df['intg_B'])
-    # interpolated_conc_S_from_ref_B = 0.5 * df['intg_S'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
-    # interpolated_conc_A_from_ref_B = 0.5 * df['intg_A'] / (df['intg_B'] / interpolated_conc_B_from_ref_B)
     interpolated_conc_S_from_ref_B = interpolate(interp_func = interp_func_B,measured_integrals=df['intg_S'] * 0.5)
     interpolated_conc_A_from_ref_B = interpolate(interp_func = interp_func_B,measured_integrals=df['intg_A'] * 0.5)
 
@@ -234,27 +235,24 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
 
     # plot the integral vs conc on the reference curve
     # Prepare data for plotting
-    plt.figure(figsize=(10, 5))
-
-    # Scatter plots for interpolated concentrations
-    plt.scatter(df['intg_S'], interpolated_conc_S_from_ref_S, label="S from Ref S", marker='o')
-    plt.scatter(df['intg_B'], interpolated_conc_B_from_ref_S, label="B from Ref S", marker='s')
-    plt.scatter(df['intg_A'], interpolated_conc_A_from_ref_S, label="A from Ref S", marker='^')
-
-    plt.scatter(df['intg_S'], interpolated_conc_S_from_ref_B, label="S from Ref B", marker='o', facecolors='none', edgecolors='r')
-    plt.scatter(df['intg_B'], interpolated_conc_B_from_ref_B, label="B from Ref B", marker='s', facecolors='none', edgecolors='r')
-    plt.scatter(df['intg_A'], interpolated_conc_A_from_ref_B, label="A from Ref B", marker='^', facecolors='none', edgecolors='r')
-
-    plt.xlabel("Integral")
-    plt.ylabel("Interpolated Concentration (mM)")
-    plt.legend()
-    plt.grid(True)
-    # set x limit to 0 to 50
-    plt.xlim(0, 50)
-    # set y limit to 0 to 300
-    plt.ylim(0, 250)
-    # plt.show()
-    plt.savefig(result_folder + 'integral_vs_conc.png')
+    # plt.figure(figsize=(10, 5))
+    # # Scatter plots for interpolated concentrations
+    # plt.scatter(df['intg_S'], interpolated_conc_S_from_ref_S, label="S from Ref S", marker='o')
+    # plt.scatter(df['intg_B'], interpolated_conc_B_from_ref_S, label="B from Ref S", marker='s')
+    # plt.scatter(df['intg_A'], interpolated_conc_A_from_ref_S, label="A from Ref S", marker='^')
+    # plt.scatter(df['intg_S'], interpolated_conc_S_from_ref_B, label="S from Ref B", marker='o', facecolors='none', edgecolors='r')
+    # plt.scatter(df['intg_B'], interpolated_conc_B_from_ref_B, label="B from Ref B", marker='s', facecolors='none', edgecolors='r')
+    # plt.scatter(df['intg_A'], interpolated_conc_A_from_ref_B, label="A from Ref B", marker='^', facecolors='none', edgecolors='r')
+    # plt.xlabel("Integral")
+    # plt.ylabel("Interpolated Concentration (mM)")
+    # plt.legend()
+    # plt.grid(True)
+    # # set x limit to 0 to 50
+    # plt.xlim(0, 50)
+    # # set y limit to 0 to 300
+    # plt.ylim(0, 250)
+    # # plt.show()
+    # plt.savefig(result_folder + 'integral_vs_conc.png')
 
     print(df.head(20))
 
