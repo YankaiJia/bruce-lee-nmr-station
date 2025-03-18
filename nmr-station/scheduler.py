@@ -564,11 +564,11 @@ def extract_uuid_container_mapping(file_path):
 
 def check_list_before_runing_gui():
     checklist = [
-        "Turn on flight mode",
+        "Disable wifi and disconnect Router",
         "Open Spinsolve software",
         "Specify storage directory",
         "Make well plate ready",
-        "Check/refill pipetting tips",
+        "Check/refill pipetting tips and reload breadboard.py",
         "Make two NMR tubes ready",
         "Turn on air pressure",
         "Turn on vacuum",
