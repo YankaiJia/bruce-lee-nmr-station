@@ -4,12 +4,12 @@ import pandas as pd
 from scipy.interpolate import interp1d
 import json
 import os
-import re
-import sys
-# import gui_utils as gui
-# use the TkAgg backend for matplotlib
+
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TkAgg') # use the TkAgg backend for matplotlib
+
+BRUCELEE_PROJECT_DATA = os.environ['BRUCELEE_PROJECT_DATA']
+
 
 def plot_integral(df, column_name_x, column_name_y, plot_name):
     labels = [f'reaction_{i}' for i in range(6)]
@@ -112,7 +112,7 @@ def json_to_dataframe(json_file, is_delete_entry_with_warning=False):
 
 def get_interp_funcs(is_show_ref_curve=False):
     # ref data
-    folder_ref = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\"
+    folder_ref = BRUCELEE_PROJECT_DATA + "\\DPE_bromination\\_Refs\\"
 
     df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json",
                                 is_delete_entry_with_warning=False)
@@ -262,7 +262,7 @@ def interpolate_one_folder(result_folder, is_save_csv=False):
 
 if __name__ == "__main__":
 
-    result_folder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+    result_folder = BRUCELEE_PROJECT_DATA + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
     #
     df= interpolate_one_folder(result_folder,is_save_csv=True)
 

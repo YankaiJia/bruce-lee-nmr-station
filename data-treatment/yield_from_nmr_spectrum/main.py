@@ -1,16 +1,16 @@
-import os, re
-import time
-
-import pandas as pd
-from matplotlib import pyplot as plt
-from scipy.interpolate import interp1d
 import numpy as np
-
+import os
+import pandas as pd
+import re
+import time
 import Integrator_v3_baseline
-import gui_tools as gui
-
 import conc_interpolation
+
+# get teh system path of BRUCELEE_PROJECT_DATA
+BRUCELEE_PROJECT_DATA = os.environ['BRUCELEE_PROJECT_DATA']
+
 interp_func_S, interp_func_B = conc_interpolation.get_interp_funcs()
+
 def check_and_return_folder_structure():
 
     # make sure run name exists
@@ -131,7 +131,7 @@ def process_one_folder(run_folder):
 
 if __name__ == "__main__":
 
-    data_dir = gui.select_folder()
+    data_dir = BRUCELEE_PROJECT_DATA
 
     run_folders = [
                 "\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
     # save final results to csv
-    csv_path = data_dir + "\\data\\DPE_bromination\\full_experiment_test_YJ_2.csv"
+    csv_path = data_dir + "\\DPE_bromination\\full_experiment_test_YJ_2.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
