@@ -8,11 +8,7 @@ import statsmodels.api as sm
 from numpy.polynomial.polynomial import Polynomial
 import os
 import json
-import math
-
-# change backend for matplotlib to Qt5Agg
-plt.switch_backend('TkAgg')
-
+from datetime import datetime
 ########################
 
 ####Last fix#######
@@ -24,39 +20,62 @@ plt.switch_backend('TkAgg')
 #- Detecting overlaped
 ###########################
 
+
+
 ###########DATA#############
-solvent_shift = 3.73  # ppm DCE
-peak_width_50 = 0.01  # ppm at 50%
+solvent_shift = 3.73 #ppm DCE
+peak_width_50 = 0.01 #ppm at 50%
 
-peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-    [5.20, 5.70],  # Substrate SM, 2H
-    [4.1, 5.00],  # DCE
-    [2.5, 3.05],
-    [6.5, 7.0],  # Product B, 1H
-    [4.45, 4.70],  # Product A, 2H
-    [2.2, 2.7],  # HBr adduct
-    [7.80, 14], #Acid?
-]
-reference_shift = {
-    "Starting material": [5.467],  # ppm
-    "Product A": [4.527],  # ppm
-    "Product B": [6.807],  # ppm
-    "SolventDown": [4.775, 4.693, 4.605],  # ppm
-    "SolventUp": [2.850, 2.764, 2.682],  # ppm
-    "Unknown impurity SM peak 1": [6.453],  # ppm
-    "Unknown impurity SM peak 2": [4.474],  # ppm
+peaks_info = [  #Begining of region of itnerest, End of region of interest, expected peak number
+ [5.20, 5.70], #Substrate SM, 2H
+ [4.1, 5.00], #DCE 
+ [2.5, 3.05],   
+ [6.5, 7.0], # Product B, 1H
+ [4.45, 4.70], #Product A, 2H
+ [2.2, 2.7], # HBr adduct
+            ]
+reference_shift={
+    "Starting material": [5.467], #ppm
+    "Product A": [4.527], #ppm
+    "Product B": [6.807], #ppm
+    "Solvent": [4.775, 4.693, 4.605], #ppm
+    "Solvent": [2.850, 2.764, 2.682], #ppm
+    "Unknown impurity SM peak 1": [6.453], #ppm
+    "Unknown impurity SM peak 2": [4.474], #ppm
     "Unknown impurity 1": [6.523],
-    "Unknown impurity 2": [5.509],  # ppm
-    "Unknown impurity 3": [4.340],  # ppm
-    "Unknown impurity 4": [2.549],  # ppm
-    "Alcohol": [6.727],  # ppm
-    "HBr_adduct": [2.463],  # ppm
-    "Acid": [8.0]
-}
+    "Unknown impurity 2": [5.509], #ppm
+    "Unknown impurity 3": [4.340], #ppm
+    "Unknown impurity 4": [2.549], #ppm
+    "Alcohol": [6.727], #ppm
+    "HBr adduct":[2.463], #ppm
+                }
+##########################
 
-########Variables#########
-threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+#####File location########
+##TEST###
+file_list =[
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",
+    r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"
+    ]
+###Problematic samples
+#file_list =[r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"]
+###
 
+path_to_json=r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"   #Path where resutls are saved
+master_path=None #Example of automated generated file_list: r"C:\Users\UNIST\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run" 
+##########################
 
 ########Functions#########
 def CSV_Loader(name_file, Yankai_temporary_fix=True):   #Yankai_temporary_fix: quick fix for the iunverted ppm scale
@@ -156,8 +175,7 @@ def fit_with_bounds(shift_array,intensity_array,initial_guesses,std_deviation,lo
         return popt, covariance_matrix
 
 def exponential_decay(x, a, b, c, d):
-    return  a * np.exp(np.clip(b * (x+d), -700, 700)) + c # add clip to avoid overflow
-
+    return a * np.exp(b * (x+d)) + c
 
 def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window = 0.1):
     indices_to_keep = int(ppm_window / ppm_per_index)
@@ -221,12 +239,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window = 0.1):
 
     return baseline
 
-def fit_peaks(NMR_spectrum, std_deviation,
-              estimated_peak_width_for_indexes,
-              constrained_fit=True,
-              baseline_correction=True,
-              is_show_plot=False):
-
+def fit_peaks(NMR_spectrum, std_deviation, estimated_peak_width_for_indexes, constrained_fit=True, baseline_correction=True):
     shift_array = NMR_spectrum [:,0] 
     intensity_array = NMR_spectrum [:,1]
     intensity_array_original = intensity_array.copy()
@@ -236,7 +249,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
     # If no peaks are found, stop
     if len(peaks) == 0:
         print(f"Slices skipped, no peak found.")
-        return [], [], None, []
+        return [], [], None
     
     if False:
         print(f"{len(peaks)} found in slice: {round(shift_array[0],2)} - {round(shift_array[-1],2)} ppm.")
@@ -244,8 +257,10 @@ def fit_peaks(NMR_spectrum, std_deviation,
     # Get initial guesses for peak parameters (amplitude, center, width)
     initial_guesses = []
 
+    
     lower_bounds = []
     upper_bounds = []
+    
 
     for peak in peaks[:]:
         if intensity_array[peak] > 0:
@@ -278,7 +293,6 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
     # Fit peaks
     try:
-        fig = []
         #Fitting
         if constrained_fit == False:
             popt, covariance_matrix = fit_without_bounds(shift_array,intensity_array,initial_guesses,std_deviation)
@@ -304,43 +318,30 @@ def fit_peaks(NMR_spectrum, std_deviation,
         max_residuals =np.max(intensity_array - sum_of_lorentzian(shift_array, *popt))
         if max_residuals >0.1 and warning_string==None:
             warning_string = "Strong residual, a peak might have been not fitted"
-
         # Plot original data and fit results
-        for indice, parameter in enumerate(opti_parameter):
-            print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
+        if True:
+            for indice, parameter in enumerate(opti_parameter):
+                print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
 
-        fig, axes = plt.subplots(1, 2, figsize=(14, 5))  # Two subplots (1 row, 2 columns)
-        # ---- Subplot 1: Covariance Matrix ----
-        ax1 = axes[0]
-        cax = ax1.imshow(covariance_matrix, cmap='seismic',
-                         vmin=-1 * np.max(np.abs(covariance_matrix)),
-                         vmax=np.max(np.abs(covariance_matrix)))
-        fig.colorbar(cax, ax=ax1)
-        ax1.set_title("Covariance Matrix")
-        # ---- Subplot 2: Spectral Data and Fitting Results ----
-        ax2 = axes[1]
-        ax2.plot(shift_array, intensity_array_original, color='black', label="Original Spectrum")
-        ax2.plot(shift_array, fitted_y + baseline, 'r--', label="Lorentzian Fit")
-        ax2.plot(shift_array, baseline, 'b--', label="Baseline Fit")
-        ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver', label="Residuals")
-        ax2.scatter(shift_array[peaks], intensity_array_original[peaks], color='green', marker='o',
-                    label="Detected Peaks")
-        ax2.set_xlabel("Shift (ppm)")
-        ax2.set_ylabel("Intensity")
-        ax2.legend()
-        ax2.set_title("Peak Fitting")
-
-        if is_show_plot:
-            plt.tight_layout()  # Adjust spacing between plots
+            plt.imshow(covariance_matrix, cmap='seismic', vmin=-1*np.max(np.abs(covariance_matrix)), vmax=np.max(np.abs(covariance_matrix)))
+            plt.colorbar()
+            plt.figure(figsize=(10, 5))
+            plt.plot(shift_array, intensity_array_original, color='black', label="Original Spectrum")
+            plt.plot(shift_array, fitted_y+baseline, 'r--', label="Lorentzian Fit")
+            plt.plot(shift_array, baseline, 'b--', label="Baseline Fit")
+            plt.plot(shift_array, intensity_array_original-fitted_y, color='silver', label="Residuals")
+            plt.scatter(shift_array[peaks], intensity_array_original[peaks], color='green', marker='o', label="Detected Peaks")
+            plt.xlabel("Shift (ppm)")
+            plt.ylabel("Intensity")
+            plt.legend()
+            plt.title("Peak Fitting")
             plt.show()
-        else:
-            plt.close(fig)
 
-        return opti_parameter, opti_parameter_error, warning_string, fig
+        return opti_parameter, opti_parameter_error, warning_string
 
     except RuntimeError:
         print("Curve fitting failed for this slice.")
-        return [], [], ["Fit failed"], 0
+        return [], [], ["Fit failed"]
 
 def integration_peak (amp, cen, wid):
     return (amp/(wid))
@@ -370,68 +371,16 @@ def find_closest_reference(fitted_center, reference_dict):
 
     return closest_product, closest_shift
 
-def replot_fittings(figures, is_show_plot=False, dir=None):
-    num_figs = len(figures)
-
-    if num_figs == 0:
-        print("No figures to plot.")
-        return None
-
-    num_cols = 3
-    num_rows = math.ceil(num_figs / num_cols)
-
-    # Create the figure with the correct number of rows and columns
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=(4*num_cols, 4*num_rows))
-    fig.suptitle(dir, fontsize=12, fontweight="bold")
-
-    # Flatten axes array for easy indexing
-    axes = axes.flatten()
-
-    # Iterate over stored figures and plot on the new shared figure
-    for i, fig_old in enumerate(figures):
-        for ax_old in fig_old.axes:  # Extract each axis from the stored figure
-            for line in ax_old.get_lines():  # Extract line plots
-                axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
-
-                # if 5.4 within the x axis range, change the title to Substrate
-                x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
-                if 5.4 >= x_min and 5.4 <= x_max:
-                    axes[i].set_title("Substrate")  # Change title if 5.4 is in range
-                elif 4.5 >= x_min and 4.5 <= x_max:
-                    axes[i].set_title("Prod_A")
-                elif 6.7 >= x_min and 6.7 <= x_max:
-                    axes[i].set_title("Prod_B")
-                else:
-                    axes[i].set_title("Unknown")
-
-            # axes[i].set_title(ax_old.get_title())
-            axes[i].set_xlabel(ax_old.get_xlabel())
-            axes[i].set_ylabel(ax_old.get_ylabel())
-            if axes[i].has_data():  # Only add legend if data exists
-                axes[i].legend()
-
-    # Hide any unused subplots (if the last row is not full)
-    for j in range(num_figs, len(axes)):
-        axes[j].axis("off")  # Instead of fig.delaxes(), just hide the extra axes
-
-    plt.tight_layout()
-
-    if is_show_plot:
-        plt.show(block=True)  # Show only the combined figure and block execution
-
-    return fig
-
-def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
-
-    # get the dir path of the file
-    file_dir = os.path.dirname(file_name)
+def integrate_spectrum(file_name):
+    # Extract the filename with extension
+    filename_with_ext = os.path.basename(file_name)
     # Remove the extension
     experiment_name =os.path.basename(os.path.dirname(file_name)) #= os.path.splitext(filename_with_ext)[0]
     
     NMR_spectrum = CSV_Loader(file_name)
-    std_deviation=float(np.std(NMR_spectrum[-2000:, 1]))
-    spectral_resolution= abs(NMR_spectrum[1, 0]-NMR_spectrum[0, 0])
-    estimated_peak_width_for_indexes = peak_width_50 / spectral_resolution
+    std_deviation=float(np.std(NMR_spectrum[-2000:,1]))
+    spectral_resolution= abs(NMR_spectrum[1,0]-NMR_spectrum[0,0])
+    estimated_peak_width_for_indexes = peak_width_50 /spectral_resolution
 
     interval_to_slice_spectrum = merge_overlapping_intervals(peaks_info)
 
@@ -454,26 +403,22 @@ def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
 
     results_dictionary={}
     results_dictionary["Warning"] = {}
-
-    figures = []
-
     for slice in NMR_slices:
         
-        parameters, error, warning_string, fig = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
-
-       # Iterate through fitted peak parameters
+        parameters, error, warning_string = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
+        
+        # Iterate through fitted peak parameters
         for parameter in parameters:
-            if parameter[0] < threshold_amplitude:
-                # fig = None # do this if you do not want to show the unfitted peaks
+            if parameter[0]<threshold_amplitude:
                 continue
             fitted_center = parameter[1]  # Extract the center of the fitted peak
-            peak_area = integration_peak(*parameter) * 1000 # Compute peak area
+            peak_area = integration_peak(*parameter) *1000 # Compute peak area
 
             # Find the closest matching reference shift
             closest_product, closest_shift = find_closest_reference(fitted_center, reference_shift)
             
             # Append the peak area instead of overwriting
-            if 'SolventDown' in closest_product or 'SolventUp' in closest_product: #Do not report solvent and impurities
+            if closest_product=='Solvent' or 'impurity' in closest_product: #Do not report solvent and impurities
                 continue
             else:
                 if closest_product in results_dictionary:
@@ -482,95 +427,61 @@ def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
                     results_dictionary[closest_product] = peak_area  # Create new list
 
             if warning_string is not None:
-                results_dictionary["Warning"][closest_product] = warning_string
-
-        if fig:
-            figures.append(fig)
-
-    fig_combined = replot_fittings(figures, is_show_plot=False, dir=file_dir)
-
-    if is_save_plot and fig_combined:
-        fig_combined.savefig(file_dir + "\\fitting_results.png")
+                results_dictionary["Warning"][closest_product]=warning_string 
 
     return results_dictionary, experiment_name
 
-def analyze_one_run_folder(master_path, is_show_plot=False):
+########Variables#########
+threshold_amplitude = 1E-10  #Minimum threshold to be integrated
+total_result_dictionary = {}
+list_experiment_loaded = []
+##########################
 
-    total_result_dictionary = {}
-    list_experiment_loaded = []
-    data_dir_ls = []
-    data_file_ls = []
+if master_path is not None:
+    # Initialize list to store full paths of matching folders
+    matching_folders = []
 
-    results_path = os.path.join(master_path, "Results")
-    if not os.path.isdir(results_path):  # Ensure "Results" is a directory
-        raise FileNotFoundError(f"Error! Results folder not found in: {master_path}")
+    # Define the target folder name
+    target_folder = "Results"
 
-    # Iterate through subfolders inside "Results"
-    for folder in os.listdir(results_path):
-        folder_path = os.path.join(results_path, folder)
-        if "1D EXTENDED" in folder_path:
-            data_dir_ls.append(folder_path)
-            data_file = folder_path + "\\data.csv"
-            if not os.path.isfile(data_file):
-                raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
-            if '211803' not in data_file:
-                continue
-            data_file_ls.append(data_file)
+    # Check if "Results" folder exists
+    results_path = os.path.join(master_path, target_folder)
+    if os.path.isdir(results_path):  # Ensure "Results" is a directory
+        print(f"'{target_folder}' folder found at: {results_path}")
 
-    # Iterate through CSV from the list to fit and obtain absolute area
-    for file_name in data_file_ls:
-        experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True, is_show_plot=is_show_plot)
-        list_experiment_loaded.append(experiment_name)
-        print(f"\n{experiment_name}: {experiment_dictionary}")
-        total_result_dictionary.update({experiment_name : experiment_dictionary})
+        # Iterate through subfolders inside "Results"
+        for folder in os.listdir(results_path):
+            folder_path = os.path.join(results_path, folder)
+            
+            # Check if it's a directory and contains "1D EXTENDED"
+            if os.path.isdir(folder_path) and "1D EXTENDED" in folder:
+                folder_path_extended=folder_path+"\\data.csv"
+                matching_folders.append(folder_path_extended)
 
-    # Save dictionary as JSON
-    json_filename = os.path.join(results_path, f"fitting_results.json")
-    with open(json_filename, "w") as json_file:
-        json.dump(total_result_dictionary, json_file, indent=4)
+    file_list = matching_folders
 
-    # Save list to text file (each entry on a new line)
-    text_filename = os.path.join(results_path, f"fitting_list.txt")
-    with open(text_filename, "w") as text_file:
-        text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
+# Iterate through CSV from the list to fit and obtain absolute area
+for file_name in file_list:
+    experiment_dictionary, experiment_name=integrate_spectrum(file_name)
+    list_experiment_loaded.append(experiment_name)
+    print(f"\n{experiment_name}: {experiment_dictionary}")
+    total_result_dictionary.update({experiment_name : experiment_dictionary}) 
 
-if __name__ == "__main__":
+# Get current date in YYYY-MM-DD format
+current_date = datetime.now().strftime("%Y-%m-%d")
 
-    ##TEST###
-    file_list = [
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"
-    ]
-    ###Problematic samples
-    # file_list =[r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"]
-    ###
+# Define full JSON file path
+json_filename = os.path.join(path_to_json, f"Fitting_results_{current_date}.json")
 
-    # path_to_json = r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"  # Path where resutls are saved
+# Save dictionary as JSON
+with open(json_filename, "w") as json_file:
+    json.dump(total_result_dictionary, json_file, indent=4)
 
-    master_path_ls = [
-        # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
-        # "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
+# Define the text file path
+text_filename = os.path.join(path_to_json, f"Fitting_list_{current_date}.txt")
 
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
-        ]
+# Save list to text file (each entry on a new line)
+with open(text_filename, "w") as text_file:
+    text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
 
-    for path in master_path_ls:
-        if path:
-            analyze_one_run_folder(path)
+print(f"\nResults saved to: {path_to_json}")

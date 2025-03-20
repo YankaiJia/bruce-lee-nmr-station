@@ -135,11 +135,11 @@ if __name__ == "__main__":
 
     run_folders = [
                 "\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-                "\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
-                "\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
-                "\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
-                "\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
-                "\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
+                # "\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
+                # "\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
+                # "\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
+                # "\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
+                # "\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
                 ]
 
     run_folders = [data_dir + run_folder for run_folder in run_folders]
@@ -155,7 +155,7 @@ if __name__ == "__main__":
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
     # save final results to csv
-    csv_path = data_dir + "\\data\\DPE_bromination\\full_experiment.csv"
+    csv_path = data_dir + "\\data\\DPE_bromination\\full_experiment_test_YJ_2.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
