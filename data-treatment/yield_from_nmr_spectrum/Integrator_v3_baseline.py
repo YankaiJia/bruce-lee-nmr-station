@@ -511,10 +511,10 @@ def analyze_one_run_folder(master_path, is_show_plot=False):
         if "1D EXTENDED" in folder_path:
             data_dir_ls.append(folder_path)
             data_file = folder_path + "\\data.csv"
+
             if not os.path.isfile(data_file):
                 raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
-            if '211803' not in data_file:
-                continue
+
             data_file_ls.append(data_file)
 
     # Iterate through CSV from the list to fit and obtain absolute area

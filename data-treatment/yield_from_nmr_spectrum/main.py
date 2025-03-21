@@ -6,10 +6,8 @@ import time
 import Integrator_v3_baseline
 import conc_interpolation
 
-# get teh system path of BRUCELEE_PROJECT_DATA
-BRUCELEE_PROJECT_DATA = os.environ['BRUCELEE_PROJECT_DATA']
-
-interp_func_S, interp_func_B = conc_interpolation.get_interp_funcs()
+# get teh system path of BRUCELEE_PROJECT_DATA_PATH
+BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 def check_and_return_folder_structure():
 
@@ -81,10 +79,10 @@ def process_one_folder(run_folder):
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
     print(f'Analyzing {run_folder}')
 
-    Integrator_v3_baseline.analyze_one_run_folder(run_folder)
+    # Integrator_v3_baseline.analyze_one_run_folder(run_folder)
 
-    df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,
-                                                              is_save_csv=True)
+    df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
+
     df = combine_data(df_final_conc,
                       excel_file,
                       out_conc_file,
@@ -92,18 +90,18 @@ def process_one_folder(run_folder):
                       result_folder)
 
     # calc the S conversion
-    df['S_conversion'] = 1 - df['c#_S_from_S'] / df['DPE'].replace(0, np.nan)
-    df['consumed_S'] = df['DPE'] - df['c#_S_from_S']
+    df['S_conversion'] = 1 - df['c#_S'] / df['DPE'].replace(0, np.nan)
+    df['consumed_S'] = df['DPE'] - df['c#_S']
 
     # get the limitting reagent
     df['limitting_conc'] = df[['DPE', 'Br2']].min(axis=1)
-    df['c#_A_from_B'] = pd.to_numeric(df['c#_A_from_B'], errors='coerce')
-    df['c#_B_from_B'] = pd.to_numeric(df['c#_B_from_B'], errors='coerce')
+    df['c#_A'] = pd.to_numeric(df['c#_A'], errors='coerce')
+    df['c#_B'] = pd.to_numeric(df['c#_B'], errors='coerce')
     df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
 
     # get the yield of A
-    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A_from_B'] / df['limitting_conc'], 0)
-    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B_from_B'] / df['limitting_conc'], 0)
+    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A'] / df['limitting_conc'], 0)
+    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B'] / df['limitting_conc'], 0)
 
     # get the yield of other products
     col_list = ['intg_sol_down', 'intg_sol_up', 'intg_impr_SM1', 'intg_impr_SM2',
@@ -118,11 +116,11 @@ def process_one_folder(run_folder):
     time.sleep(1)
 
     # selectivity metrics
-    df['sel_A'] = df['c#_A_from_B'] / df['consumed_S']
-    df['sel_B'] = df['c#_B_from_B'] / df['consumed_S']
+    df['sel_A'] = df['c#_A'] / df['consumed_S']
+    df['sel_B'] = df['c#_B'] / df['consumed_S']
 
     # mole fraction of A
-    df['mole_fraction_A'] = df['c#_A_from_B'] / (df['c#_A_from_B'] + df['c#_B_from_B'])
+    df['mole_fraction_A'] = df['c#_A'] / (df['c#_A'] + df['c#_B'])
 
     # save the final dataframe to csv
     df.to_csv(result_folder + "\\final_results.csv", index=False)
@@ -131,15 +129,15 @@ def process_one_folder(run_folder):
 
 if __name__ == "__main__":
 
-    data_dir = BRUCELEE_PROJECT_DATA
+    data_dir = BRUCELEE_PROJECT_DATA_PATH
 
     run_folders = [
-                "\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-                # "\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\",
-                # "\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\",
-                # "\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\",
-                # "\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\",
-                # "\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
+                "\\DPE_bromination\\2025-02-19-run02_normal_run\\",
+                "\\DPE_bromination\\2025-03-01-run01_normal_run\\",
+                "\\DPE_bromination\\2025-03-03-run01_normal_run\\",
+                "\\DPE_bromination\\2025-03-03-run02_normal_run\\",
+                "\\DPE_bromination\\2025-03-05-run01_normal_run\\",
+                "\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
                 ]
 
     run_folders = [data_dir + run_folder for run_folder in run_folders]
@@ -154,8 +152,11 @@ if __name__ == "__main__":
         result_folder = run_folder + "\\Results"
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
+    # get current time
+    current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
+
     # save final results to csv
-    csv_path = data_dir + "\\DPE_bromination\\full_experiment_test_YJ_2.csv"
+    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_YJ_{current_time}.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
