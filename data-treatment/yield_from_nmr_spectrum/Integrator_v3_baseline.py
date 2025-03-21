@@ -14,7 +14,6 @@ import math
 plt.switch_backend('TkAgg')
 
 ########################
-
 ####Last fix#######
 #-baseline correction added
 #-Updated constrained and observed windows for peaks
@@ -25,13 +24,13 @@ plt.switch_backend('TkAgg')
 ###########################
 
 ###########DATA#############
-solvent_shift = 3.73  # ppm DCE
-peak_width_50 = 0.01  # ppm at 50%
+solvent_shift = 3.73 #ppm DCE
+peak_width_50 = 0.008 #ppm at 50% #Default 0.01
 
 peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
     [5.20, 5.70],  # Substrate SM, 2H
     [4.1, 5.00],  # DCE
-    [2.5, 3.05],
+    [2.5, 3.05], # DCE
     [6.5, 7.0],  # Product B, 1H
     [4.45, 4.70],  # Product A, 2H
     [2.2, 2.7],  # HBr adduct
@@ -223,9 +222,11 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window = 0.1):
 
 def fit_peaks(NMR_spectrum, std_deviation,
               estimated_peak_width_for_indexes,
+              shift_tolerance = 0.02,
               constrained_fit=True,
               baseline_correction=True,
-              is_show_plot=False):
+              is_show_plot=False
+              ):
 
     shift_array = NMR_spectrum [:,0] 
     intensity_array = NMR_spectrum [:,1]
@@ -247,6 +248,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
     lower_bounds = []
     upper_bounds = []
 
+
     for peak in peaks[:]:
         if intensity_array[peak] > 0:
             amp_guess = intensity_array[peak]  # Peak height
@@ -255,10 +257,11 @@ def fit_peaks(NMR_spectrum, std_deviation,
         cen_guess = shift_array[peak]  # Peak center
         wid_guess = peak_width_50  # Initial width guess (adjust as needed)
         initial_guesses.extend([amp_guess, cen_guess, wid_guess])
-        lower_bounds.extend([0, cen_guess-0.03, 0])
-        upper_bounds.extend([amp_guess*2, cen_guess+0.03, wid_guess*4])
+        lower_bounds.extend([0, cen_guess-shift_tolerance, 0])
+        upper_bounds.extend([amp_guess*2, cen_guess+shift_tolerance, wid_guess*4])
 
     if baseline_correction == True:
+
         try:
             baseline = baseline_fit(shift_array, intensity_array, ppm_step)
         except:
@@ -277,8 +280,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
             intensity_array -= baseline
 
     # Fit peaks
+    fig = []
     try:
-        fig = []
         #Fitting
         if constrained_fit == False:
             popt, covariance_matrix = fit_without_bounds(shift_array,intensity_array,initial_guesses,std_deviation)
@@ -291,23 +294,14 @@ def fit_peaks(NMR_spectrum, std_deviation,
         # Generate fitted curve
         fitted_y = sum_of_lorentzian(shift_array, *popt)
 
-        # #Autocorrelation test
-        # residuals = intensity_array - sum_of_lorentzian(shift_array, *popt)
-        # lag = int(estimated_peak_width_for_indexes)*2
-        # lb_df = sm.stats.acorr_ljungbox(residuals, lags=[lag])
-        # if len(lb_df) == 1:
-        #     # take values from first row of dataframe lb_pvalue
-        #     print(f"LB_pvalue : {lb_df.loc[lag, 'lb_pvalue']}, stat: {lb_df.loc[lag, 'lb_stat']}")
-        # else:
-        #     print('hmmm')
 
         max_residuals =np.max(intensity_array - sum_of_lorentzian(shift_array, *popt))
         if max_residuals >0.1 and warning_string==None:
-            warning_string = "Strong residual, a peak might have been not fitted"
+            warning_string = "Strong residual: a peak might have been not fitted"
 
         # Plot original data and fit results
         for indice, parameter in enumerate(opti_parameter):
-            print(f"\nBest parameters for peak {indice}: Scale :{parameter[0]}, Center:{parameter[1]}, Width:{parameter[2]}")
+            print(f"\nBest parameters for peak {indice}:  Scale :{parameter[0]}  Center:{parameter[1]}  Width:{parameter[2]}")
 
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))  # Two subplots (1 row, 2 columns)
         # ---- Subplot 1: Covariance Matrix ----
@@ -371,6 +365,7 @@ def find_closest_reference(fitted_center, reference_dict):
     return closest_product, closest_shift
 
 def replot_fittings(figures, is_show_plot=False, dir=None):
+
     num_figs = len(figures)
 
     if num_figs == 0:
@@ -422,7 +417,6 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
     return fig
 
 def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
-
     # get the dir path of the file
     file_dir = os.path.dirname(file_name)
     # Remove the extension
@@ -452,47 +446,109 @@ def integrate_spectrum(file_name, is_save_plot=False, is_show_plot=False):
 
         plt.show()
 
-    results_dictionary={}
-    results_dictionary["Warning"] = {}
+    results_dictionary = process_nmr_peaks(
+                                            NMR_slices,
+                                            std_deviation,
+                                            estimated_peak_width_for_indexes,
+                                            threshold_amplitude,
+                                            reference_shift,
+                                            fit_peaks,
+                                            integration_peak,
+                                            find_closest_reference,
+                                            file_dir,
+                                            is_save_plot, 
+                                            is_show_plot,
+                                            )
 
+    return results_dictionary, experiment_name
+
+def process_nmr_peaks(
+    NMR_slices,
+    std_deviation,
+    estimated_peak_width_for_indexes,
+    threshold_amplitude,
+    reference_shift,
+    fit_peaks_func,
+    integration_peak_func,
+    find_closest_reference_func,
+    file_dir, 
+    is_save_plot=False, 
+    is_show_plot=False
+                    ):
+    """
+    Processes NMR peaks from slices and assigns each product the closest matching peak.
+    Adds a warning if some peaks are not used in the final assignment.
+
+    Returns:
+    - results_dictionary: dictionary of product to peak area, with warnings if any
+    """
+    
+    all_peaks = []
     figures = []
 
     for slice in NMR_slices:
+        parameters, error, warning_string, fig = fit_peaks_func(slice, std_deviation, estimated_peak_width_for_indexes)
         
-        parameters, error, warning_string, fig = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
-
-       # Iterate through fitted peak parameters
         for parameter in parameters:
             if parameter[0] < threshold_amplitude:
-                # fig = None # do this if you do not want to show the unfitted peaks
                 continue
-            fitted_center = parameter[1]  # Extract the center of the fitted peak
-            peak_area = integration_peak(*parameter) * 1000 # Compute peak area
-
-            # Find the closest matching reference shift
-            closest_product, closest_shift = find_closest_reference(fitted_center, reference_shift)
             
-            # Append the peak area instead of overwriting
-            if 'SolventDown' in closest_product or 'SolventUp' in closest_product: #Do not report solvent and impurities
+            if fig:
+                figures.append(fig)
+
+            fitted_center = parameter[1]
+            peak_area = integration_peak_func(*parameter) * 1000
+
+            closest_product, closest_shift = find_closest_reference_func(fitted_center, reference_shift)
+
+            if 'SolventDown' in closest_product or 'SolventUp' in closest_product:
                 continue
-            else:
-                if closest_product in results_dictionary:
-                    results_dictionary[closest_product] += peak_area  # Cumulate for multiplet
-                else:
-                    results_dictionary[closest_product] = peak_area  # Create new list
 
-            if warning_string is not None:
-                results_dictionary["Warning"][closest_product] = warning_string
+            all_peaks.append({
+                'product': closest_product,
+                'center': fitted_center,
+                'area': peak_area,
+                'parameter': parameter,
+                'amplitude': parameter [0],
+                'warning': warning_string
+            })
 
-        if fig:
-            figures.append(fig)
+    # Assign closest peak to each product
+    closest_peaks = {}
+    for peak in all_peaks:
+        prod = peak['product']
+        center = peak['center']
+        ref_center = reference_shift[prod]
+        distance = abs(center - ref_center)
+
+        if prod not in closest_peaks or distance < abs(closest_peaks[prod]['center'] - ref_center):
+            closest_peaks[prod] = peak
+
+    results_dictionary = {'Warning': {}}
+    for prod, peak in closest_peaks.items():
+        results_dictionary[prod] = peak['area']
+        if peak['warning'] is not None:
+            results_dictionary['Warning'][prod] = peak['warning']
+
+    # Extract unmatched peaks (above-threshold, not assigned)
+    assigned_peak_ids = {id(peak) for peak in closest_peaks.values()}
+
+    unmatched_peaks = [
+        f"center={round(peak['center'], 3)} ppm    area={peak['area']}"
+        for peak in all_peaks
+        if id(peak) not in assigned_peak_ids and peak['amplitude'] >= threshold_amplitude
+    ]
+
+    if unmatched_peaks:
+        results_dictionary['Warning']['UnmatchedPeaks'] = unmatched_peaks
+
 
     fig_combined = replot_fittings(figures, is_show_plot=False, dir=file_dir)
 
     if is_save_plot and fig_combined:
-        fig_combined.savefig(file_dir + "\\fitting_results.png")
+        fig_combined.savefig(file_dir + "\\test-Louis-fitting_results.png")
 
-    return results_dictionary, experiment_name
+    return results_dictionary
 
 def analyze_one_run_folder(master_path, is_show_plot=False):
 
@@ -517,49 +573,26 @@ def analyze_one_run_folder(master_path, is_show_plot=False):
 
     # Iterate through CSV from the list to fit and obtain absolute area
     for file_name in data_file_ls:
-        experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True, is_show_plot=is_show_plot)
+        experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=False, is_show_plot=is_show_plot)
         list_experiment_loaded.append(experiment_name)
         print(f"\n{experiment_name}: {experiment_dictionary}")
         total_result_dictionary.update({experiment_name : experiment_dictionary})
 
     # Save dictionary as JSON
-    json_filename = os.path.join(results_path, f"fitting_results.json")
+    json_filename = os.path.join(results_path, f"test-Louis-fitting_results.json")
     with open(json_filename, "w") as json_file:
         json.dump(total_result_dictionary, json_file, indent=4)
 
     # Save list to text file (each entry on a new line)
-    text_filename = os.path.join(results_path, f"fitting_list.txt")
+    text_filename = os.path.join(results_path, f"test-Louis-fitting_list.txt")
     with open(text_filename, "w") as text_file:
         text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
 
 if __name__ == "__main__":
 
-    ##TEST###
-    file_list = [
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005141-1D EXTENDED+- 12\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\005805-1D EXTENDED+- 13\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\215822-1D EXTENDED+-S1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\220953-1D EXTENDED+-S2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\222125-1D EXTENDED+-S3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\223650-1D EXTENDED+-S4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_S\224823-1D EXTENDED+-S5\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\205244-1D EXTENDED+-B1\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\210416-1D EXTENDED+-B2\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\211549-1D EXTENDED+-B3\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\213119-1D EXTENDED+-B4\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\ref_B\214250-1D EXTENDED+-B5\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",
-        r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"
-    ]
-    ###Problematic samples
-    # file_list =[r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\26-1D EXTENDED+-20250304-163445\data.csv",r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data\Problematic spectra\43-1D EXTENDED+-20250304-185249\data.csv"]
-    ###
-
-    # path_to_json = r"c:\Users\UNIST\Desktop\Louis Korea\Yasemin-Yankai NMR\Data"  # Path where resutls are saved
-
     master_path_ls = [
-        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
-        "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
+        r"C:\Users\UNIST\Dropbox\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
+        r"C:\Users\UNIST\Dropbox\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
 
         # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
         # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
@@ -572,3 +605,4 @@ if __name__ == "__main__":
     for path in master_path_ls:
         if path:
             analyze_one_run_folder(path)
+    print("Done  Main!")
