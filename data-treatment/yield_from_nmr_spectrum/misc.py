@@ -150,11 +150,11 @@ def collect_conditions_of_bad_shimming_specs(folder):
 def arrange_bad_contions_for_folders():
 
   folder_list = [
-  "D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-02-19-run02_normal_run",
-  "D:\Dropbox\\brucelee\data\DPE_bromination\\2025-03-01-run01_normal_run",
-  "D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run01_normal_run",
-  "D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run02_normal_run",
-  "D:\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-05-run01_normal_run",
+  "D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-02-19-run02_normal_run",
+  "D:\\Dropbox\\brucelee\data\DPE_bromination\\2025-03-01-run01_normal_run",
+  "D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run01_normal_run",
+  "D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run02_normal_run",
+  "D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-05-run01_normal_run",
 
   ]
 
@@ -251,6 +251,9 @@ def delete_unused_file():
       if os.path.exists(dir + '/fitting_slices.png'):
         os.remove(dir + '/fitting_slices.png')
         print(f"Deleted: {dir + '/fitting_slices.png'}")
+      if os.path.exists(dir + '/test-Louis-fitting_results.png'):
+        os.remove(dir + '/test-Louis-fitting_results.png')
+        print(f"Deleted: {dir + '/test-Louis-fitting_results.png'}")
 
 delete_unused_file()
 

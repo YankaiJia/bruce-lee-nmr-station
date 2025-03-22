@@ -79,7 +79,7 @@ def process_one_folder(run_folder):
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
     print(f'Analyzing {run_folder}')
 
-    # Integrator_v3_baseline.analyze_one_run_folder(run_folder)
+    Integrator_v3_baseline.analyze_one_run_folder(run_folder)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
