@@ -1,10 +1,11 @@
 from matplotlib import pyplot as plt
 import pandas as pd
-
 import tkinter as tk
 from tkinter import filedialog
 import os
+import shutil
 
+BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 def plot1():
   ys_ori = {
@@ -37,7 +38,6 @@ def plot1():
   # plt.plot()
   # plt.show()
 
-
 def plot2():
   import pandas as pd
   # plot csv
@@ -48,7 +48,6 @@ def plot2():
   plt.plot(df['x'], df['y'], 'o', ls = '-')
   plt.plot()
   plt.show()
-
 
 def ask_folder_path():
 
@@ -110,7 +109,6 @@ def rename_folder():
     print(f"New name: {new_name}")
     os.rename(subfolder, new_name)
 
-  
 def collect_conditions_of_bad_shimming_specs(folder):
 
   # get the folder path
@@ -255,6 +253,47 @@ def delete_unused_file():
         os.remove(dir + '/test-Louis-fitting_results.png')
         print(f"Deleted: {dir + '/test-Louis-fitting_results.png'}")
 
-delete_unused_file()
+def move_files():
+  # i need to move the subfolder to the main folder, do it with python
+  # i will use the shutil library to move the files
 
+  path = 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run01_time_varied\\Results\\_000'
+  folders = os.listdir(path)
+  print(folders)
+  for folder in folders:
+      # get subfolder path
+      subfolder = os.path.join(path, folder)
+      # get files in subfolder
+      files = os.listdir(subfolder)
+      for file in files:
+          # get file path
+          file_path = os.path.join(subfolder, file)
+          # move file to main folder
+          shutil.move(file_path, path)
 
+def find_missing_conditions():
+
+  df_exp_done = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\full_experiment_YJ_2025-03-22-22-14-14.csv")
+
+  df_all = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\outVandC\\out_volumes_shuffled.csv")
+
+  df_all.columns = ['global_index', 'vol#TBABr', 'vol#Br2', 'vol#DPE', 'vol#DCE']
+
+  # Round to consistent decimal places to avoid float comparison issues, if needed
+  df_all = df_all.round(5)
+  df_exp_done_subset = df_exp_done.round(5)
+
+  # Drop duplicates if any
+  df_all_unique = df_all.drop_duplicates()
+  df_done_unique = df_exp_done_subset.drop_duplicates()
+
+  # Find the rows in df_all that are not in df_exp_done
+  df_missing = pd.merge(df_all_unique, df_done_unique, on=['vol#TBABr', 'vol#Br2', 'vol#DPE', 'vol#DCE'], how='left',
+                        indicator=True)
+  df_missing = df_missing[df_missing['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+  print(df_missing)
+
+  return df_missing
+
+df_missing = find_missing_conditions()
