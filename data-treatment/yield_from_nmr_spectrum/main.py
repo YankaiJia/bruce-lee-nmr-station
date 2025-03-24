@@ -81,10 +81,10 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure(run_folder)
     print(f'Analyzing {run_folder}')
 
-    Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
-                                                  sol_name=run_sol,
-                                                  outliers=run_outliers,
-                                                  is_show_plot=False)
+    # Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
+    #                                               sol_name=run_sol,
+    #                                               outliers=run_outliers,
+    #                                               is_show_plot=False)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
@@ -135,10 +135,12 @@ def process_one_folder(run_dir, run_sol, run_outliers):
 if __name__ == "__main__":
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
+    print(f'Data directory: {data_dir}')
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', {33: 'Type1', 43: 'Type2'}],
+                ["\\DPE_bromination\\2025-02-19-run01_time_varied\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', {33: 'Type1', 43: 'Type2'}],
                 # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
@@ -150,13 +152,14 @@ if __name__ == "__main__":
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
+        print(f'Processing {run_dir}')
         process_one_folder(run_dir, run_sol, run_outliers)
 
 
     # merge all the final_results.csv into one file
     df_full_experiment = pd.DataFrame()
     for run_folder in run_folders:
-        result_folder = run_folder + "\\Results"
+        result_folder = data_dir + run_folder[0] + "\\Results"
         df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
 
     # get current time
