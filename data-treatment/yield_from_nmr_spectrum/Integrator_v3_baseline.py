@@ -9,9 +9,12 @@ from numpy.polynomial.polynomial import Polynomial
 import os
 import json
 import math
-
+import re
 # change backend for matplotlib to Qt5Agg
 plt.switch_backend('TkAgg')
+
+# get teh system path of BRUCELEE_PROJECT_DATA_PATH
+BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 ########################
 ####Last fix#######
@@ -23,38 +26,87 @@ plt.switch_backend('TkAgg')
 #- Detecting overlaped
 ###########################
 
-###########DATA#############
-solvent_shift = 3.73  #ppm DCE
-peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+solvent_shift = None
+peak_width_50 = None
+threshold_amplitude = None
+peaks_info, reference_shift = None, None
 
-peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-    [5.20, 5.70],  # Substrate SM, 2H
-    [4.1, 5.00],  # DCE
-    [2.5, 3.05],  # DCE
-    [6.5, 7.0],  # Product B, 1H
-    [4.45, 4.70],  # Product A, 2H
-    [2.2, 2.7],  # HBr adduct
-    [7.80, 14],  #Acid?
-]
-reference_shift = {
-    "Starting material": [5.467],  # ppm
-    "Product A": [4.527],  # ppm
-    "Product B": [6.807],  # ppm
-    "SolventDown": [4.775, 4.693, 4.605],  # ppm
-    "SolventUp": [2.850, 2.764, 2.682],  # ppm
-    "Unknown impurity SM peak 1": [6.453],  # ppm
-    "Unknown impurity SM peak 2": [4.474],  # ppm
-    "Unknown impurity 1": [6.523],
-    "Unknown impurity 2": [5.509],  # ppm
-    "Unknown impurity 3": [4.340],  # ppm
-    "Unknown impurity 4": [2.549],  # ppm
-    "Alcohol": [6.727],  # ppm
-    "HBr_adduct": [2.463],  # ppm
-    "Acid": [8.0]
-}
+def specify_para(sol_name, outlier_type=None):
 
-########Variables#########
-threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+    """Specify global parameters based on the solvent name and outlier_type"""
+
+    global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
+
+    if sol_name == 'DCE':
+        solvent_shift = 3.73  #ppm DCE
+        peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.20, 5.70],  # Substrate SM, 2H
+            [4.1, 5.00],  # DCE
+            [2.5, 3.05],  # DCE
+            [6.5, 7.0],  # Product B, 1H
+            [4.45, 4.70],  # Product A, 2H
+            [2.2, 2.7],  # HBr adduct
+            [7.80, 14],  #Acid?
+        ]
+        reference_shift = {
+            "Starting material": [5.467],  # ppm
+            "Product A": [4.527],  # ppm
+            "Product B": [6.807],  # ppm
+            "SolventDown": [4.775, 4.693, 4.605],  # ppm
+            "SolventUp": [2.850, 2.764, 2.682],  # ppm
+            "Unknown impurity SM peak 1": [6.453],  # ppm
+            "Unknown impurity SM peak 2": [4.474],  # ppm
+            "Unknown impurity 1": [6.523],
+            "Unknown impurity 2": [5.509],  # ppm
+            "Unknown impurity 3": [4.340],  # ppm
+            "Unknown impurity 4": [2.549],  # ppm
+            "Alcohol": [6.727],  # ppm
+            "HBr_adduct": [2.463],  # ppm
+            "Acid": [8.0]
+        }
+
+        if outlier_type == 'Type1':  # Type 1 outlier
+            pass # change corresponding parameters
+        elif outlier_type == 'Type2':  # Type 2 outlier
+            pass
+
+    elif sol_name == 'MeCN':
+        solvent_shift = 3.73  # ppm DCE
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.20, 5.70],  # Substrate SM, 2H
+            [4.1, 5.00],  # DCE
+            [2.5, 3.05],  # DCE
+            [6.5, 7.0],  # Product B, 1H
+            [4.45, 4.70],  # Product A, 2H
+            [2.2, 2.7],  # HBr adduct
+            [7.80, 14],  # Acid?
+        ]
+        reference_shift = {
+            "Starting material": [5.467],  # ppm
+            "Product A": [4.527],  # ppm
+            "Product B": [6.807],  # ppm
+            "SolventDown": [4.775, 4.693, 4.605],  # ppm
+            "SolventUp": [2.850, 2.764, 2.682],  # ppm
+            "Unknown impurity SM peak 1": [6.453],  # ppm
+            "Unknown impurity SM peak 2": [4.474],  # ppm
+            "Unknown impurity 1": [6.523],
+            "Unknown impurity 2": [5.509],  # ppm
+            "Unknown impurity 3": [4.340],  # ppm
+            "Unknown impurity 4": [2.549],  # ppm
+            "Alcohol": [6.727],  # ppm
+            "HBr_adduct": [2.463],  # ppm
+            "Acid": [8.0]
+        }
+
+        if outlier_type == 'Type1':  # Type 1 outlier
+            pass # change corresponding parameters
+        elif outlier_type == 'Type2':  # Type 2 outlier
+            pass
+
 
 
 ########Functions#########
@@ -557,7 +609,11 @@ def process_nmr_peaks(
     return results_dictionary
 
 
-def analyze_one_run_folder(master_path, is_show_plot=False):
+def analyze_one_run_folder(master_path,
+                           sol_name='DEC',
+                           outliers=None,  # Example: {33:'Type1', 43:'Type2'}
+                           is_show_plot=False):
+
     total_result_dictionary = {}
     list_experiment_loaded = []
     data_dir_ls = []
@@ -579,6 +635,20 @@ def analyze_one_run_folder(master_path, is_show_plot=False):
 
     # Iterate through CSV from the list to fit and obtain absolute area
     for file_name in data_file_ls:
+
+        # Specify global parameters based on the solvent name and outlier_type
+        if not outliers:
+            specify_para(sol_name)
+        else:
+            # Extract vial number by regex
+            vial_name_here = re.search(r"(?<=Results\\)(\d+)", file_name).group(1)
+            if vial_name_here in outliers.keys():
+                specify_para(sol_name, outliers[vial_name_here])
+                print('Outlier type specified for vial:', file_name)
+            else:
+                specify_para(sol_name)
+        ###################################
+
         experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True,
                                                                     is_show_plot=is_show_plot)
         list_experiment_loaded.append(experiment_name)
@@ -598,19 +668,23 @@ def analyze_one_run_folder(master_path, is_show_plot=False):
 
 if __name__ == "__main__":
 
-    master_path_ls = [
-        # r"C:\Users\UNIST\Dropbox\brucelee\\data\\DPE_bromination\\_Refs\\ref_B",
-        # r"C:\Users\UNIST\Dropbox\brucelee\\data\\DPE_bromination\\_Refs\\ref_S",
+    data_dir = BRUCELEE_PROJECT_DATA_PATH
 
-        'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-02-19-run02_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-01-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-03-run02_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-05-run01_normal_run\\',
-        # 'D:\\Dropbox\\brucelee\\data\\DPE_bromination\\2025-03-12-run01_better_shimming\\',
-    ]
+    # run folder structure: [run_folder, run_sol, run_outliers]
+    run_folders = [
+                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', {33: 'Type1', 43: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                ]
 
-    for path in master_path_ls:
-        if path:
-            analyze_one_run_folder(path)
-    print("Done  Main!")
+    for run_folder in run_folders:
+        run_dir = data_dir + run_folder[0]
+        run_sol = run_folder[1]
+        run_outliers = run_folder[2]
+
+        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
+
+    print("All runs processed successfully.")

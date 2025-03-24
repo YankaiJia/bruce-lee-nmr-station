@@ -9,7 +9,7 @@ import conc_interpolation
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
-def check_and_return_folder_structure():
+def check_and_return_folder_structure(run_folder):
 
     # make sure run name exists
     # get run name by regex: yyyy-mm-dd-run0x(-note1-note2)
@@ -74,12 +74,17 @@ def combine_data(df_final_conc,
 
     return df_final
 
-def process_one_folder(run_folder):
+def process_one_folder(run_dir, run_sol, run_outliers):
 
-    result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure()
+    run_folder = run_dir
+
+    result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure(run_folder)
     print(f'Analyzing {run_folder}')
 
-    Integrator_v3_baseline.analyze_one_run_folder(run_folder)
+    Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
+                                                  sol_name=run_sol,
+                                                  outliers=run_outliers,
+                                                  is_show_plot=False)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
@@ -131,20 +136,22 @@ if __name__ == "__main__":
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
 
+    # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                "\\DPE_bromination\\2025-02-19-run02_normal_run\\",
-                "\\DPE_bromination\\2025-03-01-run01_normal_run\\",
-                "\\DPE_bromination\\2025-03-03-run01_normal_run\\",
-                "\\DPE_bromination\\2025-03-03-run02_normal_run\\",
-                "\\DPE_bromination\\2025-03-05-run01_normal_run\\",
-                "\\DPE_bromination\\2025-03-12-run01_better_shimming\\",
+                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', {33: 'Type1', 43: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
                 ]
 
-    run_folders = [data_dir + run_folder for run_folder in run_folders]
-    print(run_folders)
-
     for run_folder in run_folders:
-        process_one_folder(run_folder)
+        run_dir = data_dir + run_folder[0]
+        run_sol = run_folder[1]
+        run_outliers = run_folder[2]
+        process_one_folder(run_dir, run_sol, run_outliers)
+
 
     # merge all the final_results.csv into one file
     df_full_experiment = pd.DataFrame()
