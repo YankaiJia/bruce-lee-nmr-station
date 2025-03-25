@@ -139,13 +139,14 @@ if __name__ == "__main__":
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                ["\\DPE_bromination\\2025-02-19-run01_time_varied\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', {33: 'Type1', 43: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                #["\\DPE_bromination\\2025-02-19-run01_time_varied\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}]
+                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                
                 ]
 
     for run_folder in run_folders:

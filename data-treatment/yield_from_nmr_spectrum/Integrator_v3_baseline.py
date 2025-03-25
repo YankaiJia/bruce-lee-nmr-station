@@ -75,7 +75,7 @@ def specify_para(sol_name, outlier_type=None):
                 [5.20, 5.70],  # Substrate SM, 2H
                 [4.1, 5.00],  # DCE
                 [2.5, 3.05],  # DCE
-                [6.5, 6.9],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take cat
+                [6.5, 6.9],  # Product B, 1H   ############Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
                 [7.80, 14],  #Acid?
@@ -105,7 +105,7 @@ def specify_para(sol_name, outlier_type=None):
                 [5.20, 5.70],  # Substrate SM, 2H
                 [4.1, 5.00],  # DCE
                 [2.5, 3.05],  # DCE
-                [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take cat
+                [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
                 [7.80, 14],  #Acid?
@@ -696,8 +696,9 @@ def analyze_one_run_folder(master_path,
         if not outliers:
             specify_para(sol_name)
         else:
+            print(file_name)
             # Extract vial number by regex
-            vial_name_here = re.search(r"(?<=Results\\)(\d+)", file_name).group(1)
+            vial_name_here = re.search(r'(\d+)-1D', file_name).group(1)
             if vial_name_here in outliers.keys():
                 specify_para(sol_name, outliers[vial_name_here])
                 print('Outlier type specified for vial:', file_name)
@@ -725,13 +726,13 @@ def analyze_one_run_folder(master_path,
 if __name__ == "__main__":
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
-
+    print(BRUCELEE_PROJECT_DATA_PATH)
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                #  ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
-                 ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
                 ]
@@ -741,6 +742,6 @@ if __name__ == "__main__":
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
 
-        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=True)
+        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
 
     print("All runs processed successfully.")
