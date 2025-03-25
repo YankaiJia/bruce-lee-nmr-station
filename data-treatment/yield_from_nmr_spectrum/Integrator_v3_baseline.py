@@ -67,10 +67,66 @@ def specify_para(sol_name, outlier_type=None):
             "Acid": [8.0]
         }
 
-        if outlier_type == 'Type1':  # Type 1 outlier
-            pass # change corresponding parameters
-        elif outlier_type == 'Type2':  # Type 2 outlier
-            pass
+        if outlier_type == 'Type1':  # Type 1 outlier: Asymetric pick upshift of Product B
+            solvent_shift = 3.73  #ppm DCE
+            peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+                [5.20, 5.70],  # Substrate SM, 2H
+                [4.1, 5.00],  # DCE
+                [2.5, 3.05],  # DCE
+                [6.5, 6.9],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take cat
+                [4.45, 4.70],  # Product A, 2H
+                [2.2, 2.7],  # HBr adduct
+                [7.80, 14],  #Acid?
+            ]
+            reference_shift = {
+                "Starting material": [5.467],  # ppm
+                "Product A": [4.527],  # ppm
+                "Product B": [6.807],  # ppm
+                "SolventDown": [4.775, 4.693, 4.605],  # ppm
+                "SolventUp": [2.850, 2.764, 2.682],  # ppm
+                "Unknown impurity SM peak 1": [6.453],  # ppm
+                "Unknown impurity SM peak 2": [4.474],  # ppm
+                "Unknown impurity 1": [6.523],
+                "Unknown impurity 2": [5.509],  # ppm
+                "Unknown impurity 3": [4.340],  # ppm
+                "Unknown impurity 4": [2.549],  # ppm
+                "Alcohol": [6.727],  # ppm
+                "HBr_adduct": [2.463],  # ppm
+                "Acid": [8.0]
+            }
+            #pass # change corresponding parameters
+        elif outlier_type == 'Type2':  # Type 2 outlier: Asymetric pick downshift of Product B
+            solvent_shift = 3.73  #ppm DCE
+            peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+                [5.20, 5.70],  # Substrate SM, 2H
+                [4.1, 5.00],  # DCE
+                [2.5, 3.05],  # DCE
+                [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take cat
+                [4.45, 4.70],  # Product A, 2H
+                [2.2, 2.7],  # HBr adduct
+                [7.80, 14],  #Acid?
+            ]
+            reference_shift = {
+                "Starting material": [5.467],  # ppm
+                "Product A": [4.527],  # ppm
+                "Product B": [6.807],  # ppm
+                "SolventDown": [4.775, 4.693, 4.605],  # ppm
+                "SolventUp": [2.850, 2.764, 2.682],  # ppm
+                "Unknown impurity SM peak 1": [6.453],  # ppm
+                "Unknown impurity SM peak 2": [4.474],  # ppm
+                "Unknown impurity 1": [6.523],
+                "Unknown impurity 2": [5.509],  # ppm
+                "Unknown impurity 3": [4.340],  # ppm
+                "Unknown impurity 4": [2.549],  # ppm
+                "Alcohol": [6.727],  # ppm
+                "HBr_adduct": [2.463],  # ppm
+                "Acid": [8.0]
+            }
+            #pass
 
     elif sol_name == 'MeCN':
         solvent_shift = 3.73  # ppm DCE
@@ -610,7 +666,7 @@ def process_nmr_peaks(
 
 
 def analyze_one_run_folder(master_path,
-                           sol_name='DEC',
+                           sol_name='DCE',
                            outliers=None,  # Example: {33:'Type1', 43:'Type2'}
                            is_show_plot=False):
 
@@ -656,12 +712,12 @@ def analyze_one_run_folder(master_path,
         total_result_dictionary.update({experiment_name: experiment_dictionary})
 
     # Save dictionary as JSON
-    json_filename = os.path.join(results_path, f"fitting_results.json")
+    json_filename = os.path.join(results_path, f"test-Louis-fitting_results.json")
     with open(json_filename, "w") as json_file:
         json.dump(total_result_dictionary, json_file, indent=4)
 
     # Save list to text file (each entry on a new line)
-    text_filename = os.path.join(results_path, f"fitting_list.txt")
+    text_filename = os.path.join(results_path, f"test-Louis-fitting_list.txt")
     with open(text_filename, "w") as text_file:
         text_file.write("\n".join(list_experiment_loaded))  # Write each list item on a new line
 
@@ -672,10 +728,10 @@ if __name__ == "__main__":
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', {33: 'Type1', 43: 'Type2'}],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                 ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
                 ]
@@ -685,6 +741,6 @@ if __name__ == "__main__":
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
 
-        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
+        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=True)
 
     print("All runs processed successfully.")
