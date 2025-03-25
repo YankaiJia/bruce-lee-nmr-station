@@ -6,6 +6,7 @@ import time
 import Integrator_v3_baseline
 import conc_interpolation
 
+
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
@@ -81,10 +82,10 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure(run_folder)
     print(f'Analyzing {run_folder}')
 
-    # Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
-    #                                               sol_name=run_sol,
-    #                                               outliers=run_outliers,
-    #                                               is_show_plot=False)
+    Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
+                                                  sol_name=run_sol,
+                                                  outliers=run_outliers,
+                                                  is_show_plot=False)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
@@ -140,14 +141,14 @@ if __name__ == "__main__":
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
                 #["\\DPE_bromination\\2025-02-19-run01_time_varied\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}]
+                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                
                 ]
+                
 
     for run_folder in run_folders:
         run_dir = data_dir + run_folder[0]
