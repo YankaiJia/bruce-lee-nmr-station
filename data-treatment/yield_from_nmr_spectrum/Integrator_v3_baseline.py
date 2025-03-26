@@ -705,9 +705,10 @@ def analyze_one_run_folder(master_path,
             print(file_name)
             # Extract vial number by regex
             vial_name_here = re.search(r'(\d+)-1D', file_name).group(1)
+            vial_name_here = int(vial_name_here)
             if vial_name_here in outliers.keys():
                 specify_para(sol_name, outliers[vial_name_here])
-                print('Outlier type specified for vial:', file_name)
+                print('##########Outlier type specified for vial##########:', file_name)
             else:
                 specify_para(sol_name)
         ###################################
