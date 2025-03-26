@@ -5,12 +5,14 @@
 //Author: Yankai Jia
 //Last update: 2025.03
 //************************************************//
+// THIS VERSION IS FOR MECN AS SOLVENT
+//************************************************//
 
 // Global variables
-const DCE_peak_ppm = 3.73;//Real DCE peak ppm
+const MECN_peak_ppm = 1.94;//Real DCE peak ppm
 
-const DCE_peak_search_from_ppm = 3.6;//Search range for DCE peak pick
-const DCE_peak_search_to_ppm = 4.1;//Search range for DCE peak pick
+const MECN_peak_search_from_ppm = 1.05;//Search range for DCE peak pick
+const MECN_peak_search_to_ppm = 2.05;//Search range for DCE peak pick
 
 const prd_B_peak_integration_from_ppm = 6.6; 
 const prd_B_peak_integration_to_ppm = 7.0;
@@ -36,22 +38,16 @@ function processSpectrum(){
 	var p = new NMRProcessing(spec.proc);		
 	
 	page_info = spec.originalFileName;		
-	
 						
 	print(spec.originalFileName);
 								
-
 	//**********************************Trimming*************************************//
 	var regs = new Array(2);
 	regs[0]  = new SpectrumRegion(-28, 0);
-	regs[1] = new SpectrumRegion(9, 36);
+	regs[1] = new SpectrumRegion(12, 36);
 	p.setParameter("cuts.apply", true);
 	p.setParameter("cuts.list", regs);
 	
-	
-	
-	
-
 	//*******************************************************************************//
 
 	//*****************************PHASE CORRECTION**********************************//
@@ -110,7 +106,7 @@ function processSpectrum(){
     for (var i = 0; i < peaks.count; i++) {
 		var peak = peaks.at(i);
 		var delta = peak.delta(); // Assumes delta() returns the ppm value
-		if (delta >= DCE_peak_search_from_ppm && delta <= DCE_peak_search_to_ppm) {
+		if (delta >= MECN_peak_search_from_ppm && delta <= MECN_peak_search_to_ppm) {
 				solvent_peak_ppm.push(peak.delta());
 				}
     	}
@@ -126,7 +122,7 @@ function processSpectrum(){
     // Do referencing    
     //var p = new NMRProcessing(spec.proc)
     p.setParameter("ref[1].Apply", true);
-    p.setParameter("ref[1].Shift", solvent_peak_ppm[0], DCE_peak_ppm);
+    p.setParameter("ref[1].Shift", solvent_peak_ppm[0], MECN_peak_ppm);
     p.setParameter("ref.autotune", false);
             
                                                              
