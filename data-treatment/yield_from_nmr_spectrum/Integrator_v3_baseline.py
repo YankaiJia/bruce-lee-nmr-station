@@ -69,6 +69,10 @@ def specify_para(sol_name, outlier_type=None):
         }
 
         if outlier_type == 'Type1':  # Type 1 outlier: Asymetric pick upshift of Product B
+            print("Type1 error paras are set in if conditon!")
+            # global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
+
+
             solvent_shift = 3.73  #ppm DCE
             peak_width_50 = 0.008  #ppm at 50% #Default 0.01
             threshold_amplitude = 1E-7  # Minimum threshold to be integrated
@@ -99,6 +103,9 @@ def specify_para(sol_name, outlier_type=None):
             }
             #pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier: Asymetric pick downshift of Product B
+            print("Type2 error paras are set in if conditon!")
+            # global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
+
             solvent_shift = 3.73  #ppm DCE
             peak_width_50 = 0.008  #ppm at 50% #Default 0.01
             threshold_amplitude = 1E-7  # Minimum threshold to be integrated
@@ -728,12 +735,13 @@ if __name__ == "__main__":
     print(BRUCELEE_PROJECT_DATA_PATH)
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                ["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
                 ]
 
     for run_folder in run_folders:

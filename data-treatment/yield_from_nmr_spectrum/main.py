@@ -168,7 +168,7 @@ if __name__ == "__main__":
     current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
 
     # save final results to csv
-    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_YJ_{current_time}.csv"
+    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
