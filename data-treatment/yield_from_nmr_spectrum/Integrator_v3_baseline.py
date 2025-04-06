@@ -1,6 +1,8 @@
 ##Modules importation##
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, peak_prominences, peak_widths
 from scipy.optimize import curve_fit
@@ -10,9 +12,7 @@ import os
 import json
 import math
 import re
-
-# change backend for matplotlib to Qt5Agg
-plt.switch_backend('TkAgg')
+import concurrent.futures
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -508,6 +508,7 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
             for line in ax_old.get_lines():  # Extract line plots
                 axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
 
+                continue
                 # set title for each subplot
                 useful_peaks = ["Starting material", "Product A", "Product B", "HBr_adduct", "Acid"]
                 reference_shift_here = {k: reference_shift[k] for k in useful_peaks}
@@ -670,14 +671,34 @@ def process_nmr_peaks(
 
     return results_dictionary
 
+def analyze_one_spectrum(file_name, sol_name,  outliers):
+    # Specify global parameters based on the solvent name and outlier_type
+    if not outliers:
+        specify_para(sol_name)
+    else:
+        print(file_name)
+        # Extract vial number by regex
+        vial_name_here = re.search(r'(\d+)-1D', file_name).group(1)
+        vial_name_here = int(vial_name_here)
+        if vial_name_here in outliers.keys():
+            specify_para(sol_name, outliers[vial_name_here])
+            print('##########Outlier type specified for vial##########:', file_name)
+        else:
+            specify_para(sol_name)
+
+    # Analyze spectrum and return results
+    experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False)
+    print(f"\n{experiment_name}: {experiment_dictionary}")
+
+    return experiment_name, experiment_dictionary
+
 
 def analyze_one_run_folder(master_path,
                            sol_name='DCE',
                            outliers=None,  # Example: {33:'Type1', 43:'Type2'}
                            is_show_plot=False):
 
-    total_result_dictionary = {}
-    list_experiment_loaded = []
+
     data_dir_ls = []
     data_file_ls = []
 
@@ -695,29 +716,23 @@ def analyze_one_run_folder(master_path,
                 raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
             data_file_ls.append(data_file)
 
-    # Iterate through CSV from the list to fit and obtain absolute area
-    for file_name in data_file_ls:
+    total_result_dictionary = {}
+    list_experiment_loaded = []
 
-        # Specify global parameters based on the solvent name and outlier_type
-        if not outliers:
-            specify_para(sol_name)
-        else:
-            print(file_name)
-            # Extract vial number by regex
-            vial_name_here = re.search(r'(\d+)-1D', file_name).group(1)
-            vial_name_here = int(vial_name_here)
-            if vial_name_here in outliers.keys():
-                specify_para(sol_name, outliers[vial_name_here])
-                print('##########Outlier type specified for vial##########:', file_name)
-            else:
-                specify_para(sol_name)
-        ###################################
+    # Use ThreadPoolExecutor for multithreaded analysis
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Submit all file jobs to the thread pool
+        futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
+                   for file_name in data_file_ls]
 
-        experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True,
-                                                                    is_show_plot=is_show_plot)
-        list_experiment_loaded.append(experiment_name)
-        print(f"\n{experiment_name}: {experiment_dictionary}")
-        total_result_dictionary.update({experiment_name: experiment_dictionary})
+        # Collect results as they finish
+        for future in concurrent.futures.as_completed(futures):
+            try:
+                experiment_name, experiment_dictionary = future.result()
+                list_experiment_loaded.append(experiment_name)
+                total_result_dictionary[experiment_name] = experiment_dictionary
+            except Exception as e:
+                print(f"Error processing file: {e}")
 
     # Save dictionary as JSON
     json_filename = os.path.join(results_path, f"fitting_results.json")
@@ -739,17 +754,22 @@ if __name__ == "__main__":
                 #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                ]
+                ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+    ]
 
     for run_folder in run_folders:
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
-
         analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
 
     print("All runs processed successfully.")
