@@ -11,7 +11,7 @@ KingLam Kwong, Yankai Jia
 import mecademicpy.robot as mdr
 
 # Standard library imports
-import time, math, copy, logging, os, sys
+import time, math, copy, logging, os, sys, winsound
 from functools import wraps
 
 sys.path.append(os.path.abspath(os.path.pardir))
@@ -178,7 +178,7 @@ class RobotArm:
 
     def config_robot_after_activate(self, set_vel: str = "fast"):
         # short gripper
-        self.robo.SetGripperRange(0, 5.3)
+        self.robo.SetGripperRange(0, 5.2)
         # long gripper
         # self.robo.SetGripperRange(12, 30)
         limits = None
@@ -191,6 +191,16 @@ class RobotArm:
         self.set_speed(limits)
 
         self.logger.info("meca500 config done after activation.")
+
+    def beep_normal(self):
+        for i in range(1):
+            winsound.Beep(800, 400)
+            time.sleep(0.2)
+
+    def beep_error(self):
+        for i in range(4):
+            winsound.Beep(1800, 400)
+            time.sleep(0.2)
 
     # Robot Status Getter Functions
 
@@ -733,6 +743,8 @@ class RobotArm:
 
         self.logger.debug("Pick tube done!")
 
+        self.beep_normal()
+
     @log_exception
     def place_tube(self, location, wait_after_place: float = 0.2):
 
@@ -791,6 +803,8 @@ class RobotArm:
         self.tube_status = 0
 
         self.logger.debug("Place tube done!")
+
+        self.beep_normal()
 
     @timeit
     @log_exception
@@ -855,6 +869,7 @@ class RobotArm:
         self.change_vertical_height(34)
         self.move_joints_rel(j6=27)
 
+
     @log_exception
     def tilted_insert_tube(self):
         self.logger.info(f"Executing tilted_remove_tube() at {time.time()}")
@@ -906,6 +921,8 @@ class RobotArm:
         assert not self.is_gripper_gripping_item(), "Gripper status is incorrect"
         self.tube_status = 0
 
+        self.beep_normal()
+
     @log_exception
     def pick_tube_from_spinsolve(self):
 
@@ -938,6 +955,8 @@ class RobotArm:
                 raise ValueError('No item is picked up for pick_tube(), please check!')
 
         self.tube_status = 1
+
+        self.beep_normal()
 
     @log_exception
     def move_to(self, location: Facility):
