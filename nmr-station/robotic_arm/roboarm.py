@@ -13,6 +13,8 @@ import mecademicpy.robot as mdr
 # Standard library imports
 import time, math, copy, logging, os, sys, winsound
 from functools import wraps
+import sounddevice as sd
+sd.default.latency = 'low', 'low'
 
 sys.path.append(os.path.abspath(os.path.pardir))
 
@@ -192,15 +194,18 @@ class RobotArm:
 
         self.logger.info("meca500 config done after activation.")
 
+
+    def beep(self, freq, duration, volume, fs):
+            t = np.linspace(0, duration, int(fs * duration), endpoint=False)
+            waveform = volume * np.sin(2 * np.pi * freq * t)
+            sd.play(waveform, fs)
+            # sd.wait()
+
     def beep_normal(self):
-        for i in range(1):
-            winsound.Beep(800, 400)
-            time.sleep(0.2)
+        self.beep(freq=440, duration=0.5, volume=1, fs=44100/5)
 
     def beep_error(self):
-        for i in range(4):
-            winsound.Beep(1800, 400)
-            time.sleep(0.2)
+        self.beep(freq=600, duration=0.5, volume=1, fs=44100/5)
 
     # Robot Status Getter Functions
 
