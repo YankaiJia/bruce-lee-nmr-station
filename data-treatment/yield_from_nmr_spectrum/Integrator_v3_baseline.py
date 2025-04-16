@@ -52,19 +52,19 @@ def specify_para(sol_name, outlier_type=None):
             [7.80, 14],  #Acid?
         ]
         reference_shift = {
-            "Starting material": [5.467],  # ppm
-            "Product A": [4.527],  # ppm
-            "Product B": [6.807],  # ppm
-            "SolventDown": [4.775, 4.693, 4.605],  # ppm
-            "SolventUp": [2.850, 2.764, 2.682],  # ppm
+            "Starting material": [5.467],  # ppm #Confirmed
+            "Product A": [4.527],  # ppm #Confirmed
+            "Product B": [6.807],  # ppm #Confirmed
+            "SolventDown": [4.775, 4.693, 4.605],  # ppm #Confirmed
+            "SolventUp": [2.850, 2.764, 2.682],  # ppm #Confirmedz
             "Unknown impurity SM peak 1": [6.453],  # ppm
             "Unknown impurity SM peak 2": [4.474],  # ppm
             "Unknown impurity 1": [6.523],
             "Unknown impurity 2": [5.509],  # ppm
             "Unknown impurity 3": [4.340],  # ppm
             "Unknown impurity 4": [2.549],  # ppm
-            "Alcohol": [6.727],  # ppm
-            "HBr_adduct": [2.463],  # ppm
+            "Alcohol": [6.727],  # ppm #Confirmed
+            "HBr_adduct": [2.463],  # ppm #Confirmed
             "Acid": [8.0]
         }
 
@@ -86,7 +86,7 @@ def specify_para(sol_name, outlier_type=None):
                 [7.80, 14],  #Acid?
             ]
             reference_shift = {
-                "Starting material": [5.467],  # ppm
+                "Starting material": [5.467],  # ppm  
                 "Product A": [4.527],  # ppm
                 "Product B": [6.807],  # ppm
                 "SolventDown": [4.775, 4.693, 4.605],  # ppm
@@ -141,25 +141,37 @@ def specify_para(sol_name, outlier_type=None):
         peak_width_50 = 0.008  # ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [7.80, 14],
-            [6.5, 7.15],  
-            [4.4, 4.80],  
-            [3.8, 4.4],  
-            [2.8, 3.3],
-            [2.65,2.75]
+            # [7.80, 14],
+            # [6.5, 7.15],  
+            # [4.4, 4.80],  
+            # [3.8, 4.4],  
+            # [2.8, 3.3],
+            # [2.65,2.75]
+            [0.8, 1.6],
+            [2.0, 3.3],
+            [3.8, 4.4],
+            [4.4, 6.0],
+            [6.5, 7.15],
+            [7.80, 14],  
         ]
         reference_shift = {
-            "Starting material": [4.612],  # ppm
-            "Product A": [3.946],  # ppm
-            "Product B": [6.899],  # ppm
-            "SolventDown": [2.786],  # ppm
-            "SolventUp": [1.085],  # ppm
-            "Unknown 1": [2.937],
-            "Unknown 2": [4.645],  # ppm
-            "Unknown 3": [4.201],  # ppm
-            "Unknown 4": [3.946],  # ppm
-            "Unknown 5": [7.029],  # ppm
-            "Unknown 6": [2.366],  # ppm
+            "Starting material": [5.454],  # ppm #Confirmed
+            "Water": [2.131],  #ppm #Confirmedp
+            "Product A": [3.946],  # ppm 
+            "Product B": [6.907],  # ppm #Confirmed
+            "SolventDown": [2.788],  # ppm #Confirmed
+            "SolventUp": [1.086],  # ppm #Confirmed
+            "Unknown 1": [4.610],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) 3-1D EXTENDED+-20250325-182317:300Br2, 150DPE,0TBAB
+            "Unknown 2": [3.940],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
+            "Unknown 3": [7.024],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
+            "Unknown 4": [2.425],  # ppm (Observed in  1-1D EXTENDED+-20250325-142708)  1-1D EXTENDED+-20250325-142708: 300Br2, 75DPE,300TBAB #Potentially water
+            "Unknown 5": [2.544],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)   7-1D EXTENDED+-20250325-185257: 112Br2, 262DPE,0TBAB
+            #"Unknown 6": [2.463],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
+            "HBr_adduct": [2.463],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
+            "Unknown 7": [2.364],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
+            "Unknown 8": [2.937],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)  21-1D EXTENDED+-20250325-170904: 300Br2, 187DPE,0TBAB
+            "Unknown 9": [4.201],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
+            "Unknown 10": [4.645],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
             "Acid": [8.0],
             "Water": [2.13]
         }
@@ -758,6 +770,8 @@ if __name__ == "__main__":
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
                 ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
                 ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
                 ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
