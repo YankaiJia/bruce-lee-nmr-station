@@ -1,8 +1,7 @@
 ##Modules importation##
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
+
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, peak_prominences, peak_widths
 from scipy.optimize import curve_fit
@@ -13,6 +12,11 @@ import json
 import math
 import re
 import concurrent.futures
+
+import matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
+plt.ioff() # Turn off interactive mode, so multithreading will work
+
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']

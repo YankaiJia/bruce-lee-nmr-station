@@ -8,7 +8,8 @@ import json
 import os
 
 import matplotlib
-matplotlib.use('TkAgg') # use the TkAgg backend for matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
+plt.ioff() # Turn off interactive mode, so multithreading will work
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
