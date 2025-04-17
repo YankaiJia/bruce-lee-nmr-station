@@ -156,7 +156,7 @@ if __name__ == "__main__":
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
         print(f'Processing {run_dir}')
-        process_one_folder(run_dir, run_sol, run_outliers)
+        #process_one_folder(run_dir, run_sol, run_outliers)
 
 
     # merge all the final_results.csv into one file

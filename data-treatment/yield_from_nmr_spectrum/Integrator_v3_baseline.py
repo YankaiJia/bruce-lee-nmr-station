@@ -49,7 +49,7 @@ def specify_para(sol_name, outlier_type=None):
             [6.5, 7.0],  # Product B, 1H
             [4.45, 4.70],  # Product A, 2H
             [2.2, 2.7],  # HBr adduct
-            [7.80, 14],  #Acid?
+            #[7.80, 14],  #Acid? #Irrelevant, skipped
         ]
         reference_shift = {
             "Starting material": [5.467],  # ppm #Confirmed
@@ -65,7 +65,7 @@ def specify_para(sol_name, outlier_type=None):
             "Unknown impurity 4": [2.549],  # ppm
             "Alcohol": [6.727],  # ppm #Confirmed
             "HBr_adduct": [2.463],  # ppm #Confirmed
-            "Acid": [8.0]
+            "Acid": [8.0] #Irrelevant, skipped
         }
 
         if outlier_type == 'Type1':  # Type 1 outlier: Asymetric pick upshift of Product B
@@ -83,7 +83,7 @@ def specify_para(sol_name, outlier_type=None):
                 [6.5, 6.9],  # Product B, 1H   ############Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                [7.80, 14],  #Acid?
+                #[7.80, 14],  #Acid? #Acid? #Irrelevant, skipped
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm  
@@ -99,7 +99,7 @@ def specify_para(sol_name, outlier_type=None):
                 "Unknown impurity 4": [2.549],  # ppm
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
-                "Acid": [8.0]
+                #"Acid": [8.0] #Acid? #Irrelevant, skipped
             }
             #pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier: Asymetric pick downshift of Product B
@@ -116,7 +116,7 @@ def specify_para(sol_name, outlier_type=None):
                 [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                [7.80, 14],  #Acid?
+                #[7.80, 14],  #Acid? #Acid? #Irrelevant, skipped
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm
@@ -132,8 +132,8 @@ def specify_para(sol_name, outlier_type=None):
                 "Unknown impurity 4": [2.549],  # ppm
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
-                "Acid": [8.0]
-            }
+                #"Acid": [8.0] #Acid? #Irrelevant, skipped
+            } 
             #pass
 
     elif sol_name == 'MeCN':
@@ -141,18 +141,21 @@ def specify_para(sol_name, outlier_type=None):
         peak_width_50 = 0.008  # ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            #Old
             # [7.80, 14],
             # [6.5, 7.15],  
             # [4.4, 4.80],  
             # [3.8, 4.4],  
             # [2.8, 3.3],
             # [2.65,2.75]
-            [0.8, 1.6],
-            [2.0, 3.3],
+            #New
+            #[0.8, 1.6],
+            #[2.0, 3.3],  #Not good, salt in the middle
+            [2.0, 2.9],     #Instead of [2.0, 3.3],
             [3.8, 4.4],
             [4.4, 6.0],
             [6.5, 7.15],
-            [7.80, 14],  
+           # [7.80, 14],  #Acid? #Irrelevant, skipped
         ]
         reference_shift = {
             "Starting material": [5.454],  # ppm #Confirmed
@@ -169,10 +172,10 @@ def specify_para(sol_name, outlier_type=None):
             #"Unknown 6": [2.463],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
             "HBr_adduct": [2.463],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
             "Unknown 7": [2.364],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
-            "Unknown 8": [2.937],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)  21-1D EXTENDED+-20250325-170904: 300Br2, 187DPE,0TBAB
+            "Unknown 8": [2.937],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)  21-1D EXTENDED+-20250325-170904: 300Br2, 187DPE,0TBAB   #Detection hindered by salt
             "Unknown 9": [4.201],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
             "Unknown 10": [4.645],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
-            "Acid": [8.0],
+           # "Acid": [8.0], #Acid? #Irrelevant, skipped
             "Water": [2.13]
         }
 
@@ -290,8 +293,11 @@ def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation
 def exponential_decay(x, a, b, c, d):
     return a * np.exp(np.clip(b * (x + d), -700, 700)) + c  # add clip to avoid overflow
 
+def exponential_decay_linear_corrected(x, a, b, c, d, e):
+    return a * np.exp(np.clip(b * (x + d), -700, 700)) + c + e * x  # add clip to avoid overflow
 
-def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window=0.1):
+
+def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_correction=False, ppm_window=0.1): #ppm_window=0.1 Default
     indices_to_keep = int(ppm_window / ppm_per_index)
     shift_offset = shift_array[0]
 
@@ -314,13 +320,24 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window=0.1):
 
     # Select baseline function
 
-    baseline_function = exponential_decay
-    initial_guess = [
-        np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
-        -0.1 if intensity_array[0] > intensity_array[-1] else 0.1,  # B_guess (Decay/Growth)
-        np.min(intensity_array),  # C_guess (Offset)
-        shift_array[np.argmax(np.gradient(intensity_array))]  # D_guess (Delay point)
-    ]
+    
+    if baseline_linear_correction==False:
+        baseline_function = exponential_decay
+        initial_guess = [
+            np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
+            -0.1 if intensity_array[0] > intensity_array[-1] else 0.1,  # B_guess (Decay/Growth)
+            np.min(intensity_array),  # C_guess (Offset)
+            shift_array[np.argmax(np.gradient(intensity_array))]  # D_guess (Delay point)
+        ]
+    else:
+        baseline_function = exponential_decay_linear_corrected
+        initial_guess = [
+            np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
+            -0.1 if intensity_array[0] > intensity_array[-1] else 0.1,  # B_guess (Decay/Growth)
+            np.min(intensity_array),  # C_guess (Offset)
+            shift_array[np.argmax(np.gradient(intensity_array))],  # D_guess (Delay point)
+            0 # E_guess (Linear correction)
+        ]
 
     params, covariance = curve_fit(baseline_function,
                                    shift_array - shift_offset,
@@ -332,11 +349,10 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index, ppm_window=0.1):
                                    xtol=1e-14,  # Parameter change tolerance
                                    gtol=1e-14,  # Gradient tolerance
                                    )
-    a_fit, b_fit, c_fit, d_fit = params
 
-    baseline = baseline_function(shift_array - shift_offset, a_fit, b_fit, c_fit, d_fit)
+    baseline = baseline_function(shift_array - shift_offset, *params)
 
-    label = f'Baseline: {a_fit:.2f} * exp({b_fit:.2f} (x-{d_fit:.2f})) + {c_fit:.2f}'
+    label = f'Baseline: {params}'
 
     if False:
         # Plot data and fitted curve
@@ -770,14 +786,15 @@ if __name__ == "__main__":
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
     ]
 
     for run_folder in run_folders:
