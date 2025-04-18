@@ -210,8 +210,10 @@ def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False)
 
 if __name__ == "__main__":
 
+    # result_folder = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+
     result_folder = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
-    #
+
     df= interpolate_one_folder(result_folder,is_save_csv=True, is_show_plot=False)
 
     # interp_func_S, interp_func_B = get_interp_funcs(is_show_ref_curve=False)

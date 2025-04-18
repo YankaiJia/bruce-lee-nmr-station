@@ -429,7 +429,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
             intensity_array -= baseline
 
     # Fit peaks
-    fig = []
+    # fig = []
     try:
         #Fitting
         if constrained_fit == False:
@@ -520,6 +520,8 @@ def find_closest_reference(fitted_center, reference_dict):
 def replot_fittings(figures, is_show_plot=False, dir=None):
     num_figs = len(figures)
 
+    print(f"###############Number of figures to plot: {num_figs}########################")
+
     if num_figs == 0:
         print("No figures to plot.")
         return None
@@ -540,14 +542,10 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
             for line in ax_old.get_lines():  # Extract line plots
                 axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
 
-                continue
                 # set title for each subplot
-                useful_peaks = ["Starting material", "Product A", "Product B", "HBr_adduct", "Acid"]
-                reference_shift_here = {k: reference_shift[k] for k in useful_peaks}
                 x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
-                for key, value in reference_shift_here.items():
-                    if x_min <= value[0] <= x_max:
-                        axes[i].set_title(key)
+                title_text = f"ppm: {x_min} - {x_max}"
+                axes[i].set_title(title_text)
 
             # axes[i].set_title(ax_old.get_title())
             axes[i].set_xlabel(ax_old.get_xlabel())
@@ -556,8 +554,8 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
                 axes[i].legend()
 
     # Hide any unused subplots (if the last row is not full)
-    for j in range(num_figs, len(axes)):
-        axes[j].axis("off")  # Instead of fig.delaxes(), just hide the extra axes
+    # for j in range(num_figs, len(axes)):
+    #     axes[j].axis("off")  # Instead of fig.delaxes(), just hide the extra axes
 
     plt.tight_layout()
 
@@ -802,6 +800,7 @@ if __name__ == "__main__":
     ]
 
     for run_folder in run_folders:
+
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
