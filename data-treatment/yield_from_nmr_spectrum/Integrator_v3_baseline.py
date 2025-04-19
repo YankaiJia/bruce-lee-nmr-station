@@ -169,7 +169,7 @@ def specify_para(sol_name, outlier_type=None):
             "SolventDown": [2.788],  # ppm #Confirmed
             "SolventUp": [1.086],  # ppm #Confirmed
             "Unknown 1": [4.610],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) 3-1D EXTENDED+-20250325-182317:300Br2, 150DPE,0TBAB
-            "Unknown 2": [3.940],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
+            #"Unknown 2": [3.940],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) Probably Product A
             "Unknown 3": [7.024],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
             "Unknown 4": [2.425],  # ppm (Observed in  1-1D EXTENDED+-20250325-142708)  1-1D EXTENDED+-20250325-142708: 300Br2, 75DPE,300TBAB #Potentially water
             "Unknown 5": [2.544],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)   7-1D EXTENDED+-20250325-185257: 112Br2, 262DPE,0TBAB
@@ -742,11 +742,14 @@ def analyze_one_run_folder(master_path,
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
         if "1D EXTENDED" in folder_path:
-            data_dir_ls.append(folder_path)
-            data_file = folder_path + "\\data.csv"
-            if not os.path.isfile(data_file):
-                raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
-            data_file_ls.append(data_file)
+            try:
+                data_dir_ls.append(folder_path)
+                data_file = folder_path + "\\data.csv"
+                if not os.path.isfile(data_file):
+                    raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
+                data_file_ls.append(data_file)
+            except:
+                print(f"An error occured in:{folder_path}")
 
     total_result_dictionary = {}
     list_experiment_loaded = []

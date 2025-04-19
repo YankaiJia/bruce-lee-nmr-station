@@ -140,7 +140,6 @@ if __name__ == "__main__":
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal_test_multithreading_YJ\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
@@ -148,6 +147,10 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None]
+                #["\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-04-15-run02_DCE_TBABr3_normal\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
     ]
                 
 
@@ -156,7 +159,7 @@ if __name__ == "__main__":
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
         print(f'Processing {run_dir}')
-        #process_one_folder(run_dir, run_sol, run_outliers)
+        process_one_folder(run_dir, run_sol, run_outliers)
 
 
     # merge all the final_results.csv into one file
@@ -169,7 +172,7 @@ if __name__ == "__main__":
     current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
 
     # save final results to csv
-    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
+    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}-TBABr3.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
