@@ -140,14 +140,16 @@ if __name__ == "__main__":
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal_test_multithreading_YJ\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal_testing\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None]
+                ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None]
+
     ]
 
     for run_folder in run_folders:
