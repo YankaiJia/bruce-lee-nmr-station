@@ -1,0 +1,13 @@
+mecademicpy
+click
+pynput
+pyautogui
+python-dotenv
+pyserial == 3.4
+numpy
+matplotlib
+scipy
+pandas
+nmrglue
+mayavi # use this to install pip install https://github.com/enthought/mayavi/zipball/main
+
