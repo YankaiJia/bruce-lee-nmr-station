@@ -24,8 +24,8 @@ div = 1
 
 ## for real run
 T_WASTE_COLLECTOR = 15 / div
-T_WASHER1 = 30 / div
-T_WASHER2 = 30 / div
+T_WASHER1 = 45 / div
+T_WASHER2 = 45 / div
 T_DRYER = 120 / div
 
 ## for testing or taking video
@@ -65,11 +65,11 @@ MEASUREMENT_DATA_GUI_PATH = os.getenv('MEASUREMENT_DATA_GUI_PATH')
 REMOTE_CONTROL_TIMEOUT = 10
 
 # MAX_SAMPLE_COUNT_AFTER_SHIMMING = 20
-MAX_SAMPLE_COUNT_AFTER_SHIMMING = 10
+MAX_SAMPLE_COUNT_AFTER_SHIMMING = 5
 REGULAR_SHIM_XML = """<?xml version="1.0" encoding="utf-8"?>
 <Message>
         <Start protocol="SHIM">
-                <Option name="Shim" value="QuickShim" />
+                <Option name="Shim" value="QuickShim1st2nd" />
         </Start>
 </Message>
 """

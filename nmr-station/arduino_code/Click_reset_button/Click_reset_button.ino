@@ -14,14 +14,15 @@ void loop() {
   myServo.write(0);  // Move to 30 degrees
 //  delay(6000);  // Wait for the servo to reach position
 //
-  delay(60000);  // Wait for the servo to reach position
-  delay(60000);  // Wait for the servo to reach position
-  delay(60000);  // Wait for the servo to reach position
-  delay(60000);  // Wait for the servo to reach position
-  delay(60000);  // Wait for the servo to reach position
-  delay(60000);  // Wait for the servo to reach position
+//  delay(60000);  // Wait for the servo to reach position
+//  delay(60000);  // Wait for the servo to reach position
+//  delay(60000);  // Wait for the servo to reach position
+//  delay(60000);  // Wait for the servo to reach position
+//  delay(60000);  // Wait for the servo to reach position
+//  delay(60000);  // Wait for the servo to reach position
+  delay(300000);  // Wait for the servo to reach position
 
   myServo.write(8);  // Move back to 0 degrees
-  delay(100);  // Wait for the servo to reach position
+  delay(1000);  // Wait for the servo to reach position
 
 }

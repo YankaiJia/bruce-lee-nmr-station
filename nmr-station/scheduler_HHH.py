@@ -482,7 +482,7 @@ def get_measurement_info():
 
         return sorted(vials)  # Return as a sorted list
 
-    sg.theme("DarkBlue")  # Choose a modern theme
+    sg.theme("LightBlue2")  # Choose a modern theme
 
     # Load previous data
     previous_data = load_previous_data()
@@ -490,33 +490,33 @@ def get_measurement_info():
     layout = [
         [sg.Text("Input Measurement Info", font=("Arial", 18, "bold"), justification="center", expand_x=True)],
 
-        [sg.Text("Reaction Name:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("reaction_name", ""), key="reaction_name", font=("Arial", 14), size=(30, 1))],
+        [sg.Text("Reaction Name:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("reaction_name", ""), key="reaction_name", font=("Arial", 18), size=(30, 1))],
 
-        [sg.Text("User Name:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("user_name", ""), key="user_name", font=("Arial", 14), size=(30, 1))],
+        [sg.Text("User Name:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("user_name", ""), key="user_name", font=("Arial", 18), size=(30, 1))],
 
-        [sg.Text("Well Plate Number:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("well_plate_number", ""), key="well_plate_number", font=("Arial", 14),
+        [sg.Text("Well Plate Number:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("well_plate_number", ""), key="well_plate_number", font=("Arial", 18),
                       size=(30, 1))],
 
-        [sg.Text("Reaction Solvent:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("reaction_solvent", ""), key="reaction_solvent", font=("Arial", 14),
+        [sg.Text("Reaction Solvent:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("reaction_solvent", ""), key="reaction_solvent", font=("Arial", 18),
                       size=(30, 1))],
 
-        [sg.Text("Reaction Excel Path:", size=(20, 1), font=("Arial", 14)),
-         sg.InputText(previous_data.get("reaction_excel_path", ""), key="reaction_excel_path", font=("Arial", 14),
+        [sg.Text("Reaction Excel Path:", size=(20, 1), font=("Arial", 18)),
+         sg.InputText(previous_data.get("reaction_excel_path", ""), key="reaction_excel_path", font=("Arial", 18),
                       size=(25, 1)),
-         sg.FileBrowse(font=("Arial", 12))],
+         sg.FileBrowse(font=("Arial", 18))],
 
-        [sg.Text("\t\tVials to Measure \n(e.g. 0-5, 7, 10-12 (both left and right are included)):", size=(40, 2), font=("Arial", 16))],
-        [sg.InputText(previous_data.get("vials_to_measure", ""), key="vials_to_measure", font=("Arial", 14),
+        [sg.Text("\t\tVials to Measure \n(e.g. 0-5, 7, 10-12 (both left and right are included)):", size=(40, 2), font=("Arial", 18))],
+        [sg.InputText(previous_data.get("vials_to_measure", ""), key="vials_to_measure", font=("Arial", 18),
                       size=(30, 1))],
 
-        [sg.Button("Submit", font=("Arial", 14), size=(10, 1)), sg.Button("Cancel", font=("Arial", 14), size=(10, 1))]
+        [sg.Button("Submit", font=("Arial", 20), size=(10, 1)), sg.Button("Cancel", font=("Arial", 20), size=(10, 1))]
     ]
 
-    window = sg.Window("Measurement Input", layout, size=(650, 400), element_justification='center',
+    window = sg.Window("Measurement Input", layout, size=(750, 450), element_justification='center',
                        finalize=True)
 
     while True:
@@ -561,6 +561,52 @@ def extract_uuid_container_mapping(file_path):
     except Exception as e:
         print(f"Error reading file: {e}")
         return {}
+
+def check_list_before_runing_gui():
+    checklist = [
+        "Disable wifi and disconnect Router",
+        "Open Spinsolve software",
+        "Specify storage directory",
+        "Make well plate ready",
+        "Check/refill pipetting tips and reload breadboard.py",
+        "Make two NMR tubes ready",
+        "Turn on air pressure",
+        "Turn on vacuum",
+        "Check/refill cleaning solvent",
+        "Empty waste bottle",
+        "Check reference sample",
+        "Turn on heat guns",]
+
+    sg.theme("LightBlue2")  # Choose a modern theme
+    layout = [
+        [sg.Text("Check list before running", font=("Arial", 20, "bold"), justification='left', expand_x=True)],
+        [sg.HorizontalSeparator()]
+    ]
+
+    for item in checklist:
+        layout.append([sg.Checkbox(item, key=item, font=("Arial", 18))])
+
+    layout.append([sg.HorizontalSeparator()])
+    layout.append(
+        [sg.Checkbox("Check All", enable_events=True, key="Check_All", font=("Arial", 20, "bold"), size=(15, 1))])
+    layout.append(
+        [sg.Button("Submit", size=(10, 1), font=("Arial", 20), button_color=("white", "green"), expand_x=True)])
+    layout.append([sg.Button("Exit", size=(10, 1), font=("Arial", 20), button_color=("white", "red"), expand_x=True)])
+
+    window = sg.Window("Checklist", layout, size=(550, 800), element_justification='left')
+
+    while True:
+        event, values = window.read()
+        if event == sg.WINDOW_CLOSED or event == "Exit":
+            window.close()
+            return None
+        if event == "Check_All":
+            for item in checklist:
+                window[item].update(values["Check_All"])
+        if event == "Submit":
+            unchecked_items = [item for item in checklist if not values.get(item, False)]
+            window.close()
+            return None if not unchecked_items else unchecked_items
 
 # @click.command()
 # @click.option('--test', is_flag=True, required=True, help='Use dummy components')
@@ -624,41 +670,26 @@ def main(use_gui=True, vials_to_measure=None):
     xml_1dproton = ["""<?xml version="1.0" encoding="utf-8"?>
                             <Message>
                                     <Start protocol="1D PROTON">
-                                            <Option name="Scan" value="QuickScan" />
+                                            <Option name="Scan" value="StandardScan" />
                                     </Start>
                             </Message>"""]
 
     ### this is for Yanqiu's exp.
-    # xml_1dwetsup = ["""<?xml version="1.0" encoding="utf-8"?>
-    #                         <Message>
-    #                             <Start protocol="1D WET SUP">
-    #                                 <Option name="Mode" value="Auto 2 Peaks" />
-    #                                 <Option name="autoStart" value="1.3" />
-    #                                 <Option name="autoEnd" value="2.7" />
-    #                                 <Option name="autoStart2" value="2.8" />
-    #                                 <Option name="autoEnd2" value="4.5" />
-    #                                 <Option name="CorrectionFactor" value="0.9" />
-    #                                 <Option name="Dummy" value="2" />
-    #                                 <Option name="Number" value="32" />
-    #                                 <Option name="AcquisitionTime" value="3.2" />
-    #                                 <Option name="RepetitionTime" value="10" />
-    #                                 <Option name="DecoupleAcq" value="Off" />
-    #                                 <Option name="DecoupleSat" value="Off" />
-    #                             </Start>
-    #                         </Message>"""]
-
-    ### for bromination exp
-    xml_1dproton_plus = ["""
-                        <?xml version="1.0" encoding="utf-8"?>
-                            <Message>
-                                <Start protocol="1D EXTENDED+">
-                                    <Option name="Number" value="32" />
-                                    <Option name="AcquisitionTime" value="6.4" />
-                                    <Option name="RepetitionTime" value="10" />
-                                    <Option name="PulseAngle" value="30" />
-                                </Start>
-                            </Message>
-                        """]
+    xml_1dwetsup = ["""<?xml version="1.0" encoding="utf-8"?>
+                    <Message>
+                        <Start protocol="1D WET SUP">
+                            <Option name="Mode" value="Auto" />
+                            <Option name="autoStart" value="2.5" />
+                            <Option name="autoEnd" value="4" />
+                            <Option name="CorrectionFactor" value="1" />
+                            <Option name="Dummy" value="2" />
+                            <Option name="Number" value="16" />
+                            <Option name="AcquisitionTime" value="3.2" />
+                            <Option name="RepetitionTime" value="15" />
+                            <Option name="DecoupleAcq" value="On" />
+                            <Option name="DecoupleSat" value="On" />
+                        </Start>
+                    </Message>"""]
 
     #"Number" value="32" or "16"
     # "RepetitionTime" value="10"
@@ -666,21 +697,30 @@ def main(use_gui=True, vials_to_measure=None):
 
     # xml_msg_list = ['sample', 'solvent', 'custom', '1dproton', '1dwetsup']
 
-    ## Yanqiu exp
+    ## bromination exp
     # spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
     #                                                  "",
-    #                                                  xml_sample+
-    #                                                  # xml_solvent+
-    #                                                  # xml_custom+
-    #                                                  xml_1dproton+
-    #                                                  xml_1dwetsup)
-    ## bromination exp
+    #                                                  xml_sample + xml_1dproton_plus,
+    #                                                  measurement_info=measurement_info,
+    #                                                  )
+
+    ## HHH exp
     spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
                                                      "",
-                                                     xml_sample + xml_1dproton_plus,
+                                                     xml_sample+
+                                                     # xml_solvent+
+                                                     # xml_custom+
+                                                     xml_1dproton+
+                                                     xml_1dwetsup,
                                                      measurement_info=measurement_info,
                                                      )
-    # # for taking demo
+    # ## bromination exp
+    # spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
+    #                                                  "",
+    #                                                  xml_sample + xml_1dproton_plus,
+    #                                                  measurement_info=measurement_info,
+    #                                                  )
+    # # for demo
     # spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
     #                                                  "",
     #                                                  xml_sample+
@@ -690,9 +730,19 @@ def main(use_gui=True, vials_to_measure=None):
 
     scheduler = Scheduler(robot_arm_decision, spectrometer_decision, pipetter_decision)
     scheduler.start()
+    time.sleep(600)
+    robot_here.robo.Disconnect()
+    time.sleep(10)
 
 
 if __name__ == "__main__":
 
+    unchecked_options = check_list_before_runing_gui()
+
+    if unchecked_options:
+        logger.warning(f'Unchecked option: {unchecked_options}')
+        raise Exception("All options should be check before running!!")
+
     main()
+    print("All done!")
 
