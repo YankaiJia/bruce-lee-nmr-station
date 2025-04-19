@@ -24,8 +24,8 @@ div = 1
 
 ## for real run
 T_WASTE_COLLECTOR = 15 / div
-T_WASHER1 = 30 / div
-T_WASHER2 = 30 / div
+T_WASHER1 = 45 / div
+T_WASHER2 = 45 / div
 T_DRYER = 120 / div
 
 ## for testing or taking video
