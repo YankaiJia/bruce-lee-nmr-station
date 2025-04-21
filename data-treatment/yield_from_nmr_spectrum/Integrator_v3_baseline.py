@@ -467,7 +467,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
         ax1.set_title("Covariance Matrix")
         # ---- Subplot 2: Spectral Data and Fitting Results ----
         ax2 = axes[1]
-        ax2.plot(shift_array, intensity_array_original, color='black', label="Original Spectrum")
+        ax2.plot(shift_array, intensity_array_original, color='black', label="Original")
         ax2.plot(shift_array, fitted_y + baseline, 'r--', label="Lorentzian Fit")
         ax2.plot(shift_array, baseline, 'b--', label="Baseline Fit")
         ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver', label="Residuals")
@@ -835,7 +835,9 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-        ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal_testing\\", 'MeCN', None]
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
+
     ]
 
     for run_folder in run_folders:
