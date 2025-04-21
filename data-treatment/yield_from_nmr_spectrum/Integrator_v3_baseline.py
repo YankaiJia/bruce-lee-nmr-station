@@ -835,7 +835,9 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-        ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal_testing\\", 'MeCN', None]
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
+
     ]
 
     for run_folder in run_folders:

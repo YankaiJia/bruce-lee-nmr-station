@@ -6,6 +6,14 @@ import time
 import Integrator_v3_baseline
 import conc_interpolation
 
+## Disable OpenMP multiprocessing in NumPy.
+# This will limit the number of threads NumPy uses for its operations.
+import os
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -79,13 +87,16 @@ def process_one_folder(run_dir, run_sol, run_outliers):
 
     run_folder = run_dir
 
+    solvent_name = 'MeCN' if 'MeCN' in run_folder else 'DCE'
+    additive_name = 'TBABr3' if 'TBABr3' in run_folder else 'normal'
+
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure(run_folder)
     print(f'Analyzing {run_folder}')
 
-    Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
-                                                  sol_name=run_sol,
-                                                  outliers=run_outliers,
-                                                  is_show_plot=False)
+    # Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
+    #                                               sol_name=run_sol,
+    #                                               outliers=run_outliers,
+    #                                               is_show_plot=False)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
@@ -99,8 +110,9 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     df['S_conversion'] = 1 - df['c#_S'] / df['DPE'].replace(0, np.nan)
     df['consumed_S'] = df['DPE'] - df['c#_S']
 
-    # get the limitting reagent
-    df['limitting_conc'] = df[['DPE', 'Br2']].min(axis=1)
+    df['Bromine_source'] = df['Br2'] + df['TBABr3'] if additive_name == 'TBABr3' else df['Br2']
+    df['limitting_conc'] = df[['DPE', 'Bromine_source']].min(axis=1)
+
     df['c#_A'] = pd.to_numeric(df['c#_A'], errors='coerce')
     df['c#_B'] = pd.to_numeric(df['c#_B'], errors='coerce')
     df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
@@ -140,20 +152,19 @@ if __name__ == "__main__":
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-04-15-run02_DCE_TBABr3_normal\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
-
+                ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-04-15-run02_DCE_TBABr3_normal\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
     ]
 
     for run_folder in run_folders:
@@ -174,7 +185,9 @@ if __name__ == "__main__":
     current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
 
     # save final results to csv
-    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
+    # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
+    # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABr3.csv"
+    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_MeCN_TBABr.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')
