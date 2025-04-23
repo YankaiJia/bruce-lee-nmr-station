@@ -273,26 +273,29 @@ def move_files():
 
 def find_missing_conditions():
 
-  df_exp_done = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\full_experiment_YJ_2025-03-22-22-14-14.csv")
+  df_exp_done = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\full_experiment_DCE_TBABr3_YJ_good.csv")
 
-  df_all = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\outVandC\\out_volumes_shuffled.csv")
+  df_all = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\outVandC\\out_volumes_shuffled.csv")
 
-  df_all.columns = ['global_index', 'vol#TBABr', 'vol#Br2', 'vol#DPE', 'vol#DCE']
+  df_all.columns = ['global_index', 'vol#TBABr3', 'vol#Br2', 'vol#DPE', 'vol#DCE']
 
   # Round to consistent decimal places to avoid float comparison issues, if needed
-  df_all = df_all.round(5)
-  df_exp_done_subset = df_exp_done.round(5)
+  df_all = df_all.round(2)
+  df_exp_done_subset = df_exp_done.round(2)
 
   # Drop duplicates if any
   df_all_unique = df_all.drop_duplicates()
   df_done_unique = df_exp_done_subset.drop_duplicates()
 
   # Find the rows in df_all that are not in df_exp_done
-  df_missing = pd.merge(df_all_unique, df_done_unique, on=['vol#TBABr', 'vol#Br2', 'vol#DPE', 'vol#DCE'], how='left',
+  df_missing = pd.merge(df_all_unique, df_done_unique, on=['vol#TBABr3', 'vol#Br2', 'vol#DPE', 'vol#DCE'], how='left',
                         indicator=True)
   df_missing = df_missing[df_missing['_merge'] == 'left_only'].drop(columns=['_merge'])
 
   print(df_missing)
+  # Save to CSV
+  output_path = os.path.join(BRUCELEE_PROJECT_DATA_PATH, "DPE_bromination", "missing_conditions.csv")
+  df_missing.to_csv(output_path, index=False)
 
   return df_missing
 
