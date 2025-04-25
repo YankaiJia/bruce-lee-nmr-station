@@ -71,8 +71,8 @@ def specify_para(sol_name, outlier_type=None):
             "Unknown impurity 4": [2.549],  # ppm
             "Alcohol": [6.727],  # ppm #Confirmed
             "HBr_adduct": [2.463],  # ppm #Confirmed
-            "Acid": [8.0],
-            "Bromo ketone": [8.5],  # ppm
+            "Acid": [8.5], #Acid
+            "Bromo ketone": [8.18],  # ppm
             "Bromo ketone impurity 1": [7.99],  # ppm
             "Bromo ketone impurity 2": [7.96],  # ppm 
         }
@@ -109,8 +109,8 @@ def specify_para(sol_name, outlier_type=None):
                 "Unknown impurity 4": [2.549],  # ppm
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
-                "Acid": [8.0], #Acid
-                "Bromo ketone": [8.5],  # ppm
+                "Acid": [8.5], #Acid
+                "Bromo ketone": [8.18],  # ppm
                 "Bromo ketone impurity 1": [7.99],  # ppm
                 "Bromo ketone impurity 2": [7.96],  # ppm 
             }
@@ -146,8 +146,8 @@ def specify_para(sol_name, outlier_type=None):
                 "Unknown impurity 4": [2.549],  # ppm
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
-                "Acid": [8.0], #Acid
-                "Bromo ketone": [8.5],  # ppm
+                "Acid": [8.5], #Acid
+                "Bromo ketone": [8.18],  # ppm
                 "Bromo ketone impurity 1": [7.99],  # ppm
                 "Bromo ketone impurity 2": [7.96],  # ppm 
             } 
