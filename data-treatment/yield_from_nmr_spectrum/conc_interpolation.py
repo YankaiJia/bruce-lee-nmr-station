@@ -102,16 +102,48 @@ def json_to_dataframe(json_file, is_delete_entry_with_warning=False):
     return df
 
 
-def get_interp_funcs(is_show_ref_curve=False):
+def get_interp_funcs(solvent_name, is_show_ref_curve=False, ):
 
-    # ref raw data
-    folder_ref = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\_Refs\\"
-    df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
-    df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
+    if solvent_name == 'DCE':
+        # ref raw data
+        folder_ref = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\_Refs\\"
+        df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
+        df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
 
-    # known conc in mM
-    ref_conc_S = tuple([422.75, 211.375, 105.6875, 52.84375, 26.421875]) # known conc in mM
-    ref_conc_B = tuple([484.48, 242.24, 121.12, 60.56, 30.28]) # known conc in mM
+        # sort the ref_B dataframe by intg_B, from high to low
+        df_ref_B.sort_values(by='intg_B', ascending=False, inplace=True)
+        df_ref_B.reset_index(drop=True, inplace=True)
+        # sort the ref_S dataframe by intg_S, from high to low
+        df_ref_S.sort_values(by='intg_S', ascending=False, inplace=True)
+        df_ref_S.reset_index(drop=True, inplace=True)
+
+
+        # known conc in mM
+        ref_conc_S = tuple([422.75, 211.375, 105.6875, 52.84375, 26.421875]) # known conc in mM
+        ref_conc_B = tuple([484.48, 242.24, 121.12, 60.56, 30.28]) # known conc in mM
+
+        print(f'folder for references: {folder_ref}')
+
+    elif solvent_name == 'MeCN':
+        # ref raw data
+        folder_ref = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\_Refs_MeCN\\"
+        df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
+        df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
+
+        # sort the ref_B dataframe by intg_B, from high to low
+        df_ref_B.sort_values(by='intg_B', ascending=False, inplace=True)
+        df_ref_B.reset_index(drop=True, inplace=True)
+        # sort the ref_S dataframe by intg_S, from high to low
+        df_ref_S.sort_values(by='intg_S', ascending=False, inplace=True)
+        df_ref_S.reset_index(drop=True, inplace=True)
+
+        # known conc in mM
+        ref_conc_B = tuple([553.430, 221.372, 110.686, 55.3430, 27.6715])
+        ref_conc_S = tuple([425.350, 212.675, 106.338, 53.169, 26.584])
+
+        print(f'folder for references: {folder_ref}')
+        print(f'df_ref_B: {df_ref_B['intg_B']}')
+        print(f'df_ref_S: {df_ref_S['intg_S']}')
 
     # Normalize the integrals by number of protons
     S_proton_count, B_proton_count = 2, 1
@@ -144,13 +176,16 @@ def get_interp_funcs(is_show_ref_curve=False):
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.show()
+        plt.savefig(folder_ref + f'calibration_curve_{solvent_name}.png')
 
     return model
 
 def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False):
 
-    lin_reg_model = get_interp_funcs()
+    solvent_name = "MeCN" if "MeCN" in result_folder else "DCE"
+    print(f"Solvent name: {solvent_name}")
+
+    lin_reg_model = get_interp_funcs(solvent_name=solvent_name, is_show_ref_curve=True)
 
     # read from integrations json file
     json_file = result_folder + "\\fitting_results.json"
@@ -210,8 +245,10 @@ def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False)
 
 if __name__ == "__main__":
 
+    # result_folder = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+
     result_folder = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
-    #
+
     df= interpolate_one_folder(result_folder,is_save_csv=True, is_show_plot=False)
 
     # interp_func_S, interp_func_B = get_interp_funcs(is_show_ref_curve=False)

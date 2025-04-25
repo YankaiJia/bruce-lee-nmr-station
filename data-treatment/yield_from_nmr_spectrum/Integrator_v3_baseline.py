@@ -10,9 +10,10 @@ from numpy.polynomial.polynomial import Polynomial
 import os
 import json
 import math
-import re
+import re, textwrap
 import concurrent.futures
 
+import matplotlib.patheffects as path_effects
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
@@ -156,8 +157,8 @@ def specify_para(sol_name, outlier_type=None):
             #[0.8, 1.6],
             #[2.0, 3.3],  #Not good, salt in the middle
             [2.0, 2.9],     #Instead of [2.0, 3.3],
-            [3.8, 4.4],
-            [4.4, 6.0],
+            [3.65, 4.40],
+            [4.41, 6.0],
             [6.5, 7.15],
            # [7.80, 14],  #Acid? #Irrelevant, skipped
         ]
@@ -429,17 +430,20 @@ def fit_peaks(NMR_spectrum, std_deviation,
             intensity_array -= baseline
 
     # Fit peaks
-    fig = []
+    # fig = []
     try:
         #Fitting
         if constrained_fit == False:
-            popt, covariance_matrix = fit_without_bounds(shift_array, intensity_array, initial_guesses, std_deviation)
+            popt, covariance_matrix = fit_without_bounds(shift_array, intensity_array, initial_guesses,
+                                                         std_deviation)
         else:
-            popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation,
+            popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
+                                                      initial_guesses, std_deviation,
                                                       lower_bounds, upper_bounds)
         errors_of_parameters = np.sqrt(np.diag(covariance_matrix))
         opti_parameter = popt.reshape(-1, 3)
         opti_parameter_error = errors_of_parameters.reshape(-1, 3)
+        # print(f'opti_parameter: {opti_parameter}')  # [intensity, shift, width], need to display the shift
 
         # Generate fitted curve
         fitted_y = sum_of_lorentzian(shift_array, *popt)
@@ -463,7 +467,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
         ax1.set_title("Covariance Matrix")
         # ---- Subplot 2: Spectral Data and Fitting Results ----
         ax2 = axes[1]
-        ax2.plot(shift_array, intensity_array_original, color='black', label="Original Spectrum")
+        ax2.plot(shift_array, intensity_array_original, color='black', label="Original")
         ax2.plot(shift_array, fitted_y + baseline, 'r--', label="Lorentzian Fit")
         ax2.plot(shift_array, baseline, 'b--', label="Baseline Fit")
         ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver', label="Residuals")
@@ -474,6 +478,17 @@ def fit_peaks(NMR_spectrum, std_deviation,
         ax2.legend()
         ax2.set_title("Peak Fitting")
 
+        peaks_shift = opti_parameter[:,1]
+
+        peak_intensity_lorentzian = [sum_of_lorentzian(shift, *popt) + baseline[np.abs(shift_array - shift).argmin()] \
+                                     for shift in peaks_shift]
+        fig._custom_metadata = {'intensity': opti_parameter[:,0],
+                               'shift': peaks_shift,
+                               'width': opti_parameter[:,2],
+                               'intensity_error': opti_parameter[:,0],
+                               'shift_error': opti_parameter[:,1],
+                               'width_error': opti_parameter[:,2],
+                                'peak_intensity_lorentzian': peak_intensity_lorentzian,}
         if is_show_plot:
             plt.tight_layout()  # Adjust spacing between plots
             plt.show()
@@ -518,17 +533,21 @@ def find_closest_reference(fitted_center, reference_dict):
 
 
 def replot_fittings(figures, is_show_plot=False, dir=None):
+
     num_figs = len(figures)
 
     if num_figs == 0:
         print("No figures to plot.")
         return None
 
-    num_cols = 3
+    num_cols = 2
     num_rows = math.ceil(num_figs / num_cols)
 
     # Create the figure with the correct number of rows and columns
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(4 * num_cols, 4 * num_rows))
+    dir = dir.split('data')[1]
+    dir = textwrap.fill(dir, width=70)
+
     fig.suptitle(dir, fontsize=12, fontweight="bold")
 
     # Flatten axes array for easy indexing
@@ -537,17 +556,21 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
     # Iterate over stored figures and plot on the new shared figure
     for i, fig_old in enumerate(figures):
         for ax_old in fig_old.axes:  # Extract each axis from the stored figure
+            x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
             for line in ax_old.get_lines():  # Extract line plots
                 axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
 
-                continue
                 # set title for each subplot
-                useful_peaks = ["Starting material", "Product A", "Product B", "HBr_adduct", "Acid"]
-                reference_shift_here = {k: reference_shift[k] for k in useful_peaks}
-                x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
-                for key, value in reference_shift_here.items():
-                    if x_min <= value[0] <= x_max:
-                        axes[i].set_title(key)
+                title_text = f"ppm: {round(x_min,2)} - {round(x_max,2)}"
+                axes[i].set_title(title_text, fontsize=15, fontweight="bold")
+
+                # set y-axis limits and make it 120% of the original
+                y_min, y_max = ax_old.get_ylim()
+                y_range = y_max - y_min
+                axes[i].set_ylim(y_min, y_max + 0.05 * y_range)
+                # set x-axis limits and make it 110% of the original
+                x_range = x_max - x_min
+                axes[i].set_xlim(x_min - 0.03 * x_range, x_max + 0.03 * x_range)
 
             # axes[i].set_title(ax_old.get_title())
             axes[i].set_xlabel(ax_old.get_xlabel())
@@ -555,9 +578,21 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
             if axes[i].has_data():  # Only add legend if data exists
                 axes[i].legend()
 
-    # Hide any unused subplots (if the last row is not full)
-    for j in range(num_figs, len(axes)):
-        axes[j].axis("off")  # Instead of fig.delaxes(), just hide the extra axes
+            # print(f'#### Figure_metadata: {fig_old._custom_metadata} ###')
+            for j in range(len(fig_old._custom_metadata['intensity'])):
+                intensity_here = fig_old._custom_metadata['peak_intensity_lorentzian'][j]
+                shift_here = fig_old._custom_metadata['shift'][j]
+
+                # plot a red dot for each peak and make it bigger
+                if x_min <= shift_here <= x_max:
+                    axes[i].scatter(shift_here, intensity_here, color='blue', marker='o', s=100)
+                    # plot the shift as text beside the dot
+                    text = axes[i].text(shift_here, intensity_here, f"{round(shift_here, 2)}", fontsize=12,
+                                 va='bottom', ha='right', clip_on=True, zorder=20,)
+                    text.set_path_effects([
+                        path_effects.Stroke(linewidth=3, foreground='white'),  # white edge
+                        path_effects.Normal()  # normal text on top
+                    ])
 
     plt.tight_layout()
 
@@ -645,6 +680,7 @@ def process_nmr_peaks(
 
         if fig:
             figures.append(fig)
+            # print(f"################ Figure {len(figures)} created for slice.")
 
         for parameter in parameters:
             if parameter[0] < threshold_amplitude:
@@ -801,10 +837,14 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
-                ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
+
     ]
 
     for run_folder in run_folders:
+
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
