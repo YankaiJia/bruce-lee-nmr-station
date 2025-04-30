@@ -55,7 +55,7 @@ def specify_para(sol_name, outlier_type=None):
             [4.45, 4.70],  # Product A, 2H
             [2.2, 2.7],  # HBr adduct
             [7.80, 8.5],  #Ketone
-            [8.51, 14], #Acid
+            [8.5, 14], #Acid
         ]
         reference_shift = {
             "Starting material": [5.467],  # ppm #Confirmed
@@ -93,7 +93,7 @@ def specify_para(sol_name, outlier_type=None):
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
                 [7.80, 8.5],  #Ketone
-                [8.51, 14], #Acid
+                [8.5, 14], #Acid
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm  
@@ -130,7 +130,7 @@ def specify_para(sol_name, outlier_type=None):
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
                 [7.80, 8.5],  #Ketone
-                [8.51, 14], #Acid
+                [8.5, 14], #Acid
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm
