@@ -3,16 +3,16 @@
 //The pre-process includes baseline correction, phase correction and referencing etc.
 
 //Author: Yankai Jia
-//Last update: 2025.03
+//Last update: 2025.04
 //************************************************//
 // THIS VERSION IS FOR MECN AS SOLVENT
 //************************************************//
 
 // Global variables
-const MECN_peak_ppm = 1.94;//Real DCE peak ppm
+const MECN_peak_ppm = 1.94;//Real peak ppm
 
 const MECN_peak_search_from_ppm = 1.05;//Search range for DCE peak pick
-const MECN_peak_search_to_ppm = 2.05;//Search range for DCE peak pick
+const MECN_peak_search_to_ppm = 2.05;
 
 const prd_B_peak_integration_from_ppm = 6.6; 
 const prd_B_peak_integration_to_ppm = 7.0;
