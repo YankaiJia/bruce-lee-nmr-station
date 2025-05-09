@@ -6,11 +6,6 @@ import os
 from sklearn.linear_model import LinearRegression
 
 def load_csv_after_rows(path):
-    df = pd.read_excel(path)
-    df["global_index"] = df.index
-    return df
-
-def load_csv_after_rows(path):
     import pandas as pd
 
     # Load Excel sheets
@@ -37,7 +32,9 @@ def load_csv_after_rows(path):
     # Identify volume columns and group by chemical
     vol_cols = [col for col in df_volumes.columns if col.startswith("vol#")]
     
-    df = df_volumes[["global_index"] + vol_cols].copy()
+    #df = df_volumes[["global_index"] + vol_cols].copy()
+    df = df_volumes[["local_index"] + vol_cols].copy()
+    df.rename(columns={"local_index": "global_index"}, inplace=True)
 
     for col in vol_cols: #volume in uL
         chem = col.split("#")[1]  # Extract chemical name from 'vol#CHEM'
@@ -80,6 +77,7 @@ def load_csv_after_rows(path):
     # Reorder: global_index → concentration columns → rest
     df = df[["global_index"] + concentration_cols + other_cols]
 
+    print (df)
     return df
 
 
@@ -131,7 +129,6 @@ def merge_and_calculate(df_csv, df_nmr, slope, intercept):
 
     # Merge all columns on global_index
     df_merged = pd.merge(df_csv, df_nmr, on="global_index", how="inner")
-
     # Define any custom scaling overrides
     scaling_exceptions = {
         #"NMR_Carbene_precursor-Methoxy": 1/3, #Not fitted at the moment
@@ -167,8 +164,8 @@ def plot_calibration_curve(integrations_avg, integrations_1, integrations_2, con
 
 def main():
     #Pyr
-    # csv_path = r"c:\Users\UNIST\Dropbox\brucelee\data\NV\2025-05-06-run02_MeCN_Pyr\2025-05-06-run02.xlsx"
-    # json_path = r"c:\Users\UNIST\Dropbox\brucelee\data\NV\2025-05-06-run02_MeCN_Pyr\Results\fitting_results.json"
+    csv_path = r"c:\Users\UNIST\Dropbox\brucelee\data\NV\2025-05-06-run02_MeCN_Pyr\2025-05-06-run02.xlsx"
+    json_path = r"c:\Users\UNIST\Dropbox\brucelee\data\NV\2025-05-06-run02_MeCN_Pyr\Results\fitting_results.json"
     #DMAP
     csv_path = r"c:\Users\UNIST\Dropbox\brucelee\data\NV\2025-05-06-run01_MeCN_DMAP\2025-05-06-run01.xlsx"
     json_path = r"c:\Users\UNIST\Dropbox\brucelee\data\NV\2025-05-06-run01_MeCN_DMAP\Results\fitting_results.json"
