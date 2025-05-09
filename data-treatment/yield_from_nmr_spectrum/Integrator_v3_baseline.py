@@ -12,7 +12,7 @@ import json
 import math
 import re, textwrap
 import concurrent.futures
-
+from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
@@ -242,8 +242,9 @@ def specify_para(sol_name, outlier_type=None):
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
             [5.2, 6.2],
-            [3.6,4.0],
-            [9.0,11.0]    
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.0,12.0],    
+             
         ]
         reference_shift = {
             "Benzoin_dimethoxy-CH1": [5.87],  # ppm
@@ -256,34 +257,12 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
             "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppm
-            "Unknown_peak1":[10.12], #ppm
+            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
             }
 
-        if outlier_type == 'Type1':  # Type 1 outlier # for 13-1D EXTENDED+-20250507-145409, 17-1D EXTENDED+-20250507-152351, 
-            solvent_shift = 1.94  # ppm ACN
-            peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-                [5.2, 6.2],
-                [3.4,4.0],
-                [9.0,11.0]    
-            ]
-            reference_shift = {
-                "Benzoin_dimethoxy-CH1": [5.87],  # ppm
-                "Benzoin_dimethoxy-CH2": [5.95],  # ppm
-                "Benzoin_monomethoxy-CH1": [5.73],  # ppm
-                "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
-                "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-                "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-                "Carbene_precursor-Methoxy": [3.82],  #ppm 
-                "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
-                "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
-                "Benzaldehyde-Carbonyl": [9.98], #ppm
-                "Unknown_peak1":[10.12], #ppm
-                "Unknown_peak_2":[11.07], #ppm
-                }
-            #pass # change corresponding parameters
+        if outlier_type == 'Type1':  
+            pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
 
@@ -371,7 +350,7 @@ def fit_without_bounds(shift_array, intensity_array, initial_guesses, std_deviat
         sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses,
         sigma=std_deviation * np.ones_like(shift_array),
         absolute_sigma=True,
-        maxfev=10000,  # Increase max function evaluations
+        maxfev=20000,  # Increase max function evaluations
         ftol=1e-14,  # Function tolerance (adjust for better precision)
         xtol=1e-14,  # Parameter change tolerance
         gtol=1e-14,  # Gradient tolerance
@@ -384,12 +363,47 @@ def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation
         sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
         sigma=std_deviation * np.ones_like(shift_array),
         absolute_sigma=True,
-        maxfev=10000,  # Increase max function evaluations
+        maxfev=20000,  # Increase max function evaluations
         ftol=1e-14,  # Function tolerance (adjust for better precision)
         xtol=1e-14,  # Parameter change tolerance
         gtol=1e-14,  # Gradient tolerance
     )
     return popt, covariance_matrix
+
+def fit_with_bounds_do_your_best(shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+    def residuals(params, x, y, sigma):
+        return (y - sum_of_lorentzian(x, *params)) / sigma
+
+    try:
+        result = least_squares(
+            residuals,
+            x0=initial_guesses,
+            bounds=(lower_bounds, upper_bounds),
+            args=(shift_array, intensity_array, std_deviation * np.ones_like(shift_array)),
+            max_nfev=20000,
+            ftol=1e-14,
+            xtol=1e-14,
+            gtol=1e-14
+        )
+
+        popt = result.x
+
+        # Approximate covariance matrix like curve_fit (J^T J)^(-1)
+        if result.jac.shape[0] >= result.jac.shape[1]:
+            try:
+                residual_variance = np.sum(result.fun**2) / (len(shift_array) - len(popt))
+                jacobian = result.jac
+                cov = np.linalg.inv(jacobian.T @ jacobian) * residual_variance
+            except np.linalg.LinAlgError:
+                cov = np.full((len(popt), len(popt)), np.nan)
+        else:
+            cov = np.full((len(popt), len(popt)), np.nan)
+
+        return popt, cov
+
+    except Exception as e:
+        print(f"Total failure during least_squares: {e}")
+        return np.full_like(initial_guesses, np.nan), np.full((len(initial_guesses), len(initial_guesses)), np.nan)
 
 
 def exponential_decay(x, a, b, c, d):
@@ -534,9 +548,15 @@ def fit_peaks(NMR_spectrum, std_deviation,
             popt, covariance_matrix = fit_without_bounds(shift_array, intensity_array, initial_guesses,
                                                          std_deviation)
         else:
-            popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
-                                                      initial_guesses, std_deviation,
-                                                      lower_bounds, upper_bounds)
+            try:
+                popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
+                                                        initial_guesses, std_deviation,
+                                                        lower_bounds, upper_bounds)
+            except:
+                popt, covariance_matrix = fit_with_bounds_do_your_best(shift_array, intensity_array,
+                                                        initial_guesses, std_deviation,
+                                                        lower_bounds, upper_bounds)
+                warning_string = "Fit did not converge. "
         errors_of_parameters = np.sqrt(np.diag(covariance_matrix))
         opti_parameter = popt.reshape(-1, 3)
         opti_parameter_error = errors_of_parameters.reshape(-1, 3)
@@ -547,8 +567,10 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
         max_residuals = np.max(intensity_array - sum_of_lorentzian(shift_array, *popt))
         if max_residuals > 0.1 and warning_string == None:
-            warning_string = "Strong residual: a peak might have been not fitted"
-
+            if warning_string !=None:
+                warning_string = warning_string + "Strong residual: a peak might have been not fitted"
+            else:
+                warning_string = "Strong residual: a peak might have been not fitted"
         # Plot original data and fit results
         # for indice, parameter in enumerate(opti_parameter):
         #     print(
@@ -594,8 +616,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
         return opti_parameter, opti_parameter_error, warning_string, fig
 
-    except RuntimeError:
-        print("Curve fitting failed for this slice.")
+    except Exception as e:
+        print(f"Curve fitting failed for this slice:{e}")
         return [], [], ["Fit failed"], 0
 
 
@@ -944,7 +966,7 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
                 ["\\NV\\2025-05-06-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
-                ["\\NV\\2025-05-06-run02_MeCN_Pyr\\", 'MeCN-Nik', None]
+                #["\\NV\\2025-05-06-run02_MeCN_Pyr\\", 'MeCN-Nik', None]
     
     ]
 
