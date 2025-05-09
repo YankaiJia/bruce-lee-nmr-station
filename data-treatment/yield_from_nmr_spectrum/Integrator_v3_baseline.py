@@ -50,7 +50,7 @@ def specify_para(sol_name, outlier_type=None):
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
             [5.20, 5.70],  # Substrate SM, 2H
             [4.1, 5.00],  # DCE
-            [2.5, 3.05],  # DCE
+            [2.5, 3.05], #DCE 
             [6.5, 7.0],  # Product B, 1H
             [4.45, 4.70],  # Product A, 2H
             [2.2, 2.7],  # HBr adduct
@@ -154,7 +154,7 @@ def specify_para(sol_name, outlier_type=None):
             #pass
 
     elif sol_name == 'MeCN':
-        solvent_shift = 1.96  # ppm ACN
+        solvent_shift = 1.94  # ppm ACN
         peak_width_50 = 0.008  # ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
@@ -192,15 +192,100 @@ def specify_para(sol_name, outlier_type=None):
             "Unknown 8": [2.937],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)  21-1D EXTENDED+-20250325-170904: 300Br2, 187DPE,0TBAB   #Detection hindered by salt
             "Unknown 9": [4.201],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
             "Unknown 10": [4.645],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
-           # "Acid": [8.0], #Acid? #Irrelevant, skipped
+            "Acid": [8.0], #Acid? #Irrelevant, skipped
             "Water": [2.13]
         }
+
+    elif sol_name == 'DCE-BF4':
+        solvent_shift = 3.73  #ppm DCE
+        peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.20, 5.70],  # Substrate SM, 2H
+            [4.1, 5.00],  # DCE
+            [2.5, 3.0],  # DCE #[2.5, 3.05], default 
+            [6.5, 7.0],  # Product B, 1H
+            [4.45, 4.70],  # Product A, 2H
+            [2.2, 2.7],  # HBr adduct
+            [7.80, 8.5],  #Ketone
+            [8.5, 14], #Acid
+        ]
+        reference_shift = {
+            "Starting material": [5.467],  # ppm #Confirmed
+            "Product A": [4.527],  # ppm #Confirmed
+            "Product B": [6.807],  # ppm #Confirmed
+            "SolventDown": [4.775, 4.693, 4.605],  # ppm #Confirmed
+            "SolventUp": [2.850, 2.764, 2.682],  # ppm #Confirmedz
+            "Unknown impurity SM peak 1": [6.453],  # ppm
+            "Unknown impurity SM peak 2": [4.474],  # ppm
+            "Unknown impurity 1": [6.523],
+            "Unknown impurity 2": [5.509],  # ppm
+            "Unknown impurity 3": [4.340],  # ppm
+            "Unknown impurity 4": [2.549],  # ppm
+            "Alcohol": [6.727],  # ppm #Confirmed
+            "HBr_adduct": [2.463],  # ppm #Confirmed
+            "Acid": [8.5], #Acid
+            "Bromo ketone": [8.18],  # ppm
+            "Bromo ketone impurity 1": [7.99],  # ppm
+            "Bromo ketone impurity 2": [7.96],  # ppm 
+        }
+
 
         if outlier_type == 'Type1':  # Type 1 outlier
             pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
+    
+    elif sol_name == 'MeCN-Nik':
+        solvent_shift = 1.94  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.2, 6.2],
+            [3.6,4.0],
+            [9.0,11.0]    
+        ]
+        reference_shift = {
+            "Benzoin_dimethoxy-CH1": [5.87],  # ppm
+            "Benzoin_dimethoxy-CH2": [5.95],  # ppm
+            "Benzoin_monomethoxy-CH1": [5.73],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
+            "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
+            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
+            "Carbene_precursor-Methoxy": [3.82],  #ppm 
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
+            "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
+            "Benzaldehyde-Carbonyl": [9.98], #ppm
+            "Unknown_peak1":[10.12], #ppm
+            "Unknown_peak_2":[11.07], #ppm
+            }
 
+        if outlier_type == 'Type1':  # Type 1 outlier # for 13-1D EXTENDED+-20250507-145409, 17-1D EXTENDED+-20250507-152351, 
+            solvent_shift = 1.94  # ppm ACN
+            peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+                [5.2, 6.2],
+                [3.4,4.0],
+                [9.0,11.0]    
+            ]
+            reference_shift = {
+                "Benzoin_dimethoxy-CH1": [5.87],  # ppm
+                "Benzoin_dimethoxy-CH2": [5.95],  # ppm
+                "Benzoin_monomethoxy-CH1": [5.73],  # ppm
+                "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
+                "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
+                "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
+                "Carbene_precursor-Methoxy": [3.82],  #ppm 
+                "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
+                "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
+                "Benzaldehyde-Carbonyl": [9.98], #ppm
+                "Unknown_peak1":[10.12], #ppm
+                "Unknown_peak_2":[11.07], #ppm
+                }
+            #pass # change corresponding parameters
+        elif outlier_type == 'Type2':  # Type 2 outlier
+            pass
 
 
 ########Functions#########
@@ -852,13 +937,15 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
                 # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                ["\\NV\\2025-05-06-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                ["\\NV\\2025-05-06-run02_MeCN_Pyr\\", 'MeCN-Nik', None]
+    
     ]
 
     for run_folder in run_folders:
