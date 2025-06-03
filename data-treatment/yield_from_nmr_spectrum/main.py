@@ -6,16 +6,7 @@ import time
 import Integrator_v3_baseline
 import conc_interpolation
 
-## Disable OpenMP multiprocessing in NumPy.
-# This will limit the number of threads NumPy uses for its operations.
-import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-
-# get teh system path of BRUCELEE_PROJECT_DATA_PATH
+# get the system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 def check_and_return_folder_structure(run_folder):
@@ -97,7 +88,7 @@ def process_one_folder(run_dir, run_sol, run_outliers):
                                                   sol_name=run_sol,
                                                   outliers=run_outliers,
                                                   is_show_plot=False)
-    exit()
+
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
     df = combine_data(df_final_conc,

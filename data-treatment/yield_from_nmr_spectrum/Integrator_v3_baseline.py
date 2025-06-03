@@ -18,6 +18,16 @@ import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
+import multiprocessing
+NUM_CPU_CORES = multiprocessing.cpu_count()  # get the number of CPU cores
+
+## Disable OpenMP multiprocessing in NumPy.
+# This will limit the number of threads NumPy uses for its operations.
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -911,8 +921,9 @@ def analyze_one_run_folder(master_path,
     list_experiment_loaded = []
 
     # Use ThreadPoolExecutor for multithreaded analysis
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-
+    with concurrent.futures.ProcessPoolExecutor(max_workers=NUM_CPU_CORES) as executor:
+        print(f"Total files to process: {len(data_dir_ls)}")
+        print(f"data_dir_ls: {data_dir_ls}")
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
                    for file_name in data_file_ls]
