@@ -265,7 +265,8 @@ def specify_para(sol_name, outlier_type=None):
             pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
-
+    else:
+        raise ValueError(f"Unknown solvent name: {sol_name}. Please specify the parameters for this solvent.")
 
 ########Functions#########
 def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the iunverted ppm scale
@@ -911,6 +912,7 @@ def analyze_one_run_folder(master_path,
 
     # Use ThreadPoolExecutor for multithreaded analysis
     with concurrent.futures.ThreadPoolExecutor() as executor:
+
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
                    for file_name in data_file_ls]

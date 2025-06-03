@@ -97,7 +97,7 @@ def process_one_folder(run_dir, run_sol, run_outliers):
                                                   sol_name=run_sol,
                                                   outliers=run_outliers,
                                                   is_show_plot=False)
-
+    exit()
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
     df = combine_data(df_final_conc,
@@ -171,11 +171,15 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
                 
     ]
 
