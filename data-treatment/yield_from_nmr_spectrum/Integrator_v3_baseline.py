@@ -18,16 +18,6 @@ import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
-import multiprocessing
-NUM_CPU_CORES = multiprocessing.cpu_count()  # get the number of CPU cores
-
-## Disable OpenMP multiprocessing in NumPy.
-# This will limit the number of threads NumPy uses for its operations.
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -272,11 +262,57 @@ def specify_para(sol_name, outlier_type=None):
             }
 
         if outlier_type == 'Type1':  
-            pass # change corresponding parameters
+            solvent_shift = 1.94  # ppm ACN
+            peak_width_50 = 0.006  # ppm at 50% #Default 0.01
+            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+                [5.93, 6.2],
+                #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+                [9.0,12.0],
+
+            ]
+            reference_shift = {
+                "Benzoin_dimethoxy-CH1": [5.87],  # ppm
+                "Benzoin_dimethoxy-CH2": [5.95],  # ppm
+                "Benzoin_monomethoxy-CH1": [5.73],  # ppm
+                "Benzoin_monomethoxy-CH2": [5.731],  # ppm
+                "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
+                "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm
+                "Carbene_precursor-Methoxy": [3.82],  #ppm
+                "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
+                "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
+                "Benzaldehyde-Carbonyl": [9.98], #ppm
+                "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+                "Unknown_peak_2":[11.07], #ppm
+                }
+            #pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
-    else:
-        raise ValueError(f"Unknown solvent name: {sol_name}. Please specify the parameters for this solvent.")
+    elif sol_name == 'DMSO-Nik':
+        solvent_shift = 2.5  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.2, 6.2],
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.0,12.0],
+
+        ]
+        reference_shift = {
+            "Benzoin_dimethoxy-CH1": [5.87],  # ppm To verify
+            "Benzoin_dimethoxy-CH2": [5.95],  # ppm To verify
+            "Benzoin_monomethoxy-CH1": [5.69],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.691],  # ppm
+            "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm To verify
+            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  To verify
+            "Carbene_precursor-Methoxy": [3.82],  #ppm To verify
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
+            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
+            "Benzaldehyde-Carbonyl": [9.98], #ppm
+            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+            "Unknown_peak_2":[11.07], #ppm
+            }
+
 
 ########Functions#########
 def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the iunverted ppm scale
@@ -598,10 +634,10 @@ def fit_peaks(NMR_spectrum, std_deviation,
         # ---- Subplot 2: Spectral Data and Fitting Results ----
         ax2 = axes[1]
         ax2.plot(shift_array, intensity_array_original, color='black', label="Original")
-        ax2.plot(shift_array, fitted_y + baseline, 'r--', label="Lorentzian Fit")
-        ax2.plot(shift_array, baseline, 'b--', label="Baseline Fit")
-        ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver', label="Residuals")
-        ax2.scatter(shift_array[peaks], intensity_array_original[peaks], color='green', marker='o',
+        ax2.plot(shift_array, fitted_y + baseline, 'r--',alpha=0.5, label="Lorentzian Fit")
+        ax2.plot(shift_array, baseline, 'b--',alpha=0.5, label="Baseline Fit")
+        ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver',alpha=0.5, label="Residuals")
+        ax2.scatter(shift_array[peaks], intensity_array_original[peaks], color='green',alpha=0.5, marker='o',
                     label="Detected Peaks")
         ax2.set_xlabel("Shift (ppm)")
         ax2.set_ylabel("Intensity")
@@ -688,7 +724,7 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
         for ax_old in fig_old.axes:  # Extract each axis from the stored figure
             x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
             for line in ax_old.get_lines():  # Extract line plots
-                axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
+                axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label(), alpha=0.8)
 
                 # set title for each subplot
                 title_text = f"ppm: {round(x_min,2)} - {round(x_max,2)}"
@@ -881,8 +917,10 @@ def analyze_one_spectrum(file_name, sol_name,  outliers):
         if vial_name_here in outliers.keys():
             specify_para(sol_name, outliers[vial_name_here])
             print('##########Outlier type specified for vial##########:', file_name)
+
         else:
             specify_para(sol_name)
+
 
     # Analyze spectrum and return results
     experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False)
@@ -914,16 +952,15 @@ def analyze_one_run_folder(master_path,
                 if not os.path.isfile(data_file):
                     raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
                 data_file_ls.append(data_file)
-            except:
+            except Exception as e:
                 print(f"An error occured in:{folder_path}")
+                print(f"Error: {e}")
 
     total_result_dictionary = {}
     list_experiment_loaded = []
 
     # Use ThreadPoolExecutor for multithreaded analysis
-    with concurrent.futures.ProcessPoolExecutor(max_workers=NUM_CPU_CORES) as executor:
-        print(f"Total files to process: {len(data_dir_ls)}")
-        print(f"data_dir_ls: {data_dir_ls}")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
                    for file_name in data_file_ls]
@@ -951,40 +988,58 @@ def analyze_one_run_folder(master_path,
 if __name__ == "__main__":
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
-    print(BRUCELEE_PROJECT_DATA_PATH)
+    print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
                 #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                #["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
-                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                ["\\NV\\2025-05-06-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                #["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                #["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
+                #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                #["\\NV\\2025-05-06-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
                 #["\\NV\\2025-05-06-run02_MeCN_Pyr\\", 'MeCN-Nik', None]
-    
-    ]
+                # ["\\NV\\Final Data\\MeCN\\DMAP\\2025-05-14-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DMAP\\2025-05-14-run02_MeCN_DMAP\\", 'MeCN-Nik', {2: 'Type1'}],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine\\2025-06-04-run01_DMSO_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine\\2025-06-04-run02_DMSO_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\4-Pyrrolidinopyridine\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\4-Pyrrolidinopyridine\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\1-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\1-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
+                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
+            ]
 
     for run_folder in run_folders:
-
+        print(f"Run: {run_folder}")
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
