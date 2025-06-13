@@ -299,4 +299,4 @@ def find_missing_conditions():
 
   return df_missing
 
-df_missing = find_missing_conditions()
+# df_missing = find_missing_conditions()

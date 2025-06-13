@@ -312,6 +312,9 @@ def specify_para(sol_name, outlier_type=None):
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
             }
+    elif sol_name == 'DMSO-Pyrrolidino':
+
+        solvent_shift = 3.73
 
 
 ########Functions#########
@@ -1053,22 +1056,23 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
-                ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
+                [r"D:\Dropbox\brucelee\data\NV\Final Data\DMSO\4-Pyrrolidino pyridine", 'DMSO-Pyrrolidino', None]
 
     ]
 
-    # for run_folder in run_folders:
-    #     print(f"Run: {run_folder}")
-    #     run_dir = data_dir + run_folder[0]
-    #     run_sol = run_folder[1]  # Solvent name
-    #     run_outliers = run_folder[2]  # Outliers dictionary, can be None
-    #     analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
-    #
-    # print("All runs processed successfully.")
-    #
+    for run_folder in run_folders:
+        print(f"Run: {run_folder}")
+        run_dir = data_dir + run_folder[0]
+        run_sol = run_folder[1]  # Solvent name
+        run_outliers = run_folder[2]  # Outliers dictionary, can be None
+        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
 
-    file_name = r'D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming_for_testing\Results\0-1D EXTENDED+-20250313-151606\data.csv'
+    print("All runs processed successfully.")
 
-    # analyze_one_spectrum(file_name, "DCE",  None)
-    specify_para(sol_name='DCE', outlier_type=None)  # Specify global parameters for DCE
-    integrate_spectrum(file_name, is_save_plot=False, is_show_plot=True)
+
+    # file_name = r'D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming_for_testing\Results\0-1D EXTENDED+-20250313-151606\data.csv'
+    #
+    # # analyze_one_spectrum(file_name, "DCE",  None)
+    # specify_para(sol_name='DCE', outlier_type=None)  # Specify global parameters for DCE
+    # integrate_spectrum(file_name, is_save_plot=False, is_show_plot=True)
