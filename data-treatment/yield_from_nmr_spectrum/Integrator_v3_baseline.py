@@ -15,7 +15,7 @@ import concurrent.futures
 from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
 import matplotlib
-matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
+matplotlib.use('TKAgg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
 
@@ -484,7 +484,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
     # Select baseline function
 
     
-    if baseline_linear_correction==False:
+    if baseline_linear_correction==False:  # without linear correction
         baseline_function = exponential_decay
         initial_guess = [
             np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
@@ -492,7 +492,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
             np.min(intensity_array),  # C_guess (Offset)
             shift_array[np.argmax(np.gradient(intensity_array))]  # D_guess (Delay point)
         ]
-    else:
+    else:  # with linear correction
         baseline_function = exponential_decay_linear_corrected
         initial_guess = [
             np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
@@ -537,6 +537,16 @@ def fit_peaks(NMR_spectrum, std_deviation,
               baseline_correction=True,
               is_show_plot=False
               ):
+
+    # plot the spectrum
+    if True:
+        plt.figure(figsize=(12, 6))
+        plt.plot(NMR_spectrum[:, 0], NMR_spectrum[:, 1], alpha=0.9, linewidth=2.5)
+        plt.xlabel('Shift (ppm)')
+        plt.ylabel('Intensity')
+        plt.title('NMR Spectrum')
+        plt.show()
+
     shift_array = NMR_spectrum[:, 0]
     intensity_array = NMR_spectrum[:, 1]
     intensity_array_original = intensity_array.copy()
@@ -548,7 +558,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
         print(f"Slices skipped, no peak found.")
         return [], [], None, []
 
-    if False:
+    if True:
         print(f"{len(peaks)} found in slice: {round(shift_array[0], 2)} - {round(shift_array[-1], 2)} ppm.")
 
     # Get initial guesses for peak parameters (amplitude, center, width)
@@ -557,11 +567,11 @@ def fit_peaks(NMR_spectrum, std_deviation,
     lower_bounds = []
     upper_bounds = []
 
-    for peak in peaks[:]:
+    for peak in peaks[:]:  # peak is the index of the peak in the intensity array
         if intensity_array[peak] > 0:
             amp_guess = intensity_array[peak]  # Peak height
         else:
-            amp_guess = std_deviation
+            amp_guess = std_deviation  # use std as amplitude guess if peak is not significant
         cen_guess = shift_array[peak]  # Peak center
         wid_guess = peak_width_50  # Initial width guess (adjust as needed)
         initial_guesses.extend([amp_guess, cen_guess, wid_guess])
@@ -571,7 +581,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
     if baseline_correction == True:
 
         try:
-            baseline = baseline_fit(shift_array, intensity_array, ppm_step)
+            baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.1)
         except:
             print("Baseline could not be corrected, attempt with reduced window...")
             try:
@@ -592,13 +602,18 @@ def fit_peaks(NMR_spectrum, std_deviation,
     try:
         #Fitting
         if constrained_fit == False:
-            popt, covariance_matrix = fit_without_bounds(shift_array, intensity_array, initial_guesses,
+            popt, covariance_matrix = fit_without_bounds(shift_array,
+                                                         intensity_array,
+                                                         initial_guesses,
                                                          std_deviation)
         else:
             try:
-                popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
-                                                        initial_guesses, std_deviation,
-                                                        lower_bounds, upper_bounds)
+                popt, covariance_matrix = fit_with_bounds(shift_array,
+                                                          intensity_array,
+                                                          initial_guesses,
+                                                          std_deviation,
+                                                          lower_bounds,
+                                                          upper_bounds)
             except:
                 popt, covariance_matrix = fit_with_bounds_do_your_best(shift_array, intensity_array,
                                                         initial_guesses, std_deviation,
@@ -788,7 +803,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
 
     NMR_slices = extract_slices(NMR_spectrum, interval_to_slice_spectrum)
 
-    if False:  # for debugging
+    if True:  # for debugging
         for indice, slice in enumerate(NMR_slices):
             plt.figure(figsize=(12, 6))
             plt.plot(slice[:, 0], slice[:, 1], alpha=0.9, linewidth=2.5)
@@ -806,7 +821,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
         estimated_peak_width_for_indexes,
         threshold_amplitude,
         reference_shift,
-        fit_peaks,
+        fit_peaks,  # fit_peaks function
         integration_peak,
         find_closest_reference,
         file_dir,
@@ -906,6 +921,9 @@ def process_nmr_peaks(
     return results_dictionary
 
 def analyze_one_spectrum(file_name, sol_name,  outliers):
+
+    # example: file_name = 'D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming_for_testing\Results\9-1D EXTENDED+-20250313-161759\data.csv'
+
     # Specify global parameters based on the solvent name and outlier_type
     if not outliers:
         specify_para(sol_name)
@@ -933,7 +951,6 @@ def analyze_one_run_folder(master_path,
                            sol_name='DCE',
                            outliers=None,  # Example: {33:'Type1', 43:'Type2'}
                            is_show_plot=False):
-
 
     data_dir_ls = []
     data_file_ls = []
@@ -991,13 +1008,13 @@ if __name__ == "__main__":
     print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 #["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
                 #["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
                 #["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
                 #["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
@@ -1034,15 +1051,24 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
-                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
-            ]
+                # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
+                ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
 
-    for run_folder in run_folders:
-        print(f"Run: {run_folder}")
-        run_dir = data_dir + run_folder[0]
-        run_sol = run_folder[1]
-        run_outliers = run_folder[2]
-        analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
+    ]
 
-    print("All runs processed successfully.")
+    # for run_folder in run_folders:
+    #     print(f"Run: {run_folder}")
+    #     run_dir = data_dir + run_folder[0]
+    #     run_sol = run_folder[1]  # Solvent name
+    #     run_outliers = run_folder[2]  # Outliers dictionary, can be None
+    #     analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
+    #
+    # print("All runs processed successfully.")
+    #
+
+    file_name = r'D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming_for_testing\Results\0-1D EXTENDED+-20250313-151606\data.csv'
+
+    # analyze_one_spectrum(file_name, "DCE",  None)
+    specify_para(sol_name='DCE', outlier_type=None)  # Specify global parameters for DCE
+    integrate_spectrum(file_name, is_save_plot=False, is_show_plot=True)
