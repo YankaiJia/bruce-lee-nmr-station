@@ -12,7 +12,7 @@ import json
 import math
 import re, textwrap
 import concurrent.futures
-
+from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
@@ -50,11 +50,12 @@ def specify_para(sol_name, outlier_type=None):
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
             [5.20, 5.70],  # Substrate SM, 2H
             [4.1, 5.00],  # DCE
-            [2.5, 3.05],  # DCE
+            [2.5, 3.05], #DCE 
             [6.5, 7.0],  # Product B, 1H
             [4.45, 4.70],  # Product A, 2H
             [2.2, 2.7],  # HBr adduct
-            #[7.80, 14],  #Acid? #Irrelevant, skipped
+            [7.80, 8.5],  #Ketone
+            [8.5, 14], #Acid
         ]
         reference_shift = {
             "Starting material": [5.467],  # ppm #Confirmed
@@ -70,7 +71,10 @@ def specify_para(sol_name, outlier_type=None):
             "Unknown impurity 4": [2.549],  # ppm
             "Alcohol": [6.727],  # ppm #Confirmed
             "HBr_adduct": [2.463],  # ppm #Confirmed
-            "Acid": [8.0] #Irrelevant, skipped
+            "Acid": [8.5], #Acid
+            "Bromo ketone": [8.18],  # ppm
+            "Bromo ketone impurity 1": [7.99],  # ppm
+            "Bromo ketone impurity 2": [7.96],  # ppm 
         }
 
         if outlier_type == 'Type1':  # Type 1 outlier: Asymetric pick upshift of Product B
@@ -88,7 +92,8 @@ def specify_para(sol_name, outlier_type=None):
                 [6.5, 6.9],  # Product B, 1H   ############Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                #[7.80, 14],  #Acid? #Acid? #Irrelevant, skipped
+                [7.80, 8.5],  #Ketone
+                [8.5, 14], #Acid
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm  
@@ -104,7 +109,10 @@ def specify_para(sol_name, outlier_type=None):
                 "Unknown impurity 4": [2.549],  # ppm
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
-                #"Acid": [8.0] #Acid? #Irrelevant, skipped
+                "Acid": [8.5], #Acid
+                "Bromo ketone": [8.18],  # ppm
+                "Bromo ketone impurity 1": [7.99],  # ppm
+                "Bromo ketone impurity 2": [7.96],  # ppm 
             }
             #pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier: Asymetric pick downshift of Product B
@@ -121,7 +129,8 @@ def specify_para(sol_name, outlier_type=None):
                 [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                #[7.80, 14],  #Acid? #Acid? #Irrelevant, skipped
+                [7.80, 8.5],  #Ketone
+                [8.5, 14], #Acid
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm
@@ -137,12 +146,15 @@ def specify_para(sol_name, outlier_type=None):
                 "Unknown impurity 4": [2.549],  # ppm
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
-                #"Acid": [8.0] #Acid? #Irrelevant, skipped
+                "Acid": [8.5], #Acid
+                "Bromo ketone": [8.18],  # ppm
+                "Bromo ketone impurity 1": [7.99],  # ppm
+                "Bromo ketone impurity 2": [7.96],  # ppm 
             } 
             #pass
 
     elif sol_name == 'MeCN':
-        solvent_shift = 1.96  # ppm ACN
+        solvent_shift = 1.94  # ppm ACN
         peak_width_50 = 0.008  # ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
@@ -160,7 +172,7 @@ def specify_para(sol_name, outlier_type=None):
             [3.65, 4.40],
             [4.41, 6.0],
             [6.5, 7.15],
-           # [7.80, 14],  #Acid? #Irrelevant, skipped
+            #[7.80, 14],  #Acid? #Irrelevant, skipped
         ]
         reference_shift = {
             "Starting material": [5.454],  # ppm #Confirmed
@@ -170,7 +182,7 @@ def specify_para(sol_name, outlier_type=None):
             "SolventDown": [2.788],  # ppm #Confirmed
             "SolventUp": [1.086],  # ppm #Confirmed
             "Unknown 1": [4.610],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) 3-1D EXTENDED+-20250325-182317:300Br2, 150DPE,0TBAB
-            "Unknown 2": [3.940],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
+            #"Unknown 2": [3.940],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) Probably Product A
             "Unknown 3": [7.024],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
             "Unknown 4": [2.425],  # ppm (Observed in  1-1D EXTENDED+-20250325-142708)  1-1D EXTENDED+-20250325-142708: 300Br2, 75DPE,300TBAB #Potentially water
             "Unknown 5": [2.544],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)   7-1D EXTENDED+-20250325-185257: 112Br2, 262DPE,0TBAB
@@ -180,15 +192,126 @@ def specify_para(sol_name, outlier_type=None):
             "Unknown 8": [2.937],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)  21-1D EXTENDED+-20250325-170904: 300Br2, 187DPE,0TBAB   #Detection hindered by salt
             "Unknown 9": [4.201],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
             "Unknown 10": [4.645],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
-           # "Acid": [8.0], #Acid? #Irrelevant, skipped
+            "Acid": [8.0], #Acid? #Irrelevant, skipped
             "Water": [2.13]
         }
+
+    elif sol_name == 'DCE-BF4':
+        solvent_shift = 3.73  #ppm DCE
+        peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.20, 5.70],  # Substrate SM, 2H
+            [4.1, 5.00],  # DCE
+            [2.5, 3.0],  # DCE #[2.5, 3.05], default 
+            [6.5, 7.0],  # Product B, 1H
+            [4.45, 4.70],  # Product A, 2H
+            [2.2, 2.7],  # HBr adduct
+            [7.80, 8.5],  #Ketone
+            [8.5, 14], #Acid
+        ]
+        reference_shift = {
+            "Starting material": [5.467],  # ppm #Confirmed
+            "Product A": [4.527],  # ppm #Confirmed
+            "Product B": [6.807],  # ppm #Confirmed
+            "SolventDown": [4.775, 4.693, 4.605],  # ppm #Confirmed
+            "SolventUp": [2.850, 2.764, 2.682],  # ppm #Confirmedz
+            "Unknown impurity SM peak 1": [6.453],  # ppm
+            "Unknown impurity SM peak 2": [4.474],  # ppm
+            "Unknown impurity 1": [6.523],
+            "Unknown impurity 2": [5.509],  # ppm
+            "Unknown impurity 3": [4.340],  # ppm
+            "Unknown impurity 4": [2.549],  # ppm
+            "Alcohol": [6.727],  # ppm #Confirmed
+            "HBr_adduct": [2.463],  # ppm #Confirmed
+            "Acid": [8.5], #Acid
+            "Bromo ketone": [8.18],  # ppm
+            "Bromo ketone impurity 1": [7.99],  # ppm
+            "Bromo ketone impurity 2": [7.96],  # ppm 
+        }
+
 
         if outlier_type == 'Type1':  # Type 1 outlier
             pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
+    
+    elif sol_name == 'MeCN-Nik':
+        solvent_shift = 1.94  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.2, 6.2],
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.0,12.0],    
+             
+        ]
+        reference_shift = {
+            "Benzoin_dimethoxy-CH1": [5.87],  # ppm
+            "Benzoin_dimethoxy-CH2": [5.95],  # ppm
+            "Benzoin_monomethoxy-CH1": [5.73],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
+            "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
+            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
+            "Carbene_precursor-Methoxy": [3.82],  #ppm 
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
+            "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
+            "Benzaldehyde-Carbonyl": [9.98], #ppm
+            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+            "Unknown_peak_2":[11.07], #ppm
+            }
 
+        if outlier_type == 'Type1':  
+            solvent_shift = 1.94  # ppm ACN
+            peak_width_50 = 0.006  # ppm at 50% #Default 0.01
+            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+                [5.93, 6.2],
+                #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+                [9.0,12.0],    
+                
+            ]
+            reference_shift = {
+                "Benzoin_dimethoxy-CH1": [5.87],  # ppm
+                "Benzoin_dimethoxy-CH2": [5.95],  # ppm
+                "Benzoin_monomethoxy-CH1": [5.73],  # ppm
+                "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
+                "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
+                "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
+                "Carbene_precursor-Methoxy": [3.82],  #ppm 
+                "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
+                "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
+                "Benzaldehyde-Carbonyl": [9.98], #ppm
+                "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+                "Unknown_peak_2":[11.07], #ppm
+                }
+            #pass # change corresponding parameters
+        elif outlier_type == 'Type2':  # Type 2 outlier
+            pass
+    elif sol_name == 'DMSO-Nik':
+        solvent_shift = 2.5  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.2, 6.2],
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.0,12.0],    
+             
+        ]
+        reference_shift = {
+            "Benzoin_dimethoxy-CH1": [5.87],  # ppm To verify
+            "Benzoin_dimethoxy-CH2": [5.95],  # ppm To verify
+            "Benzoin_monomethoxy-CH1": [5.69],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.691],  # ppm  
+            "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm To verify
+            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  To verify
+            "Carbene_precursor-Methoxy": [3.82],  #ppm To verify
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
+            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm 
+            "Benzaldehyde-Carbonyl": [9.98], #ppm
+            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+            "Unknown_peak_2":[11.07], #ppm
+            }
 
 
 ########Functions#########
@@ -274,7 +397,7 @@ def fit_without_bounds(shift_array, intensity_array, initial_guesses, std_deviat
         sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses,
         sigma=std_deviation * np.ones_like(shift_array),
         absolute_sigma=True,
-        maxfev=10000,  # Increase max function evaluations
+        maxfev=20000,  # Increase max function evaluations
         ftol=1e-14,  # Function tolerance (adjust for better precision)
         xtol=1e-14,  # Parameter change tolerance
         gtol=1e-14,  # Gradient tolerance
@@ -287,12 +410,47 @@ def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation
         sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
         sigma=std_deviation * np.ones_like(shift_array),
         absolute_sigma=True,
-        maxfev=10000,  # Increase max function evaluations
+        maxfev=20000,  # Increase max function evaluations
         ftol=1e-14,  # Function tolerance (adjust for better precision)
         xtol=1e-14,  # Parameter change tolerance
         gtol=1e-14,  # Gradient tolerance
     )
     return popt, covariance_matrix
+
+def fit_with_bounds_do_your_best(shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+    def residuals(params, x, y, sigma):
+        return (y - sum_of_lorentzian(x, *params)) / sigma
+
+    try:
+        result = least_squares(
+            residuals,
+            x0=initial_guesses,
+            bounds=(lower_bounds, upper_bounds),
+            args=(shift_array, intensity_array, std_deviation * np.ones_like(shift_array)),
+            max_nfev=20000,
+            ftol=1e-14,
+            xtol=1e-14,
+            gtol=1e-14
+        )
+
+        popt = result.x
+
+        # Approximate covariance matrix like curve_fit (J^T J)^(-1)
+        if result.jac.shape[0] >= result.jac.shape[1]:
+            try:
+                residual_variance = np.sum(result.fun**2) / (len(shift_array) - len(popt))
+                jacobian = result.jac
+                cov = np.linalg.inv(jacobian.T @ jacobian) * residual_variance
+            except np.linalg.LinAlgError:
+                cov = np.full((len(popt), len(popt)), np.nan)
+        else:
+            cov = np.full((len(popt), len(popt)), np.nan)
+
+        return popt, cov
+
+    except Exception as e:
+        print(f"Total failure during least_squares: {e}")
+        return np.full_like(initial_guesses, np.nan), np.full((len(initial_guesses), len(initial_guesses)), np.nan)
 
 
 def exponential_decay(x, a, b, c, d):
@@ -437,9 +595,15 @@ def fit_peaks(NMR_spectrum, std_deviation,
             popt, covariance_matrix = fit_without_bounds(shift_array, intensity_array, initial_guesses,
                                                          std_deviation)
         else:
-            popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
-                                                      initial_guesses, std_deviation,
-                                                      lower_bounds, upper_bounds)
+            try:
+                popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
+                                                        initial_guesses, std_deviation,
+                                                        lower_bounds, upper_bounds)
+            except:
+                popt, covariance_matrix = fit_with_bounds_do_your_best(shift_array, intensity_array,
+                                                        initial_guesses, std_deviation,
+                                                        lower_bounds, upper_bounds)
+                warning_string = "Fit did not converge. "
         errors_of_parameters = np.sqrt(np.diag(covariance_matrix))
         opti_parameter = popt.reshape(-1, 3)
         opti_parameter_error = errors_of_parameters.reshape(-1, 3)
@@ -450,8 +614,10 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
         max_residuals = np.max(intensity_array - sum_of_lorentzian(shift_array, *popt))
         if max_residuals > 0.1 and warning_string == None:
-            warning_string = "Strong residual: a peak might have been not fitted"
-
+            if warning_string !=None:
+                warning_string = warning_string + "Strong residual: a peak might have been not fitted"
+            else:
+                warning_string = "Strong residual: a peak might have been not fitted"
         # Plot original data and fit results
         # for indice, parameter in enumerate(opti_parameter):
         #     print(
@@ -468,10 +634,10 @@ def fit_peaks(NMR_spectrum, std_deviation,
         # ---- Subplot 2: Spectral Data and Fitting Results ----
         ax2 = axes[1]
         ax2.plot(shift_array, intensity_array_original, color='black', label="Original")
-        ax2.plot(shift_array, fitted_y + baseline, 'r--', label="Lorentzian Fit")
-        ax2.plot(shift_array, baseline, 'b--', label="Baseline Fit")
-        ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver', label="Residuals")
-        ax2.scatter(shift_array[peaks], intensity_array_original[peaks], color='green', marker='o',
+        ax2.plot(shift_array, fitted_y + baseline, 'r--',alpha=0.5, label="Lorentzian Fit")
+        ax2.plot(shift_array, baseline, 'b--',alpha=0.5, label="Baseline Fit")
+        ax2.plot(shift_array, intensity_array_original - fitted_y, color='silver',alpha=0.5, label="Residuals")
+        ax2.scatter(shift_array[peaks], intensity_array_original[peaks], color='green',alpha=0.5, marker='o',
                     label="Detected Peaks")
         ax2.set_xlabel("Shift (ppm)")
         ax2.set_ylabel("Intensity")
@@ -497,8 +663,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
         return opti_parameter, opti_parameter_error, warning_string, fig
 
-    except RuntimeError:
-        print("Curve fitting failed for this slice.")
+    except Exception as e:
+        print(f"Curve fitting failed for this slice:{e}")
         return [], [], ["Fit failed"], 0
 
 
@@ -558,7 +724,7 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
         for ax_old in fig_old.axes:  # Extract each axis from the stored figure
             x_min, x_max = ax_old.get_xlim()  # Get the x-axis limits
             for line in ax_old.get_lines():  # Extract line plots
-                axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label())
+                axes[i].plot(line.get_xdata(), line.get_ydata(), label=line.get_label(), alpha=0.8)
 
                 # set title for each subplot
                 title_text = f"ppm: {round(x_min,2)} - {round(x_max,2)}"
@@ -751,8 +917,10 @@ def analyze_one_spectrum(file_name, sol_name,  outliers):
         if vial_name_here in outliers.keys():
             specify_para(sol_name, outliers[vial_name_here])
             print('##########Outlier type specified for vial##########:', file_name)
+
         else:
             specify_para(sol_name)
+
 
     # Analyze spectrum and return results
     experiment_dictionary, experiment_name = integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False)
@@ -778,11 +946,15 @@ def analyze_one_run_folder(master_path,
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
         if "1D EXTENDED" in folder_path:
-            data_dir_ls.append(folder_path)
-            data_file = folder_path + "\\data.csv"
-            if not os.path.isfile(data_file):
-                raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
-            data_file_ls.append(data_file)
+            try:
+                data_dir_ls.append(folder_path)
+                data_file = folder_path + "\\data.csv"
+                if not os.path.isfile(data_file):
+                    raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
+                data_file_ls.append(data_file)
+            except Exception as e:
+                print(f"An error occured in:{folder_path}")
+                print(f"Error: {e}")
 
     total_result_dictionary = {}
     list_experiment_loaded = []
@@ -801,7 +973,7 @@ def analyze_one_run_folder(master_path,
                 total_result_dictionary[experiment_name] = experiment_dictionary
             except Exception as e:
                 print(f"Error processing file: {e}")
-
+                
     # Save dictionary as JSON
     json_filename = os.path.join(results_path, f"fitting_results.json")
     with open(json_filename, "w") as json_file:
@@ -816,32 +988,58 @@ def analyze_one_run_folder(master_path,
 if __name__ == "__main__":
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
-    print(BRUCELEE_PROJECT_DATA_PATH)
+    print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
                 #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                #["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
-                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
-
-    ]
+                #["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
+                #["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                #["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
+                #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                #["\\NV\\2025-05-06-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                #["\\NV\\2025-05-06-run02_MeCN_Pyr\\", 'MeCN-Nik', None]
+                # ["\\NV\\Final Data\\MeCN\\DMAP\\2025-05-14-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DMAP\\2025-05-14-run02_MeCN_DMAP\\", 'MeCN-Nik', {2: 'Type1'}],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine\\2025-06-04-run01_DMSO_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine\\2025-06-04-run02_DMSO_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\4-Pyrrolidinopyridine\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\4-Pyrrolidinopyridine\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\1-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\1-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
+                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
+            ]
 
     for run_folder in run_folders:
-
+        print(f"Run: {run_folder}")
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]
         run_outliers = run_folder[2]
