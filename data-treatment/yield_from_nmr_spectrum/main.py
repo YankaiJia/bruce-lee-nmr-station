@@ -134,9 +134,9 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     df['sel_HBr_adduct'] = df['conc_HBr_adduct'] / df['DPE_consumed']
 
     # calculate residuals
-    df['residual_of_AB'] = df['DPE_conversion'] - (df['sel_A'] + df['sel_B'])
-    df['residual_of_AB_alcohol'] = df['DPE_conversion'] - (df['sel_A'] + df['sel_B'] + df['self_alchol'])
-    df['residual_of_AB_alcohol_HBr_adduct'] = df['DPE_conversion'] - (df['sel_A'] + df['sel_B'] + df['self_alchol'] + df['sel_HBr_adduct'])
+    df['residual_of_AB'] = 1 - (df['sel_A'] + df['sel_B'])
+    df['residual_of_AB_alcohol'] = 1 - (df['sel_A'] + df['sel_B'] + df['self_alchol'])
+    df['residual_of_AB_alcohol_HBr_adduct'] = 1 - (df['sel_A'] + df['sel_B'] + df['self_alchol'] + df['sel_HBr_adduct'])
 
     # mole fraction of A
     df['mole_fraction_A_over_AB'] = df['conc_A'] / (df['conc_A'] + df['conc_B'])
