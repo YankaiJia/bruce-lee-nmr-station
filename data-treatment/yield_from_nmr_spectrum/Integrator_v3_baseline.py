@@ -14,8 +14,8 @@ import re, textwrap
 import concurrent.futures
 from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
-import matplotlib
-matplotlib.use('TKAgg')  # Use a non-interactive backend (no GUI)
+plt.switch_backend('agg')
+
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
 
@@ -243,7 +243,7 @@ def specify_para(sol_name, outlier_type=None):
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
             [5.2, 6.2],
             #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.0,12.0],    
+            [9.5, 11],
              
         ]
         reference_shift = {
@@ -312,9 +312,31 @@ def specify_para(sol_name, outlier_type=None):
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
             }
-    elif sol_name == 'DMSO-Pyrrolidino':
+    elif sol_name == 'MeCN-4-Pyrrolidinopyridine':
 
-        solvent_shift = 3.73
+        solvent_shift = 1.94  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.2, 6.2],
+            # [3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.0, 12.0],
+
+        ]
+        reference_shift = {
+            "Benzoin_dimethoxy-CH1": [5.87],  # ppm
+            "Benzoin_dimethoxy-CH2": [5.95],  # ppm
+            "Benzoin_monomethoxy-CH1": [5.73],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.731],  # ppm
+            "Benzoin_dimethoxy-Methoxy1": [3.71],  # ppm
+            "Benzoin_dimethoxy-Methoxy2": [3.79],  # ppm
+            "Carbene_precursor-Methoxy": [3.82],  # ppm
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  # ppm
+            "p-Methoxybenzaldehyde-Carbonyl": [9.84],  # ppm
+            "Benzaldehyde-Carbonyl": [9.98],  # ppm
+            "Benzaldehyde-Carbonyl_satellite": [10.12],  # ppm
+            "Unknown_peak_2": [11.07],  # ppm
+        }
 
 
 ########Functions#########
@@ -542,7 +564,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
               ):
 
     # plot the spectrum
-    if True:
+    if False:
         plt.figure(figsize=(12, 6))
         plt.plot(NMR_spectrum[:, 0], NMR_spectrum[:, 1], alpha=0.9, linewidth=2.5)
         plt.xlabel('Shift (ppm)')
@@ -806,7 +828,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
 
     NMR_slices = extract_slices(NMR_spectrum, interval_to_slice_spectrum)
 
-    if True:  # for debugging
+    if False:  # for debugging
         for indice, slice in enumerate(NMR_slices):
             plt.figure(figsize=(12, 6))
             plt.plot(slice[:, 0], slice[:, 1], alpha=0.9, linewidth=2.5)
@@ -1057,8 +1079,8 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
-                [r"D:\Dropbox\brucelee\data\NV\Final Data\DMSO\4-Pyrrolidino pyridine", 'DMSO-Pyrrolidino', None]
-
+                # [r"\NV\Final Data\DMSO\4-Pyrrolidino pyridine\2025-06-07-run02_DMSO_4_Pyrr_Pyr_for_testing", 'DMSO-Pyrrolidino', None]
+                [r"\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing", 'MeCN-4-Pyrrolidinopyridine', None],
     ]
 
     for run_folder in run_folders:
