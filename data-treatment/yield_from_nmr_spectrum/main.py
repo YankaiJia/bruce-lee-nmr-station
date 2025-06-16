@@ -6,16 +6,7 @@ import time
 import Integrator_v3_baseline
 import conc_interpolation
 
-## Disable OpenMP multiprocessing in NumPy.
-# This will limit the number of threads NumPy uses for its operations.
-import os
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
-
-# get teh system path of BRUCELEE_PROJECT_DATA_PATH
+# get the system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 def check_and_return_folder_structure(run_folder):
@@ -93,10 +84,10 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     result_folder, excel_file, out_conc_file, out_vol_file = check_and_return_folder_structure(run_folder)
     print(f'Analyzing {run_folder}')
 
-    Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
-                                                  sol_name=run_sol,
-                                                  outliers=run_outliers,
-                                                  is_show_plot=False)
+    # Integrator_v3_baseline.analyze_one_run_folder(master_path=run_folder,
+    #                                               sol_name=run_sol,
+    #                                               outliers=run_outliers,
+    #                                               is_show_plot=False)
 
     df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
 
@@ -107,21 +98,24 @@ def process_one_folder(run_dir, run_sol, run_outliers):
                       result_folder)
 
     # calc the S conversion
-    df['S_conversion'] = 1 - df['c#_S'] / df['DPE'].replace(0, np.nan)
-    df['consumed_S'] = df['DPE'] - df['c#_S']
+    df['DPE_conversion'] = 1 - df['conc_S'] / df['DPE'].replace(0, np.nan)
+    df['DPE_consumed'] = df['DPE'] - df['conc_S']
 
     df['Bromine_source'] = df['Br2'] + df['TBABr3'] if additive_name == 'TBABr3' else df['Br2']
     df['limitting_conc'] = df[['DPE', 'Bromine_source']].min(axis=1)
 
-    df['c#_A'] = pd.to_numeric(df['c#_A'], errors='coerce')
-    df['c#_B'] = pd.to_numeric(df['c#_B'], errors='coerce')
+    df['conc_A'] = pd.to_numeric(df['conc_A'], errors='coerce')
+    df['conc_B'] = pd.to_numeric(df['conc_B'], errors='coerce')
     df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
+    df['conc_alcohol'] = pd.to_numeric(df['conc_alcohol'], errors='coerce')
+    df['conc_HBr_adduct'] = pd.to_numeric(df['conc_HBr_adduct'], errors='coerce')
 
     # get the yield of A
-    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['c#_A'] / df['limitting_conc'], 0)
-    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['c#_B'] / df['limitting_conc'], 0)
+    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['conc_A'] / df['limitting_conc'], 0)
+    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['conc_B'] / df['limitting_conc'], 0)
 
-    # get the yield of other products
+
+    # calculate the yield of other products
     col_list = ['intg_sol_down', 'intg_sol_up', 'intg_impr_SM1', 'intg_impr_SM2',
                 'intg_impr1', 'intg_impr2', 'intg_impr3', 'intg_impr4',
                 'intg_alcohol', 'intg_HBr_adduct', 'intg_acid']
@@ -134,11 +128,18 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     time.sleep(1)
 
     # selectivity metrics
-    df['sel_A'] = df['c#_A'] / df['consumed_S']
-    df['sel_B'] = df['c#_B'] / df['consumed_S']
+    df['sel_A'] = df['conc_A'] / df['DPE_consumed']
+    df['sel_B'] = df['conc_B'] / df['DPE_consumed']
+    df['self_alchol'] = df['conc_alcohol'] / df['DPE_consumed']
+    df['sel_HBr_adduct'] = df['conc_HBr_adduct'] / df['DPE_consumed']
+
+    # calculate residuals
+    df['residual_of_AB'] = 1 - (df['sel_A'] + df['sel_B'])
+    df['residual_of_AB_alcohol'] = 1 - (df['sel_A'] + df['sel_B'] + df['self_alchol'])
+    df['residual_of_AB_alcohol_HBr_adduct'] = 1 - (df['sel_A'] + df['sel_B'] + df['self_alchol'] + df['sel_HBr_adduct'])
 
     # mole fraction of A
-    df['mole_fraction_A'] = df['c#_A'] / (df['c#_A'] + df['c#_B'])
+    df['mole_fraction_A_over_AB'] = df['conc_A'] / (df['conc_A'] + df['conc_B'])
 
     # save the final dataframe to csv
     df.to_csv(result_folder + "\\final_results.csv", index=False)
@@ -166,16 +167,20 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-22-run01_DCE_TBABr3_normal\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
                 
     ]
 
@@ -199,7 +204,8 @@ if __name__ == "__main__":
     # save final results to csv
     # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
     # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABr3.csv"
-    csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABF4_window_corrected.csv"
+    # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABF4_window_corrected.csv"
+    csv_path = data_dir + r"\DPE_bromination\1_full_experiment_DCE_TBABr_Good_all_metrics.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')

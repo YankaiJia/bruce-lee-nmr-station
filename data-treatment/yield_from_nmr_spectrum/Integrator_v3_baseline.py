@@ -268,17 +268,17 @@ def specify_para(sol_name, outlier_type=None):
             peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
                 [5.93, 6.2],
                 #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-                [9.0,12.0],    
-                
+                [9.0,12.0],
+
             ]
             reference_shift = {
                 "Benzoin_dimethoxy-CH1": [5.87],  # ppm
                 "Benzoin_dimethoxy-CH2": [5.95],  # ppm
                 "Benzoin_monomethoxy-CH1": [5.73],  # ppm
-                "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
+                "Benzoin_monomethoxy-CH2": [5.731],  # ppm
                 "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-                "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-                "Carbene_precursor-Methoxy": [3.82],  #ppm 
+                "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm
+                "Carbene_precursor-Methoxy": [3.82],  #ppm
                 "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
                 "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
                 "Benzaldehyde-Carbonyl": [9.98], #ppm
@@ -295,19 +295,19 @@ def specify_para(sol_name, outlier_type=None):
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
             [5.2, 6.2],
             #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.0,12.0],    
-             
+            [9.0,12.0],
+
         ]
         reference_shift = {
             "Benzoin_dimethoxy-CH1": [5.87],  # ppm To verify
             "Benzoin_dimethoxy-CH2": [5.95],  # ppm To verify
             "Benzoin_monomethoxy-CH1": [5.69],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.691],  # ppm  
+            "Benzoin_monomethoxy-CH2": [5.691],  # ppm
             "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm To verify
             "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  To verify
             "Carbene_precursor-Methoxy": [3.82],  #ppm To verify
             "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
-            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm 
+            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppm
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
@@ -1015,7 +1015,7 @@ def analyze_one_run_folder(master_path,
                 total_result_dictionary[experiment_name] = experiment_dictionary
             except Exception as e:
                 print(f"Error processing file: {e}")
-                
+
     # Save dictionary as JSON
     json_filename = os.path.join(results_path, f"fitting_results.json")
     with open(json_filename, "w") as json_file:
