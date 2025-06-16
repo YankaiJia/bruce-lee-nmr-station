@@ -31,7 +31,10 @@ import cmath
 from scipy.optimize import curve_fit
 from scipy.integrate import quad
 from scipy.signal import savgol_filter
-
+import os
+# change plt backend to tkagg for compatibility with Jupyter notebooks
+import matplotlib
+matplotlib.use('tkagg')
 
 def load_nmr_spectrum_from_csv(filepath):
     """
@@ -732,12 +735,47 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     else:  # clear figure and delete it
         plt.clf()
         plt.close(fig)
+def process_one_folder(folder_path):
+    print(f'Processing folder: {folder_path}')
+    filepath = os.path.join(folder_path, 'data.csv')
+    (main_peak_integral,
+     main_peak_integral_uncertainty,
+     second_peak_integral,
+     second_peak_integral_uncertainty,
+     report_dictionary) = get_10ppm_peak_integration(filepath=filepath)
 
+    make_diagnostic_plots(filepath,
+                          report_dictionary,
+                          do_show=False,
+                          save_fig_to_filepath=folder_path+'/hardy_fit_diagnostic_plot.png')
+def process_all_folders_parallel(folder_paths, process_func, max_workers=4):
+    results = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        future_to_path = {executor.submit(process_func, path): path for path in folder_paths}
+        for future in as_completed(future_to_path):
+            folder = future_to_path[future]
+            try:
+                result = future.result()
+                print(result)
+                results.append(result)
+            except Exception as e:
+                print(f"Error processing {folder}: {e}")
+    return results
 
 if __name__ == '__main__':
-    # Example usage
-    filepath = 'test_data/data.csv'
-    main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
-        filepath=filepath)
-    make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath='test_data/diagnostic_plot.png')
-    plt.show()
+
+    # results folder
+    results_folder = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing\Results"
+    # get all subfolders in the results folder
+    results_folder_subfolders = [f.path for f in os.scandir(results_folder) if f.is_dir()]
+    data_csv_list = [f + r'\data.csv' for f in results_folder_subfolders]
+
+    # test one example
+    # process_one_folder(folder_path=results_folder_subfolders[0])
+
+    # process all folders in parallel
+    from concurrent.futures import ProcessPoolExecutor, as_completed
+    all_results = process_all_folders_parallel( results_folder_subfolders,
+                                                process_func=process_one_folder,
+                                                max_workers=8)
+

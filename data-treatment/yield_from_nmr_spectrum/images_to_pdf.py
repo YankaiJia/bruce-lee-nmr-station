@@ -63,7 +63,7 @@ def make_slides(imagelist):
 
     return prs
 
-def get_imagelist():
+def get_imagelist(image_name):
     root = tk.Tk()
     root.withdraw()
     result_folder = filedialog.askdirectory(title="Select Folder with Images")
@@ -75,13 +75,17 @@ def get_imagelist():
     # sort the reaction_folder_list by sample index
     reaction_folder_list.sort(key=get_sample_index)
     print(reaction_folder_list)
-    imagelist = [os.path.join(folder, 'fitting_results.png') for folder in reaction_folder_list]
+    imagelist = [os.path.join(folder, image_name) for folder in reaction_folder_list]
+
+    imagelist = [image for image in imagelist if os.path.exists(image)]
 
     return result_folder, imagelist
 
 if __name__ == "__main__":
 
-    result_folder, imagelist = get_imagelist()
+    # result_folder, imagelist = get_imagelist(image_name = 'fitting_results.png')
+
+    result_folder, imagelist = get_imagelist(image_name='hardy_fit_diagnostic_plot.png')
 
     pdf = make_pdf(imagelist)
     pdf.output(result_folder + r"\\all_fitting_results.pdf", "F")
