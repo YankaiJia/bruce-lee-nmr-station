@@ -14,11 +14,12 @@ The core workflow implements a two-stage fitting protocol: initial single-compon
 lineshape optimization followed by multi-component spectral modeling including main 
 peak, sidebands of the main peak, and a second peak (product).
 
-Typical Usage
+Example of usage
 -------------
->>> integral, uncertainty, report = get_10ppm_peak_integration('spectrum.csv')
+>>> integral1, error_of_integral1, integral2, error_of_integral2, report = get_10ppm_peak_integration('spectrum.csv')
 >>> make_diagnostic_plots('spectrum.csv', report, save_fig_to_filepath='analysis.png')
->>> print(f"Secondary peak: {integral:.3e} ± {uncertainty:.3e} [ppm·intensity_unit]")
+>>> print(f"Main peak integral = {integral1:.3e} ± {error_of_integral1:.3e} [ppm·intensity_unit]")
+>>> print(f"Secondary peak integral =  {integral2:.3e} ± {error_of_integral2:.3e} [ppm·intensity_unit]")
 
 Author: Yaroslav I. Sobolev, IBS Center for Algorithmic and Robotized Synthesis
 """
@@ -163,7 +164,7 @@ def lineshape_function(x, center, vmax, gamma, amplitude,
     # multiply positive x_relative by asymmetry_factor, and negative by 1/asymmetry_factor
     x_relative = np.where(x_relative >= 0, x_relative * asymmetry_factor, x_relative / asymmetry_factor)
     res = amplitude * hardy_lorentz_z2_vectorized(flipping_factor * x_relative, vmax, gamma)
-    gaussian = gaussian_amplitude * np.exp(-(x_relative ** 2) / (2 * (gaussian_sigma ** 2)))
+    gaussian = amplitude * gaussian_amplitude * np.exp(-(x_relative ** 2) / (2 * (gaussian_sigma ** 2)))
     res += gaussian
     # addition of sigmoid background centered at center
     # sigmoid_background = sigmoid_amplitude / (1 + np.exp(-(x - center) / sigmoid_width))
@@ -199,7 +200,7 @@ def spectrum_function(x, center, splitting, deltappm, vmax, gamma, amplitude, as
     gaussian_sigma : float
         Gaussian broadening standard deviation (ppm), shared across all peaks.
     gaussian_amplitude : float
-        Gaussian component amplitude, shared across all peaks.
+        Gaussian component amplitude (relative), shared across all peaks.
     sigmoid_width : float
         Sigmoid background width parameter (ppm).
     sigmoid_amplitude : float
@@ -279,6 +280,11 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
 
     Returns
     -------
+    main_peak_integral : float
+        Integral of the main peak. Units are [ppm * intensity_unit].
+        Calculated by numerical integration of the best-fit main peak model.
+    main_peak_integral_uncertainty : float
+        Uncertainty in the integral of the main peak, propagated from fitting parameter errors. Units are [ppm * intensity_unit].
     second_peak_integral : float
         Integral of the secondary peak. Units are [ppm * intensity_unit].
         Calculated by numerical integration of the best-fit secondary peak model.
@@ -312,13 +318,12 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     Examples
     --------
     >>> # Basic analysis with default settings
-    >>> integral, uncertainty, report = get_10ppm_peak_integration('sample_nmr.csv')
-    >>> print(f"Secondary peak integral: {integral:.3e} ± {uncertainty:.3e}")
+    >>> main_peak_integral, main_peak_integral_uncertainty, secondary_peak_integral, secondary_peak_integral_uncertainty, report = get_10ppm_peak_integration('sample_nmr.csv')
+    >>> print(f"Main peak integral: {main_peak_integral:.3e} ± {main_peak_integral_uncertainty:.3e}")
+    >>> print(f"Secondary peak integral: {econdary_peak_integral:.3e} ± {secondary_peak_integral_uncertainty:.3e}")
 
-    >>> # Quiet analysis for batch processing: it does not pring anything
-    >>> integral, uncertainty, report = get_10ppm_peak_integration('sample_nmr.csv', verbose=0)
-    >>> relative_error = uncertainty / integral * 100
-    >>> print(f"Relative uncertainty: {relative_error:.1f}%")
+    >>> # Quiet analysis for batch processing: it does not print anything
+    >>> main_peak_integral, main_peak_integral_uncertainty, secondary_peak_integral, secondary_peak_integral_uncertainty, report = get_10ppm_peak_integration('sample_nmr.csv', verbose=0)
     """
     nmr_data = load_nmr_spectrum_from_csv(filepath)
     # crop the data between 9 and 11 ppm
@@ -343,8 +348,8 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     lower_bounds = [min_ppm, 0, 0, 0, 0, 0, 0, 0.0001, 0, -0.014]
     upper_bounds = [max_ppm, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, 0.3, 0.01, 0.014]
 
-    p0 = [center, 5.68877297e-26, 9.64055154e-03, 3.63118454e-02 / 2.2 * height_of_the_maximum,
-          9.36311714e-01, 5.10908742e-03, 9.06158610e-01 / 2.2 * height_of_the_maximum,
+    p0 = [center, 5.68877297e-26, 9.64055154e-03, 3.63118448e-02 / 2.1 * height_of_the_maximum,
+          9.36311714e-01, 5.10908742e-03, 2.49549047e+01,
           1.93666225e-03, 2.44896635e-03, -1.30129103e-03]
 
     x_scale = p0[:]
@@ -361,6 +366,7 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
         print(f'Length of popt: {len(popt)}')
 
     # ## PLOT FOR DEBUGGING ONLY
+    # vs = np.linspace(min_ppm, max_ppm, 1000)
     # fitted_intensity = fit_lineshape(vs, *popt)
     # plt.plot(vs, fitted_intensity, label='Fitted Lineshape Function', color='blue')
     # plt.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1, label='Cropped Data')
@@ -412,6 +418,36 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     rms_error = np.std(residuals)
     if verbose == 2:
         print(f'RMS residual: {rms_error}')
+        
+    # Optimal parameters are:
+    (center, splitting, deltappm, vmax, gamma, amplitude, asymmetry_factor, gaussian_sigma, gaussian_amplitude,
+     sigmoid_width, sigmoid_amplitude, vertical_offset, sidebands_intensity, second_peak_intensity) = popt
+    second_peak_intensity_uncertainty = perr[-1]
+    main_peak_amplitude_uncertainty = perr[5]
+        
+    # The main peak integration isolates the pure lineshape component by setting
+    # sigmoid_amplitude=0 and vertical_offset=0, then using the remaining best-fit parameters to numerically integrate
+    # the secondary peak lineshape (best-fitted) over the region
+    # ±2 ppm around the main peak center using adaptive quadrature with
+    # convergence tolerance of 1e-10.
+    main_peak_partial = lambda x: lineshape_function(x, center, vmax, gamma,
+                                                     amplitude,
+                                                     asymmetry_factor, gaussian_sigma,
+                                                     gaussian_amplitude, sigmoid_width,
+                                                     sigmoid_amplitude=0,
+                                                     vertical_offset=0)
+    integration_halfwidth = 2
+    integration_result = quad(main_peak_partial,
+                              center - integration_halfwidth,
+                              center + integration_halfwidth,
+                              limit=1000, points=[center],
+                              epsabs=1e-10)
+    main_peak_integral, main_peak_integration_error = integration_result
+    main_peak_integral_uncertainty = main_peak_amplitude_uncertainty / amplitude * main_peak_integral
+    if verbose == 2:
+        print(
+            f'main peak integral: ({main_peak_integral} ± {main_peak_integral_uncertainty} ) [ppm * intensity_unit]')
+        
 
     # The secondary peak integration isolates the pure lineshape component by setting
     # sigmoid_amplitude=0 and vertical_offset=0, then using the remaining best-fit parameters to numerically integrate
@@ -419,10 +455,7 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     # ±2 ppm around the secondary peak center using adaptive quadrature with
     # convergence tolerance of 1e-10.
 
-    # Optimal parameters are:
-    (center, splitting, deltappm, vmax, gamma, amplitude, asymmetry_factor, gaussian_sigma, gaussian_amplitude,
-     sigmoid_width, sigmoid_amplitude, vertical_offset, sidebands_intensity, second_peak_intensity) = popt
-    second_peak_intensity_uncertainty = perr[-1]
+
 
     # Partial application of the lineshape function for the second peak
     second_peak_partial = lambda x: second_peak_intensity * lineshape_function(x, center - deltappm, vmax, gamma,
@@ -466,7 +499,7 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
         'residuals_rms': rms_error,
     }
 
-    return second_peak_integral, second_peak_integral_uncertainty, dictionary_to_return
+    return main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, dictionary_to_return
 
 
 def simpleaxis(ax):
@@ -552,19 +585,23 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     Examples
     --------
     >>> # Interactive analysis with popup matplotlib display (`plt.show()`)
-    >>> integral, error_of_integral, report = get_10ppm_peak_integration('sample.csv')
+    >>> main_peak_integral, main_peak_integral_uncertainty, secondary_peak_integral, secondary_peak_integral_uncertainty, report = get_10ppm_peak_integration('sample.csv')
     >>> make_diagnostic_plots('sample.csv', report,
     ...                      save_fig_to_filepath='sample_analysis.png')
 
     >>> # Batch processing without invoking interactive display
     >>> for filepath in spectrum_files:
-    ...     integral, error_of_integral, report = get_10ppm_peak_integration(filepath, verbose=0)
-    ...     # ...here you may want to use `integral` and `error_of_integral` for further processing...
+    ...     main_peak_integral, main_peak_integral_uncertainty, secondary_peak_integral, secondary_peak_integral_uncertainty, report = get_10ppm_peak_integration(filepath, verbose=0)
+    ...     # ...here you may want to use integral values for further processing...
     ...     # And then you save diagnostic plots for each file, like so:
     ...     output_path = filepath.replace('.csv', '_diagnostic.png')
     ...     make_diagnostic_plots(filepath, report, save_fig_to_filepath=output_path,
     ...                          do_show=False, custom_title=f'Input file: {filepath}')
     """
+    popt = report_dictionary['optimized_parameters']
+    (center, splitting, deltappm, vmax, gamma, amplitude, asymmetry_factor, gaussian_sigma, gaussian_amplitude,
+     sigmoid_width, sigmoid_amplitude, vertical_offset, sidebands_intensity, second_peak_intensity) = popt
+
     nmr_data = load_nmr_spectrum_from_csv(filepath)
     # crop the data between 9 and 11 ppm
     cropped_data = nmr_data[(nmr_data[:, 0] >= min_ppm) & (nmr_data[:, 0] <= max_ppm)]
@@ -594,10 +631,20 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     # Plot the fitted spectrum function
     ax = axs[1, 0]
     vs = np.linspace(min_ppm, max_ppm, 1000)
-    popt = report_dictionary['optimized_parameters']
     fitted_spectrum = spectrum_function(vs, *popt)
     ax.plot(vs, fitted_spectrum, label='Fitted model', color='C0')
     ax.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1, label='Data')
+
+    # plot the area between the first peak and the fitted spectrum
+    main_peak_shape = lineshape_function(vs, center, vmax, gamma,
+                       amplitude,
+                       asymmetry_factor, gaussian_sigma,
+                       gaussian_amplitude, sigmoid_width,
+                       sigmoid_amplitude=0,
+                       vertical_offset=0)
+    ax.fill_between(x=vs, y1=fitted_spectrum - main_peak_shape, y2=fitted_spectrum, color='gold', alpha=0.25,
+                    label='Main peak\ncontribution')
+
     # reverse the x-axis for chemical shift
     ax.set_title('Comparison of fit and data')
     ax.set_xlim(report_dictionary['center'] - report_dictionary['deltappm'] * 2,
@@ -611,8 +658,6 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     # Plot the fitted spectrum function, zoomed
     ax = axs[0, 1]
     vs = np.linspace(min_ppm, max_ppm, 1000)
-    popt = report_dictionary['optimized_parameters']
-    fitted_spectrum = spectrum_function(vs, *popt)
     ax.plot(vs, fitted_spectrum, color='C0')
     ax.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1)
     # reverse the x-axis for chemical shift
@@ -626,8 +671,7 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     ax.invert_xaxis()  # Invert x-axis for chemical shift
 
     # fill between the fitted spectrum minus pure spectrum of the second peak
-    (center, splitting, deltappm, vmax, gamma, amplitude, asymmetry_factor, gaussian_sigma, gaussian_amplitude,
-     sigmoid_width, sigmoid_amplitude, vertical_offset, sidebands_intensity, second_peak_intensity) = popt
+
     pure_spectrum_of_second_peak = second_peak_intensity * lineshape_function(vs, center - deltappm, vmax, gamma,
                                                                               amplitude,
                                                                               asymmetry_factor, gaussian_sigma,
@@ -647,7 +691,7 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     ax_residuals = ax4
     ax_residuals.plot(cropped_data[:, 0], residuals, 'o', color='black', alpha=0.5, markersize=2,
                       label=f'Raw (rms={report_dictionary["residuals_rms"]:.5f})')
-    ax_residuals.axhline(0, color='red', linestyle='--', linewidth=1, label='Zero Line')
+    ax_residuals.axhline(0, color='red', linestyle='--', linewidth=1, label='Zero line')
     # plot the savgol smoothed residuals with window 15
     smoothed_residuals = savgol_filter(residuals, window_length=15, polyorder=2)
     ax_residuals.plot(cropped_data[:, 0], smoothed_residuals, alpha=0.5, color='C2', label='Smoothed')
@@ -662,7 +706,15 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
 
     # add a vertical histogram of the residuals distribution on the right side of the residuals plot
     ax_hist = ax5
-    ax_hist.hist(residuals, bins=30, orientation='horizontal', color='gray', alpha=0.4)
+    ax_hist.hist(residuals, bins=30, orientation='horizontal', color='gray', alpha=0.4, density=True)
+
+    # plot the gaussian fit to the histogram
+    hist_data = np.histogram(residuals, bins=30)
+    bin_centers = 0.5 * (hist_data[1][:-1] + hist_data[1][1:])
+    mean = np.mean(residuals)
+    std_dev = np.std(residuals)
+    gaussian_fit = np.exp(-(bin_centers - mean) ** 2 / (2 * std_dev ** 2)) / (std_dev * np.sqrt(2 * np.pi))
+    ax_hist.plot(gaussian_fit, bin_centers, alpha=0.4, color='black', label='Gaussian fit to histogram')
     ax_hist.set_xlabel('')
     ax_hist.set_yticks([])
     ax_hist.set_xticks([])
@@ -671,8 +723,6 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
 
     if custom_title is not None:
         fig.suptitle(custom_title, fontsize=16)
-
-    plt.tight_layout()
 
     if save_fig_to_filepath is not None:
         plt.savefig(save_fig_to_filepath, dpi=300, bbox_inches='tight')
@@ -687,7 +737,7 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
 if __name__ == '__main__':
     # Example usage
     filepath = 'test_data/data.csv'
-    second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
+    main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
         filepath=filepath)
     make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath='test_data/diagnostic_plot.png')
     plt.show()
