@@ -1,6 +1,7 @@
 from PIL import Image
 from fpdf import FPDF
-from PyQt5.QtWidgets import QFileDialog, QApplication
+import tkinter as tk
+from tkinter import filedialog
 from pptx import Presentation
 from pptx.util import Inches
 import os, re
@@ -63,8 +64,9 @@ def make_slides(imagelist):
     return prs
 
 def get_imagelist():
-    app = QApplication([])  # Create a QApplication instance
-    result_folder = QFileDialog.getExistingDirectory(None, "Select Folder with Images")
+    root = tk.Tk()
+    root.withdraw()
+    result_folder = filedialog.askdirectory(title="Select Folder with Images")
     reaction_folder_list = [os.path.join(result_folder, d) for d in os.listdir(result_folder) if os.path.isdir(os.path.join(result_folder, d))]
     reaction_folder_list = [folder for folder in reaction_folder_list if '1D EXTENDED' in folder]
     print(reaction_folder_list)
