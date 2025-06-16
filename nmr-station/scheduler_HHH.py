@@ -670,41 +670,26 @@ def main(use_gui=True, vials_to_measure=None):
     xml_1dproton = ["""<?xml version="1.0" encoding="utf-8"?>
                             <Message>
                                     <Start protocol="1D PROTON">
-                                            <Option name="Scan" value="QuickScan" />
+                                            <Option name="Scan" value="StandardScan" />
                                     </Start>
                             </Message>"""]
 
     ### this is for Yanqiu's exp.
-    # xml_1dwetsup = ["""<?xml version="1.0" encoding="utf-8"?>
-    #                         <Message>
-    #                             <Start protocol="1D WET SUP">
-    #                                 <Option name="Mode" value="Auto 2 Peaks" />
-    #                                 <Option name="autoStart" value="1.3" />
-    #                                 <Option name="autoEnd" value="2.7" />
-    #                                 <Option name="autoStart2" value="2.8" />
-    #                                 <Option name="autoEnd2" value="4.5" />
-    #                                 <Option name="CorrectionFactor" value="0.9" />
-    #                                 <Option name="Dummy" value="2" />
-    #                                 <Option name="Number" value="32" />
-    #                                 <Option name="AcquisitionTime" value="3.2" />
-    #                                 <Option name="RepetitionTime" value="10" />
-    #                                 <Option name="DecoupleAcq" value="Off" />
-    #                                 <Option name="DecoupleSat" value="Off" />
-    #                             </Start>
-    #                         </Message>"""]
-
-    ### for bromination exp
-    xml_1dproton_plus = ["""
-                        <?xml version="1.0" encoding="utf-8"?>
-                            <Message>
-                                <Start protocol="1D EXTENDED+">
-                                    <Option name="Number" value="32" />
-                                    <Option name="AcquisitionTime" value="6.4" />
-                                    <Option name="RepetitionTime" value="10" />
-                                    <Option name="PulseAngle" value="30" />
-                                </Start>
-                            </Message>
-                        """]
+    xml_1dwetsup = ["""<?xml version="1.0" encoding="utf-8"?>
+                    <Message>
+                        <Start protocol="1D WET SUP">
+                            <Option name="Mode" value="Auto" />
+                            <Option name="autoStart" value="2.5" />
+                            <Option name="autoEnd" value="4" />
+                            <Option name="CorrectionFactor" value="1" />
+                            <Option name="Dummy" value="2" />
+                            <Option name="Number" value="16" />
+                            <Option name="AcquisitionTime" value="3.2" />
+                            <Option name="RepetitionTime" value="15" />
+                            <Option name="DecoupleAcq" value="On" />
+                            <Option name="DecoupleSat" value="On" />
+                        </Start>
+                    </Message>"""]
 
     #"Number" value="32" or "16"
     # "RepetitionTime" value="10"
@@ -712,21 +697,30 @@ def main(use_gui=True, vials_to_measure=None):
 
     # xml_msg_list = ['sample', 'solvent', 'custom', '1dproton', '1dwetsup']
 
-    ## Yanqiu exp
+    ## bromination exp
     # spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
     #                                                  "",
-    #                                                  xml_sample+
-    #                                                  # xml_solvent+
-    #                                                  # xml_custom+
-    #                                                  xml_1dproton+
-    #                                                  xml_1dwetsup)
-    ## bromination exp
+    #                                                  xml_sample + xml_1dproton_plus,
+    #                                                  measurement_info=measurement_info,
+    #                                                  )
+
+    ## HHH exp
     spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
                                                      "",
-                                                     xml_sample + xml_1dproton_plus,
+                                                     xml_sample+
+                                                     # xml_solvent+
+                                                     # xml_custom+
+                                                     xml_1dproton+
+                                                     xml_1dwetsup,
                                                      measurement_info=measurement_info,
                                                      )
-    # # for taking demo
+    # ## bromination exp
+    # spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
+    #                                                  "",
+    #                                                  xml_sample + xml_1dproton_plus,
+    #                                                  measurement_info=measurement_info,
+    #                                                  )
+    # # for demo
     # spectrometer_decision = NMR_SpectrometerDecision(SpectrometerRemoteControl(),
     #                                                  "",
     #                                                  xml_sample+

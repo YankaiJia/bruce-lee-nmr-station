@@ -127,7 +127,10 @@ mi = ['Volumes_sum_[uL]', 'C_Stock_Solutions_[mol/L]', 'Molecular_Weight_[g/mol]
 material_for_reactions_df['Labels']=mi
 
 
-def generate_files_from_dfs(data_path, is_random=False):
+def generate_files_from_dfs(data_path, is_random=False, volumes_for_pipetter_df=volumes_for_pipetter_df):
+
+    # round vols to two digits
+    volumes_for_pipetter_df = volumes_for_pipetter_df.applymap(lambda x: round(x, 2) if isinstance(x, float) else x)
 
     volumes_for_pipetter_df.to_csv(data_path + "/out_volumes.csv")
     concentrations_df.to_csv(data_path + "/out_concentrations.csv")
@@ -140,7 +143,7 @@ def generate_files_from_dfs(data_path, is_random=False):
 # Move the last column 'Labels' to the first column
 material_for_reactions_df = material_for_reactions_df[[material_for_reactions_df.columns[-1]] + list(material_for_reactions_df.columns[:-1])]
 material_for_reactions_df.to_csv(data_path + "/out_material.csv")
-generate_files_from_dfs(data_path, is_random= True)
+generate_files_from_dfs(data_path=data_path, is_random= True)
 
 print(f'All_substrates_volumes_are_pipettable: {is_successful}')
 print(f'You_are_below_total_volume_and_solvent_volume_is_pipettable: {is_successful1}')
