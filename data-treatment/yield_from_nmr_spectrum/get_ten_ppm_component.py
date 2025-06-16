@@ -23,6 +23,7 @@ Example of usage
 
 Author: Yaroslav I. Sobolev, IBS Center for Algorithmic and Robotized Synthesis
 """
+import json
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -743,6 +744,12 @@ def process_one_folder(folder_path):
      second_peak_integral,
      second_peak_integral_uncertainty,
      report_dictionary) = get_10ppm_peak_integration(filepath=filepath)
+
+    # dave the report dictionary to a file
+    report_filepath = os.path.join(folder_path, 'hardy_fitting_report.json')
+    with open(report_filepath, 'w') as f:
+        json.dump(report_dictionary, f, indent=4)
+        print(f'Report saved to {report_filepath}')
 
     make_diagnostic_plots(filepath,
                           report_dictionary,
