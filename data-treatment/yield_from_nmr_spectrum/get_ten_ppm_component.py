@@ -5,13 +5,13 @@ This module provides a very case-specific tool for automated peak fitting, integ
 NMR spectra around 10 ppm chemical shift, with the aim of quantifying 9.86 ppm peak near the main 10 ppm peak,
 even when carbon-13 isotopologues produce sidebands of the main peak that overlap with 9.86 ppm peak.
 
-The analysis employs asymmetric pseudo-Voigt lineshape based on Hardy-Lorentz0-z2 lineshape with sigmoid baseline
+The analysis employs asymmetric pseudo-Voigt lineshape based on Hardy-Lorentz-z2 lineshape with sigmoid baseline
 and vertical offset.
 
 Reference: Hardy, E. "NMR Methods for the Investigation of Structure and Transport", Chapter 7.
 
-The core workflow implements a two-stage fitting protocol: initial single-component 
-lineshape optimization followed by multi-component spectral modeling including main 
+The core workflow implements a two-stage fitting protocol: initial single-component
+lineshape optimization followed by multi-component spectral modeling including main
 peak, sidebands of the main peak, and a second peak (product).
 
 Example of usage
@@ -21,7 +21,7 @@ Example of usage
 >>> print(f"Main peak integral = {integral1:.3e} ± {error_of_integral1:.3e} [ppm·intensity_unit]")
 >>> print(f"Secondary peak integral =  {integral2:.3e} ± {error_of_integral2:.3e} [ppm·intensity_unit]")
 
-Author: Yaroslav I. Sobolev, IBS Center for Algorithmic and Robotized Synthesis
+Author: Yaroslav I. Sobolev, yaroslav.sobolev@gmail.com, IBS Center for Algorithmic and Robotized Synthesis
 """
 
 import numpy as np
@@ -326,12 +326,23 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     >>> main_peak_integral, main_peak_integral_uncertainty, secondary_peak_integral, secondary_peak_integral_uncertainty, report = get_10ppm_peak_integration('sample_nmr.csv', verbose=0)
     """
     nmr_data = load_nmr_spectrum_from_csv(filepath)
+
+    # # PLOT FOR DEBUGGING ONLY
+    # plt.plot(nmr_data[:, 0], nmr_data[:, 1], 'o', color='black', alpha=0.5, markersize=1)
+    # plt.xlabel('Chemical Shift (ppm)')
+    # plt.ylabel('Intensity')
+    # plt.title('NMR Spectrum Data')
+    # plt.gca().invert_xaxis()  # Invert x-axis for chemical shift
+    # plt.show()
+
     # crop the data between 9 and 11 ppm
-    min_ppm = 9.25
-    max_ppm = 11
+    min_ppm = 9.3
+    max_ppm = 10.7
     cropped_data = nmr_data[(nmr_data[:, 0] >= min_ppm) & (nmr_data[:, 0] <= max_ppm)]
     ppm_of_the_maximum = cropped_data[np.argmax(cropped_data[:, 1]), 0]
     height_of_the_maximum = np.max(cropped_data[:, 1])
+    if verbose == 2:
+        print(f"Maximum intensity found at {ppm_of_the_maximum:.4f} ppm with height {height_of_the_maximum:.4f}")
 
     min_ppm = ppm_of_the_maximum - (9.96666016 - 9.6)
     max_ppm = ppm_of_the_maximum + (9.96666016 - 9.6)
@@ -345,21 +356,29 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     # Stage 2: Full multi-component model with parameters' initial guess based on Stage 1 results
     center = ppm_of_the_maximum
     fit_lineshape = lineshape_function
-    lower_bounds = [min_ppm, 0, 0, 0, 0, 0, 0, 0.0001, 0, -0.014]
-    upper_bounds = [max_ppm, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, 0.3, 0.01, 0.014]
+    lower_bounds = [min_ppm, 0, 0, 0, 0, 0, -np.inf, 0.0001, 0, -0.014]
+    upper_bounds = [max_ppm, np.inf, np.inf, np.inf, np.inf, 0.2, np.inf, 0.3, 0.01, 0.014]
 
     p0 = [center, 5.68877297e-26, 9.64055154e-03, 3.63118448e-02 / 2.1 * height_of_the_maximum,
-          9.36311714e-01, 5.10908742e-03, 2.49549047e+01,
+          9.36311714e-01, 0.02, 2.49549047e+01,
           1.93666225e-03, 2.44896635e-03, -1.30129103e-03]
 
     x_scale = p0[:]
     x_scale[0] = 0.05  # Set the center to the maximum ppm value
     x_scale = np.abs(np.array(x_scale))
 
-    popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
-                           p0=p0,
-                           bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
-                           gtol=1e-9)
+    try:
+        popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
+                               gtol=1e-9, maxfev=200)
+    except RuntimeError: # if the fit fails, we will retry with relaxed tolerances
+        print('Maximum number of iterations reached on preliminary fit. Retrying with relaxed tolerances.')
+        popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
+                               gtol=1e-4, ftol=1e-4, xtol=1e-4, maxfev=200)
+    best_fit_center = popt[0]
 
     if verbose == 2:
         print("Fitted parameters:", popt)
@@ -375,19 +394,34 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     # plt.legend()
     # plt.show()
 
+
     # Critical parameters are constrained based on empirical analysis:
     # - Splitting bounds: 0.7-1.3 × 0.148 ppm (typical coupling constant range)
     # - deltappm bounds: 0.7-1.3 × 0.143 ppm (characteristic chemical shift difference)
     splitting_p0 = 1.48721827e-01
     delta_ppm_p0 = 1.42794971e-01
 
-    min_ppm = ppm_of_the_maximum - (9.96666016 - 9.6)
-    max_ppm = ppm_of_the_maximum + (9.96666016 - 9.6)
+
+    # if the center of the most intense peak identified above is closer to 9.96666016 than to (9.96666016 - 1.48721827e-01)
+    # then assume that we have fitted the main peak. Otherwise, assume we have fitted secondary peak
+    if np.abs(best_fit_center - (9.96666016 - delta_ppm_p0)) < np.abs(best_fit_center - 9.96666016):
+        strongest_peak_is_main = False
+        main_peak_guess = best_fit_center + delta_ppm_p0
+        if verbose == 2:
+            print(f"Assuming the strongest peak at {best_fit_center:.4f} ppm is the secondary peak.")
+    else:
+        strongest_peak_is_main = True
+        main_peak_guess = best_fit_center
+        if verbose == 2:
+            print(f"Assuming the strongest peak at {best_fit_center:.4f} ppm is the main peak.")
+
+    min_ppm = main_peak_guess - (9.96666016 - 9.6)
+    max_ppm = main_peak_guess + (9.96666016 - 9.6)
     cropped_data = nmr_data[(nmr_data[:, 0] >= min_ppm) & (nmr_data[:, 0] <= max_ppm)]
 
-    lower_bounds = [min_ppm, 0.7 * splitting_p0, 0.7 * delta_ppm_p0, 0, 0, 0, 0, 0, 0, 0.0001, 0, -0.014, 0, 0]
-    upper_bounds = [max_ppm, 1.3 * splitting_p0, 1.3 * delta_ppm_p0, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf,
-                    0.3, 0.01, 0.014, np.inf, np.inf]
+    lower_bounds = [main_peak_guess - 0.05, 0.7 * splitting_p0, 0.7 * delta_ppm_p0, 0, 0, 0, 0, 0, -np.inf, 0.0001, 0, -0.014, 0, 0]
+    upper_bounds = [main_peak_guess + 0.05, 1.3 * splitting_p0, 1.5 * delta_ppm_p0, np.inf, np.inf, np.inf, np.inf, 0.2, np.inf,
+                    0.3, 0.01, 0.014, 1, np.inf]
 
     # inherit the p0 from the popt
     # from the previous fit
@@ -395,17 +429,29 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     # but modify the splitting and deltappm parameters
     # to be more flexible
     # and allow for sidebands and second peak intensity
-    p0 = [popt[0]] + [splitting_p0, delta_ppm_p0] + list(popt[1:]) + [0.01, 0.01]
+    if strongest_peak_is_main:
+        p0 = [main_peak_guess] + [splitting_p0, delta_ppm_p0] + list(popt[1:]) + [0.01, 0.01]
+    else:
+        p0 = [main_peak_guess] + [splitting_p0, delta_ppm_p0] + list(popt[1:]) + [0.01, 10]
     x_scale = p0[:]
     x_scale[0] = 0.05  # Set the center to the maximum ppm value
     x_scale = np.abs(np.array(x_scale))
 
-    popt, pcov = curve_fit(spectrum_function, cropped_data[:, 0], cropped_data[:, 1],
-                           p0=p0,
-                           bounds=(lower_bounds, upper_bounds), verbose=2, jac='3-point',
-                           maxfev=10000, method='trf', x_scale=x_scale,
-                           sigma=instrumental_rms_error * np.ones_like(cropped_data[:, 0]),
-                           absolute_sigma=True, ftol=1e-11, xtol=1e-9)
+    try:
+        popt, pcov = curve_fit(spectrum_function, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=2, jac='3-point',
+                               maxfev=600, method='trf', x_scale=x_scale,
+                               sigma=instrumental_rms_error * np.ones_like(cropped_data[:, 0]),
+                               absolute_sigma=True, ftol=1e-11, xtol=1e-9)
+    except RuntimeError:  # if the fit fails, we will retry with relaxed tolerances
+        print('Maximum number of iterations reached on full spectrum fit. Retrying with relaxed tolerances.')
+        popt, pcov = curve_fit(spectrum_function, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=2, jac='3-point',
+                               maxfev=600, method='trf', x_scale=x_scale,
+                               sigma=instrumental_rms_error * np.ones_like(cropped_data[:, 0]),
+                               absolute_sigma=True, ftol=1e-6, xtol=1e-5)
 
     perr = np.sqrt(np.diag(pcov))
     if verbose == 2:
@@ -659,7 +705,7 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     ax = axs[0, 1]
     vs = np.linspace(min_ppm, max_ppm, 1000)
     ax.plot(vs, fitted_spectrum, color='C0')
-    ax.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1)
+    ax.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.3, markersize=2)
     # reverse the x-axis for chemical shift
     ax.set_title('Comparison of fit and data, zoomed')
     ax.set_xlabel(xlabel)
@@ -734,10 +780,39 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
         plt.close(fig)
 
 
+def generate_mock_data_for_testing():
+    ### make a simulated spectrum where secondary peak is stronger than the main peak
+    splitting_p0 = 1.48721827e-01
+    delta_ppm_p0 = 1.42794971e-01
+    p0 = [9.96666016, splitting_p0, delta_ppm_p0, 5.68877297e-26, 9.64055154e-03, 0.1*3.63118448e-02,
+          9.36311714e-01, 5.10908742e-03, 2.49549047e+01,
+          1.93666225e-03, 0.1*2.44896635e-03, -1.30129103e-03, 0.03, 10]
+    nmr_data = load_nmr_spectrum_from_csv(filepath)
+    vs = nmr_data[:, 0]
+    simulated = spectrum_function(vs, *p0)
+    # add noise of 0.002 to the simulated data
+    noise = np.random.normal(0, 0.002, size=simulated.shape)
+    simulated += noise
+    # save to csv
+    simulated_data = np.column_stack((vs, simulated[::-1]))
+    np.savetxt('test_data/data3.csv', simulated_data, delimiter=',', header='ppm,intensity', comments='')
+
 if __name__ == '__main__':
-    # Example usage
-    filepath = 'test_data/data.csv'
-    main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
-        filepath=filepath)
-    make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath='test_data/diagnostic_plot.png')
+    # # # # # Example usage
+
+    # filepath = 'test_data/data1.csv'
+    # main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(filepath=filepath)
+    # make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=f'test_data/diagnostic_plot_{name}.png',
+    #                       do_show=False)
+    # plt.show()
+
+    names = ['10-1D EXTENDED+-20250520-095535',
+             '11-1D EXTENDED+-20250520-100200',
+             '15-1D EXTENDED+-20250520-103150',
+             '23-1D EXTENDED+-20250520-112717']
+    for name in names:
+        filepath = f'D:/Docs/Dropbox/brucelee/data/NV/Final Data/MeCN/4-Pyrrolidinopyridine/2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing/Results/{name}/data.csv'
+        main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
+            filepath=filepath)
+        make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=f'test_data/diagnostic_plot_{name}.png', do_show=False)
     plt.show()
