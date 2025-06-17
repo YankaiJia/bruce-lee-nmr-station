@@ -24,6 +24,8 @@ Example of usage
 Author: Yaroslav I. Sobolev, IBS Center for Algorithmic and Robotized Synthesis
 """
 import json
+import re
+import textwrap
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -502,8 +504,8 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
         'second_peak_intensity_uncertainty': second_peak_intensity_uncertainty,
         'second_peak_integral': second_peak_integral,
         'second_peak_integral_uncertainty': second_peak_integral_uncertainty,
-        'optimized_parameters': popt,
-        'optimized_parameters_errors': perr,
+        'optimized_parameters': popt.tolist(),
+        'optimized_parameters_errors': perr.tolist(),
         'residuals_rms': rms_error,
     }
     print(f'Fitting report: {dictionary_to_return}')
@@ -532,7 +534,7 @@ def simpleaxis(ax):
 
 
 def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None,
-                          figsize=(12, 10), min_ppm=9.25, max_ppm=11, do_show=True, custom_title=None):
+                          figsize=(12, 12), min_ppm=9.25, max_ppm=11, do_show=True, custom_title=None):
     """
     Generate comprehensive diagnostic plots for NMR peak fitting analysis by the `get_10ppm_peak_integration()` function.
 
@@ -616,6 +618,10 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     cropped_data = nmr_data[(nmr_data[:, 0] >= min_ppm) & (nmr_data[:, 0] <= max_ppm)]
 
     fig = plt.figure(figsize=figsize)
+    # add a title to the figure
+    fig_title = str(filepath)
+    fig_title = textwrap.fill(fig_title, width=60)
+    fig.suptitle(fig_title, fontsize=14, fontweight='bold')
     gs = GridSpec(2, 3, width_ratios=[3, 3, 1], height_ratios=[1, 1], wspace=0.3)
     ax1 = fig.add_subplot(gs[0, 0])
     ax2 = fig.add_subplot(gs[1, 0])
@@ -734,6 +740,7 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
         fig.suptitle(custom_title, fontsize=16)
 
     if save_fig_to_filepath is not None:
+        print(f'Saving diagnostic plot to {save_fig_to_filepath}')
         plt.savefig(save_fig_to_filepath, dpi=300, bbox_inches='tight')
 
     if do_show:
@@ -750,10 +757,16 @@ def process_one_folder(folder_path):
      second_peak_integral_uncertainty,
      report_dictionary) = get_10ppm_peak_integration(filepath=filepath)
 
+    # merge report_dictionary with the main peak integral and uncertainty
+    report_dictionary['main_peak_integral'] = main_peak_integral
+    report_dictionary['main_peak_integral_uncertainty'] = main_peak_integral_uncertainty
+    report_dictionary['second_peak_integral_'] = second_peak_integral
+    report_dictionary['second_peak_integral_uncertainty_'] = second_peak_integral_uncertainty
+
     # save the report dictionary to a file
     report_filepath = os.path.join(folder_path, 'hardy_fitting_report.json')
     with open(report_filepath, 'w') as f:
-        json.dump(report_dictionary, f, indent=4, ensure_ascii=False)
+        json.dump(report_dictionary, f, indent=4)
         print(f'Report saved to {report_filepath}')
 
     make_diagnostic_plots(filepath,
@@ -777,10 +790,17 @@ def process_all_folders_parallel(folder_paths, process_func, max_workers=4):
 if __name__ == '__main__':
 
     # results folder
-    results_folder = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing\Results"
+    # results_folder = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
+    results_folder = r"D:\Dropbox\brucelee\data\NV\Final Data\Calibrations\MeCN\Mixture_compd2_and_compd3"
     # get all subfolders in the results folder
     results_folder_subfolders = [f.path for f in os.scandir(results_folder) if f.is_dir()]
-    data_csv_list = [f + r'\data.csv' for f in results_folder_subfolders]
+    # sort according to the spectrum index
+    def extract_sort_key(path):
+        match = re.search(r'(\d+)-1D EXTENDED', path)
+        return int(match.group(1)) if match else float('inf')
+    # Sort the paths using the extracted integer
+    results_folder_subfolders = sorted(results_folder_subfolders, key=extract_sort_key)
+    # data_csv_list = [f + r'\data.csv' for f in results_folder_subfolders]
 
     # test one example
     # process_one_folder(folder_path=results_folder_subfolders[0])
