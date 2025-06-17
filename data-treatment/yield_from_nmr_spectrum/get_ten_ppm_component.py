@@ -37,6 +37,8 @@ import os
 import matplotlib
 matplotlib.use('tkagg')
 
+dictionary_to_return = {}
+
 def load_nmr_spectrum_from_csv(filepath):
     """
     Load NMR spectrum data from CSV file with automatic y-axis reversal.
@@ -480,6 +482,8 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
         print(
             f'Second peak integral: ({second_peak_integral} ± {second_peak_integral_uncertainty} ) [ppm * intensity_unit]')
 
+    global dictionary_to_return
+
     dictionary_to_return = {
         'center': center,
         'splitting': splitting,
@@ -502,6 +506,7 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
         'optimized_parameters_errors': perr,
         'residuals_rms': rms_error,
     }
+    print(f'Fitting report: {dictionary_to_return}')
 
     return main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, dictionary_to_return
 
@@ -745,10 +750,10 @@ def process_one_folder(folder_path):
      second_peak_integral_uncertainty,
      report_dictionary) = get_10ppm_peak_integration(filepath=filepath)
 
-    # dave the report dictionary to a file
+    # save the report dictionary to a file
     report_filepath = os.path.join(folder_path, 'hardy_fitting_report.json')
     with open(report_filepath, 'w') as f:
-        json.dump(report_dictionary, f, indent=4)
+        json.dump(report_dictionary, f, indent=4, ensure_ascii=False)
         print(f'Report saved to {report_filepath}')
 
     make_diagnostic_plots(filepath,
