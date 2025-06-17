@@ -705,7 +705,7 @@ def make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=None
     ax = axs[0, 1]
     vs = np.linspace(min_ppm, max_ppm, 1000)
     ax.plot(vs, fitted_spectrum, color='C0')
-    ax.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1)
+    ax.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.3, markersize=2)
     # reverse the x-axis for chemical shift
     ax.set_title('Comparison of fit and data, zoomed')
     ax.set_xlabel(xlabel)
