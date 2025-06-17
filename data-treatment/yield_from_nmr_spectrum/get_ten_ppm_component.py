@@ -326,9 +326,18 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     >>> main_peak_integral, main_peak_integral_uncertainty, secondary_peak_integral, secondary_peak_integral_uncertainty, report = get_10ppm_peak_integration('sample_nmr.csv', verbose=0)
     """
     nmr_data = load_nmr_spectrum_from_csv(filepath)
+
+    # # PLOT FOR DEBUGGING ONLY
+    # plt.plot(nmr_data[:, 0], nmr_data[:, 1], 'o', color='black', alpha=0.5, markersize=1)
+    # plt.xlabel('Chemical Shift (ppm)')
+    # plt.ylabel('Intensity')
+    # plt.title('NMR Spectrum Data')
+    # plt.gca().invert_xaxis()  # Invert x-axis for chemical shift
+    # plt.show()
+
     # crop the data between 9 and 11 ppm
-    min_ppm = 9.25
-    max_ppm = 11
+    min_ppm = 9.3
+    max_ppm = 10.7
     cropped_data = nmr_data[(nmr_data[:, 0] >= min_ppm) & (nmr_data[:, 0] <= max_ppm)]
     ppm_of_the_maximum = cropped_data[np.argmax(cropped_data[:, 1]), 0]
     height_of_the_maximum = np.max(cropped_data[:, 1])
@@ -347,21 +356,28 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     # Stage 2: Full multi-component model with parameters' initial guess based on Stage 1 results
     center = ppm_of_the_maximum
     fit_lineshape = lineshape_function
-    lower_bounds = [min_ppm, 0, 0, 0, 0, 0, 0, 0.0001, 0, -0.014]
-    upper_bounds = [max_ppm, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, 0.3, 0.01, 0.014]
+    lower_bounds = [min_ppm, 0, 0, 0, 0, 0, -np.inf, 0.0001, 0, -0.014]
+    upper_bounds = [max_ppm, np.inf, np.inf, np.inf, np.inf, 0.2, np.inf, 0.3, 0.01, 0.014]
 
     p0 = [center, 5.68877297e-26, 9.64055154e-03, 3.63118448e-02 / 2.1 * height_of_the_maximum,
-          9.36311714e-01, 5.10908742e-03, 2.49549047e+01,
+          9.36311714e-01, 0.02, 2.49549047e+01,
           1.93666225e-03, 2.44896635e-03, -1.30129103e-03]
 
     x_scale = p0[:]
     x_scale[0] = 0.05  # Set the center to the maximum ppm value
     x_scale = np.abs(np.array(x_scale))
 
-    popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
-                           p0=p0,
-                           bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
-                           gtol=1e-9, maxfev=10000)
+    try:
+        popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
+                               gtol=1e-9, maxfev=200)
+    except RuntimeError: # if the fit fails, we will retry with relaxed tolerances
+        print('Maximum number of iterations reached on preliminary fit. Retrying with relaxed tolerances.')
+        popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
+                               gtol=1e-4, ftol=1e-4, xtol=1e-4, maxfev=200)
     best_fit_center = popt[0]
 
     if verbose == 2:
@@ -403,8 +419,8 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     max_ppm = main_peak_guess + (9.96666016 - 9.6)
     cropped_data = nmr_data[(nmr_data[:, 0] >= min_ppm) & (nmr_data[:, 0] <= max_ppm)]
 
-    lower_bounds = [main_peak_guess - 0.05, 0.7 * splitting_p0, 0.7 * delta_ppm_p0, 0, 0, 0, 0, 0, 0, 0.0001, 0, -0.014, 0, 0]
-    upper_bounds = [main_peak_guess + 0.05, 1.3 * splitting_p0, 1.5 * delta_ppm_p0, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf,
+    lower_bounds = [main_peak_guess - 0.05, 0.7 * splitting_p0, 0.7 * delta_ppm_p0, 0, 0, 0, 0, 0, -np.inf, 0.0001, 0, -0.014, 0, 0]
+    upper_bounds = [main_peak_guess + 0.05, 1.3 * splitting_p0, 1.5 * delta_ppm_p0, np.inf, np.inf, np.inf, np.inf, 0.2, np.inf,
                     0.3, 0.01, 0.014, 1, np.inf]
 
     # inherit the p0 from the popt
@@ -421,12 +437,21 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     x_scale[0] = 0.05  # Set the center to the maximum ppm value
     x_scale = np.abs(np.array(x_scale))
 
-    popt, pcov = curve_fit(spectrum_function, cropped_data[:, 0], cropped_data[:, 1],
-                           p0=p0,
-                           bounds=(lower_bounds, upper_bounds), verbose=2, jac='3-point',
-                           maxfev=10000, method='trf', x_scale=x_scale,
-                           sigma=instrumental_rms_error * np.ones_like(cropped_data[:, 0]),
-                           absolute_sigma=True, ftol=1e-11, xtol=1e-9)
+    try:
+        popt, pcov = curve_fit(spectrum_function, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=2, jac='3-point',
+                               maxfev=600, method='trf', x_scale=x_scale,
+                               sigma=instrumental_rms_error * np.ones_like(cropped_data[:, 0]),
+                               absolute_sigma=True, ftol=1e-11, xtol=1e-9)
+    except RuntimeError:  # if the fit fails, we will retry with relaxed tolerances
+        print('Maximum number of iterations reached on full spectrum fit. Retrying with relaxed tolerances.')
+        popt, pcov = curve_fit(spectrum_function, cropped_data[:, 0], cropped_data[:, 1],
+                               p0=p0,
+                               bounds=(lower_bounds, upper_bounds), verbose=2, jac='3-point',
+                               maxfev=600, method='trf', x_scale=x_scale,
+                               sigma=instrumental_rms_error * np.ones_like(cropped_data[:, 0]),
+                               absolute_sigma=True, ftol=1e-6, xtol=1e-5)
 
     perr = np.sqrt(np.diag(pcov))
     if verbose == 2:
@@ -774,8 +799,20 @@ def generate_mock_data_for_testing():
 
 if __name__ == '__main__':
     # # # # # Example usage
-    filepath = 'test_data/data1.csv'
-    main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
-        filepath=filepath)
-    make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath='test_data/diagnostic_plot.png')
+
+    # filepath = 'test_data/data1.csv'
+    # main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(filepath=filepath)
+    # make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=f'test_data/diagnostic_plot_{name}.png',
+    #                       do_show=False)
+    # plt.show()
+
+    names = ['10-1D EXTENDED+-20250520-095535',
+             '11-1D EXTENDED+-20250520-100200',
+             '15-1D EXTENDED+-20250520-103150',
+             '23-1D EXTENDED+-20250520-112717']
+    for name in names:
+        filepath = f'D:/Docs/Dropbox/brucelee/data/NV/Final Data/MeCN/4-Pyrrolidinopyridine/2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing/Results/{name}/data.csv'
+        main_peak_integral, main_peak_integral_uncertainty, second_peak_integral, second_peak_integral_uncertainty, report_dictionary = get_10ppm_peak_integration(
+            filepath=filepath)
+        make_diagnostic_plots(filepath, report_dictionary, save_fig_to_filepath=f'test_data/diagnostic_plot_{name}.png', do_show=False)
     plt.show()
