@@ -836,24 +836,31 @@ def process_all_folders_parallel(folder_paths, process_func, max_workers=4):
 if __name__ == '__main__':
 
     # results folder
-    # results_folder = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
-    results_folder = r"D:\Dropbox\brucelee\data\NV\Final Data\Calibrations\MeCN\Mixture_compd2_and_compd3"
-    # get all subfolders in the results folder
-    results_folder_subfolders = [f.path for f in os.scandir(results_folder) if f.is_dir()]
-    # sort according to the spectrum index
-    def extract_sort_key(path):
-        match = re.search(r'(\d+)-1D EXTENDED', path)
-        return int(match.group(1)) if match else float('inf')
-    # Sort the paths using the extracted integer
-    results_folder_subfolders = sorted(results_folder_subfolders, key=extract_sort_key)
-    # data_csv_list = [f + r'\data.csv' for f in results_folder_subfolders]
+    results_folders = [
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results"
+        #  r"D:\Dropbox\brucelee\data\NV\Final Data\Calibrations\MeCN\Mixture_compd2_and_compd3"
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run01_MeCN_DMAP\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run02_MeCN_DMAP\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine\2025-05-15-run01_MeCN_Pyr\Results"
+    ]
+    for results_folder in results_folders:
 
-    # test one example
-    # process_one_folder(folder_path=results_folder_subfolders[0])
+        # get all subfolders in the results folder
+        results_folder_subfolders = [f.path for f in os.scandir(results_folder) if f.is_dir()]
+        # sort according to the spectrum index
+        def extract_sort_key(path):
+            match = re.search(r'(\d+)-1D EXTENDED', path)
+            return int(match.group(1)) if match else float('inf')
+        # Sort the paths using the extracted integer
+        results_folder_subfolders = sorted(results_folder_subfolders, key=extract_sort_key)
+        # data_csv_list = [f + r'\data.csv' for f in results_folder_subfolders]
 
-    # process all folders in parallel
-    from concurrent.futures import ProcessPoolExecutor, as_completed
-    all_results = process_all_folders_parallel( results_folder_subfolders,
-                                                process_func=process_one_folder,
-                                                max_workers=8)
+        # test one example
+        # process_one_folder(folder_path=results_folder_subfolders[0])
+
+        # process all folders in parallel
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        all_results = process_all_folders_parallel( results_folder_subfolders,
+                                                    process_func=process_one_folder,
+                                                    max_workers=8)
 

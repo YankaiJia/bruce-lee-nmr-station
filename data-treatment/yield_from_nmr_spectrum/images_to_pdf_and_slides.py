@@ -88,7 +88,7 @@ if __name__ == "__main__":
     result_folder, imagelist = get_imagelist(image_name='hardy_fit_diagnostic_plot.png')
 
     pdf = make_pdf(imagelist)
-    pdf.output(result_folder + r"\\all_fitting_results.pdf", "F")
+    pdf.output(result_folder + r"\\all_fitting_results_hardy_fit.pdf", "F")
 
     prs = make_slides(imagelist)
-    prs.save(result_folder + r"\\all_fitting_results.pptx")
+    prs.save(result_folder + r"\\all_fitting_results_hardy_fit.pptx")
