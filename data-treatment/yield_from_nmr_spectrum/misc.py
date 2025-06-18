@@ -319,11 +319,13 @@ def write_conc_into_result_csv():
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run01_MeCN_DMAP\Results",
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run02_MeCN_DMAP\Results"
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine\2025-05-15-run01_MeCN_Pyr\Results"
-        r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run01_MeCN_4_Me_Pyr\Results',
-        r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run02_MeCN_4_Me_Pyr\Results'
+        # r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run01_MeCN_4_Me_Pyr\Results',
+        # r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run02_MeCN_4_Me_Pyr\Results'
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
     ]
 
-    json_file_to_save = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine" + r"\hardy_fitting_compd3_conc.json"
+    json_file_to_save = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine" + r"\hardy_fitting_compd3_conc.json"
 
     # get all the subfolders in the results folder if "1D EXTENDED" is in the name
     subfolders = []
@@ -344,9 +346,10 @@ def write_conc_into_result_csv():
     with open(json_file_to_save, 'w') as file:
         json.dump(compd3_conc_dict, file, indent=4)
     print(f"Saved compd3_conc_dict to {json_file_to_save}")
+
     return compd3_conc_dict
 
-# write_conc_into_result_csv()
+write_conc_into_result_csv()
 
 def merge_result_from_hardy_fitting():
 
@@ -373,75 +376,14 @@ def merge_result_from_hardy_fitting():
 
 def get_conc_for_all_reactions():
 
-    run_folder = r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine'
-    outvandc_folder = run_folder + r'\2025-06-18-run01_MeCN_4_Me_Pyr\OutVandC'
+    run_folder = r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine'
+    outvandc_file = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\OutVandC\conc_vol_list.csv"
 
-    results_folder1 = run_folder + r'\2025-06-18-run01_MeCN_4_Me_Pyr\Results'
-    results_folder2 = run_folder + r'\2025-06-18-run02_MeCN_4_Me_Pyr\Results'
+    results_folder1 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results"
+    results_folder2 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
 
-    excel_file1 = run_folder + r"\2025-06-18-run01_MeCN_4_Me_Pyr\2025-06-18-run01.xlsx"
-    excel_file2 = run_folder + r"\2025-06-18-run02_MeCN_4_Me_Pyr\2025-06-18-run02.xlsx"
-
-    # get all the subfolders in the results folder if "1D EXTENDED" is in the name
-    reaction_folder_list1 = [f.path for f in os.scandir(results_folder1) if f.is_dir() and "1D EXTENDED" in f.name]
-    reaction_folder_list2 = [f.path for f in os.scandir(results_folder2) if f.is_dir() and "1D EXTENDED" in f.name]
-    spectrum_name_list1 = [path.split('\\')[-1] for path in reaction_folder_list1]
-    spectrum_name_list2 = [path.split('\\')[-1] for path in reaction_folder_list2]
-    spectrum_name_dict1 = {int(item.split('-')[0]): item for item in spectrum_name_list1}
-    spectrum_name_dict2 = {int(item.split('-')[0]): item for item in spectrum_name_list2}
-
-
-    # read the excel files into df
-    df1 = pd.read_excel(excel_file1)
-    df2 = pd.read_excel(excel_file2)
-
-    # map the spectrum_name_dict1 to the local_index in df1
-    df1['spectrum_name'] = df1['local_index'].map(spectrum_name_dict1)
-    df2['spectrum_name'] = df2['local_index'].map(spectrum_name_dict2)
-
-    # combine the two dfs
-    df_combined = pd.concat([df1, df2], ignore_index=True)
-
-    print(df_combined.head())
-
-    # outVandC
-    conc_vol_pipetting = outvandc_folder + r'\conc_vol_list.csv'
-    df_conc_vol = pd.read_csv(conc_vol_pipetting)
-
-    # merge the df_combined with df_conc_vol on 'global_index'
-    df_merged = pd.merge(df_combined, df_conc_vol, on='global_index', how='left')
-    # save to a new csv file
-    output_csv = run_folder + r'\conc_for_all_reactions.csv'
-    df_merged.to_csv(output_csv, index=False)
-
-    # read the json with compd3 concentration
-    compd3_conc_json = run_folder + r'\hardy_fitting_compd3_conc.json'
-    with open(compd3_conc_json, 'r') as file:
-        compd3_conc_dict = json.load(file)
-    # convert the json to a dataframe
-    df_compd3_conc = pd.DataFrame(list(compd3_conc_dict.items()), columns=['spectrum_name', 'compd3_conc'])
-    # map the compd3 conc by 'spectrum_name'
-    df_merged['compd3_conc'] = df_merged['spectrum_name'].map(df_compd3_conc.set_index('spectrum_name')['compd3_conc'])
-
-    # save the df_merged to a new csv file
-    needed_columns =['local_index', 'global_index',
-           'spectrum_name', 'conc_1c', 'conc_PhCHO', 'conc_DMAP', ]
-    df_merged = df_merged[needed_columns + ['compd3_conc']]
-    output_csv_merged = run_folder + r'\conditions_with_compd3_conc.csv'
-    df_merged.to_csv(output_csv_merged, index=False)
-
-    return df_merged
-
-def get_conc_for_all_reactions_one_run_folder():
-
-    run_folder = r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine'
-    outvandc_folder = run_folder + r'\2025-05-15-run01_MeCN_Pyr\OutVandC'
-
-    results_folder1 = run_folder + r'\2025-06-18-run01_MeCN_4_Me_Pyr\Results'
-    results_folder2 = run_folder + r'\2025-06-18-run02_MeCN_4_Me_Pyr\Results'
-
-    excel_file1 = run_folder + r"\2025-06-18-run01_MeCN_4_Me_Pyr\2025-06-18-run01.xlsx"
-    excel_file2 = run_folder + r"\2025-06-18-run02_MeCN_4_Me_Pyr\2025-06-18-run02.xlsx"
+    excel_file1 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\2025-05-19-run01.xlsx"
+    excel_file2 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\2025-05-19-run02.xlsx"
 
     # get all the subfolders in the results folder if "1D EXTENDED" is in the name
     reaction_folder_list1 = [f.path for f in os.scandir(results_folder1) if f.is_dir() and "1D EXTENDED" in f.name]
@@ -466,8 +408,7 @@ def get_conc_for_all_reactions_one_run_folder():
     print(df_combined.head())
 
     # outVandC
-    conc_vol_pipetting = outvandc_folder + r'\conc_vol_list.csv'
-    df_conc_vol = pd.read_csv(conc_vol_pipetting)
+    df_conc_vol = pd.read_csv(outvandc_file)
 
     # merge the df_combined with df_conc_vol on 'global_index'
     df_merged = pd.merge(df_combined, df_conc_vol, on='global_index', how='left')
@@ -494,3 +435,69 @@ def get_conc_for_all_reactions_one_run_folder():
     return df_merged
 
 df_merged = get_conc_for_all_reactions()
+
+
+def get_conc_for_all_reactions_one_run_folder():
+
+    run_folder = r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine'
+    outvandc_folder = run_folder + r'\2025-05-15-run01_MeCN_Pyr\OutVandC'
+    results_folder1 = run_folder + r'\2025-05-15-run01_MeCN_Pyr\Results'
+    excel_file1 = run_folder + r"\2025-05-15-run01_MeCN_Pyr\2025-05-15-run01.xlsx"
+
+    # get all the subfolders in the results folder if "1D EXTENDED" is in the name
+    reaction_folder_list1 = [f.path for f in os.scandir(results_folder1) if f.is_dir() and "1D EXTENDED" in f.name]
+    # reaction_folder_list2 = [f.path for f in os.scandir(results_folder2) if f.is_dir() and "1D EXTENDED" in f.name]
+    spectrum_name_list1 = [path.split('\\')[-1] for path in reaction_folder_list1]
+    # spectrum_name_list2 = [path.split('\\')[-1] for path in reaction_folder_list2]
+    spectrum_name_dict1 = {int(item.split('-')[0]): item for item in spectrum_name_list1}
+    # spectrum_name_dict2 = {int(item.split('-')[0]): item for item in spectrum_name_list2}
+
+
+    # read the excel files into df
+    df1 = pd.read_excel(excel_file1)
+    # df2 = pd.read_excel(excel_file2)
+
+    # map the spectrum_name_dict1 to the local_index in df1
+    df1['spectrum_name'] = df1['local_index'].map(spectrum_name_dict1)
+    # df2['spectrum_name'] = df2['local_index'].map(spectrum_name_dict2)
+
+    # combine the two dfs
+    # df_combined = pd.concat([df1, df2], ignore_index=True)
+    df_combined = df1
+
+    print(df_combined.head())
+
+    # outVandC
+    conc_vol_pipetting = outvandc_folder + r'\conc_vol_list.csv'
+    df_conc_vol = pd.read_csv(conc_vol_pipetting)
+
+    # merge the df_combined with df_conc_vol on 'global_index'
+    df_merged = pd.merge(df_combined, df_conc_vol, on='global_index', how='left')
+    # save to a new csv file
+    output_csv = run_folder + r'\conc_for_all_reactions.csv'
+    df_merged.to_csv(output_csv, index=False)
+
+    # read the json with compd3 concentration
+    compd3_conc_json = run_folder + r'\hardy_fitting_compd3_conc.json'
+    with open(compd3_conc_json, 'r') as file:
+        compd3_conc_dict = json.load(file)
+    # convert the json to a dataframe
+    df_compd3_conc = pd.DataFrame(list(compd3_conc_dict.items()), columns=['spectrum_name', 'compd3_conc'])
+    # map the compd3 conc by 'spectrum_name'
+    df_merged['compd3_conc'] = df_merged['spectrum_name'].map(df_compd3_conc.set_index('spectrum_name')['compd3_conc'])
+
+    # save the df_merged to a new csv file
+    needed_columns =['local_index', 'global_index',
+           'spectrum_name', 'conc_1c', 'conc_PhCHO', 'conc_DMAP', ]
+    df_merged = df_merged[needed_columns + ['compd3_conc']]
+    print(df_merged.head())
+    output_csv_merged = run_folder + r'\conditions_with_compd3_conc.csv'
+
+    print(f"Saved merged conditions with compd3 concentration to {output_csv_merged}")
+
+    df_merged.to_csv(output_csv_merged, index=False)
+    print(f"Saved merged conditions with compd3 concentration to {output_csv_merged}")
+
+    return df_merged
+
+# df_merged = get_conc_for_all_reactions_one_run_folder()
