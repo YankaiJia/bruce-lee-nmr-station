@@ -367,7 +367,7 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
     lower_bounds = [min_ppm, 0, 0, 0, 0, 0, -np.inf, 0.0001, 0, -0.014]
     upper_bounds = [max_ppm, np.inf, np.inf, np.inf, np.inf, 0.2, np.inf, 0.3, 0.01, 0.014]
 
-    p0 = [center, 5.68877297e-26, 9.64055154e-03, 3.63118448e-02 / 2.1 * height_of_the_maximum,
+    p0 = [center, 0.08, 5.64055154e-01, 3.63118448e-02 / 2.1 * height_of_the_maximum,
           9.36311714e-01, 0.02, 2.49549047e+01,
           1.93666225e-03, 2.44896635e-03, -1.30129103e-03]
 
@@ -379,7 +379,7 @@ def get_10ppm_peak_integration(filepath, instrumental_rms_error=0.0020, verbose=
         popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
                                p0=p0,
                                bounds=(lower_bounds, upper_bounds), verbose=verbose, jac='3-point', x_scale=x_scale,
-                               gtol=1e-9, maxfev=200)
+                               gtol=1e-9, ftol=1e-10, maxfev=200)
     except RuntimeError: # if the fit fails, we will retry with relaxed tolerances
         print('Maximum number of iterations reached on preliminary fit. Retrying with relaxed tolerances.')
         popt, pcov = curve_fit(fit_lineshape, cropped_data[:, 0], cropped_data[:, 1],
@@ -838,10 +838,13 @@ if __name__ == '__main__':
     # results folder
     results_folders = [
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results"
-        #  r"D:\Dropbox\brucelee\data\NV\Final Data\Calibrations\MeCN\Mixture_compd2_and_compd3"
-        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run01_MeCN_DMAP\Results",
-        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run02_MeCN_DMAP\Results",
-        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine\2025-05-15-run01_MeCN_Pyr\Results"
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\Calibrations\MeCN\Mixture_compd2_and_compd3"
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run01_MeCN_DMAP\Results",
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run02_MeCN_DMAP\Results",
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine\2025-05-15-run01_MeCN_Pyr\Results"
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run01_MeCN_4_Me_Pyr\Results",
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run02_MeCN_4_Me_Pyr\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_later_version\Results"
     ]
     for results_folder in results_folders:
 
