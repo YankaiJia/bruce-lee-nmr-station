@@ -111,8 +111,8 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     df['conc_HBr_adduct'] = pd.to_numeric(df['conc_HBr_adduct'], errors='coerce')
 
     # get the yield of A
-    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['conc_A'] / df['limitting_conc'], 0)
-    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['conc_B'] / df['limitting_conc'], 0)
+    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['conc_A'] / df['limitting_conc'] * 100, 0)
+    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['conc_B'] / df['limitting_conc'] * 100, 0)
 
 
     # calculate the yield of other products
@@ -123,7 +123,9 @@ def process_one_folder(run_dir, run_sol, run_outliers):
         if not col_name in df.columns:
             continue
         yield_str = col_name.replace('intg_', 'yield_')
-        df[yield_str] = np.where(df['limitting_conc'] != 0, df[col_name] / df['limitting_conc'], 0)
+        conc_str = col_name.replace('intg_', 'conc_')
+        print(f'Calculating {yield_str} from {conc_str}')
+        df[yield_str] = np.where(df['limitting_conc'] != 0, df[conc_str] / df['limitting_conc'] * 100, 0)
 
     time.sleep(1)
 
@@ -140,6 +142,21 @@ def process_one_folder(run_dir, run_sol, run_outliers):
 
     # mole fraction of A
     df['mole_fraction_A_over_AB'] = df['conc_A'] / (df['conc_A'] + df['conc_B'])
+
+    # remove outlieres
+    spectrum_names_to_exclude=[
+        # '152853',
+        # "161133",
+        # "133718",
+        # "211803",
+        "005641",
+        "014127",
+        # "205448",
+        # "213536"
+    ]
+    pattern = '|'.join(spectrum_names_to_exclude)
+
+    df = df[~df['spectrum_dir'].str.contains(pattern, na=False)]
 
     # save the final dataframe to csv
     df.to_csv(result_folder + "\\final_results.csv", index=False)

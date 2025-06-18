@@ -234,8 +234,18 @@ def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False)
         if not col_name in df.columns:
             continue
         conc_str = col_name.replace('intg_', 'conc_')
-        # assuming the number of protons is 1 for all other products
-        df[conc_str] = lin_reg_model.predict(df[col_name].values.reshape(-1, 1))
+        print(f"Processing column: {col_name} -> {conc_str}")
+
+        # assuming the number of protons is 1 unless specified otherwise
+        if 'HBr_adduct' in conc_str:
+            proton_count = 3
+        else:
+            proton_count = 1
+
+        intg_norm_here = df[col_name].values.reshape(-1, 1) / proton_count
+
+        df[conc_str] = lin_reg_model.predict(intg_norm_here)
+
         # Set predicted values to zero where the original input was zero
         df.loc[df[col_name] == 0, conc_str] = 0  #zero_mask = df[col_name] == 0
         # assert all conc_str are non-negative
