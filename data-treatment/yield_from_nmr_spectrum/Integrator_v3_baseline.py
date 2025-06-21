@@ -337,7 +337,33 @@ def specify_para(sol_name, outlier_type=None):
             "Benzaldehyde-Carbonyl_satellite": [10.12],  # ppm
             "Unknown_peak_2": [11.07],  # ppm
         }
+    elif sol_name == 'TMB_BM':
+        solvent_shift = 2.3  # ppm TMB as internal standard
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 10000  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.2, 6.2],
+            # [3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.0, 12.0],
 
+        ]
+        reference_shift = {
+            "Benzoin_dimethoxy-CH1": [5.87],  # ppm To verify
+            "Benzoin_dimethoxy-CH2": [5.95],  # ppm To verify
+            "Benzoin_monomethoxy-CH1": [5.69],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.691],  # ppm
+            "Benzoin_dimethoxy-Methoxy1": [3.71],  # ppm To verify
+            "Benzoin_dimethoxy-Methoxy2": [3.79],  # ppm  To verify
+            "Carbene_precursor-Methoxy": [3.82],  # ppm To verify
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  # ppm To verify
+            "p-Methoxybenzaldehyde-Carbonyl": [9.82],  # ppm
+            "Benzaldehyde-Carbonyl": [9.98],  # ppm
+            "Benzaldehyde-Carbonyl_satellite": [10.12],  # ppm
+            "Unknown_peak_2": [11.07],  # ppm
+        }
+
+    else:
+        raise ValueError("Unknown solvent name: {}".format(sol_name))
 
 ########Functions#########
 def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the iunverted ppm scale
@@ -987,7 +1013,17 @@ def analyze_one_run_folder(master_path,
     # Iterate through subfolders inside "Results"
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
-        if "1D EXTENDED" in folder_path:
+        if "1D EXTENDED" in folder_path:   #get all the subfolder if "1D EXTENDED" is in the name
+            try:
+                data_dir_ls.append(folder_path)
+                data_file = folder_path + "\\data.csv"
+                if not os.path.isfile(data_file):
+                    raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
+                data_file_ls.append(data_file)
+            except Exception as e:
+                print(f"An error occured in:{folder_path}")
+                print(f"Error: {e}")
+        elif sol_name == "TMB_BM":
             try:
                 data_dir_ls.append(folder_path)
                 data_file = folder_path + "\\data.csv"
@@ -998,8 +1034,12 @@ def analyze_one_run_folder(master_path,
                 print(f"An error occured in:{folder_path}")
                 print(f"Error: {e}")
 
+    print(f"Found {len(data_file_ls)} data files in {results_path} for solvent {sol_name}.")
+
     total_result_dictionary = {}
     list_experiment_loaded = []
+
+    experiment_name, experiment_dictionary = analyze_one_spectrum(data_file_ls[0], sol_name, outliers)
 
     # Use ThreadPoolExecutor for multithreaded analysis
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -1080,7 +1120,9 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
                 # [r"\NV\Final Data\DMSO\4-Pyrrolidino pyridine\2025-06-07-run02_DMSO_4_Pyrr_Pyr_for_testing", 'DMSO-Pyrrolidino', None]
-                [r"\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing", 'MeCN-4-Pyrrolidinopyridine', None],
+                # [r"\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing", 'MeCN-4-Pyrrolidinopyridine', None],
+                [r'\IDO_ring_opening\NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
+
     ]
 
     for run_folder in run_folders:
