@@ -1,7 +1,7 @@
 ##Modules importation##
 import numpy as np
 import pandas as pd
-
+import scipy
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, peak_prominences, peak_widths
 from scipy.optimize import curve_fit
@@ -18,6 +18,7 @@ plt.switch_backend('agg')
 
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
+DEBUG_PLOT = False
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -36,6 +37,11 @@ solvent_shift = None
 peak_width_50 = None
 threshold_amplitude = None
 peaks_info, reference_shift = None, None
+
+peak_find_height = None
+peak_find_distance = None
+
+solvent = None
 
 def specify_para(sol_name, outlier_type=None):
 
@@ -339,40 +345,45 @@ def specify_para(sol_name, outlier_type=None):
         }
     elif sol_name == 'TMB_BM':
         solvent_shift = 2.3  # ppm TMB as internal standard
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 10000  # Minimum threshold to be integrated
+        peak_width_50 = 0.08  # ppm at 50% #Default 0.01
+        threshold_amplitude = 0.001  # Minimum threshold to be integrated
+
+        global peak_find_height, peak_find_distance
+        peak_find_height = 0.001
+        peak_find_distance = 1
+
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.2, 6.2],
-            # [3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.0, 12.0],
+            [1.9, 2.7],
+            [6.0,6.4],   #Methoxy tend to shift, not fitted anymore
+            # [9.0, 12.0],
 
         ]
         reference_shift = {
-            "Benzoin_dimethoxy-CH1": [5.87],  # ppm To verify
-            "Benzoin_dimethoxy-CH2": [5.95],  # ppm To verify
-            "Benzoin_monomethoxy-CH1": [5.69],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.691],  # ppm
-            "Benzoin_dimethoxy-Methoxy1": [3.71],  # ppm To verify
-            "Benzoin_dimethoxy-Methoxy2": [3.79],  # ppm  To verify
-            "Carbene_precursor-Methoxy": [3.82],  # ppm To verify
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  # ppm To verify
-            "p-Methoxybenzaldehyde-Carbonyl": [9.82],  # ppm
-            "Benzaldehyde-Carbonyl": [9.98],  # ppm
-            "Benzaldehyde-Carbonyl_satellite": [10.12],  # ppm
-            "Unknown_peak_2": [11.07],  # ppm
+            "TMB": [2.3],  # ppm To verify
+
         }
 
     else:
         raise ValueError("Unknown solvent name: {}".format(sol_name))
 
 ########Functions#########
-def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the iunverted ppm scale
+def  CSV_Loader(name_file, Yankai_temporary_fix=False):  #Yankai_temporary_fix: quick fix for the iunverted ppm scale
 
     name_file = r"{}".format(name_file)
     data = pd.read_csv(name_file, delimiter=',', names=['Shift', 'Intensity'], skiprows=1).values
-    if Yankai_temporary_fix == True:
+
+    if solvent == "TMB_BM":
+        Yankai_temporary_fix = True
+        # devide all intensity by 1E5
+        data[:, 1] = data[:, 1] / 1E7
+
+    if not Yankai_temporary_fix:
         data[::-1, 1] = data[::, 1]
-    if False:
+
+    # trancate the data so that the ppm range is from 0 to 10
+    data = data[(data[:, 0] >= 1.5) & (data[:, 0] <= 8.5)]
+
+    if DEBUG_PLOT:
         plt.figure(figsize=(12, 6))
         plt.plot(data[:, 0], data[:, 1], alpha=0.9, linewidth=2.5)
         plt.xlabel('Shift (ppm)')
@@ -515,7 +526,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
     indices_to_keep = int(ppm_window / ppm_per_index)
     shift_offset = shift_array[0]
 
-    if False:
+    if DEBUG_PLOT:
         # Plot data and fitted curve
         plt.plot(shift_array, intensity_array, label='Data', color='Black')
         plt.axvline(shift_array[indices_to_keep], color='blue', linestyle='--', label='Ignored Region Start')
@@ -568,7 +579,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
 
     label = f'Baseline: {params}'
 
-    if False:
+    if DEBUG_PLOT:
         # Plot data and fitted curve
         plt.plot(shift_array, intensity_array, label='Data', color='Black')
         plt.plot(shift_array, baseline, label=label, color='red')
@@ -586,11 +597,11 @@ def fit_peaks(NMR_spectrum, std_deviation,
               shift_tolerance=0.02,
               constrained_fit=True,
               baseline_correction=True,
-              is_show_plot=False
+              is_show_plot=True
               ):
 
     # plot the spectrum
-    if False:
+    if DEBUG_PLOT:
         plt.figure(figsize=(12, 6))
         plt.plot(NMR_spectrum[:, 0], NMR_spectrum[:, 1], alpha=0.9, linewidth=2.5)
         plt.xlabel('Shift (ppm)')
@@ -603,7 +614,17 @@ def fit_peaks(NMR_spectrum, std_deviation,
     intensity_array_original = intensity_array.copy()
     ppm_step = shift_array[1] - shift_array[0]
     warning_string = None
-    peaks, _ = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
+    # peaks, _ = scipy.signal.find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
+    peaks, _ = scipy.signal.find_peaks(intensity_array, height=peak_find_height, distance=peak_find_distance)
+
+    # save the intensity_array to csv file
+    intensity_array_df = pd.DataFrame({
+        'Shift (ppm)': shift_array,
+        'Intensity': intensity_array
+    })
+    intensity_array_df.to_csv('intensity_array.csv', index=False)
+
+
     # If no peaks are found, stop
     if len(peaks) == 0:
         print(f"Slices skipped, no peak found.")
@@ -854,7 +875,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
 
     NMR_slices = extract_slices(NMR_spectrum, interval_to_slice_spectrum)
 
-    if False:  # for debugging
+    if DEBUG_PLOT:  # for debugging
         for indice, slice in enumerate(NMR_slices):
             plt.figure(figsize=(12, 6))
             plt.plot(slice[:, 0], slice[:, 1], alpha=0.9, linewidth=2.5)
@@ -872,7 +893,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
         estimated_peak_width_for_indexes,
         threshold_amplitude,
         reference_shift,
-        fit_peaks,  # fit_peaks function
+        # fit_peaks,  # fit_peaks function
         integration_peak,
         find_closest_reference,
         file_dir,
@@ -889,7 +910,7 @@ def process_nmr_peaks(
         estimated_peak_width_for_indexes,
         threshold_amplitude,
         reference_shift,
-        fit_peaks_func,
+        # fit_peaks_func,
         integration_peak_func,
         find_closest_reference_func,
         file_dir,
@@ -908,7 +929,8 @@ def process_nmr_peaks(
     figures = []
 
     for slice in NMR_slices:
-        parameters, error, warning_string, fig = fit_peaks_func(slice, std_deviation, estimated_peak_width_for_indexes)
+
+        parameters, error, warning_string, fig = fit_peaks(slice, std_deviation, estimated_peak_width_for_indexes)
 
         if fig:
             figures.append(fig)
@@ -1013,6 +1035,8 @@ def analyze_one_run_folder(master_path,
     # Iterate through subfolders inside "Results"
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
+        if not os.path.isdir(folder_path):  # Skip if not a directory/folder
+            continue
         if "1D EXTENDED" in folder_path:   #get all the subfolder if "1D EXTENDED" is in the name
             try:
                 data_dir_ls.append(folder_path)
@@ -1039,7 +1063,7 @@ def analyze_one_run_folder(master_path,
     total_result_dictionary = {}
     list_experiment_loaded = []
 
-    experiment_name, experiment_dictionary = analyze_one_spectrum(data_file_ls[0], sol_name, outliers)
+    # experiment_name, experiment_dictionary = analyze_one_spectrum(data_file_ls[0], sol_name, outliers)
 
     # Use ThreadPoolExecutor for multithreaded analysis
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -1124,6 +1148,8 @@ if __name__ == "__main__":
                 [r'\IDO_ring_opening\NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
 
     ]
+
+    solvent = 'TMB_BM'
 
     for run_folder in run_folders:
         print(f"Run: {run_folder}")

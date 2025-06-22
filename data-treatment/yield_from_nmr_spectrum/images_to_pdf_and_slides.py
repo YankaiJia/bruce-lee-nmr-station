@@ -69,6 +69,7 @@ def get_imagelist(image_name):
     result_folder = filedialog.askdirectory(title="Select Folder with Images")
     reaction_folder_list = [os.path.join(result_folder, d) for d in os.listdir(result_folder) if os.path.isdir(os.path.join(result_folder, d))]
     reaction_folder_list = [folder for folder in reaction_folder_list if '1D EXTENDED' in folder]
+
     print(reaction_folder_list)
     def get_sample_index(string):
         return int(re.search(r'(\d+)-1D EXTENDED', string).group(1))
@@ -83,12 +84,13 @@ def get_imagelist(image_name):
 
 if __name__ == "__main__":
 
-    # result_folder, imagelist = get_imagelist(image_name = 'fitting_results.png')
+    image_name = 'hardy_fit_diagnostic_plot.png'
+    image_name = 'fitting_results.png'
 
-    result_folder, imagelist = get_imagelist(image_name='hardy_fit_diagnostic_plot.png')
+    result_folder, imagelist = get_imagelist(image_name = image_name)
 
     pdf = make_pdf(imagelist)
-    pdf.output(result_folder + r"\\all_fitting_results_hardy_fit.pdf", "F")
+    pdf.output(result_folder + f"\\all_{image_name}.pdf", "F")
 
     prs = make_slides(imagelist)
-    prs.save(result_folder + r"\\all_fitting_results_hardy_fit.pptx")
+    prs.save(result_folder + f"\\all_{image_name}.pptx")
