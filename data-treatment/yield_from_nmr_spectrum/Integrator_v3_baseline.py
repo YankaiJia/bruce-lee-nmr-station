@@ -18,7 +18,7 @@ plt.switch_backend('agg')
 
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
-DEBUG_PLOT = False
+IS_DEBUG = True
 
 # get teh system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -310,7 +310,7 @@ def specify_para(sol_name, outlier_type=None):
             "Benzoin_monomethoxy-CH1": [5.69],  # ppm
             "Benzoin_monomethoxy-CH2": [5.691],  # ppm
             "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm To verify
-            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  To verify
+            "Benzoin_dimethoxy-Methoxy2": [3.79],  #ppm  To verify
             "Carbene_precursor-Methoxy": [3.82],  #ppm To verify
             "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
             "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
@@ -353,8 +353,8 @@ def specify_para(sol_name, outlier_type=None):
         peak_find_distance = 1
 
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [1.9, 2.7],
-            [6.0,6.4],   #Methoxy tend to shift, not fitted anymore
+            # [1.9, 2.7],
+            [6.0, 6.4],   #Methoxy tend to shift, not fitted anymore
             # [9.0, 12.0],
 
         ]
@@ -380,10 +380,10 @@ def  CSV_Loader(name_file, Yankai_temporary_fix=False):  #Yankai_temporary_fix: 
     if not Yankai_temporary_fix:
         data[::-1, 1] = data[::, 1]
 
-    # trancate the data so that the ppm range is from 0 to 10
+    # truncate the data so that the ppm range is from 0 to 10
     data = data[(data[:, 0] >= 1.5) & (data[:, 0] <= 8.5)]
 
-    if DEBUG_PLOT:
+    if IS_DEBUG:
         plt.figure(figsize=(12, 6))
         plt.plot(data[:, 0], data[:, 1], alpha=0.9, linewidth=2.5)
         plt.xlabel('Shift (ppm)')
@@ -526,7 +526,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
     indices_to_keep = int(ppm_window / ppm_per_index)
     shift_offset = shift_array[0]
 
-    if DEBUG_PLOT:
+    if IS_DEBUG:
         # Plot data and fitted curve
         plt.plot(shift_array, intensity_array, label='Data', color='Black')
         plt.axvline(shift_array[indices_to_keep], color='blue', linestyle='--', label='Ignored Region Start')
@@ -579,7 +579,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
 
     label = f'Baseline: {params}'
 
-    if DEBUG_PLOT:
+    if IS_DEBUG:
         # Plot data and fitted curve
         plt.plot(shift_array, intensity_array, label='Data', color='Black')
         plt.plot(shift_array, baseline, label=label, color='red')
@@ -601,7 +601,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
               ):
 
     # plot the spectrum
-    if DEBUG_PLOT:
+    if IS_DEBUG:
         plt.figure(figsize=(12, 6))
         plt.plot(NMR_spectrum[:, 0], NMR_spectrum[:, 1], alpha=0.9, linewidth=2.5)
         plt.xlabel('Shift (ppm)')
@@ -875,7 +875,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
 
     NMR_slices = extract_slices(NMR_spectrum, interval_to_slice_spectrum)
 
-    if DEBUG_PLOT:  # for debugging
+    if IS_DEBUG:  # for debugging
         for indice, slice in enumerate(NMR_slices):
             plt.figure(figsize=(12, 6))
             plt.plot(slice[:, 0], slice[:, 1], alpha=0.9, linewidth=2.5)
@@ -1063,22 +1063,23 @@ def analyze_one_run_folder(master_path,
     total_result_dictionary = {}
     list_experiment_loaded = []
 
-    # experiment_name, experiment_dictionary = analyze_one_spectrum(data_file_ls[0], sol_name, outliers)
+    if IS_DEBUG:
+        experiment_name, experiment_dictionary = analyze_one_spectrum(data_file_ls[0], sol_name, outliers)
+    else:
+        # Use ThreadPoolExecutor for multithreaded analysis
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit all file jobs to the thread pool
+            futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
+                       for file_name in data_file_ls]
 
-    # Use ThreadPoolExecutor for multithreaded analysis
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Submit all file jobs to the thread pool
-        futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
-                   for file_name in data_file_ls]
-
-        # Collect results as they finish
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                experiment_name, experiment_dictionary = future.result()
-                list_experiment_loaded.append(experiment_name)
-                total_result_dictionary[experiment_name] = experiment_dictionary
-            except Exception as e:
-                print(f"Error processing file: {e}")
+            # Collect results as they finish
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    experiment_name, experiment_dictionary = future.result()
+                    list_experiment_loaded.append(experiment_name)
+                    total_result_dictionary[experiment_name] = experiment_dictionary
+                except Exception as e:
+                    print(f"Error processing file: {e}")
 
     # Save dictionary as JSON
     json_filename = os.path.join(results_path, f"fitting_results.json")
@@ -1092,6 +1093,8 @@ def analyze_one_run_folder(master_path,
 
 
 if __name__ == "__main__":
+
+    IS_DEBUG = True
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
     print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
@@ -1145,7 +1148,7 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
                 # [r"\NV\Final Data\DMSO\4-Pyrrolidino pyridine\2025-06-07-run02_DMSO_4_Pyrr_Pyr_for_testing", 'DMSO-Pyrrolidino', None]
                 # [r"\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing", 'MeCN-4-Pyrrolidinopyridine', None],
-                [r'\IDO_ring_opening\NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
+                [r'\IDO_ring_opening\000_NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
 
     ]
 
@@ -1155,7 +1158,7 @@ if __name__ == "__main__":
         print(f"Run: {run_folder}")
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]  # Solvent name
-        run_outliers = run_folder[2]  # Outliers dictionary, can be None
+        run_outliers = run_folder[2]  # Outliers dictionary, default is None
         analyze_one_run_folder(run_dir, run_sol, run_outliers,is_show_plot=False)
 
     print("All runs processed successfully.")
