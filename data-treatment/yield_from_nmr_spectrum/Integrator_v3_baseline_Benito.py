@@ -614,7 +614,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
     intensity_array_original = intensity_array.copy()
     ppm_step = shift_array[1] - shift_array[0]
     warning_string = None
-    peaks, _ = scipy.signal.find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
+    # peaks, _ = scipy.signal.find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
+    peaks, _ = scipy.signal.find_peaks(intensity_array, height=peak_find_height, distance=peak_find_distance)
 
     # save the intensity_array to csv file
     intensity_array_df = pd.DataFrame({
@@ -1093,7 +1094,8 @@ def analyze_one_run_folder(master_path,
 
 if __name__ == "__main__":
 
-    IS_DEBUG = False
+    IS_DEBUG = True
+
     data_dir = BRUCELEE_PROJECT_DATA_PATH
     print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
     # run folder structure: [run_folder, run_sol, run_outliers]
@@ -1146,10 +1148,11 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming_for_testing\\", 'DCE', None]
                 # [r"\NV\Final Data\DMSO\4-Pyrrolidino pyridine\2025-06-07-run02_DMSO_4_Pyrr_Pyr_for_testing", 'DMSO-Pyrrolidino', None]
                 # [r"\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing", 'MeCN-4-Pyrrolidinopyridine', None],
-                # [r'\IDO_ring_opening\000_NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
-                [ r"\DPE_bromination\2025-06-23-run01_DCE_TBABr_redo", "DCE", None],
+                [r'\IDO_ring_opening\000_NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
 
     ]
+
+    solvent = 'TMB_BM'
 
     for run_folder in run_folders:
         print(f"Run: {run_folder}")

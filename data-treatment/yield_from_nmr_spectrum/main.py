@@ -184,11 +184,11 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-22-run01_DCE_TBABr3_normal\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 # # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
@@ -198,7 +198,8 @@ if __name__ == "__main__":
                 # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
-                
+        [r"\DPE_bromination\2025-06-23-run01_DCE_TBABr_redo\\", "DCE", None],
+
     ]
 
     for run_folder in run_folders:
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
     # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABr3.csv"
     # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABF4_window_corrected.csv"
-    csv_path = data_dir + r"\DPE_bromination\1_full_experiment_DCE_TBABr_Good_all_metrics.csv"
+    csv_path = data_dir + r"\DPE_bromination\1_full_experiment_DCE_TBABr_redo.csv"
     df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
 
     print(f'Full experiment data saved to {csv_path}')

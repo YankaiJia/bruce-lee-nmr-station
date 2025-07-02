@@ -1,4 +1,5 @@
 import json
+import re
 
 from matplotlib import pyplot as plt
 import pandas as pd
@@ -349,7 +350,7 @@ def write_conc_into_result_csv():
 
     return compd3_conc_dict
 
-write_conc_into_result_csv()
+# write_conc_into_result_csv()
 
 def merge_result_from_hardy_fitting():
 
@@ -434,7 +435,7 @@ def get_conc_for_all_reactions():
 
     return df_merged
 
-df_merged = get_conc_for_all_reactions()
+# df_merged = get_conc_for_all_reactions()
 
 
 def get_conc_for_all_reactions_one_run_folder():
@@ -501,3 +502,45 @@ def get_conc_for_all_reactions_one_run_folder():
     return df_merged
 
 # df_merged = get_conc_for_all_reactions_one_run_folder()
+
+def check_pulse_angle_in_dot_par_files():
+    def find_all_dot_par_files_in_a_folder():
+        from pathlib import Path
+        # folder = Path(r"D:\Dropbox\brucelee\data\NV\Final Data") # Nick's data folder
+        folder = Path(r"D:\Dropbox\brucelee\data\DPE_bromination")
+        par_files = list(folder.rglob("*.par")) # recursively find all .par files
+        return par_files
+
+    par_files = find_all_dot_par_files_in_a_folder()
+    df = pd.DataFrame(columns=["par_file", "pulse_angle"])
+    for par_file in par_files:
+        if not "1D EXTENDED+" in str(par_file):
+            continue
+        if 'SHIM' in str(par_file):
+            continue
+        # read the file by line
+        with open(par_file, 'r') as file:
+            lines = file.readlines()
+        for i, line in enumerate(lines):
+            if 'Options' in line:
+                print(f"Found PulseAngle in {par_file} at line {i}: {line.strip()}")
+                pulse_angle_line = line.strip()
+                pulse_angle = int(re.search(r'PulseAngle\((\d+)\)', pulse_angle_line).group(1))
+                dict_here = {"par_file": str(par_file), "pulse_angle": pulse_angle}
+                df = df._append(dict_here, ignore_index=True)
+                break
+    df_90_degree = df[df['pulse_angle'] == 90]
+    # save the df to a csv file
+    output_csv = r"D:\Dropbox\brucelee\data\DPE_bromination\pulse_angle_check_90.csv"
+    if not os.path.exists(os.path.dirname(output_csv)):
+        os.makedirs(os.path.dirname(output_csv))
+    df_90_degree.to_csv(output_csv, index=False)
+
+    return df, df_90_degree
+
+df = check_pulse_angle_in_dot_par_files()
+
+
+
+
+
