@@ -84,8 +84,8 @@ def get_imagelist(image_name):
 
 if __name__ == "__main__":
 
-    # image_name = 'hardy_fit_diagnostic_plot.png'
-    image_name = 'fitting_results.png'
+    image_name = 'hardy_fit_diagnostic_plot.png'
+    # image_name = 'fitting_results.png'
 
     result_folder, imagelist = get_imagelist(image_name = image_name)
 

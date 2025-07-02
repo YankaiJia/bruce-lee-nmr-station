@@ -844,7 +844,11 @@ if __name__ == '__main__':
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine\2025-05-15-run01_MeCN_Pyr\Results"
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run01_MeCN_4_Me_Pyr\Results",
         # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run02_MeCN_4_Me_Pyr\Results",
-        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_later_version\Results"
+        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_later_version\Results"
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methoxy pyridine\2025-06-22-run01_MeCN_4_Methoxy_Pyr\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methoxy pyridine\2025-06-22-run02_MeCN_4_Methoxy_Pyr\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Morpholino pyridine\2025-06-20-run01_MeCN_4_Morph_Pyr\Results",
+        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Morpholino pyridine\2025-06-20-run02_MeCN_4_Morph_Pyr\Results",
     ]
     for results_folder in results_folders:
 
@@ -863,7 +867,7 @@ if __name__ == '__main__':
 
         # process all folders in parallel
         from concurrent.futures import ProcessPoolExecutor, as_completed
-        all_results = process_all_folders_parallel( results_folder_subfolders,
+        all_results = process_all_folders_parallel(results_folder_subfolders,
                                                     process_func=process_one_folder,
-                                                    max_workers=8)
+                                                    max_workers=16)
 

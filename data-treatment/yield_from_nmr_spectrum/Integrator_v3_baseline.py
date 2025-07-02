@@ -1147,7 +1147,7 @@ if __name__ == "__main__":
                 # [r"\NV\Final Data\DMSO\4-Pyrrolidino pyridine\2025-06-07-run02_DMSO_4_Pyrr_Pyr_for_testing", 'DMSO-Pyrrolidino', None]
                 # [r"\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine_for_testing", 'MeCN-4-Pyrrolidinopyridine', None],
                 # [r'\IDO_ring_opening\000_NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing', "TMB_BM", None]
-                [ r"\DPE_bromination\2025-06-23-run01_DCE_TBABr_redo", "DCE", None],
+                [r"\DPE_bromination\2025-06-23-run01_DCE_TBABr_redo", "DCE", None],
 
     ]
 
