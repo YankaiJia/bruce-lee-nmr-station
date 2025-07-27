@@ -86,49 +86,7 @@ def five_fold_validation(X, y):
 
     return avg_rmse, avg_r2
 
-
-def estimate_conc_by_rbf_model(tbabr_value_here, dpe_integral_value_normalized, show_plot=False):
-    """
-    Estimate DPE concentration from known TBABr and measured DEP NMR integral,
-    using RBF interpolation on calibration data. Optionally shows a 3D plot.
-
-    Parameters:
-        tbabr_value (float): Known TBABr concentration.
-        dep_integral_value (float): Measured NMR integral for DPE.
-        show_plot (bool): Whether to show the 3D surface plot.
-
-    Returns:
-        float: Estimated DPE concentration.
-    """
-    if dpe_integral_value_normalized < 1E-4:
-        return 0
-
-    DPE_proton_count = 2
-
-    # === Calibration data ===
-    df = json_to_intg_results()
-    X = df[['DPE', 'TBABr']].values
-    X1 = df["DPE"].values
-    X2 = df["TBABr"].values
-
-    y = df["DPE_intg"].values / DPE_proton_count # normalized y
-
-    # === Fit RBF interpolation model ===
-    rbf_model = Rbf(X1, X2, y, function='multiquadric')
-    five_fold_validation(X, y)
-
-    # === Numerical inversion: find DPE that gives closest integral ===
-    def objective(dpe_guess):
-        pred = rbf_model(dpe_guess, tbabr_value_here)
-        return abs(pred - dpe_integral_value_normalized)
-
-    result = minimize_scalar(objective, bounds=(0, 450), method='bounded')
-    estimated_dpe = result.x if result.success else None
-    assert estimated_dpe, 'Finding estimated_dpe failed!'
-    estimated_dpe = 0 if estimated_dpe < 1E-4 else estimated_dpe
-
-    # === Optional: Show 3D interpolation surface ===
-    if show_plot:
+def plot_interp(X1, X2, y, rbf_model):
         dpe_vals = np.linspace(X1.min(), X1.max(), 50)
         tbabr_vals = np.linspace(X2.min(), X2.max(), 50)
         dpe_grid, tbabr_grid = np.meshgrid(dpe_vals, tbabr_vals)
@@ -140,7 +98,7 @@ def estimate_conc_by_rbf_model(tbabr_value_here, dpe_integral_value_normalized, 
         ax.scatter(X1, X2, y, color='red', label='Data Points')
 
         # Annotate each data point with its DPE_intg value
-        for i in range(len(df)):
+        for i in range(len(X1)):
             print(X1)
             print(X2)
             print(y)
@@ -154,8 +112,42 @@ def estimate_conc_by_rbf_model(tbabr_value_here, dpe_integral_value_normalized, 
         fig.colorbar(surface, ax=ax, shrink=0.5, aspect=10, label='DPE_intg')
         plt.tight_layout()
         plt.show()
-    print(f'estimated:{estimated_dpe}')
-    return estimated_dpe
+
+def estimate_conc_by_rbf_model(tbabr_value_here,
+                               integral_value_normalized,
+                               show_plot=False):
+
+    if integral_value_normalized < 1E-4:
+        return 0
+
+    DPE_proton_count = 2
+
+    # === Calibration data ===
+    df = json_to_intg_results()
+    X = df[['DPE', 'TBABr']].values
+    X1 = df["DPE"].values
+    X2 = df["TBABr"].values
+    y = df["DPE_intg"].values / DPE_proton_count # normalized y
+
+    # === Fit RBF interpolation model ===
+    rbf_model = Rbf(X1, X2, y, function='multiquadric')
+    five_fold_validation(X, y)
+
+    # === Numerical inversion: find cmpd conc that gives closest integral ===
+    def objective(dpe_guess):
+        pred = rbf_model(dpe_guess, tbabr_value_here)
+        return abs(pred - integral_value_normalized)
+
+    result = minimize_scalar(objective, bounds=(0, 450), method='bounded')
+    estimated_conc = result.x if result.success else None
+    assert estimated_conc, 'Finding estimated_dpe failed!'
+    estimated_conc = 0 if estimated_conc < 1E-4 else estimated_conc
+
+    # === Optional: Show 3D interpolation surface ===
+    if show_plot:
+        plot_interp(X1, X2, y, rbf_model)
+
+    return estimated_conc
 
 
 def get_all_concs(intg_list=None, conc_tbabr=None):
@@ -217,10 +209,8 @@ def process_one_folder(run_path = None):
             conc = fitting_result_dict[cmpd] if cmpd in keys else 0
             intg_list.append(conc)
         assert len(intg_list)==6, "intg_list len incorrect!"
-        print(f'intg_list: {intg_list}')
 
         conc_list = get_all_concs(intg_list, tbabr_conc) # [conc_dpe, conc_a, conc_b, conc_adduct, conc_alcohol, conc_acid]
-        print(f'conc_list: {conc_list}')
         assert len(conc_list)==6, "conc_list len incorrect!"
         # save all the concs to a json in the folder
         conc_dict = dict(zip(
