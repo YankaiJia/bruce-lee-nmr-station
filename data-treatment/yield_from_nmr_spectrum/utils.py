@@ -529,6 +529,7 @@ def check_pulse_angle_in_dot_par_files():
                 dict_here = {"par_file": str(par_file), "pulse_angle": pulse_angle}
                 df = df._append(dict_here, ignore_index=True)
                 break
+
     df_90_degree = df[df['pulse_angle'] == 90]
     # save the df to a csv file
     output_csv = r"D:\Dropbox\brucelee\data\DPE_bromination\pulse_angle_check_90.csv"
@@ -538,9 +539,89 @@ def check_pulse_angle_in_dot_par_files():
 
     return df, df_90_degree
 
-df = check_pulse_angle_in_dot_par_files()
+# df = check_pulse_angle_in_dot_par_files()
 
 
+def put_run_condition_in_spectrum_folder(run_path=None):
+    print(f'running: {path}')
 
+    conc_file = run_path + r'//outVandC//out_concentrations.csv'
+    df_global_conc = pd.read_csv(conc_file)
+    columns_of_conc = ['conc_'+i for i in df_global_conc.columns[1:].tolist()]
+    df_global_conc.columns = ['global_index'] + columns_of_conc
+
+    run_folder_name = os.path.basename(run_path)
+    excel_name = re.match(r'^(\d{4}-\d{2}-\d{2}-run\d{2})', run_folder_name).group(1)
+    excel_file = run_path + r'\\' + excel_name + '.xlsx'
+    assert os.path.exists(excel_file), "Run excel file not found: {excel_path}"
+    df_run_excel = pd.read_excel(excel_file)
+    # merge by 'global_index'
+    df_merged = pd.merge(df_run_excel, df_global_conc, on='global_index', how='inner')  # or 'left' if needed
+
+    # save each row to the corresponding folder
+    results_folder = run_path + r'\\Results'
+
+    # get all the subfolders
+    subfolders = [
+        os.path.join(results_folder, name)
+        for name in os.listdir(results_folder)
+        if os.path.isdir(os.path.join(results_folder, name))
+    ]
+    spec_folders_path = [folder for folder in subfolders if '1D EXTENDED' in folder]
+    spec_folders_path = sorted(spec_folders_path,
+                            key=lambda x: int(re.search(r'\\\s*(\d+)-1D EXTENDED', x).group(1)))
+    spec_folders_name = [os.path.basename(folder) for folder in spec_folders_path]
+    spec_indices = [int(name.split('-1D')[0]) for name in spec_folders_name]
+
+    # save each row to corresponding spec folder
+    for idx, spec_index in enumerate(spec_indices):
+        # match spec_index with the df_merged row where its local_index is the same, and save to json
+        match_row = df_merged[df_merged['local_index'] == spec_index]
+        json_path = spec_folders_path[idx] + r"\\reaction_info.json"
+        # Save as JSON
+        with open(json_path, 'w', encoding='utf-8') as f:
+            row_dict = match_row.iloc[0].to_dict()
+            json.dump(row_dict, f, ensure_ascii=False, indent=2)
+
+def put_fitting_results_in_spec_folder(run_path=None):
+
+    results_folder = run_path + r'\\Results'
+    fitting_result_json = results_folder + r'\\fitting_results.json'
+    assert os.path.exists(fitting_result_json), f"❌ File not found: {fitting_result_json}"
+    with open(fitting_result_json, 'r', encoding='utf-8') as f:
+        fitting_result_dict = json.load(f)
+
+    # get all the subfolders
+    subfolders = [
+        os.path.join(results_folder, name)
+        for name in os.listdir(results_folder)
+        if os.path.isdir(os.path.join(results_folder, name))
+    ]
+
+    for key, values in fitting_result_dict.items():
+        for folder in subfolders:
+            if key in folder:
+                # save the dict to the folder
+                save_path = os.path.join(folder, 'fitting_result.json')
+                with open(save_path, 'w', encoding='utf-8') as f:
+                    json.dump(values, f, ensure_ascii=False, indent=2)
+
+                print(f"✔ Saved {key} → {save_path}")
+                break  # stop searching after the first match
+
+
+if __name__ == '__main__':
+
+    run_folders = [
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-02-19-run02_normal_run",
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-01-run01_normal_run",
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run",
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run02_normal_run",
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-05-run01_normal_run",
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming"
+    ]
+    for path in run_folders:
+        # put_run_condition_in_spectrum_folder(path)
+        put_fitting_results_in_spec_folder(path)
 
 

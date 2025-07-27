@@ -74,7 +74,7 @@ def get_imagelist(image_name):
     def get_sample_index(string):
         return int(re.search(r'(\d+)-1D EXTENDED', string).group(1))
     # sort the reaction_folder_list by sample index
-    reaction_folder_list.sort(key=get_sample_index)
+    # reaction_folder_list.sort(key=get_sample_index)
     print(reaction_folder_list)
     imagelist = [os.path.join(folder, image_name) for folder in reaction_folder_list]
 
@@ -84,8 +84,8 @@ def get_imagelist(image_name):
 
 if __name__ == "__main__":
 
-    image_name = 'hardy_fit_diagnostic_plot.png'
-    # image_name = 'fitting_results.png'
+    # image_name = 'hardy_fit_diagnostic_plot.png'
+    image_name = 'fitting_results.png'
 
     result_folder, imagelist = get_imagelist(image_name = image_name)
 
