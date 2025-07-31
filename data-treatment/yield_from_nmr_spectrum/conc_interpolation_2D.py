@@ -26,7 +26,7 @@ def json_to_intg_results():
     # 1. JSON
     with open(path+json_f, "r", encoding="utf-8") as file:
         data = json.load(file)
-
+    print(f'data for calib len: {len(data)}')
     # 2. DPE、TBABr Starting material
     rows = []
     for sample_name, content in data.items():
@@ -97,11 +97,12 @@ def plot_interp(X1, X2, y, rbf_model):
         surface = ax.plot_surface(dpe_grid, tbabr_grid, dep_pred, cmap='viridis', alpha=0.9)
         ax.scatter(X1, X2, y, color='red', label='Data Points')
 
+        print(X1)
+        print(X2)
+        print(y)
+
         # Annotate each data point with its DPE_intg value
         for i in range(len(X1)):
-            print(X1)
-            print(X2)
-            print(y)
             a, b, c = X1[i], X2[i], y[i]
             ax.text(a, b, c + 1, f'{c:.1f}', color='black', fontsize=8, ha='center')
 
@@ -115,7 +116,7 @@ def plot_interp(X1, X2, y, rbf_model):
 
 def estimate_conc_by_rbf_model(tbabr_value_here,
                                integral_value_normalized,
-                               show_plot=False):
+                               show_plot:bool=True):
 
     if integral_value_normalized < 1E-4:
         return 0
@@ -229,11 +230,11 @@ if __name__ == "__main__":
 
     run_names = [
         r"\2025-02-19-run02_normal_run",
-        r"\2025-03-01-run01_normal_run",
-        r"\2025-03-03-run01_normal_run",
-        r"\2025-03-03-run02_normal_run",
-        r"\2025-03-05-run01_normal_run",
-        r"\2025-03-12-run01_better_shimming"
+        # r"\2025-03-01-run01_normal_run",
+        # r"\2025-03-03-run01_normal_run",
+        # r"\2025-03-03-run02_normal_run",
+        # r"\2025-03-05-run01_normal_run",
+        # r"\2025-03-12-run01_better_shimming"
     ]
 
     run_folders = [brom_folder+name for name in run_names]
