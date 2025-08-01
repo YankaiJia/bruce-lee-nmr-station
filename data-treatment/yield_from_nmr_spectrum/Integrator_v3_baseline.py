@@ -244,9 +244,9 @@ def specify_para(sol_name, outlier_type=None):
         peak_width_50 = 0.008  # ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.2, 6.2],
+            [5.0, 6.5],  #[5.2, 6.2],
             #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.0,12.0],    
+            [9.0,10.5],    
              
         ]
         reference_shift = {
@@ -262,6 +262,10 @@ def specify_para(sol_name, outlier_type=None):
             "Benzaldehyde-Carbonyl": [9.98], #ppm
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
+            "double_doublet_1":[5.28], #ppm
+            "double_doublet_2":[5.36], #ppm
+            "double_doublet_3":[5.44], #ppm
+            "double_doublet_4":[5.47], #ppm
             }
 
         if outlier_type == 'Type1':  
