@@ -1,7 +1,6 @@
 ##Modules importation##
 import numpy as np
 import pandas as pd
-
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, peak_prominences, peak_widths
 from scipy.optimize import curve_fit
@@ -18,8 +17,12 @@ import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
+# Disable multithreading for numpy and MKL to avoid conflicts with parallel processing in this script   #Just for Louis
+os.environ["OMP_NUM_THREADS"] = "1"                                 #Just for Louis 
+os.environ['OPENBLAS_NUM_THREADS'] = '1'                            #Just for Louis
+os.environ['MKL_NUM_THREADS'] = '1'                                 #Just for Louis
 
-# get teh system path of BRUCELEE_PROJECT_DATA_PATH
+# get the system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 ########################
@@ -247,13 +250,13 @@ def specify_para(sol_name, outlier_type=None):
              
         ]
         reference_shift = {
-            "Benzoin_dimethoxy-CH1": [5.87],  # ppm
-            "Benzoin_dimethoxy-CH2": [5.95],  # ppm
-            "Benzoin_monomethoxy-CH1": [5.73],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.731],  # ppm  
-            "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-            "Carbene_precursor-Methoxy": [3.82],  #ppm 
+            "Benzoin_monomethoxy-CH1": [5.87],  # ppm
+            "Benzoin_monomethoxy-CH2": [5.95],  # ppm
+            "Benzoin_dimethoxy-CH1": [5.73],  # ppm
+            "Benzoin_dimethoxy-CH2": [5.731],  # ppm  
+            # "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
+            # "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
+            # "Carbene_precursor-Methoxy": [3.82],  #ppm 
             "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
             "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppm
@@ -375,8 +378,8 @@ def extract_slices(nmr_data, merged_intervals):
 
 def lorentzian(x, amp, cen, wid):
     # Define a Lorentzian function
-    return (1 / np.pi) * (amp / ((x - cen) ** 2 + wid ** 2))
-
+    #return (amp  / np.pi) * (1/ ((x - cen) ** 2 + wid ** 2)) # Old
+    return (amp  / np.pi) * (wid/ ((x - cen) ** 2 + wid ** 2))
 
 def sum_of_lorentzian(x, *params):
     # Define a sum of Gaussians
@@ -391,10 +394,130 @@ def sum_of_lorentzian(x, *params):
 
     return y
 
+def gaussian(x, amp, cen, wid):
+    # Define a Gaussian function
+    return (amp  * np.exp(-0.5*( (x - cen) ** 2 / ( wid ** 2))))
 
-def fit_without_bounds(shift_array, intensity_array, initial_guesses, std_deviation):
+def sum_of_gaussian(x, *params):
+    # Define a sum of Gaussians
+    num_peaks = len(params) // 3
+    y = np.zeros_like(x)
+
+    for i in range(num_peaks):
+        amp = params[i * 3]
+        cen = params[i * 3 + 1]
+        wid = params[i * 3 + 2]
+        y += gaussian(x, amp, cen, wid)
+
+    return y
+
+
+def pseudovoigt1(x, amp, cen, wid, prop):
+    # Define a Voigt Sum function
+    return prop*gaussian(x, amp, cen, wid)+ (1-prop)*lorentzian(x, amp, cen, wid)
+
+def sum_of_voigt1(x, *params):
+    # Define a sum of Voigt Sum
+    num_peaks = len(params) // 4
+    y = np.zeros_like(x)
+
+    for i in range(num_peaks):
+        amp = params[i * 4]
+        cen = params[i * 4 + 1]
+        wid = params[i * 4 + 2]
+        prop = params[i * 4 + 3]
+        y += pseudovoigt1(x, amp, cen, wid, prop)
+
+    return y
+
+
+def pseudovoigt2(x, amp, cen, wid1, wid2, prop):
+    # Define a Voigt Sum with 2 different half-width function
+    return (1-prop)*gaussian(x, amp, cen, wid2) + (prop)*lorentzian(x, amp, cen, wid1)
+
+def sum_of_voigt2(x, *params):
+    # Define a sum of Gaussians
+    num_peaks = len(params) // 5
+    y = np.zeros_like(x)
+
+    for i in range(num_peaks):
+        amp = params[i * 5]
+        cen = params[i * 5 + 1]
+        wid1 = params[i * 5 + 2]
+        wid2 = params[i * 5 + 3]
+        prop = params[i * 5 + 4]
+        y += pseudovoigt2(x, amp, cen, wid1, wid2, prop)
+
+    return y
+
+
+def generalised_lorentzian(x, amp, cen, wid, prop):
+    # Define a Genereralised Lorentzian function
+    return (1-prop) *  amp * ((1 + ((x-cen)**2)) / (1 + (x - cen) ** 2 + (x - cen) ** 4 )) + (prop)*lorentzian(x, amp, cen, wid)
+
+def sum_of_generalised_lorentzian(x, *params):
+    # Define a sum of Generalised Lorentzian
+    num_peaks = len(params) // 4
+    y = np.zeros_like(x)
+
+    for i in range(num_peaks):
+        amp = params[i * 4]
+        cen = params[i * 4 + 1]
+        wid = params[i * 4 + 2]
+        prop = params[i * 4 + 3]
+        y += generalised_lorentzian(x, amp, cen, wid, prop)
+
+    return y
+
+def insert_every(lst, interval, value):
+    """
+    Inserts `value` into `lst` every `interval` elements.
+
+    Parameters:
+        lst      : List of elements (unchanged, original list).
+        interval : Insert `value` after every `interval` items.
+        value    : The value to insert.
+
+    Returns:
+        A new list with the value inserted at every `interval` position.
+    """
+    if interval <= 0:
+        raise ValueError("Interval must be a positive integer.")
+
+    result = []
+    for i in range(0, len(lst), interval):
+        result.extend(lst[i:i + interval])
+        result.append(value)
+    return result
+
+def replace_in_groups(lst, group_size, indice_to_replace, value):
+    """
+    Replaces specific indices within each group of size `group_size`.
+
+    Parameters:
+        lst                : Input list (unchanged).
+        group_size         : Number of items per group.
+        indice_to_replace : Indice to replace within each group.
+        value              : The value to insert at those indices.
+
+    Returns:
+        A new list with replacements applied group-wise.
+    """
+    if group_size <= 0:
+        raise ValueError("Group size must be a positive integer.")
+    
+    result = lst[:]
+    for i in range(0, len(lst)):
+        if i - indice_to_replace // group_size == 0:
+            result[i] = float(value)
+    return result
+        
+
+
+
+def fit_without_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation):
     popt, covariance_matrix = curve_fit(
-        sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses,
+        model_func, shift_array, intensity_array, p0=initial_guesses,
         sigma=std_deviation * np.ones_like(shift_array),
         absolute_sigma=True,
         maxfev=20000,  # Increase max function evaluations
@@ -405,9 +528,22 @@ def fit_without_bounds(shift_array, intensity_array, initial_guesses, std_deviat
     return popt, covariance_matrix
 
 
-def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+# def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+#     popt, covariance_matrix = curve_fit(
+#         sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
+#         sigma=std_deviation * np.ones_like(shift_array),
+#         absolute_sigma=True,
+#         maxfev=20000,  # Increase max function evaluations
+#         ftol=1e-14,  # Function tolerance (adjust for better precision)
+#         xtol=1e-14,  # Parameter change tolerance
+#         gtol=1e-14,  # Gradient tolerance
+#     )
+#     return popt, covariance_matrix
+
+
+def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
     popt, covariance_matrix = curve_fit(
-        sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
+        model_func, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
         sigma=std_deviation * np.ones_like(shift_array),
         absolute_sigma=True,
         maxfev=20000,  # Increase max function evaluations
@@ -417,9 +553,12 @@ def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation
     )
     return popt, covariance_matrix
 
-def fit_with_bounds_do_your_best(shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+
+
+
+def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
     def residuals(params, x, y, sigma):
-        return (y - sum_of_lorentzian(x, *params)) / sigma
+        return (y - model_func(x, *params)) / sigma
 
     try:
         result = least_squares(
@@ -427,7 +566,7 @@ def fit_with_bounds_do_your_best(shift_array, intensity_array, initial_guesses, 
             x0=initial_guesses,
             bounds=(lower_bounds, upper_bounds),
             args=(shift_array, intensity_array, std_deviation * np.ones_like(shift_array)),
-            max_nfev=20000,
+            max_nfev=40000,
             ftol=1e-14,
             xtol=1e-14,
             gtol=1e-14
@@ -532,17 +671,20 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
 
 def fit_peaks(NMR_spectrum, std_deviation,
               estimated_peak_width_for_indexes,
+              peak_function,
               shift_tolerance=0.02,
               constrained_fit=True,
               baseline_correction=True,
-              is_show_plot=False
+              is_show_plot=False,
               ):
     shift_array = NMR_spectrum[:, 0]
     intensity_array = NMR_spectrum[:, 1]
     intensity_array_original = intensity_array.copy()
     ppm_step = shift_array[1] - shift_array[0]
     warning_string = None
-    peaks, _ = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
+    
+      
+    peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
     # If no peaks are found, stop
     if len(peaks) == 0:
         print(f"Slices skipped, no peak found.")
@@ -553,20 +695,43 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
     # Get initial guesses for peak parameters (amplitude, center, width)
     initial_guesses = []
-
     lower_bounds = []
     upper_bounds = []
+    parameter_number=3
 
-    for peak in peaks[:]:
+    for peak, peak_width in zip(peaks[:], peaks_properties["widths"]):
         if intensity_array[peak] > 0:
             amp_guess = intensity_array[peak]  # Peak height
         else:
             amp_guess = std_deviation
         cen_guess = shift_array[peak]  # Peak center
-        wid_guess = peak_width_50  # Initial width guess (adjust as needed)
+        wid_guess = peak_width*0.5 * ppm_step # Initial width guess (adjust as needed), default: peak_width_50
         initial_guesses.extend([amp_guess, cen_guess, wid_guess])
+        #lower_bounds.extend([0, cen_guess - shift_tolerance, 0])
         lower_bounds.extend([0, cen_guess - shift_tolerance, 0])
         upper_bounds.extend([amp_guess * 2, cen_guess + shift_tolerance, wid_guess * 4])
+    
+    if peak_function == sum_of_generalised_lorentzian:
+        initial_guesses = insert_every(initial_guesses, 3, 1)
+        lower_bounds = insert_every(lower_bounds, 3, 0.0)
+        upper_bounds = insert_every(upper_bounds, 3, 1.0)
+        parameter_number=4
+
+    if peak_function == sum_of_voigt1:
+        initial_guesses = insert_every(initial_guesses, 3, 0.5)
+        lower_bounds = insert_every(lower_bounds, 3, 0.0)
+        upper_bounds = insert_every(upper_bounds, 3, 1.0)
+        parameter_number=4
+
+    if peak_function == sum_of_voigt2:
+        initial_guesses = insert_every(initial_guesses, 3, wid_guess)
+        lower_bounds = insert_every(lower_bounds, 3, 0.0)
+        upper_bounds = insert_every(upper_bounds, 3,  wid_guess * 4)
+        initial_guesses = insert_every(initial_guesses, 4, 1)
+        lower_bounds = insert_every(lower_bounds, 4, 0.0)
+        upper_bounds = insert_every(upper_bounds, 4, 1.0)
+        parameter_number=5
+
 
     if baseline_correction == True:
 
@@ -589,30 +754,37 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
     # Fit peaks
     # fig = []
+    #Fitting
     try:
-        #Fitting
         if constrained_fit == False:
-            popt, covariance_matrix = fit_without_bounds(shift_array, intensity_array, initial_guesses,
+            popt, covariance_matrix = fit_without_bounds(peak_function,shift_array, intensity_array, initial_guesses,
                                                          std_deviation)
         else:
             try:
-                popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
+                # popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
+                #                                         initial_guesses, std_deviation,
+                #                                         lower_bounds, upper_bounds)
+
+                popt, covariance_matrix = fit_with_bounds(peak_function,shift_array, intensity_array,
                                                         initial_guesses, std_deviation,
                                                         lower_bounds, upper_bounds)
+                
+
             except:
-                popt, covariance_matrix = fit_with_bounds_do_your_best(shift_array, intensity_array,
+                popt, covariance_matrix = fit_with_bounds_do_your_best(peak_function,shift_array, intensity_array,
                                                         initial_guesses, std_deviation,
                                                         lower_bounds, upper_bounds)
                 warning_string = "Fit did not converge. "
+        
         errors_of_parameters = np.sqrt(np.diag(covariance_matrix))
-        opti_parameter = popt.reshape(-1, 3)
-        opti_parameter_error = errors_of_parameters.reshape(-1, 3)
+        opti_parameter = popt.reshape(-1, parameter_number)
+        opti_parameter_error = errors_of_parameters.reshape(-1, parameter_number)
         # print(f'opti_parameter: {opti_parameter}')  # [intensity, shift, width], need to display the shift
 
         # Generate fitted curve
-        fitted_y = sum_of_lorentzian(shift_array, *popt)
+        fitted_y = peak_function(shift_array, *popt)
 
-        max_residuals = np.max(intensity_array - sum_of_lorentzian(shift_array, *popt))
+        max_residuals = np.max(intensity_array - peak_function(shift_array, *popt))
         if max_residuals > 0.1 and warning_string == None:
             if warning_string !=None:
                 warning_string = warning_string + "Strong residual: a peak might have been not fitted"
@@ -646,7 +818,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
         peaks_shift = opti_parameter[:,1]
 
-        peak_intensity_lorentzian = [sum_of_lorentzian(shift, *popt) + baseline[np.abs(shift_array - shift).argmin()] \
+        peak_intensity_lorentzian = [peak_function(shift, *popt) + baseline[np.abs(shift_array - shift).argmin()] \
                                      for shift in peaks_shift]
         fig._custom_metadata = {'intensity': opti_parameter[:,0],
                                'shift': peaks_shift,
@@ -654,7 +826,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
                                'intensity_error': opti_parameter[:,0],
                                'shift_error': opti_parameter[:,1],
                                'width_error': opti_parameter[:,2],
-                                'peak_intensity_lorentzian': peak_intensity_lorentzian,}
+                               'peak_intensity_lorentzian': peak_intensity_lorentzian,}
         if is_show_plot:
             plt.tight_layout()  # Adjust spacing between plots
             plt.show()
@@ -668,8 +840,31 @@ def fit_peaks(NMR_spectrum, std_deviation,
         return [], [], ["Fit failed"], 0
 
 
-def integration_peak(amp, cen, wid):
-    return (amp / (wid))
+def integration_peak(peak_function, *arg):
+    
+    if  peak_function == sum_of_lorentzian:
+        amp, cen, wid = arg
+        #return (amp / (wid))   #Old, Only when Lorentzian is defined by 
+        return amp 
+
+    elif  peak_function == sum_of_gaussian:
+        amp, cen, wid = arg
+        return (amp / (wid*(2*np.pi)**0.5))
+    
+    elif  peak_function == sum_of_generalised_lorentzian:
+        amp, cen, wid, prop = arg
+        return amp
+    
+    elif  peak_function == sum_of_voigt1:
+        amp, cen, wid, prop = arg
+        return amp * prop + (1-prop)*(amp / (wid*(2*np.pi)**0.5))
+    
+    elif  peak_function == sum_of_voigt2:
+        amp, cen, wid1, wid2, prop = arg
+        return amp * prop + (1-prop)*(amp / (wid2*(2*np.pi)**0.5)) 
+    
+    else:
+        print("Model peak unkown. Integration impossible")
 
 
 def find_closest_reference(fitted_center, reference_dict):
@@ -800,6 +995,8 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
 
         plt.show()
 
+    peak_function =sum_of_voigt1 # Default: sum_of_lorentzian
+    
     results_dictionary = process_nmr_peaks(
         NMR_slices,
         std_deviation,
@@ -807,6 +1004,7 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
         threshold_amplitude,
         reference_shift,
         fit_peaks,
+        peak_function,
         integration_peak,
         find_closest_reference,
         file_dir,
@@ -824,12 +1022,13 @@ def process_nmr_peaks(
         threshold_amplitude,
         reference_shift,
         fit_peaks_func,
+        peak_function,
         integration_peak_func,
         find_closest_reference_func,
         file_dir,
         is_save_plot=True,
-        is_show_plot=False
-):
+        is_show_plot=False,
+                    ):
     """
     Processes NMR peaks from slices and assigns each product the closest matching peak.
     Adds a warning if some peaks are not used in the final assignment.
@@ -842,7 +1041,7 @@ def process_nmr_peaks(
     figures = []
 
     for slice in NMR_slices:
-        parameters, error, warning_string, fig = fit_peaks_func(slice, std_deviation, estimated_peak_width_for_indexes)
+        parameters, error, warning_string, fig = fit_peaks_func(slice, std_deviation, estimated_peak_width_for_indexes, peak_function)
 
         if fig:
             figures.append(fig)
@@ -853,7 +1052,7 @@ def process_nmr_peaks(
                 continue
 
             fitted_center = parameter[1]
-            peak_area = integration_peak_func(*parameter) * 1000
+            peak_area = integration_peak_func(peak_function,*parameter) * 1000
 
             closest_product, closest_shift = find_closest_reference_func(fitted_center, reference_shift)
 
@@ -960,7 +1159,9 @@ def analyze_one_run_folder(master_path,
     list_experiment_loaded = []
 
     # Use ThreadPoolExecutor for multithreaded analysis
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Does not work for Louis
+    with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:  ####Just for Louis
+
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
                    for file_name in data_file_ls]
@@ -991,10 +1192,11 @@ if __name__ == "__main__":
     print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
+                #Bruce Lee
                 #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                #["\\DPE_bromination\\2025-03-03-run01_normal_runTEST\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                #["\\LGA\\test-tempo\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
@@ -1015,27 +1217,79 @@ if __name__ == "__main__":
                 #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                #["\\NV\\2025-05-06-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
-                #["\\NV\\2025-05-06-run02_MeCN_Pyr\\", 'MeCN-Nik', None]
-                # ["\\NV\\Final Data\\MeCN\\DMAP\\2025-05-14-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DMAP\\2025-05-14-run02_MeCN_DMAP\\", 'MeCN-Nik', {2: 'Type1'}],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine\\2025-06-04-run01_DMSO_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine\\2025-06-04-run02_DMSO_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\4-Pyrrolidinopyridine\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\4-Pyrrolidinopyridine\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\1-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\1-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
-                ["\\NV\\Final Data\\DMSO\\DMAP\\2025-06-05-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
+
+                #NIK ACN Pyridine serie
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\Pyridine_cmpd\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run02_MeCN_DMAP\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run01_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run02_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run01_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run02_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run01_MeCN_4_Me_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run02_MeCN_4_Me_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik', None],
+                
+                #NIK ACN Other base serie
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run01_MeCN_Morph\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run02_MeCN_Morph\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run01_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run02_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_MeCN_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_MeCN_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
+
+                #NIK DMSO Pyridine serie
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\Pyridine\\2025-06-04-run01_DMSO_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\Pyridine\\2025-06-04-run02_DMSO_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-07-run01_DMSO_4_Pyrr_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-07-run02_DMSO_4_Pyrr_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-26-run01_DMSO_4_Pyrrol_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-26-run02_DMSO_4_Pyrrol_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-21-run01_DMSO_4_Morph_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-21-run02_DMSO_4_Morph_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run01_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run01_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
+                
+                #NIK DMSO Other base serie
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-12-run01_DMSO_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-12-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-09-run01_DMSO_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-09-run02_DMSO_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-06-08-run01_DMSO_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-06-08-run02_DMSO_DBU\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-26-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-26-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run01_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run02_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run01_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run02_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-10-run01_DMSO_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-10-run02_DMSO_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-15-run01_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-15-run02_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
             ]
 
     for run_folder in run_folders:
