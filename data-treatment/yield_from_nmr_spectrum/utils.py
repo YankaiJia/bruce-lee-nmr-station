@@ -7,51 +7,35 @@ import tkinter as tk
 from tkinter import filedialog
 import os
 import shutil
+import seaborn as sns
+
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 
-def plot1():
-    ys_ori = {
-        0: '92.03727024121508',
-        1: '44.85000344605123',
-        2: '21.30438829283912',
-        3: '9.689694961722125',
-        4: '4.404170234225603'}
+def plot_csv(file_path):
+    """
+    Reads a CSV file and plots the data using seaborn.
 
-    ys = [float(value) for key, value in ys_ori.items()]
-    print(ys)
+    Parameters:
+    file_path (str): The path to the CSV file.
+    """
+    # Read the CSV file
+    df = pd.read_csv(file_path)
 
-    xs_init = 152.4
-    xs = [xs_init, xs_init / 2, xs_init / 4, xs_init / 8, xs_init / 16]
+    # Set the style for seaborn
+    sns.set_style("whitegrid")
 
-    yb_ori = {0: '58.26061628299067',
-              1: '29.7097988122041',
-              2: '14.252173271263246',
-              3: '6.550650316834435',
-              4: '2.1064971663290635'}
+    # Create a line plot
+    plt.figure(figsize=(10, 6))
+    sns.lineplot(data=df, x='x', y='y')
 
-    yb = [float(value) for key, value in yb_ori.items()]
-    xb_init = 252.1
-    xb = [xb_init, xb_init / 2, xb_init / 4, xb_init / 8, xb_init / 16]
+    # Set the title and labels
+    plt.title('NMR Spectrum Data')
+    plt.xlabel('Chemical Shift (ppm)')
+    plt.ylabel('Intensity')
 
-    # plt.plot(xs, ys,'o', ls = '-')
-    # plt.plot(xb, yb, 'o', ls = '-')
-
-    # plt.xscale('log')  # Set the x-axis to logarithmic scale
-    # plt.plot()
-    # plt.show()
-
-
-def plot2():
-    import pandas as pd
-    # plot csv
-    path = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B_TEST\\205244-1D EXTENDED+-B1\\data.csv"
-
-    df = pd.read_csv(path)
-    print(df.head())
-    plt.plot(df['x'], df['y'], 'o', ls='-')
-    plt.plot()
+    # Show the plot
     plt.show()
 
 
@@ -578,6 +562,12 @@ def put_run_condition_in_spectrum_folder(run_path=None):
         # match spec_index with the df_merged row where its local_index is the same, and save to json
         match_row = df_merged[df_merged['local_index'] == spec_index]
         json_path = spec_folders_path[idx] + r"\\reaction_info.json"
+
+        # Skip if no match found
+        if match_row.empty:
+            print(f"Skipping index {spec_index} — no match found.")
+            continue
+
         # Save as JSON
         with open(json_path, 'w', encoding='utf-8') as f:
             row_dict = match_row.iloc[0].to_dict()
@@ -609,6 +599,43 @@ def put_fitting_results_in_spec_folder(run_path=None):
                 print(f"✔ Saved {key} → {save_path}")
                 break  # stop searching after the first match
 
+def collect_all_json_results_form_every_spectrum(run_folders):
+
+    """In each spectrum folder, there should be three json files
+    1. reaction_info.json: storing all the reaction conditions
+    2. fitting_result.json: storing all the fitting results for all cmpds
+    3. interp_conc.json: including all the interpolated concentrations for all cmpds"""
+
+    all_results_df = pd.DataFrame()
+
+    for run_folder in run_folders:
+        print(run_folder)
+        result_folder = run_folder + r'\Results'
+        spectrum_folders = [
+                            os.path.join(result_folder, d)
+                            for d in os.listdir(result_folder)
+                            if os.path.isdir(os.path.join(result_folder, d)) and "1D EXTENDED" in d]
+        for spectrum_folder in spectrum_folders:
+            reaction_info_path = os.path.join(spectrum_folder, 'reaction_info.json')
+            interp_conc_path = os.path.join(spectrum_folder, 'interp_conc.json')
+            if not (os.path.exists(reaction_info_path) and os.path.exists(interp_conc_path)):
+                print(f"⚠️ Skipping {spectrum_folder} — missing one or both JSON files.")
+                continue
+
+            # Read JSONs
+            with open(reaction_info_path, 'r', encoding='utf-8') as f:
+                reaction_info = json.load(f)
+            with open(interp_conc_path, 'r', encoding='utf-8') as f:
+                interp_conc = json.load(f)
+
+            # Merge into single dictionary
+            merged_data = {**reaction_info, **interp_conc}
+
+            # add this merged_data to all_results_df
+            all_results_df = pd.concat([all_results_df, pd.DataFrame([merged_data])], ignore_index=True)
+
+    return all_results_df
+
 
 if __name__ == '__main__':
 
@@ -618,10 +645,14 @@ if __name__ == '__main__':
         r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run",
         r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run02_normal_run",
         r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-05-run01_normal_run",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming"
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming",
+        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun"
     ]
+
+
     for path in run_folders:
         # put_run_condition_in_spectrum_folder(path)
-        put_fitting_results_in_spec_folder(path)
+        # put_fitting_results_in_spec_folder(path)
+        print(1)
 
-
+    all_results_df=collect_all_json_results_form_every_spectrum(run_folders)

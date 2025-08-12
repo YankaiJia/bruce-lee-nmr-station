@@ -19,34 +19,6 @@ x	y
 
 """
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-def plot_csv(file_path):
-    """
-    Reads a CSV file and plots the data using seaborn.
-
-    Parameters:
-    file_path (str): The path to the CSV file.
-    """
-    # Read the CSV file
-    df = pd.read_csv(file_path)
-
-    # Set the style for seaborn
-    sns.set_style("whitegrid")
-
-    # Create a line plot
-    plt.figure(figsize=(10, 6))
-    sns.lineplot(data=df, x='x', y='y')
-
-    # Set the title and labels
-    plt.title('NMR Spectrum Data')
-    plt.xlabel('Chemical Shift (ppm)')
-    plt.ylabel('Intensity')
-
-    # Show the plot
-    plt.show()
 
 file_path = r"D:\Dropbox\brucelee\data\IDO_ring_opening\NMR_spectra\run01-12_06_2025\plate_95_3OMe_32_testing\1\data.csv"
 plot_csv(file_path)

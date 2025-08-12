@@ -1,6 +1,8 @@
 """"
 Interpolation of concentrations for bromination reactions.
 """
+import time
+
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,14 +21,13 @@ from scipy.optimize import minimize_scalar
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
-
 def json_to_intg_results():
-    path = r"D:\Dropbox\brucelee\data\DPE_bromination\_Refs\ref_S_all\Results"
+    path = r"D:\Dropbox\brucelee\data\DPE_bromination\_Refs\ref_S_all_TBABr\Results"
     json_f = r'\fitting_results.json'
     # 1. JSON
     with open(path+json_f, "r", encoding="utf-8") as file:
         data = json.load(file)
-    print(f'data for calib len: {len(data)}')
+    # print(f'data for calib len: {len(data)}')
     # 2. DPE、TBABr Starting material
     rows = []
     for sample_name, content in data.items():
@@ -53,8 +54,6 @@ def five_fold_validation(X, y):
 
     r2_scores = []
     rmse_scores = []
-
-
 
     # === Cross-validation loop ===
     for train_index, test_index in kf.split(X):
@@ -97,9 +96,9 @@ def plot_interp(X1, X2, y, rbf_model):
         surface = ax.plot_surface(dpe_grid, tbabr_grid, dep_pred, cmap='viridis', alpha=0.9)
         ax.scatter(X1, X2, y, color='red', label='Data Points')
 
-        print(X1)
-        print(X2)
-        print(y)
+        # print(X1)
+        # print(X2)
+        # print(y)
 
         # Annotate each data point with its DPE_intg value
         for i in range(len(X1)):
@@ -116,7 +115,7 @@ def plot_interp(X1, X2, y, rbf_model):
 
 def estimate_conc_by_rbf_model(tbabr_value_here,
                                integral_value_normalized,
-                               show_plot:bool=True):
+                               show_plot:bool=False):
 
     if integral_value_normalized < 1E-4:
         return 0
@@ -199,7 +198,12 @@ def process_one_folder(run_path = None):
         tbabr_conc = reaction_info_dict['conc_TBABr'] * 1000 # M to mM
 
         fitting_result_json = folder + r'\\fitting_result.json'
-        assert os.path.exists(fitting_result_json), f"File not found: {fitting_result_json}"
+        # assert os.path.exists(fitting_result_json), f"File not found: {fitting_result_json}"
+
+        if not os.path.exists(fitting_result_json):
+            print(f"⚠️⚠️⚠️Skipping — File not found: {fitting_result_json}")
+            continue
+
         with open(fitting_result_json, 'r', encoding='utf-8') as f:
             fitting_result_dict = json.load(f)
 
@@ -209,7 +213,7 @@ def process_one_folder(run_path = None):
         for cmpd in cmpds:
             conc = fitting_result_dict[cmpd] if cmpd in keys else 0
             intg_list.append(conc)
-        assert len(intg_list)==6, "intg_list len incorrect!"
+        assert len(intg_list) == 6, "intg_list len incorrect!"
 
         conc_list = get_all_concs(intg_list, tbabr_conc) # [conc_dpe, conc_a, conc_b, conc_adduct, conc_alcohol, conc_acid]
         assert len(conc_list)==6, "conc_list len incorrect!"
@@ -219,6 +223,7 @@ def process_one_folder(run_path = None):
             conc_list
         ))
 
+        print(f'conc_dict here: {conc_dict}')
         output_json = os.path.join(folder, 'interp_conc.json')
         with open(output_json, 'w', encoding='utf-8') as f:
             json.dump(conc_dict, f, ensure_ascii=False, indent=2)
@@ -229,12 +234,13 @@ if __name__ == "__main__":
     brom_folder = BRUCELEE_PROJECT_DATA_PATH + r"\\DPE_bromination"
 
     run_names = [
-        r"\2025-02-19-run02_normal_run",
+        # r"\2025-02-19-run02_normal_run",
         # r"\2025-03-01-run01_normal_run",
         # r"\2025-03-03-run01_normal_run",
         # r"\2025-03-03-run02_normal_run",
         # r"\2025-03-05-run01_normal_run",
-        # r"\2025-03-12-run01_better_shimming"
+        # r"\2025-03-12-run01_better_shimming",
+        r"\2025-07-01-run01_DCE_TBABr_rerun"
     ]
 
     run_folders = [brom_folder+name for name in run_names]
