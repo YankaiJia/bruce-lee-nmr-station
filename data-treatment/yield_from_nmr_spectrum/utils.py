@@ -527,7 +527,8 @@ def check_pulse_angle_in_dot_par_files():
 
 
 def put_run_condition_in_spectrum_folder(run_path=None):
-    print(f'running: {path}')
+
+    print(f'running: {run_path}')
 
     conc_file = run_path + r'//outVandC//out_concentrations.csv'
     df_global_conc = pd.read_csv(conc_file)
@@ -634,6 +635,15 @@ def collect_all_json_results_form_every_spectrum(run_folders):
             # add this merged_data to all_results_df
             all_results_df = pd.concat([all_results_df, pd.DataFrame([merged_data])], ignore_index=True)
 
+
+    keep_columns = [
+        'uuid', 'local_index', 'global_index',
+        'conc_TBABr', 'conc_Br2', 'conc_DPE', 'conc_prod_A',
+        'conc_prod_B', 'conc_adduct', 'conc_alcohol', 'conc_acid']
+
+    # apply only keep columns
+    all_results_df = all_results_df[keep_columns]
+
     return all_results_df
 
 
@@ -651,8 +661,7 @@ if __name__ == '__main__':
 
 
     for path in run_folders:
-        # put_run_condition_in_spectrum_folder(path)
-        # put_fitting_results_in_spec_folder(path)
-        print(1)
+        put_run_condition_in_spectrum_folder(path)
+        put_fitting_results_in_spec_folder(path)
 
-    all_results_df=collect_all_json_results_form_every_spectrum(run_folders)
+    all_results_df = collect_all_json_results_form_every_spectrum(run_folders)

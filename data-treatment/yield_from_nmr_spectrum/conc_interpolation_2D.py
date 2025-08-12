@@ -177,7 +177,7 @@ def get_all_concs(intg_list=None, conc_tbabr=None):
 
     return conc_list
 
-def process_one_folder(run_path = None):
+def interp_one_folder(run_path = None):
 
     print(f"Processing folder: {run_path}")
     results_folder = run_path + r'\\Results'
@@ -234,12 +234,12 @@ if __name__ == "__main__":
     brom_folder = BRUCELEE_PROJECT_DATA_PATH + r"\\DPE_bromination"
 
     run_names = [
-        # r"\2025-02-19-run02_normal_run",
-        # r"\2025-03-01-run01_normal_run",
-        # r"\2025-03-03-run01_normal_run",
-        # r"\2025-03-03-run02_normal_run",
-        # r"\2025-03-05-run01_normal_run",
-        # r"\2025-03-12-run01_better_shimming",
+        r"\2025-02-19-run02_normal_run",
+        r"\2025-03-01-run01_normal_run",
+        r"\2025-03-03-run01_normal_run",
+        r"\2025-03-03-run02_normal_run",
+        r"\2025-03-05-run01_normal_run",
+        r"\2025-03-12-run01_better_shimming",
         r"\2025-07-01-run01_DCE_TBABr_rerun"
     ]
 
@@ -247,4 +247,4 @@ if __name__ == "__main__":
 
     for folder in run_folders:
 
-        process_one_folder(folder)
+        interp_one_folder(folder)

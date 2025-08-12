@@ -4,7 +4,9 @@ import pandas as pd
 import re
 import time
 import Integrator_v3_baseline
-import conc_interpolation
+import conc_interpolation_2D
+
+import utils
 
 # get the system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
@@ -89,13 +91,12 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     #                                               outliers=run_outliers,
     #                                               is_show_plot=False)
 
-    df_final_conc = conc_interpolation.interpolate_one_folder(result_folder,is_save_csv=True)
+    conc_interpolation_2D.interp_one_folder(run_folder)
 
-    df = combine_data(df_final_conc,
-                      excel_file,
-                      out_conc_file,
-                      out_vol_file,
-                      result_folder)
+
+def post_treatment_to_get_params_for_cubes(all_result_csv_path):
+
+    df = all_result_csv_path
 
     # calc the S conversion
     df['DPE_conversion'] = 1 - df['conc_S'] / df['DPE'].replace(0, np.nan)
@@ -204,27 +205,17 @@ if __name__ == "__main__":
 
     for run_folder in run_folders:
         run_dir = data_dir + run_folder[0]
-        run_sol = run_folder[1]
-        run_outliers = run_folder[2]
+        run_sol = run_folder[1]  # solvent name
+        run_outliers = run_folder[2]  # outlier type if any
         print(f'Processing {run_dir}')
-        process_one_folder(run_dir, run_sol, run_outliers)
 
+        # do the fitting and interplation
+        # process_one_folder(run_dir, run_sol, run_outliers)
 
-    # merge all the final_results.csv into one file
-    df_full_experiment = pd.DataFrame()
-    for run_folder in run_folders:
-        result_folder = data_dir + run_folder[0] + "\\Results"
-        df_full_experiment = pd.concat([df_full_experiment, pd.read_csv(result_folder + "\\final_results.csv")])
+        # put results in each spectrum folder
+        utils.put_run_condition_in_spectrum_folder(run_dir)
+        utils.put_fitting_results_in_spec_folder(run_dir)
 
-    # get current time
-    current_time = time.strftime("%Y-%m-%d-%H-%M-%S")
+    all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders)
 
-    # save final results to csv
-    # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_LG_{current_time}.csv"
-    # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABr3.csv"
-    # csv_path = data_dir + f"\\DPE_bromination\\full_experiment_DCE_TBABF4_window_corrected.csv"
-    csv_path = data_dir + r"\DPE_bromination\1_full_experiment_DCE_TBABr_redo.csv"
-    df_full_experiment.to_csv(csv_path, index=False, mode='w') # use overwrite mode
-
-    print(f'Full experiment data saved to {csv_path}')
-
+    post_treatment_to_get_params_for_cubes(all_results_df)
