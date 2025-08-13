@@ -195,6 +195,7 @@ def interp_one_folder(run_path = None):
         assert os.path.exists(reaction_info_json), f"File not found: {reaction_info_json}"
         with open(reaction_info_json, 'r', encoding='utf-8') as f:
             reaction_info_dict = json.load(f)
+
         tbabr_conc = reaction_info_dict['conc_TBABr'] * 1000 # M to mM
 
         fitting_result_json = folder + r'\\fitting_result.json'
@@ -216,10 +217,10 @@ def interp_one_folder(run_path = None):
         assert len(intg_list) == 6, "intg_list len incorrect!"
 
         conc_list = get_all_concs(intg_list, tbabr_conc) # [conc_dpe, conc_a, conc_b, conc_adduct, conc_alcohol, conc_acid]
-        assert len(conc_list)==6, "conc_list len incorrect!"
+        assert len(conc_list) == 6, "conc_list len incorrect!"
         # save all the concs to a json in the folder
         conc_dict = dict(zip(
-            ['conc_DPE', 'conc_prod_A', 'conc_prod_B', 'conc_adduct', 'conc_alcohol', 'conc_acid'],
+            ['conc_DPE_final', 'conc_prod_A', 'conc_prod_B', 'conc_adduct', 'conc_alcohol', 'conc_acid'],
             conc_list
         ))
 

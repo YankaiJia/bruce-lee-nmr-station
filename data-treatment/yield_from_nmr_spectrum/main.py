@@ -94,73 +94,52 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     conc_interpolation_2D.interp_one_folder(run_folder)
 
 
-def post_treatment_to_get_params_for_cubes(all_result_csv_path):
+def post_treatment_to_get_params_for_cubes(all_result_csv_path,
+                                           additive_name='TBABr'):
 
     df = all_result_csv_path
+    df = df.rename(columns={'conc_TBABr': 'conc_TBABr_0',
+                            'conc_Br2': 'conc_Br2_0',
+                            'conc_DPE': 'conc_DPE_0',
+                            'conc_adduct': 'conc_HBr_adduct'})
 
     # calc the S conversion
-    df['DPE_conversion'] = 1 - df['conc_S'] / df['DPE'].replace(0, np.nan)
-    df['DPE_consumed'] = df['DPE'] - df['conc_S']
+    df['DPE_consumed'] = df['conc_DPE_0'] - df['conc_DPE_final']
+    df['DPE_conversion'] = df['DPE_consumed'] / df['conc_DPE_0'].replace(0, np.nan)
 
-    df['Bromine_source'] = df['Br2'] + df['TBABr3'] if additive_name == 'TBABr3' else df['Br2']
-    df['limitting_conc'] = df[['DPE', 'Bromine_source']].min(axis=1)
+    df['Bromine_source'] = df['conc_Br2_0'] + df['TBABr3'] if additive_name == 'TBABr3' else df['conc_Br2_0']
+    df['limitting_conc'] = df[['conc_DPE_0', 'Bromine_source']].min(axis=1)
 
-    df['conc_A'] = pd.to_numeric(df['conc_A'], errors='coerce')
-    df['conc_B'] = pd.to_numeric(df['conc_B'], errors='coerce')
+    df['conc_prod_A'] = pd.to_numeric(df['conc_prod_A'], errors='coerce')
+    df['conc_prod_B'] = pd.to_numeric(df['conc_prod_B'], errors='coerce')
     df['limitting_conc'] = pd.to_numeric(df['limitting_conc'], errors='coerce')
     df['conc_alcohol'] = pd.to_numeric(df['conc_alcohol'], errors='coerce')
     df['conc_HBr_adduct'] = pd.to_numeric(df['conc_HBr_adduct'], errors='coerce')
 
     # get the yield of A
-    df['yield_A'] = np.where(df['limitting_conc'] != 0, df['conc_A'] / df['limitting_conc'] * 100, 0)
-    df['yield_B'] = np.where(df['limitting_conc'] != 0, df['conc_B'] / df['limitting_conc'] * 100, 0)
+    df['yield_prod_A'] = np.where(df['limitting_conc'] != 0, df['conc_prod_A'] / df['limitting_conc'] * 100, 0)
+    df['yield_prod_B'] = np.where(df['limitting_conc'] != 0, df['conc_prod_B'] / df['limitting_conc'] * 100, 0)
 
-
-    # calculate the yield of other products
-    col_list = ['intg_sol_down', 'intg_sol_up', 'intg_impr_SM1', 'intg_impr_SM2',
-                'intg_impr1', 'intg_impr2', 'intg_impr3', 'intg_impr4',
-                'intg_alcohol', 'intg_HBr_adduct', 'intg_acid']
-    for col_name in col_list:
-        if not col_name in df.columns:
-            continue
-        yield_str = col_name.replace('intg_', 'yield_')
-        conc_str = col_name.replace('intg_', 'conc_')
-        print(f'Calculating {yield_str} from {conc_str}')
-        df[yield_str] = np.where(df['limitting_conc'] != 0, df[conc_str] / df['limitting_conc'] * 100, 0)
-
-    time.sleep(1)
+    df['yield_alcohol'] = np.where(df['limitting_conc'] != 0, df['conc_alcohol'] / df['limitting_conc'] * 100, 0)
+    df['yield_HBr_adduct'] = np.where(df['limitting_conc'] != 0, df['conc_HBr_adduct'] / df['limitting_conc'] * 100, 0)
 
     # selectivity metrics
-    df['sel_A'] = df['conc_A'] / df['DPE_consumed']
-    df['sel_B'] = df['conc_B'] / df['DPE_consumed']
-    df['self_alchol'] = df['conc_alcohol'] / df['DPE_consumed']
+    df['sel_prod_A'] = df['conc_prod_A'] / df['DPE_consumed']
+    df['sel_prod_B'] = df['conc_prod_B'] / df['DPE_consumed']
+    df['sel_alchol'] = df['conc_alcohol'] / df['DPE_consumed']
     df['sel_HBr_adduct'] = df['conc_HBr_adduct'] / df['DPE_consumed']
 
     # calculate residuals
-    df['residual_of_AB'] = 1 - (df['sel_A'] + df['sel_B'])
-    df['residual_of_AB_alcohol'] = 1 - (df['sel_A'] + df['sel_B'] + df['self_alchol'])
-    df['residual_of_AB_alcohol_HBr_adduct'] = 1 - (df['sel_A'] + df['sel_B'] + df['self_alchol'] + df['sel_HBr_adduct'])
+    df['residual_of_AB'] = 1 - (df['sel_prod_A'] + df['sel_prod_B'])
+    df['residual_of_AB_alcohol'] = 1 - (df['sel_prod_A'] + df['sel_prod_B'] + df['sel_alchol'])
+    df['residual_of_AB_alcohol_HBr_adduct'] = 1 - (df['sel_prod_A'] + df['sel_prod_B'] + df['sel_alchol'] + df['sel_HBr_adduct'])
 
     # mole fraction of A
-    df['mole_fraction_A_over_AB'] = df['conc_A'] / (df['conc_A'] + df['conc_B'])
+    df['mole_fraction_A_over_AB'] = df['conc_prod_A'] / (df['conc_prod_A'] + df['conc_prod_B'])
 
-    # remove outlieres
-    spectrum_names_to_exclude=[
-        # '152853',
-        # "161133",
-        # "133718",
-        # "211803",
-        "005641",
-        "014127",
-        # "205448",
-        # "213536"
-    ]
-    pattern = '|'.join(spectrum_names_to_exclude)
-
-    df = df[~df['spectrum_dir'].str.contains(pattern, na=False)]
-
-    # save the final dataframe to csv
-    df.to_csv(result_folder + "\\final_results.csv", index=False)
+    # delete rows if the list in the uuid column name
+    patterns_to_remove = ['ZCCK', '9MEo']
+    df = df[~df['uuid'].str.contains('|'.join(patterns_to_remove), case=False, na=False)]
 
     return df
 
@@ -185,12 +164,14 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-22-run01_DCE_TBABr3_normal\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+
+                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+
                 # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
@@ -199,7 +180,7 @@ if __name__ == "__main__":
                 # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
-        [r"\DPE_bromination\2025-06-23-run01_DCE_TBABr_redo\\", "DCE", None],
+                [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
 
     ]
 
@@ -207,15 +188,23 @@ if __name__ == "__main__":
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]  # solvent name
         run_outliers = run_folder[2]  # outlier type if any
+
         print(f'Processing {run_dir}')
 
         # do the fitting and interplation
         # process_one_folder(run_dir, run_sol, run_outliers)
 
         # put results in each spectrum folder
-        utils.put_run_condition_in_spectrum_folder(run_dir)
-        utils.put_fitting_results_in_spec_folder(run_dir)
+        # utils.put_run_condition_in_spectrum_folder(run_dir)
+        # utils.put_fitting_results_in_spec_folder(run_dir)
 
-    all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders)
+    run_folders_paths = [data_dir+ls[0] for ls in run_folders]
+    all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders_paths)
 
-    post_treatment_to_get_params_for_cubes(all_results_df)
+    df = post_treatment_to_get_params_for_cubes(all_results_df)
+
+    # save this df to csv
+    save_path = data_dir + r"\\DPE_bromination"
+    csv_file_name = r'\\full_experiment_DCE_TBABr_2d_interp.csv'
+    df.to_csv(save_path+csv_file_name, index=False)  # index=False prevents writing the row index
+    print(f"Data saved to: {save_path+csv_file_name}")

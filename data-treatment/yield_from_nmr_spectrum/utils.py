@@ -638,11 +638,16 @@ def collect_all_json_results_form_every_spectrum(run_folders):
 
     keep_columns = [
         'uuid', 'local_index', 'global_index',
-        'conc_TBABr', 'conc_Br2', 'conc_DPE', 'conc_prod_A',
-        'conc_prod_B', 'conc_adduct', 'conc_alcohol', 'conc_acid']
+        'conc_TBABr', 'conc_Br2', 'conc_DPE',
+        'conc_DPE_final', 'conc_prod_A', 'conc_prod_B',
+        'conc_adduct', 'conc_alcohol', 'conc_acid']
 
     # apply only keep columns
     all_results_df = all_results_df[keep_columns]
+
+    # change the conc of three substrates from M to mM
+    all_results_df[['conc_TBABr', 'conc_Br2', 'conc_DPE']] = \
+        all_results_df[['conc_TBABr', 'conc_Br2', 'conc_DPE']] * 1000
 
     return all_results_df
 
