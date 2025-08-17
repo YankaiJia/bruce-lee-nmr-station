@@ -120,7 +120,14 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
     df['yield_prod_A'] = np.where(df['limitting_conc'] != 0, df['conc_prod_A'] / df['limitting_conc'] * 100, 0)
     df['yield_prod_B'] = np.where(df['limitting_conc'] != 0, df['conc_prod_B'] / df['limitting_conc'] * 100, 0)
 
-    df['yield_alcohol'] = np.where(df['limitting_conc'] != 0, df['conc_alcohol'] / df['limitting_conc'] * 100, 0)
+
+    # cal limiting conc for alcohol
+    df['limitting_conc_for_alcohol'] = pd.DataFrame({
+                                                    'A': df['conc_DPE_0'],
+                                                    'half_B': 0.5 * df['Bromine_source']
+                                                }).min(axis=1)
+
+    df['yield_alcohol'] = np.where(df['limitting_conc'] != 0, df['conc_alcohol'] / df['limitting_conc_for_alcohol'] * 100, 0)
     df['yield_HBr_adduct'] = np.where(df['limitting_conc'] != 0, df['conc_HBr_adduct'] / df['limitting_conc'] * 100, 0)
 
     # selectivity metrics
@@ -134,16 +141,28 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
     df['residual_of_AB_alcohol'] = 1 - (df['sel_prod_A'] + df['sel_prod_B'] + df['sel_alchol'])
     df['residual_of_AB_alcohol_HBr_adduct'] = 1 - (df['sel_prod_A'] + df['sel_prod_B'] + df['sel_alchol'] + df['sel_HBr_adduct'])
 
-    # mole fraction of A
-    df['mole_fraction_A_over_AB'] = df['conc_prod_A'] / (df['conc_prod_A'] + df['conc_prod_B'])
+    # mole fraction of A # Set NaN when both concentrations are < 0.1
+    df['mole_fraction_A_over_AB'] = np.where(
+                                            (df['conc_prod_A'] < 3) & (df['conc_prod_B'] < 3),
+                                            np.nan,
+                                            df['conc_prod_A'] / (df['conc_prod_A'] + df['conc_prod_B'])
+                                            )
+    # # delete rows if the list in the uuid column name
+    # patterns_to_remove = ['ZCCK', '9MEo']
+    # df = df[~df['uuid'].str.contains('|'.join(patterns_to_remove), case=False, na=False)]
 
-    # delete rows if the list in the uuid column name
-    patterns_to_remove = ['ZCCK', '9MEo']
-    df = df[~df['uuid'].str.contains('|'.join(patterns_to_remove), case=False, na=False)]
+    # if the init substrate concs are the same, keep only the last one.
+    df = df[~df.duplicated(subset=['conc_TBABr_0', 'conc_Br2_0', 'conc_DPE_0'], keep='last')]
 
+    # reorder cols for plotting
+    first_cols = ['uuid', 'conc_DPE_final', 'conc_TBABr_0', 'conc_Br2_0', 'conc_DPE_0']
+    df = df[first_cols + [col for col in df.columns if col not in first_cols]]
     return df
 
 if __name__ == "__main__":
+
+    # import matplotlib
+    # matplotlib.use('WebAgg')
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
     print(f'Data directory: {data_dir}')
@@ -191,12 +210,14 @@ if __name__ == "__main__":
 
         print(f'Processing {run_dir}')
 
-        # do the fitting and interplation
-        # process_one_folder(run_dir, run_sol, run_outliers)
-
         # put results in each spectrum folder
-        # utils.put_run_condition_in_spectrum_folder(run_dir)
-        # utils.put_fitting_results_in_spec_folder(run_dir)
+        utils.put_run_condition_in_spectrum_folder(run_dir)
+        utils.put_fitting_results_in_spec_folder(run_dir)
+
+        # do the fitting and interplation
+        process_one_folder(run_dir, run_sol, run_outliers)
+
+
 
     run_folders_paths = [data_dir+ls[0] for ls in run_folders]
     all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders_paths)

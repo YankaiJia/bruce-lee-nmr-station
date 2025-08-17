@@ -15,9 +15,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from scipy.interpolate import Rbf
 from scipy.optimize import minimize_scalar
 
-# import matplotlib
-# matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
-# plt.ioff() # Turn off interactive mode, so multithreading will work
+import matplotlib.pyplot as plt
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
@@ -79,13 +77,14 @@ def five_fold_validation(X, y):
     avg_rmse = np.mean(rmse_scores)
     avg_r2 = np.mean(r2_scores)
 
-    # print(f"5-Fold Cross-Validation Results:")
-    # print(f"  Average RMSE: {avg_rmse:.2f}")
-    # print(f"  Average R² Score: {avg_r2:.4f}")
+    print(f"5-Fold Cross-Validation Results:")
+    print(f"  Average RMSE: {avg_rmse:.2f}")
+    print(f"  Average R² Score: {avg_r2:.4f}")
 
     return avg_rmse, avg_r2
 
 def plot_interp(X1, X2, y, rbf_model):
+
         dpe_vals = np.linspace(X1.min(), X1.max(), 50)
         tbabr_vals = np.linspace(X2.min(), X2.max(), 50)
         dpe_grid, tbabr_grid = np.meshgrid(dpe_vals, tbabr_vals)
@@ -151,14 +150,16 @@ def estimate_conc_by_rbf_model(tbabr_value_here,
 
 
 def get_all_concs(intg_list=None, conc_tbabr=None):
+
     if (intg_list==None) or (conc_tbabr==None):
         print(f'Waring, wrong input: {intg_list}_{conc_tbabr}')
         return
+
     # intg_list order: ["Starting material", "Product A", "Product B", 'HBr_adduct', 'Alcohol', 'Acid']
     intg_dpe, intg_a, intg_b, intg_adduct, intg_alcohol, intg_acid = intg_list
-    proton_count = {
-        'dpe': 2, 'a': 2, 'b': 1, 'adduct': 3, 'alcohol': 1, 'acid': 1,
-    }
+
+    proton_count = {'dpe': 2, 'a': 2, 'b': 1, 'adduct': 3, 'alcohol': 1, 'acid': 1}
+
     intg_dpe_normalized = intg_dpe / proton_count['dpe']
     intg_a_normalized = intg_a / proton_count['a']
     intg_b_normalized = intg_b / proton_count['b']
@@ -231,6 +232,9 @@ def interp_one_folder(run_path = None):
 
 
 if __name__ == "__main__":
+
+    import matplotlib
+    matplotlib.use('WebAgg')
 
     brom_folder = BRUCELEE_PROJECT_DATA_PATH + r"\\DPE_bromination"
 

@@ -535,7 +535,7 @@ def put_run_condition_in_spectrum_folder(run_path=None):
     columns_of_conc = ['conc_'+i for i in df_global_conc.columns[1:].tolist()]
     df_global_conc.columns = ['global_index'] + columns_of_conc
 
-    run_folder_name = os.path.basename(run_path)
+    run_folder_name = os.path.basename(os.path.normpath(run_path))
     excel_name = re.match(r'^(\d{4}-\d{2}-\d{2}-run\d{2})', run_folder_name).group(1)
     excel_file = run_path + r'\\' + excel_name + '.xlsx'
     assert os.path.exists(excel_file), "Run excel file not found: {excel_path}"
@@ -572,6 +572,7 @@ def put_run_condition_in_spectrum_folder(run_path=None):
         # Save as JSON
         with open(json_path, 'w', encoding='utf-8') as f:
             row_dict = match_row.iloc[0].to_dict()
+            row_dict['spectrum_path'] = spec_folders_path[idx]
             json.dump(row_dict, f, ensure_ascii=False, indent=2)
 
 def put_fitting_results_in_spec_folder(run_path=None):
@@ -616,6 +617,8 @@ def collect_all_json_results_form_every_spectrum(run_folders):
                             os.path.join(result_folder, d)
                             for d in os.listdir(result_folder)
                             if os.path.isdir(os.path.join(result_folder, d)) and "1D EXTENDED" in d]
+
+        # loop through the spctrum folders and append the results one by one
         for spectrum_folder in spectrum_folders:
             reaction_info_path = os.path.join(spectrum_folder, 'reaction_info.json')
             interp_conc_path = os.path.join(spectrum_folder, 'interp_conc.json')
@@ -632,6 +635,12 @@ def collect_all_json_results_form_every_spectrum(run_folders):
             # Merge into single dictionary
             merged_data = {**reaction_info, **interp_conc}
 
+            if reaction_info['uuid'] == 'Vh3HjdWFyenwac4w3prnoS':
+                print(f'reaction_info:{reaction_info}')
+                print(f'interp_conc:{interp_conc}')
+                print(f'merged_data:{merged_data}')
+                # exit()
+
             # add this merged_data to all_results_df
             all_results_df = pd.concat([all_results_df, pd.DataFrame([merged_data])], ignore_index=True)
 
@@ -640,7 +649,8 @@ def collect_all_json_results_form_every_spectrum(run_folders):
         'uuid', 'local_index', 'global_index',
         'conc_TBABr', 'conc_Br2', 'conc_DPE',
         'conc_DPE_final', 'conc_prod_A', 'conc_prod_B',
-        'conc_adduct', 'conc_alcohol', 'conc_acid']
+        'conc_adduct', 'conc_alcohol', 'conc_acid',
+        'spectrum_path']
 
     # apply only keep columns
     all_results_df = all_results_df[keep_columns]
