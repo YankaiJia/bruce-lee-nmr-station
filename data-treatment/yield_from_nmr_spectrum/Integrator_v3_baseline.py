@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, peak_prominences, peak_widths
 from scipy.optimize import curve_fit
-import statsmodels.api as sm
 from numpy.polynomial.polynomial import Polynomial
 import os
 import json
@@ -14,35 +13,37 @@ import concurrent.futures
 from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
 import matplotlib
+
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
-# Disable multithreading for numpy and MKL to avoid conflicts with parallel processing in this script   #Just for Louis
-os.environ["OMP_NUM_THREADS"] = "1"                                 #Just for Louis 
-os.environ['OPENBLAS_NUM_THREADS'] = '1'                            #Just for Louis
-os.environ['MKL_NUM_THREADS'] = '1'                                 #Just for Louis
+# Disable multithreading for numpy and MKL to avoid conflicts with parallel processing in this script   #Uncomment this if your set--up have issue with multithreading
+os.environ["OMP_NUM_THREADS"] = "1"                                 #Uncomment this if your set-up have issue with multithreading
+os.environ['OPENBLAS_NUM_THREADS'] = '1'                            #Uncomment this if your set-up have issue with multithreading
+os.environ['MKL_NUM_THREADS'] = '1'                                 #Uncomment this if your set-up have issue with multithreading
 
 # get the system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
 ########################
-####Last fix#######
-#-baseline correction added
-#-Updated constrained and observed windows for peaks
-###################
-
-####Work in progress#######
-#- Detecting overlaped
-###########################
+########################
 
 solvent_shift = None
 peak_width_50 = None
 threshold_amplitude = None
 peaks_info, reference_shift = None, None
 
+########Functions#########
 def specify_para(sol_name, outlier_type=None):
 
-    """Specify global parameters based on the solvent name and outlier_type"""
+    """Specify global NMR-processing parameters from the solvent name and, optionally,
+    an outlier type.
+
+    This routine sets a number of module-level globals used downstream in peak
+    finding, integration, and assignment. Values depend on the `sol_name`
+    (currently "DCE") and may be further adjusted for adressing outliers 
+    requiring different windows or thresholds via `outlier_type` (eg."Type1" or "Type2")."""
+
 
     global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
 
@@ -368,29 +369,76 @@ def specify_para(sol_name, outlier_type=None):
         peak_width_50 = 0.008  # ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
         peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.2, 6.2],
+            [5.1, 6.2],
             #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.0,12.0],
+            [9.5,10.5],
 
         ]
         reference_shift = {
-            "Benzoin_dimethoxy-CH1": [5.87],  # ppm To verify
-            "Benzoin_dimethoxy-CH2": [5.95],  # ppm To verify
-            "Benzoin_monomethoxy-CH1": [5.69],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.691],  # ppm
-            "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm To verify
-            "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  To verify
-            "Carbene_precursor-Methoxy": [3.82],  #ppm To verify
+            "SM-NH2": [5.71],  # ppm
+            "Benzoin_monomethoxy-CH1": [5.98],  # ppm
+            "unkown-double_doublet_1":[5.46], #ppm
+            "unkown-double_doublet_2":[5.49], #ppm
+            "unkown-double_doublet_3":[5.53], #ppm
+            "unkown-double_doublet_4":[5.57], #ppm
             "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
             "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppm
+            "Benzaldehyde-Carbonyl": [9.98], #ppmf
+            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+            "Unknown_peak_2":[11.07], #ppm
+            }
+        
+    elif sol_name == 'DMSO-Nik-DBU':
+        solvent_shift = 2.5  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [4.9, 6.2],
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.5,10.5],
+
+        ]
+        reference_shift = {
+            "SM-NH2": [5.71],  # ppm
+            "Benzoin_monomethoxy-CH1": [5.98],  # ppm
+            "unkown-double_doublet_1":[5.46], #ppm
+            "unkown-double_doublet_2":[5.49], #ppm
+            "unkown-double_doublet_3":[5.53], #ppm
+            "unkown-double_doublet_4":[5.57], #ppm
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
+            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
+            "Benzaldehyde-Carbonyl": [9.98], #ppmf
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
             }
 
+    elif sol_name == 'DMSO-Nik-DBN':
+        solvent_shift = 2.5  # ppm ACN
+        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [4.2, 6.4],
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.5,10.5],
 
-########Functions#########
-def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the iunverted ppm scale
+        ]
+        reference_shift = {
+            "SM-NH2": [5.71],  # ppm
+            "Benzoin_monomethoxy-CH1": [5.98],  # ppm
+            "unkown-double_doublet_1":[5.46], #ppm
+            "unkown-double_doublet_2":[5.49], #ppm
+            "unkown-double_doublet_3":[5.53], #ppm
+            "unkown-double_doublet_4":[5.57], #ppm
+            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
+            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
+            "Benzaldehyde-Carbonyl": [9.98], #ppmf
+            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
+            "Unknown_peak_2":[11.07], #ppm
+            }
+
+def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the inverted ppm scale
+    
+    """Load the CSV for a given path `name_file`."""
 
     name_file = r"{}".format(name_file)
     data = pd.read_csv(name_file, delimiter=',', names=['Shift', 'Intensity'], skiprows=1).values
@@ -406,8 +454,11 @@ def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: qu
 
     return (data)
 
-
 def merge_overlapping_intervals(peaks_info):
+
+    """Return the minimum set of intervals required to cover the sections of interest.
+    Merge intervals when they are overlaping."""
+
     # Sort intervals based on the start of the range
     peaks_info.sort(key=lambda x: x[0])
 
@@ -424,7 +475,6 @@ def merge_overlapping_intervals(peaks_info):
             merged_intervals[-1][1] = max(merged_intervals[-1][1], end)
 
     return merged_intervals
-
 
 def extract_slices(nmr_data, merged_intervals):
     """
@@ -447,14 +497,12 @@ def extract_slices(nmr_data, merged_intervals):
 
     return slices
 
-
 def lorentzian(x, amp, cen, wid):
     # Define a Lorentzian function
-    #return (amp  / np.pi) * (1/ ((x - cen) ** 2 + wid ** 2)) # Old
     return (amp  / np.pi) * (wid/ ((x - cen) ** 2 + wid ** 2))
 
 def sum_of_lorentzian(x, *params):
-    # Define a sum of Gaussians
+    # Define a sum of Lorentzians
     num_peaks = len(params) // 3
     y = np.zeros_like(x)
 
@@ -483,13 +531,12 @@ def sum_of_gaussian(x, *params):
 
     return y
 
-
 def pseudovoigt1(x, amp, cen, wid, prop):
     # Define a Voigt Sum function
     return prop*gaussian(x, amp, cen, wid)+ (1-prop)*lorentzian(x, amp, cen, wid)
 
 def sum_of_voigt1(x, *params):
-    # Define a sum of Voigt Sum
+    # Define a sum of Voigt Sum function
     num_peaks = len(params) // 4
     y = np.zeros_like(x)
 
@@ -502,13 +549,12 @@ def sum_of_voigt1(x, *params):
 
     return y
 
-
 def pseudovoigt2(x, amp, cen, wid1, wid2, prop):
     # Define a Voigt Sum with 2 different half-width function
     return (1-prop)*gaussian(x, amp, cen, wid2) + (prop)*lorentzian(x, amp, cen, wid1)
 
 def sum_of_voigt2(x, *params):
-    # Define a sum of Gaussians
+    # Define a sum of Voigt Sum with 2 different half-width function
     num_peaks = len(params) // 5
     y = np.zeros_like(x)
 
@@ -521,7 +567,6 @@ def sum_of_voigt2(x, *params):
         y += pseudovoigt2(x, amp, cen, wid1, wid2, prop)
 
     return y
-
 
 def generalised_lorentzian(x, amp, cen, wid, prop):
     # Define a Genereralised Lorentzian function
@@ -542,6 +587,7 @@ def sum_of_generalised_lorentzian(x, *params):
     return y
 
 def insert_every(lst, interval, value):
+    
     """
     Inserts `value` into `lst` every `interval` elements.
 
@@ -553,6 +599,7 @@ def insert_every(lst, interval, value):
     Returns:
         A new list with the value inserted at every `interval` position.
     """
+
     if interval <= 0:
         raise ValueError("Interval must be a positive integer.")
 
@@ -563,6 +610,7 @@ def insert_every(lst, interval, value):
     return result
 
 def replace_in_groups(lst, group_size, indice_to_replace, value):
+    
     """
     Replaces specific indices within each group of size `group_size`.
 
@@ -575,6 +623,7 @@ def replace_in_groups(lst, group_size, indice_to_replace, value):
     Returns:
         A new list with replacements applied group-wise.
     """
+
     if group_size <= 0:
         raise ValueError("Group size must be a positive integer.")
     
@@ -584,10 +633,10 @@ def replace_in_groups(lst, group_size, indice_to_replace, value):
             result[i] = float(value)
     return result
         
-
-
-
 def fit_without_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation):
+    
+    """General method to fit in absence of boundaries for the parameters."""
+
     popt, covariance_matrix = curve_fit(
         model_func, shift_array, intensity_array, p0=initial_guesses,
         sigma=std_deviation * np.ones_like(shift_array),
@@ -599,21 +648,10 @@ def fit_without_bounds(model_func,shift_array, intensity_array, initial_guesses,
     )
     return popt, covariance_matrix
 
-
-# def fit_with_bounds(shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
-#     popt, covariance_matrix = curve_fit(
-#         sum_of_lorentzian, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
-#         sigma=std_deviation * np.ones_like(shift_array),
-#         absolute_sigma=True,
-#         maxfev=20000,  # Increase max function evaluations
-#         ftol=1e-14,  # Function tolerance (adjust for better precision)
-#         xtol=1e-14,  # Parameter change tolerance
-#         gtol=1e-14,  # Gradient tolerance
-#     )
-#     return popt, covariance_matrix
-
-
 def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+    
+    """General method to fit using provided boundaries for the parameters."""
+
     popt, covariance_matrix = curve_fit(
         model_func, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
         sigma=std_deviation * np.ones_like(shift_array),
@@ -625,10 +663,14 @@ def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, st
     )
     return popt, covariance_matrix
 
-
-
-
 def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+    
+    """Method to fit using provided boundaries for the parameters.
+    Used for cases where `fit_with_bounds` does not converge to be
+    able to exctract the best acheived parameters regardless of the 
+    convergence. This is use mainly as a last option in hard fitting
+    cases such as multiple merging peaks or low S/N."""
+    
     def residuals(params, x, y, sigma):
         return (y - model_func(x, *params)) / sigma
 
@@ -663,18 +705,59 @@ def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initia
         print(f"Total failure during least_squares: {e}")
         return np.full_like(initial_guesses, np.nan), np.full((len(initial_guesses), len(initial_guesses)), np.nan)
 
+def exponential_decay(x, a, b, c):   # Gaussian type baseline
+    return np.exp(np.clip(a * (x + b), -700, 700)) + c  # add clip to avoid overflow
 
-def inverse_baseline(x, a, b, c, d): # Lorentz type baseline  #EXPERIMENTAL (NOT TESTED YET)
-    return a * (1/-b*(x + d)) + c  
+def linear_baseline (x,a,b): #Linear type baseline
+    return a*x+b
 
-def exponential_decay(x, a, b, c, d):   # Gaussian type baseline
-    return a * np.exp(np.clip(b * (x + d), -700, 700)) + c  # add clip to avoid overflow
+def exponential_decay_linear_corrected(x, a, b, c, d):   #EXPERIMENTAL (NOT TESTED YET)
+    return np.exp(np.clip(a * (x + b), -700, 700)) + c + d * x  # add clip to avoid overflow
 
-def exponential_decay_linear_corrected(x, a, b, c, d, e):
-    return a * np.exp(np.clip(b * (x + d), -700, 700)) + c + e * x  # add clip to avoid overflow
+def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_correction=False, force_line=False, ppm_window=0.1): #ppm_window=0.1 Default
+    
+    """Fit a baseline to spectral data using exponential or linear models. Data
+    points near the center of the spectrum (within `ppm_window`) are down-
+    weighted to avoid fitting the region of interest. The fitted baseline
+    is returned as an array of the same length as the input.
+    
+        Parameters
+    ----------
+    shift_array : array_like
+        1D array of chemical shift values (ppm).
+    intensity_array : array_like
+        1D array of intensity values corresponding to `shift_array`.
+    ppm_per_index : float
+        Conversion factor from array index to ppm, used to calculate
+        how many indices correspond to `ppm_window`.
+    baseline_linear_correction : bool, optional
+        If False (default), fit a simple exponential decay.
+        If True, fit an exponential decay with an additional linear term.
+    force_line : bool, optional
+        If True, override other options and fit a simple linear baseline.
+        Default is False.
+    ppm_window : float, optional
+        Width (in ppm) of the central region to down-weight during fitting.
+        Default is 0.1 ppm.
 
+    Returns
+    -------
+    baseline : ndarray
+        1D array of fitted baseline values, same shape as `shift_array`.
 
-def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_correction=False, ppm_window=0.1): #ppm_window=0.1 Default
+    Notes
+    -----
+    - Uses `scipy.optimize.curve_fit` with strict tolerances and increased
+      iteration limits.
+    - If `baseline_linear_correction=False` and `force_line=False`,
+      the model is `exponential_decay`.
+    - If `baseline_linear_correction=True` and `force_line=False`,
+      the model is `exponential_decay_linear_corrected`.
+    - If `force_line=True`, the model is `linear_baseline`.
+    
+    """
+
+    
     indices_to_keep = int(ppm_window / ppm_per_index)
     shift_offset = shift_array[0]
 
@@ -697,25 +780,33 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
 
     # Select baseline function
 
+    log_start=math.log(abs(intensity_array[0]))  
+    log_end=math.log(abs(intensity_array[-1]))
+    log_slope=(log_start-log_end)/(shift_array[0]-shift_array[-1])
     
     if baseline_linear_correction==False:
         baseline_function = exponential_decay
         initial_guess = [
-            np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
-            -0.1 if intensity_array[0] > intensity_array[-1] else 0.1,  # B_guess (Decay/Growth)
+            log_slope,   # A_guess (Amplitude)
+            log_start/log_slope,  # B_guess (Decay/Growth)
             np.min(intensity_array),  # C_guess (Offset)
-            shift_array[np.argmax(np.gradient(intensity_array))]  # D_guess (Delay point)
         ]
     else:
         baseline_function = exponential_decay_linear_corrected
         initial_guess = [
-            np.max(intensity_array) - np.min(intensity_array),  # A_guess (Amplitude)
-            -0.1 if intensity_array[0] > intensity_array[-1] else 0.1,  # B_guess (Decay/Growth)
+            log_slope,   # A_guess (Amplitude)
+            log_start/log_slope,  # B_guess (Decay/Growth)
             np.min(intensity_array),  # C_guess (Offset)
-            shift_array[np.argmax(np.gradient(intensity_array))],  # D_guess (Delay point)
-            0 # E_guess (Linear correction)
+            0 # D_guess (Linear correction)
         ]
 
+    if force_line == True:
+        baseline_function = linear_baseline
+        initial_guess = [
+            (intensity_array[0]-intensity_array[-1])/(shift_array[0]-shift_array[-1]),   # A_guess (Slope)
+            np.min(intensity_array)  # B_guess (Intercept)
+        ]
+    
     params, covariance = curve_fit(baseline_function,
                                    shift_array - shift_offset,
                                    intensity_array,
@@ -729,20 +820,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
 
     baseline = baseline_function(shift_array - shift_offset, *params)
 
-    label = f'Baseline: {params}'
-
-    if False:
-        # Plot data and fitted curve
-        plt.plot(shift_array, intensity_array, label='Data', color='Black')
-        plt.plot(shift_array, baseline, label=label, color='red')
-        plt.legend()
-        plt.xlabel('Shift (ppm)')
-        plt.ylabel('Intensity')
-        plt.title('Baseline fitting')
-        plt.show()
-
     return baseline
-
 
 def fit_peaks(NMR_spectrum, std_deviation,
               estimated_peak_width_for_indexes,
@@ -752,6 +830,78 @@ def fit_peaks(NMR_spectrum, std_deviation,
               baseline_correction=True,
               is_show_plot=False,
               ):
+    
+    """Detect and fit peaks in a 1D NMR spectrum, with optional baseline correction
+    and bounded/unbounded nonlinear least-squares fitting.
+
+    Workflow
+    --------
+    1) Detect candidate peaks with `scipy.signal.find_peaks` using a width estimate.
+    2) Build initial guesses and bounds (center within ±`shift_tolerance`, widths/amplitudes ≥ 0).
+    3) Optionally subtract a fitted baseline (`baseline_fit`) from the intensities.
+    4) Fit the composite model `peak_function(shift, *params)` either with or
+       without bounds.
+    5) Return per-peak parameters, their 1σ uncertainties (from covariance),
+       warnings, and a figure summarizing the fit.
+
+    Parameters
+    ----------
+    NMR_spectrum : (N, 2) array_like
+        Two-column array: first column is chemical shift (ppm), second column
+        is intensity. Assumed uniformly spaced in shift.
+    std_deviation : float
+        Estimated noise standard deviation used to build the `sigma` weights for
+        the fit (uniform across points). Interpreted as absolute sigma.
+    estimated_peak_width_for_indexes : float
+        Peak width estimate **in index units** for `find_peaks(width=...)`.
+        This is also used to seed the initial width guesses (converted to ppm).
+    peak_function : callable
+        Composite model of the form `f(x, *params)` that sums all peaks. The
+        function must accept (x, p1, p2, ...) where parameters are grouped per
+        peak. Supported groupings in this function:
+        - 3 parameters/peak: (amplitude, center, width)
+        - 4 parameters/peak: (amplitude, center, width, shape) for
+          `sum_of_generalised_lorentzian` or `sum_of_voigt1`
+        - 5 parameters/peak: (amplitude, center, width_L, eta, width_G) for
+          `sum_of_voigt2` (as used here)
+    shift_tolerance : float, default 0.02
+        Allowed deviation (± ppm) around each detected center for bounded fits.
+    constrained_fit : bool, default True
+        If True, fit with bounds using `fit_with_bounds` (fall back to
+        `fit_with_bounds_do_your_best` on failure). If False, fit with
+        `fit_without_bounds`.
+    baseline_correction : bool, default True
+        If True, estimate and subtract a baseline via `baseline_fit`. Several
+        fallback window sizes are attempted; if all fail, a zero baseline is used.
+    is_show_plot : bool, default False
+        If True, displays a matplotlib figure with data, baseline, model fit,
+        residuals, and the covariance heatmap. If False, closes the figure but
+        still returns it.
+
+    Returns
+    -------
+    opti_parameter : (P, K) ndarray
+        Fitted parameters grouped per peak. `P` = number of peaks, `K` =
+        parameters per peak (3, 4, or 5 depending on `peak_function`).
+        Ordering within each group is as described under `peak_function`.
+    opti_parameter_error : (P, K) ndarray
+        standard deviations of the fitted parameters, computed as
+        `sqrt(diag(covariance_matrix))` reshaped per peak.
+    warning_string : str or None
+        A message describing non-fatal issues (e.g., strong residuals, fallback
+        baseline, or non-converged bounded fit). `None` if no warnings.
+    fig : matplotlib.figure.Figure
+        Summary figure containing:
+        - Covariance matrix heatmap
+        - Original spectrum, fitted model (including added-back baseline),
+          baseline, residuals, and detected peaks
+        The figure stores custom metadata in `fig._custom_metadata` with keys:
+        `'intensity'`, `'shift'`, `'width'`,
+        `'intensity_error'`, `'shift_error'`, `'width_error'`,
+        `'peak_intensity_lorentzian'`.
+"""
+    
+    
     shift_array = NMR_spectrum[:, 0]
     intensity_array = NMR_spectrum[:, 1]
     intensity_array_original = intensity_array.copy()
@@ -765,9 +915,6 @@ def fit_peaks(NMR_spectrum, std_deviation,
         print(f"Slices skipped, no peak found.")
         return [], [], None, []
 
-    if False:
-        print(f"{len(peaks)} found in slice: {round(shift_array[0], 2)} - {round(shift_array[-1], 2)} ppm.")
-
     # Get initial guesses for peak parameters (amplitude, center, width)
     initial_guesses = []
     lower_bounds = []
@@ -780,9 +927,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
         else:
             amp_guess = std_deviation
         cen_guess = shift_array[peak]  # Peak center
-        wid_guess = peak_width*0.5 * ppm_step # Initial width guess (adjust as needed), default: peak_width_50
+        wid_guess = peak_width*  0.5 * ppm_step # Initial width guess (adjust as needed), default: peak_width_50
         initial_guesses.extend([amp_guess, cen_guess, wid_guess])
-        #lower_bounds.extend([0, cen_guess - shift_tolerance, 0])
         lower_bounds.extend([0, cen_guess - shift_tolerance, 0])
         upper_bounds.extend([amp_guess * 2, cen_guess + shift_tolerance, wid_guess * 4])
     
@@ -812,8 +958,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
 
         try:
             baseline = baseline_fit(shift_array, intensity_array, ppm_step)
-        except:
-            print("Baseline could not be corrected, attempt with reduced window...")
+        except Exception as e:
+            print(f"Baseline could not be corrected:{e} \nAttempt with reduced window...")
             try:
                 baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.05)
             except:
@@ -821,14 +967,18 @@ def fit_peaks(NMR_spectrum, std_deviation,
                 try:
                     baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.025)
                 except:
-                    print("Baseline could not be fitted")
-                    warning_string = "Baseline could not be fitted"
-                    baseline = np.zeros_like(intensity_array)
+                    print("Exponential baseline could not be fitted")
+                    warning_string = "Exponential baseline could not be fitted"
+                    try:
+                        baseline = baseline_fit(shift_array, intensity_array, ppm_step,force_line=True, ppm_window=0.025)
+                    except:
+                        baseline = np.zeros_like(intensity_array)
+                        warning_string = "No baseline could be fitted"
+
         finally:
             intensity_array -= baseline
 
-    # Fit peaks
-    # fig = []
+
     #Fitting
     try:
         if constrained_fit == False:
@@ -836,10 +986,6 @@ def fit_peaks(NMR_spectrum, std_deviation,
                                                          std_deviation)
         else:
             try:
-                # popt, covariance_matrix = fit_with_bounds(shift_array, intensity_array,
-                #                                         initial_guesses, std_deviation,
-                #                                         lower_bounds, upper_bounds)
-
                 popt, covariance_matrix = fit_with_bounds(peak_function,shift_array, intensity_array,
                                                         initial_guesses, std_deviation,
                                                         lower_bounds, upper_bounds)
@@ -854,7 +1000,6 @@ def fit_peaks(NMR_spectrum, std_deviation,
         errors_of_parameters = np.sqrt(np.diag(covariance_matrix))
         opti_parameter = popt.reshape(-1, parameter_number)
         opti_parameter_error = errors_of_parameters.reshape(-1, parameter_number)
-        # print(f'opti_parameter: {opti_parameter}')  # [intensity, shift, width], need to display the shift
 
         # Generate fitted curve
         fitted_y = peak_function(shift_array, *popt)
@@ -865,11 +1010,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
                 warning_string = warning_string + "Strong residual: a peak might have been not fitted"
             else:
                 warning_string = "Strong residual: a peak might have been not fitted"
+                
         # Plot original data and fit results
-        # for indice, parameter in enumerate(opti_parameter):
-        #     print(
-        #         f"\nBest parameters for peak {indice}:  Scale :{parameter[0]}  Center:{parameter[1]}  Width:{parameter[2]}")
-
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))  # Two subplots (1 row, 2 columns)
         # ---- Subplot 1: Covariance Matrix ----
         ax1 = axes[0]
@@ -914,12 +1056,14 @@ def fit_peaks(NMR_spectrum, std_deviation,
         print(f"Curve fitting failed for this slice:{e}")
         return [], [], ["Fit failed"], 0
 
-
 def integration_peak(peak_function, *arg):
-    
+    """Return integration of the peaks depending on the model used for fitting.
+    This function is mostly a platform for further development. At the 
+    moment, the main models used (Lorentzians, Gaussian and Voigt1) are based
+    on normalised peak functions, resulting in amp = area."""
+
     if  peak_function == sum_of_lorentzian:
         amp, cen, wid = arg
-        #return (amp / (wid))   #Old, Only when Lorentzian is defined by 
         return amp 
 
     elif  peak_function == sum_of_gaussian:
@@ -936,11 +1080,10 @@ def integration_peak(peak_function, *arg):
     
     elif  peak_function == sum_of_voigt2:
         amp, cen, wid1, wid2, prop = arg
-        return amp 
+        return amp  #TO BE DETERMINED PLACEHOLDER
     
     else:
         print("Model peak unkown. Integration impossible")
-
 
 def find_closest_reference(fitted_center, reference_dict):
     """
@@ -968,8 +1111,9 @@ def find_closest_reference(fitted_center, reference_dict):
 
     return closest_product, closest_shift
 
-
 def replot_fittings(figures, is_show_plot=False, dir=None):
+
+    """Collect figures from the different fitting them as a single figure."""
 
     num_figs = len(figures)
 
@@ -1040,8 +1184,60 @@ def replot_fittings(figures, is_show_plot=False, dir=None):
 
     return fig
 
-
 def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
+    
+    """
+    NMR integration pipeline for a single spectrum file.
+
+    This function loads a 1D NMR spectrum, estimates noise and peak width,
+    slices the spectrum into regions of interest, fits peaks within each slice,
+    integrates them, assigns them to references, and returns a results dictionary
+    along with an experiment name inferred from the file path.
+
+    The behavior relies on module-level configuration set elsewhere (e.g., by
+    `set_global_params`), including `peak_width_50`, `peaks_info`,
+    `threshold_amplitude`, and `reference_shift`.
+
+    Parameters
+    ----------
+    file_name : str 
+        Path to the spectrum file (CSV expected by `CSV_Loader`).
+    is_save_plot : bool, default True
+        If True, downstream plotting inside `process_nmr_peaks` is saved to disk
+        in `file_dir`. Exact filenames are determined by that helper.
+    is_show_plot : bool, default False
+        If True, figures produced during fitting are displayed interactively.
+        If False, figures are closed after creation.
+
+    Returns
+    -------
+    results_dictionary : dict
+        Aggregated outputs from `process_nmr_peaks`. The exact structure is
+        defined by that function, typically including per-peak fitted parameters,
+        uncertainties, integrated areas, assignments, and any warnings/notes.
+    experiment_name : str
+        Name inferred from the parent directory of `file_name`, useful for
+        labeling outputs.
+
+    Notes
+    -----
+    - Noise level is estimated as the standard deviation of the last 2000
+      intensity points of the loaded spectrum:
+      ``std_deviation = std(NMR_spectrum[-2000:, 1])``.
+    - The estimated peak width in **index units** is computed from the global
+      `peak_width_50` (ppm at 50%) divided by the spectral resolution (ppm/idx).
+    - Regions of interest are derived by merging `peaks_info` via
+      `merge_overlapping_intervals`, then slicing with `extract_slices`.
+    - The default composite peak model is `sum_of_voigt1` (can be replaced if
+      needed).
+    - Core helpers used downstream:
+        `CSV_Loader`, `merge_overlapping_intervals`, `extract_slices`,
+        `process_nmr_peaks`, `fit_peaks`, `integration_peak`,
+        `find_closest_reference`.
+    - This function depends on globals: `peak_width_50`, `peaks_info`,
+      `threshold_amplitude`, `reference_shift`. Ensure they are set before call.
+    """
+    
     # get the dir path of the file
     file_dir = os.path.dirname(file_name)
     # Remove the extension
@@ -1058,18 +1254,6 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
         print(f"\nUseful interval in NMR: {interval_to_slice_spectrum}")
 
     NMR_slices = extract_slices(NMR_spectrum, interval_to_slice_spectrum)
-
-    if False:  # for debugging
-        for indice, slice in enumerate(NMR_slices):
-            plt.figure(figsize=(12, 6))
-            plt.plot(slice[:, 0], slice[:, 1], alpha=0.9, linewidth=2.5)
-            plt.xlabel('Shift (ppm)')
-            plt.ylabel('Intensity')
-            start = round(slice[0, 0], 2)
-            end = round(slice[-1, 0], 2)
-            plt.title(f'NMR slice:{indice}, {start} - {end} ppm')
-
-        plt.show()
 
     peak_function = sum_of_voigt1 # Default: sum_of_lorentzian
     
@@ -1090,7 +1274,6 @@ def integrate_spectrum(file_name, is_save_plot=True, is_show_plot=False):
 
     return results_dictionary, experiment_name
 
-
 def process_nmr_peaks(
         NMR_slices,
         std_deviation,
@@ -1107,30 +1290,92 @@ def process_nmr_peaks(
         tolerance=0.05
                     ):
     """
-    Processes NMR peaks from slices and assigns each product the closest matching peak.
-    Adds a warning if some peaks are not used in the final assignment.
+    Fit, integrate, and assign peaks across sliced NMR regions, aggregating results.
 
-    Returns:
-    - results_dictionary: dictionary of product to peak area, with warnings if any
+    For each spectrum slice, this function:
+      (1) fits peaks via `fit_peaks_func`,
+      (2) computes per-peak areas and uncertainties,
+      (3) assigns each fitted peak to the closest reference species,
+      (4) selects at most one (closest/best) peak per species,
+      (5) collects warnings and renders a combined summary figure.
+
+    Parameters
+    ----------
+    NMR_slices : list[array_like]
+        Iterable of sliced spectra. Each slice is an (N, 2) array-like object
+        with columns [shift_ppm, intensity].
+    std_deviation : float
+        Estimated noise standard deviation for weighting in downstream fitting.
+    estimated_peak_width_for_indexes : float
+        Peak width estimate in index units used by `fit_peaks_func` for detection
+        and initial guesses.
+    threshold_amplitude : float
+        Minimum amplitude required to keep a fitted peak (peaks below are ignored).
+    reference_shift : dict[str, list[float]]
+        Mapping {label -> list of expected shifts in ppm}. This routine uses the
+        *first* shift per label as the primary reference.
+    fit_peaks_func : callable
+        Function with signature
+        ``fit_peaks_func(slice, std_dev, est_width_idx, peak_function) -> (params, param_errs, warning, fig)``
+        returning per-slice fitted parameters, their errors, an optional
+        warning string, and a matplotlib Figure.
+    peak_function : callable
+        Composite model `f(x, *params)` used both for fitting and integration.
+        Parameter grouping per peak must match what `fit_peaks_func` produces.
+    integration_peak_func : callable
+        Function computing the *area per peak* from `(peak_function, *peak_params)`.
+        Must return area in the same units as the model amplitude; this code scales
+        areas by 1000 afterwards.
+    find_closest_reference_func : callable
+        Function mapping `(fitted_center_ppm, reference_shift_dict) -> (label, ref_shift)`.
+        Used to assign each peak to a product/species label.
+    file_dir : str or os.PathLike
+        Directory where the combined summary figure will be saved if `is_save_plot` is True.
+    is_save_plot : bool, default True
+        If True, saves the combined fitting figure as ``fitting_results.png`` in `file_dir`.
+    is_show_plot : bool, default False
+        If True, per-slice fit figures may be shown by downstream routines; the combined
+        figure is also created.
+    tolerance : float, default 0.05
+        Extra selection heuristic (ppm): if two candidate peaks for the same product
+        are within `tolerance` of the reference shift, prefer the one with larger area.
+
+    Returns
+    -------
+    results_dictionary : dict
+        Aggregated outputs with keys:
+          - `'Raw peaks data'`: list of dicts per accepted fitted peak:
+            `{product, center, area, area_uncertainty, parameter, amplitude, warning}`.
+          - Per-product keys mapping to the selected peak area (scaled by 1000).
+          - `'Warning'`: dict of warnings per product; may also contain
+            `'UnmatchedPeaks'` with human-readable strings for above-threshold peaks
+            not selected in the final assignment.
+
+    Notes
+    -----
+    - Area and area uncertainty: this implementation assumes the model is normalized
+      such that the area scales with amplitude; thus uncertainty is taken from
+      the amplitude's error.
+    - Peak assignment uses the closest reference shift.
     """
 
     all_peaks = []
     figures = []
 
     for slice in NMR_slices:
-        parameters, error, warning_string, fig = fit_peaks_func(slice, std_deviation, estimated_peak_width_for_indexes, peak_function)
+        parameters, parameter_errors, warning_string, fig = fit_peaks_func(slice, std_deviation, estimated_peak_width_for_indexes, peak_function)
 
         if fig:
             figures.append(fig)
             # print(f"################ Figure {len(figures)} created for slice.")
 
-        for parameter in parameters:
+        for parameter, error in zip(parameters,parameter_errors):
             if parameter[0] < threshold_amplitude:
                 continue
 
             fitted_center = parameter[1]
             peak_area = integration_peak_func(peak_function,*parameter) * 1000
-
+            peak_area_uncertainty = error[0] * 1000  #Works if using Lorentzian, Gaussian or Voigt Model as their area is normalised by definition and scaled by amplitude parameter 
             closest_product, closest_shift = find_closest_reference_func(fitted_center, reference_shift)
 
             if 'SolventDown' in closest_product or 'SolventUp' in closest_product:
@@ -1140,6 +1385,7 @@ def process_nmr_peaks(
                 'product': closest_product,
                 'center': fitted_center,
                 'area': peak_area,
+                'area_uncertainty': peak_area_uncertainty,
                 'parameter': parameter.tolist(),
                 'amplitude': parameter[0],
                 'warning': warning_string
@@ -1191,6 +1437,39 @@ def process_nmr_peaks(
     return results_dictionary
 
 def analyze_one_spectrum(file_name, sol_name,  outliers):
+    
+    """
+    Configure globals for a given solvent/outlier case, analyze a single spectrum,
+    and return the experiment name with its results.
+
+    If `outliers` is falsy, the routine calls `specify_para(sol_name)` to set
+    module-level parameters. Otherwise it tries to infer a vial identifier from
+    `file_name` using the regex ``r'(\\d+)-1D'``; if that vial ID exists in the
+    `outliers` mapping, it calls `specify_para(sol_name, outliers[vial_id])`
+    to apply the appropriate outlier type, else falls back to `specify_para(sol_name)`.
+    The spectrum is then processed via `integrate_spectrum`.
+
+    Parameters
+    ----------
+    file_name : str or os.PathLike
+        Path to the spectrum file to analyze. The vial ID is extracted from this
+        string using the pattern ``'<digits>-1D'`` (e.g., ``'.../023-1D/...'``).
+    sol_name : str
+        Solvent key passed to `specify_para`, e.g., "DCE" or "MeCN".
+    outliers : dict or mapping
+        Mapping from integer vial IDs to outlier type strings understood by
+        `specify_para`. If empty/falsy, outlier handling is skipped.
+
+    Returns
+    -------
+    experiment_name : str
+        Name inferred by `integrate_spectrum` from the file path (typically the
+        parent directory name of `file_name`).
+    experiment_dictionary : dict
+        Results produced by `integrate_spectrum`, typically including fitted
+        parameters, uncertainties, integrated areas, assignments, and warnings.
+    """
+    
     # Specify global parameters based on the solvent name and outlier_type
     if not outliers:
         specify_para(sol_name)
@@ -1219,6 +1498,54 @@ def analyze_one_run_folder(master_path,
                            outliers=None,  # Example: {33:'Type1', 43:'Type2'}
                            is_show_plot=False):
 
+    """
+    Batch-analyze all 1D spectra in a run folder and save aggregated results.
+
+    The function scans ``<master_path>/Results`` for subfolders whose path names
+    contain the substring ``"1D EXTENDED"``. For each such folder, it expects a
+    ``data.csv`` file, submits it to `analyze_one_spectrum` in parallel, and
+    aggregates the per-experiment outputs into:
+      * ``fitting_results.json`` — a dict mapping experiment names to their
+        results dictionaries, and
+      * ``fitting_list.txt`` — a newline-separated list of experiment names.
+
+    Parameters
+    ----------
+    master_path : str or os.PathLike
+        Path to the run folder that contains a ``Results`` subdirectory.
+    sol_name : str, default 'DCE'
+        Solvent identifier forwarded to the parameter-setting routine used by
+        `analyze_one_spectrum` (e.g., "DCE", "MeCN").
+    outliers : dict[int, str] or None, optional
+        Mapping from vial IDs (integers parsed from file paths) to outlier type
+        strings (e.g., ``{33: "Type1", 43: "Type2"}``). Passed through to
+        `analyze_one_spectrum`.
+    is_show_plot : bool, default False
+        Reserved flag to control plotting behavior; currently **not forwarded**
+        to `analyze_one_spectrum` (plots there are saved, not shown).
+
+    Returns
+    -------
+    None
+        Results are written to disk:
+          - ``<master_path>/Results/fitting_results.json``
+          - ``<master_path>/Results/fitting_list.txt``
+
+    Notes
+    -----
+    Parallelism: We encountered issues depending on the configuration
+    of the computer running using multhreading. Two modes are available:
+    multithreading or multiprocessing. To change the mode:
+    - comment:
+        -`with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:`
+    - uncomment:
+        - `with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:`
+        - os.environ["OMP_NUM_THREADS"] = "1"
+        - os.environ['OPENBLAS_NUM_THREADS'] = '1'
+        - os.environ['MKL_NUM_THREADS'] = '1'
+
+    By default, parallelism uses 12 workers.
+    """
 
     data_dir_ls = []
     data_file_ls = []
@@ -1245,8 +1572,8 @@ def analyze_one_run_folder(master_path,
     list_experiment_loaded = []
 
     # Use ThreadPoolExecutor for multithreaded analysis
-    #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Does not work for Louis
-    with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:  ####Just for Louis
+    #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Comment this if your set-up have issue with multithreading
+    with concurrent.futures.ProcessPoolExecutor(max_workers=14) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
 
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
@@ -1279,68 +1606,80 @@ if __name__ == "__main__":
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
                 #Bruce Lee
-                #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                #["\\LGA\\test-tempo\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                #["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-                #["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
-                #["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None]
-                #["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                #["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                #["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                [r"\\LGA\\test-tempo\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
+                # [r"\\DPE_bromination\\2025-02-19-run02_normal_run", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-03-01-run01_normal_run", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-03-03-run01_normal_run", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # [r"\\DPE_bromination\\2025-03-03-run02_normal_run", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-03-05-run01_normal_run", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', None],
+                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
 
                 # #NIK Calibration
                 # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],
 
                 # #NIK ACN Pyridine serie
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\Pyridine_cmpd\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run02_MeCN_DMAP\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run01_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run02_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run01_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run02_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run01_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run02_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
-                
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\Pyridine_cmpd\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run02_MeCN_DMAP\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run01_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run02_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run01_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run02_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run01_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run02_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
+               
+                #OLD
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+
                 # #NIK ACN Other base serie
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik-DBU', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik-DBU', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run01_MeCN_Morph\\", 'MeCN-Nik-morph', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run02_MeCN_Morph\\", 'MeCN-Nik-morph', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run01_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run02_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_MeCN_Pyrrol\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_MeCN_Pyrrol\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik-DBU', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik-DBU', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run01_MeCN_Morph\\", 'MeCN-Nik-morph', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run02_MeCN_Morph\\", 'MeCN-Nik-morph', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run01_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run02_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_MeCN_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_MeCN_Pyrrol\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
 
                 # #NIK DMSO Pyridine serie
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
@@ -1358,27 +1697,27 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
                 
-                #NIK DMSO Other base serie
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-12-run01_DMSO_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-12-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-09-run01_DMSO_DBN\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-09-run02_DMSO_DBN\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-06-08-run01_DMSO_DBU\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-06-08-run02_DMSO_DBU\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-26-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-26-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run01_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run02_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run01_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run02_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-10-run01_DMSO_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-10-run02_DMSO_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-15-run01_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-15-run02_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
+                # #NIK DMSO Other base serie
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DABCO\\2025-06-12-run01_DMSO_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DABCO\\2025-06-12-run02_DMSO_DABCO\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBN\\2025-06-09-run01_DMSO_DBN\\", 'MeCN-Nik-DBN', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBN\\2025-06-09-run02_DMSO_DBN\\", 'MeCN-Nik-DBN', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBU\\2025-06-08-run01_DMSO_DBU\\", 'MeCN-Nik-DBU', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBU\\2025-06-08-run02_DMSO_DBU\\", 'MeCN-Nik-DBU', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Morpholine\\2025-06-26-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Morpholine\\2025-06-26-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run01_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run02_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run01_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run02_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Piperidine\\2025-06-10-run01_DMSO_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Piperidine\\2025-06-10-run02_DMSO_Piper\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Quinuclidine\\2025-06-15-run01_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Quinuclidine\\2025-06-15-run02_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
             ]
 
     for run_folder in run_folders:
