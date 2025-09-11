@@ -59,7 +59,7 @@ def specify_para(sol_name, outlier_type=None):
             [4.45, 4.70],  # Product A, 2H
             [2.2, 2.7],  # HBr adduct
             [7.80, 8.5],  #Ketone
-            [8.5, 14], #Acid
+            [8.5, 12], #Acid
         ]
         reference_shift = {
             "Starting material": [5.467],  # ppm #Confirmed
@@ -76,9 +76,9 @@ def specify_para(sol_name, outlier_type=None):
             "Alcohol": [6.727],  # ppm #Confirmed
             "HBr_adduct": [2.463],  # ppm #Confirmed
             "Acid": [8.5], #Acid
-            "Bromo ketone": [8.18],  # ppm
-            "Bromo ketone impurity 1": [7.99],  # ppm
-            "Bromo ketone impurity 2": [7.96],  # ppm 
+            #"Bromo ketone": [8.18],  # ppm
+            #"Bromo ketone impurity 1": [7.99],  # ppm
+            #"Bromo ketone impurity 2": [7.96],  # ppm 
         }
 
         if outlier_type == 'Type1':  # Type 1 outlier: Asymetric pick upshift of Product B
@@ -97,7 +97,7 @@ def specify_para(sol_name, outlier_type=None):
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
                 [7.80, 8.5],  #Ketone
-                [8.5, 14], #Acid
+                [8.5, 12], #Acid
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm  
@@ -114,9 +114,9 @@ def specify_para(sol_name, outlier_type=None):
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
                 "Acid": [8.5], #Acid
-                "Bromo ketone": [8.18],  # ppm
-                "Bromo ketone impurity 1": [7.99],  # ppm
-                "Bromo ketone impurity 2": [7.96],  # ppm 
+                #"Bromo ketone": [8.18],  # ppm
+                #"Bromo ketone impurity 1": [7.99],  # ppm
+                #"Bromo ketone impurity 2": [7.96],  # ppm 
             }
             #pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier: Asymetric pick downshift of Product B
@@ -133,8 +133,8 @@ def specify_para(sol_name, outlier_type=None):
                 [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                [7.80, 8.5],  #Ketone
-                [8.5, 14], #Acid
+                [7.70, 8.5],  #Ketone
+                [8.5, 9], #Acid
             ]
             reference_shift = {
                 "Starting material": [5.467],  # ppm
@@ -151,9 +151,45 @@ def specify_para(sol_name, outlier_type=None):
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
                 "Acid": [8.5], #Acid
-                "Bromo ketone": [8.18],  # ppm
-                "Bromo ketone impurity 1": [7.99],  # ppm
-                "Bromo ketone impurity 2": [7.96],  # ppm 
+                #"Bromo ketone": [8.18],  # ppm
+                #"Bromo ketone impurity 1": [7.99],  # ppm
+                #"Bromo ketone impurity 2": [7.96],  # ppm 
+            } 
+        elif outlier_type == 'Type3':  # Type 2 outlier: Asymetric pick downshift of Product B
+            print("Type2 error paras are set in if conditon!")
+            # global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
+
+            solvent_shift = 3.73  #ppm DCE
+            peak_width_50 = 0.008  #ppm at 50% #Default 0.01
+            threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+                [5.20, 5.70],  # Substrate SM, 2H
+                [4.1, 5.00],  # DCE
+                [2.5, 3.05],  # DCE
+                [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
+                [4.45, 4.70],  # Product A, 2H
+                [2.2, 2.7],  # HBr adduct
+                [7.80, 8.5],  #Ketone
+                [8.5, 12], #Acid
+            ]
+            reference_shift = {
+                "Starting material": [5.467],  # ppm
+                "Product A": [4.527],  # ppm
+                "Product B": [6.807],  # ppm
+                "SolventDown": [4.775, 4.693, 4.605],  # ppm
+                "SolventUp": [2.850, 2.764, 2.682],  # ppm
+                "Unknown impurity SM peak 1": [6.453],  # ppm
+                "Unknown impurity SM peak 2": [4.474],  # ppm
+                "Unknown impurity 1": [6.523],
+                "Unknown impurity 2": [5.509],  # ppm
+                "Unknown impurity 3": [4.340],  # ppm
+                "Unknown impurity 4": [2.549],  # ppm
+                "Alcohol": [6.727],  # ppm
+                "HBr_adduct": [2.463],  # ppm
+                "Acid": [8.5], #Acid
+                #"Bromo ketone": [8.18],  # ppm
+                #"Bromo ketone impurity 1": [7.99],  # ppm
+                #"Bromo ketone impurity 2": [7.96],  # ppm 
             } 
             #pass
 
@@ -1609,7 +1645,7 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                [r"\\LGA\\test-tempo\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                [r"\\LGA\\test-tempo\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2', 34: 'Type3'}],
                 # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
@@ -1622,22 +1658,16 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
-                # ["\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
-                # [r"\\DPE_bromination\\2025-02-19-run02_normal_run", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-03-01-run01_normal_run", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-03-03-run01_normal_run", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # [r"\\DPE_bromination\\2025-03-03-run02_normal_run", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-03-05-run01_normal_run", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', None],
-                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
+                [r"\\DPE_bromination\\_Refs_MeCN\\Ref_B", 'MeCN', None],
+                [r"\\DPE_bromination\\_Refs_MeCN\\Ref_S", 'MeCN', None],
+                [r"\\DPE_bromination\\2025-02-19-run02_normal_run", 'DCE', None],
+                [r"\\DPE_bromination\\2025-03-01-run01_normal_run", 'DCE', None],
+                [r"\\DPE_bromination\\2025-03-03-run01_normal_run", 'DCE', {46: 'Type1', 47: 'Type2',34: 'Type3'}],
+                [r"\\DPE_bromination\\2025-03-03-run02_normal_run", 'DCE', None],
+                [r"\\DPE_bromination\\2025-03-05-run01_normal_run", 'DCE', None],
+                [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
+                [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', None],
+                [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
 
                 # #NIK Calibration
                 # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],
