@@ -19,13 +19,26 @@ import matplotlib.pyplot as plt
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
-def json_to_intg_results():
-    path = r"D:\Dropbox\brucelee\data\DPE_bromination\_Refs\ref_S_all_TBABr\Results"
+def json_to_intg_results(salt_type:str='TBABr'):
+
+    ref_folder = r"D:\Dropbox\brucelee\data\DPE_bromination\_Refs"
+    if salt_type == 'TBABr':
+        path = ref_folder + r"ref_S_all_TBABr\Results"
+    elif salt_type == 'TBABF4':
+        path = ref_folder + r"ref_S_all_TBABF4\Results"
+    elif salt_type == 'TBPBr':
+        path = ref_folder + r"ref_S_all_TBPBr\Results"
+    elif salt_type == 'TBABr3':
+        path = ref_folder + r"ref_S_all_TBABr3\Results"
+    else:
+        raise Exception("Salt of type:[TBABr,TBABF4,TBPBr,TBABr3] needs to be specified!")
+
     json_f = r'\fitting_results.json'
     # 1. JSON
     with open(path+json_f, "r", encoding="utf-8") as file:
         data = json.load(file)
     # print(f'data for calib len: {len(data)}')
+
     # 2. DPE、TBABr Starting material
     rows = []
     for sample_name, content in data.items():
@@ -114,7 +127,7 @@ def plot_interp(X1, X2, y, rbf_model):
 
 def estimate_conc_by_rbf_model(tbabr_value_here,
                                integral_value_normalized,
-                               show_plot:bool=False):
+                               show_plot: bool = False):
 
     if integral_value_normalized < 1E-4:
         return 0
@@ -219,6 +232,7 @@ def interp_one_folder(run_path = None):
 
         conc_list = get_all_concs(intg_list, tbabr_conc) # [conc_dpe, conc_a, conc_b, conc_adduct, conc_alcohol, conc_acid]
         assert len(conc_list) == 6, "conc_list len incorrect!"
+
         # save all the concs to a json in the folder
         conc_dict = dict(zip(
             ['conc_DPE_final', 'conc_prod_A', 'conc_prod_B', 'conc_adduct', 'conc_alcohol', 'conc_acid'],
