@@ -664,14 +664,26 @@ def collect_all_json_results_form_every_spectrum(run_folders):
 
 if __name__ == '__main__':
 
+    bromination_path = r"D:\Dropbox\brucelee\data\DPE_bromination"
     run_folders = [
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-02-19-run02_normal_run",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-01-run01_normal_run",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run01_normal_run",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-03-run02_normal_run",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-05-run01_normal_run",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-03-12-run01_better_shimming",
-        r"D:\Dropbox\brucelee\data\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun"
+        # bromination_path+r"\2025-02-19-run02_normal_run",
+        # bromination_path+r"\2025-03-01-run01_normal_run",
+        # bromination_path+r"\2025-03-03-run01_normal_run",
+        # bromination_path+r"\2025-03-03-run02_normal_run",
+        # bromination_path+r"\2025-03-05-run01_normal_run",
+        # bromination_path+r"\2025-03-12-run01_better_shimming",
+        # bromination_path+r"\2025-07-01-run01_DCE_TBABr_rerun",
+        # bromination_path + r"\2025-04-28-run01_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-04-28-run02_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-04-28-run03_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-04-28-run04_DCE_TBABF4_normal",
+        bromination_path +r'\2025-05-30-run01_DCE_TBPBr_normal',
+        bromination_path +r'\2025-05-30-run02_DCE_TBPBr_normal',
+        bromination_path +r'\2025-05-30-run03_DCE_TBPBr_normal',
+        bromination_path +r'\2025-05-30-run04_DCE_TBPBr_normal',
+        # bromination_path +r'\2025-09-10-run01_DCE_TBPBr_add',
+        # bromination_path +r'\2025-09-10-run02_DCE_TBPBr_add',
+
     ]
 
 
@@ -679,4 +691,4 @@ if __name__ == '__main__':
         put_run_condition_in_spectrum_folder(path)
         put_fitting_results_in_spec_folder(path)
 
-    all_results_df = collect_all_json_results_form_every_spectrum(run_folders)
+    # all_results_df = collect_all_json_results_form_every_spectrum(run_folders)
