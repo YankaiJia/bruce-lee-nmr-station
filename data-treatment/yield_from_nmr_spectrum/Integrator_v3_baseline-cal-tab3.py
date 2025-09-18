@@ -1608,8 +1608,8 @@ def analyze_one_run_folder(master_path,
     list_experiment_loaded = []
 
     # Use ThreadPoolExecutor for multithreaded analysis
-    #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Comment this if your set-up have issue with multithreading
-    with concurrent.futures.ProcessPoolExecutor(max_workers=14) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
+    # with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Comment this if your set-up have issue with multithreading
+    with concurrent.futures.ProcessPoolExecutor(max_workers=15) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
 
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
@@ -1677,13 +1677,13 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add", 'DCE', None],              [r"\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add", 'DCE', None],
-                #
+
                 # [r"\\DPE_bromination\\2025-05-30-run01_DCE_TBPBr_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-05-30-run02_DCE_TBPBr_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-05-30-run03_DCE_TBPBr_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-05-30-run04_DCE_TBPBr_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-09-10-run01_DCE_TBPBr_add", 'DCE', None],
-                [r"\\DPE_bromination\\2025-09-10-run02_DCE_TBPBr_add", 'DCE', None],
+                [r"\\DPE_bromination\\2025-09-10-run01_DCE_TBPBr_add", 'DCE', None],
+                [r"\\DPE_bromination\\2025-09-10-run01_DCE_TBPBr_add", 'DCE', None],
 
                 # #NIK Calibration
                 # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],

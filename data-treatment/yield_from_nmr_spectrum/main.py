@@ -31,7 +31,7 @@ def check_and_return_folder_structure(run_folder):
     out_conc_file = outVandC_folder + "\\out_concentrations.csv"
     out_vol_file = outVandC_folder + "\\out_volumes_shuffled.csv"
     assert os.path.exists(out_conc_file), "out_concentrations.csv does not exist!"
-    assert os.path.exists(out_vol_file), "out_volumes_shuffled.csv does not exist!"
+    # assert os.path.exists(out_vol_file), "out_volumes_shuffled.csv does not exist!"
 
     # make sure Results folder exists
     result_folder = run_folder + "Results"
@@ -98,7 +98,7 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
                                            additive_name='TBABr'):
 
     df = all_result_csv_path
-    df = df.rename(columns={'conc_TBABr': 'conc_TBABr_0',
+    df = df.rename(columns={f'conc_{additive_type}': f'conc_{additive_type}_0',
                             'conc_Br2': 'conc_Br2_0',
                             'conc_DPE': 'conc_DPE_0',
                             'conc_adduct': 'conc_HBr_adduct'})
@@ -152,12 +152,21 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
     # df = df[~df['uuid'].str.contains('|'.join(patterns_to_remove), case=False, na=False)]
 
     # if the init substrate concs are the same, keep only the last one.
-    df = df[~df.duplicated(subset=['conc_TBABr_0', 'conc_Br2_0', 'conc_DPE_0'], keep='last')]
+    df = df[~df.duplicated(subset=[f'conc_{additive_type}_0', 'conc_Br2_0', 'conc_DPE_0'], keep='last')]
 
     # reorder cols for plotting
-    first_cols = ['uuid', 'conc_DPE_final', 'conc_TBABr_0', 'conc_Br2_0', 'conc_DPE_0']
+    first_cols = ['uuid', 'conc_DPE_final', f'conc_{additive_type}_0', 'conc_Br2_0', 'conc_DPE_0']
     df = df[first_cols + [col for col in df.columns if col not in first_cols]]
     return df
+
+
+def get_additive_type_from_path(path: str) -> str:
+    additive_types = ['TBABr3', 'TBABF4', 'TBPBr', 'TBABr']
+    for salt in additive_types:
+        if salt in path:
+            return salt
+    return 'TBABr'  # default fallback
+
 
 if __name__ == "__main__":
 
@@ -169,15 +178,6 @@ if __name__ == "__main__":
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
-                # ["\\DPE_bromination\\2025-03-24-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-03-24-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-01-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-02-run03_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run01_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-03-run02_MeCN_normal\\", 'MeCN', None],
-                # ["\\DPE_bromination\\2025-04-08-run01_MeCN_normal\\", 'MeCN', None],
                 # ["\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run02_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
@@ -185,25 +185,31 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-22-run01_DCE_TBABr3_normal\\", 'DCE', None],
 
                 ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
 
                 # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add\\", 'DCE-BF4', None],
+
                 # [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
-                [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
+                # [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
 
     ]
 
     for run_folder in run_folders:
+
         run_dir = data_dir + run_folder[0]
         run_sol = run_folder[1]  # solvent name
         run_outliers = run_folder[2]  # outlier type if any
@@ -218,14 +224,19 @@ if __name__ == "__main__":
         process_one_folder(run_dir, run_sol, run_outliers)
 
 
+    additive_types\
+        = [get_additive_type_from_path(run_folder[0]) for run_folder in run_folders]
+
+    assert len(set(additive_types)) == 1, 'There are multiple additives in this process.'
+    additive_type = additive_types[0]
 
     run_folders_paths = [data_dir+ls[0] for ls in run_folders]
-    all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders_paths)
+    all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders_paths, additive_type)
 
     df = post_treatment_to_get_params_for_cubes(all_results_df)
 
     # save this df to csv
     save_path = data_dir + r"\\DPE_bromination"
-    csv_file_name = r'\\full_experiment_DCE_TBABr_2d_interp.csv'
+    csv_file_name = fr'\\full_experiment_DCE_{additive_type}_type_2d_interp.csv'
     df.to_csv(save_path+csv_file_name, index=False)  # index=False prevents writing the row index
     print(f"Data saved to: {save_path+csv_file_name}")

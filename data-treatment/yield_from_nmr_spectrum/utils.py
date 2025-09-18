@@ -601,7 +601,7 @@ def put_fitting_results_in_spec_folder(run_path=None):
                 print(f"✔ Saved {key} → {save_path}")
                 break  # stop searching after the first match
 
-def collect_all_json_results_form_every_spectrum(run_folders):
+def collect_all_json_results_form_every_spectrum(run_folders, additive_type:str):
 
     """In each spectrum folder, there should be three json files
     1. reaction_info.json: storing all the reaction conditions
@@ -647,7 +647,7 @@ def collect_all_json_results_form_every_spectrum(run_folders):
 
     keep_columns = [
         'uuid', 'local_index', 'global_index',
-        'conc_TBABr', 'conc_Br2', 'conc_DPE',
+        f'conc_{additive_type}', 'conc_Br2', 'conc_DPE',
         'conc_DPE_final', 'conc_prod_A', 'conc_prod_B',
         'conc_adduct', 'conc_alcohol', 'conc_acid',
         'spectrum_path']
@@ -656,8 +656,8 @@ def collect_all_json_results_form_every_spectrum(run_folders):
     all_results_df = all_results_df[keep_columns]
 
     # change the conc of three substrates from M to mM
-    all_results_df[['conc_TBABr', 'conc_Br2', 'conc_DPE']] = \
-        all_results_df[['conc_TBABr', 'conc_Br2', 'conc_DPE']] * 1000
+    all_results_df[[f'conc_{additive_type}', 'conc_Br2', 'conc_DPE']] = \
+        all_results_df[[f'conc_{additive_type}', 'conc_Br2', 'conc_DPE']] * 1000
 
     return all_results_df
 
@@ -673,16 +673,19 @@ if __name__ == '__main__':
         # bromination_path+r"\2025-03-05-run01_normal_run",
         # bromination_path+r"\2025-03-12-run01_better_shimming",
         # bromination_path+r"\2025-07-01-run01_DCE_TBABr_rerun",
-        # bromination_path + r"\2025-04-28-run01_DCE_TBABF4_normal",
-        # bromination_path + r"\2025-04-28-run02_DCE_TBABF4_normal",
-        # bromination_path + r"\2025-04-28-run03_DCE_TBABF4_normal",
-        # bromination_path + r"\2025-04-28-run04_DCE_TBABF4_normal",
+        bromination_path + r"\2025-04-28-run01_DCE_TBABF4_normal",
+        bromination_path + r"\2025-04-28-run02_DCE_TBABF4_normal",
+        bromination_path + r"\2025-04-28-run03_DCE_TBABF4_normal",
+        bromination_path + r"\2025-04-28-run04_DCE_TBABF4_normal",
+        bromination_path + r"\2025-09-09-run01_DCE_TBABF4_add",
+        bromination_path + r"\2025-09-09-run01_DCE_TBABF4_add",
+
         bromination_path +r'\2025-05-30-run01_DCE_TBPBr_normal',
         bromination_path +r'\2025-05-30-run02_DCE_TBPBr_normal',
         bromination_path +r'\2025-05-30-run03_DCE_TBPBr_normal',
         bromination_path +r'\2025-05-30-run04_DCE_TBPBr_normal',
-        # bromination_path +r'\2025-09-10-run01_DCE_TBPBr_add',
-        # bromination_path +r'\2025-09-10-run02_DCE_TBPBr_add',
+        bromination_path +r'\2025-09-10-run01_DCE_TBPBr_add',
+        bromination_path +r'\2025-09-10-run02_DCE_TBPBr_add',
 
     ]
 

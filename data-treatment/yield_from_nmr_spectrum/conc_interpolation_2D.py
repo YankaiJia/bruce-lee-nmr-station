@@ -57,6 +57,7 @@ def json_to_intg_results(additive_type:str='TBABr'):
 
     # 3. DataFrame for CSV
     df = pd.DataFrame(rows)
+    assert not df.empty, "DataFrame for calibration is empty!"
     df.to_csv(path+r"\\dpe_tbabr_starting_material.csv", index=False)
 
     return df, path
@@ -357,16 +358,16 @@ if __name__ == "__main__":
         # r"\2025-03-05-run01_normal_run",
         # r"\2025-03-12-run01_better_shimming",
         # r"\2025-07-01-run01_DCE_TBABr_rerun"
-        # r'\2025-04-28-run01_DCE_TBABF4_normal',
-        # r'\2025-04-28-run02_DCE_TBABF4_normal',
-        # r'\2025-04-28-run03_DCE_TBABF4_normal',
-        # r'\2025-04-28-run04_DCE_TBABF4_normal',
-        # r'\2025-09-09-run01_DCE_TBABF4_add',
-        # r'\2025-09-09-run01_DCE_TBABF4_add',
-        r'\2025-05-30-run01_DCE_TBPBr_normal',
-        r'\2025-05-30-run02_DCE_TBPBr_normal',
-        r'\2025-05-30-run03_DCE_TBPBr_normal',
-        r'\2025-05-30-run04_DCE_TBPBr_normal',
+        r'\2025-04-28-run01_DCE_TBABF4_normal',
+        r'\2025-04-28-run02_DCE_TBABF4_normal',
+        r'\2025-04-28-run03_DCE_TBABF4_normal',
+        r'\2025-04-28-run04_DCE_TBABF4_normal',
+        r'\2025-09-09-run01_DCE_TBABF4_add',
+        r'\2025-09-09-run01_DCE_TBABF4_add',
+        # r'\2025-05-30-run01_DCE_TBPBr_normal',
+        # r'\2025-05-30-run02_DCE_TBPBr_normal',
+        # r'\2025-05-30-run03_DCE_TBPBr_normal',
+        # r'\2025-05-30-run04_DCE_TBPBr_normal',
         # r'\2025-09-10-run01_DCE_TBPBr_add',
         # r'\2025-09-10-run02_DCE_TBPBr_add',
     ]
