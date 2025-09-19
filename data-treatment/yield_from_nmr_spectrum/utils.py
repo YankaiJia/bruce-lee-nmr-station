@@ -359,16 +359,39 @@ def merge_result_from_hardy_fitting():
 
 # merge_result_from_hardy_fitting()
 
-def get_conc_for_all_reactions():
+def get_conc_for_all_reactions_for_nik_reactions():
 
-    run_folder = r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine'
-    outvandc_file = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\OutVandC\conc_vol_list.csv"
+    """
+    Process reaction data by merging concentration and spectrum information from multiple sources.
 
-    results_folder1 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results"
-    results_folder2 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
+    This function performs the following steps:
+    1. Defines paths to two experimental runs and their associated data files (Excel and CSV).
+    2. Extracts subfolders containing processed 1D NMR spectra.
+    3. Maps spectrum folder names to their corresponding local indices from Excel files.
+    4. Combines data from both experimental runs into a single DataFrame.
+    5. Merges the combined data with concentration/volume information from a CSV file (OutVandC).
+    6. Loads compound 3 concentration values from a JSON file and maps them to the merged DataFrame.
+    7. Saves intermediate and final processed DataFrames to CSV files.
 
-    excel_file1 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\2025-05-19-run01.xlsx"
-    excel_file2 = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\2025-05-19-run02.xlsx"
+    Returns:
+        pd.DataFrame: A DataFrame containing selected columns including local index, global index,
+                      spectrum name, key component concentrations, and compound 3 concentration.
+
+    Output files:
+        - conc_for_all_reactions.csv: Contains merged data from Excel and OutVandC CSV.
+        - conditions_with_compd3_conc.csv: Final output including compound 3 concentration.
+    """
+
+    nick_reaction_folder = r'D:\Dropbox\brucelee\data\NV\Final Data'
+
+    run_folder = nick_reaction_folder + r'\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine'
+    outvandc_file = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\OutVandC\conc_vol_list.csv"
+
+    results_folder1 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results"
+    results_folder2 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
+
+    excel_file1 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\2025-05-19-run01.xlsx"
+    excel_file2 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\2025-05-19-run02.xlsx"
 
     # get all the subfolders in the results folder if "1D EXTENDED" is in the name
     reaction_folder_list1 = [f.path for f in os.scandir(results_folder1) if f.is_dir() and "1D EXTENDED" in f.name]
