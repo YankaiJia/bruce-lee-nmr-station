@@ -602,7 +602,9 @@ def put_fitting_results_in_spec_folder(run_path=None):
 
     results_folder = run_path + r'\\Results'
     fitting_result_json = results_folder + r'\\fitting_results.json'
-    assert os.path.exists(fitting_result_json), f"❌ File not found: {fitting_result_json}"
+    if not os.path.exists(fitting_result_json):
+        print(f"❌ File not found: {fitting_result_json}")
+        return
     with open(fitting_result_json, 'r', encoding='utf-8') as f:
         fitting_result_dict = json.load(f)
 
@@ -684,6 +686,61 @@ def collect_all_json_results_form_every_spectrum(run_folders, additive_type:str)
 
     return all_results_df
 
+def combine_jsons(run_path=None):
+    if run_path == None: return
+
+    results_folder = run_path + r'\\Results'
+    # get all the subfolders
+    subfolders = [
+        os.path.join(results_folder, name)
+        for name in os.listdir(results_folder)
+        if os.path.isdir(os.path.join(results_folder, name))
+    ]
+    spec_folders_path = [folder for folder in subfolders if '1D EXTENDED' in folder]
+    spec_folders_path = sorted(spec_folders_path,
+                            key=lambda x: int(re.search(r'\\\s*(\d+)-1D EXTENDED', x).group(1)))
+    spec_folders_name = [os.path.basename(folder) for folder in spec_folders_path]
+
+    for spec_folder in spec_folders_path:
+        reaction_info_all_dict = {}
+        # 1. Read and append reaction condition to dict
+        reaction_condition_json = spec_folder + r'\\reaction_info.json'
+        if not os.path.exists(reaction_condition_json):
+            print(f"❌ File not found: {reaction_condition_json}")
+            continue
+        with open(reaction_condition_json, 'r', encoding='utf-8') as f:
+            reaction_condition_dict = json.load(f)
+            reaction_info_all_dict.update(reaction_condition_dict)
+
+        # 2. Read and append fitting results
+        fitting_result_json = spec_folder + r"\\fitting_result.json"
+        if not os.path.exists(fitting_result_json):
+            print(f"❌ File not found:{fitting_result_json}")
+            continue
+        with open(fitting_result_json, 'r', encoding='utf-8') as f:
+            reaction_condition_dict = json.load(f)
+            cols_to_keep = ['Product A', 'Product B', 'Alcohol', 'HBr_adduct']
+            # Filter the dictionary
+            reaction_condition_dict = {k: v for k, v in reaction_condition_dict.items() if any(kw in k for kw in cols_to_keep)}
+            reaction_info_all_dict.update(reaction_condition_dict)
+
+        # 3. Read and append fitting result for tba
+        fitting_result_for_tba_json = spec_folder + r"\\data_tba_fitting_intg.json"
+        if not os.path.exists(fitting_result_for_tba_json):
+            print(f"❌ File not found:{fitting_result_for_tba_json}")
+            continue
+        with open(fitting_result_for_tba_json, 'r', encoding='utf-8') as f:
+            d = json.load(f)
+            fitting_result_for_tba_dict_filtered = {
+                                                    'tba_intg': d['overall_integral'],
+                                                    'tba_intg_rmse': d['rmse']}
+            reaction_info_all_dict.update(fitting_result_for_tba_dict_filtered)
+
+        # save reaction_info_all_dict to json
+        json_all = spec_folder + r"\\reaction_info_all.json"
+        with open(json_all, 'w') as f:
+            json.dump(reaction_info_all_dict, f, indent=4)
+            print(f"json of all info is saved: {json_all} ")
 
 if __name__ == '__main__':
 
@@ -696,25 +753,33 @@ if __name__ == '__main__':
         # bromination_path+r"\2025-03-05-run01_normal_run",
         # bromination_path+r"\2025-03-12-run01_better_shimming",
         # bromination_path+r"\2025-07-01-run01_DCE_TBABr_rerun",
-        bromination_path + r"\2025-04-28-run01_DCE_TBABF4_normal",
-        bromination_path + r"\2025-04-28-run02_DCE_TBABF4_normal",
-        bromination_path + r"\2025-04-28-run03_DCE_TBABF4_normal",
-        bromination_path + r"\2025-04-28-run04_DCE_TBABF4_normal",
-        bromination_path + r"\2025-09-09-run01_DCE_TBABF4_add",
-        bromination_path + r"\2025-09-09-run01_DCE_TBABF4_add",
+        # bromination_path + r"\2025-04-28-run01_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-04-28-run02_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-04-28-run03_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-04-28-run04_DCE_TBABF4_normal",
+        # bromination_path + r"\2025-09-09-run01_DCE_TBABF4_add",
+        # bromination_path + r"\2025-09-09-run01_DCE_TBABF4_add",
 
-        bromination_path +r'\2025-05-30-run01_DCE_TBPBr_normal',
-        bromination_path +r'\2025-05-30-run02_DCE_TBPBr_normal',
-        bromination_path +r'\2025-05-30-run03_DCE_TBPBr_normal',
-        bromination_path +r'\2025-05-30-run04_DCE_TBPBr_normal',
-        bromination_path +r'\2025-09-10-run01_DCE_TBPBr_add',
-        bromination_path +r'\2025-09-10-run02_DCE_TBPBr_add',
+        # bromination_path +r'\2025-05-30-run01_DCE_TBPBr_normal',
+        # bromination_path +r'\2025-05-30-run02_DCE_TBPBr_normal',
+        # bromination_path +r'\2025-05-30-run03_DCE_TBPBr_normal',
+        # bromination_path +r'\2025-05-30-run04_DCE_TBPBr_normal',
+        # bromination_path +r'\2025-09-10-run01_DCE_TBPBr_add',
+        # bromination_path +r'\2025-09-10-run02_DCE_TBPBr_add',
 
+        bromination_path + r"\2025-04-15-run01_DCE_TBABr3_normal",
+        bromination_path + r"\2025-04-15-run02_DCE_TBABr3_normal",
+        bromination_path + r"\2025-04-15-run03_DCE_TBABr3_normal",
+        bromination_path + r"\2025-04-15-run04_DCE_TBABr3_normal",
+        bromination_path + r"\2025-04-22-run01_DCE_TBABr3_normal",
+        bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
+        bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
     ]
 
 
     for path in run_folders:
         put_run_condition_in_spectrum_folder(path)
         put_fitting_results_in_spec_folder(path)
+        combine_jsons(path)
 
     # all_results_df = collect_all_json_results_form_every_spectrum(run_folders)

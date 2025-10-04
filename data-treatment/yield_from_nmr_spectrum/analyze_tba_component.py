@@ -17,6 +17,8 @@ Example of usage
 
 Author: Yaroslav I. Sobolev, yaroslav.sobolev@gmail.com, IBS Center for Algorithmic and Robotized Synthesis
 """
+import json
+import os
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -167,10 +169,25 @@ def lineshape_function(x, center, vmax, gamma, amplitude,
     return res
 
 
-def get_tba_peak_integration(filepath, instrumental_rms_error=0.002, verbose=0):
+def get_tba_peak_integration(filepath,
+                             instrumental_rms_error=0.002,
+                             verbose=True,
+                             is_save_fiting_img=True,
+                             is_save_report_to_json=True,
+                             is_override_previous_run=False):
     """
     Quantify the NMR peaks of TBA around 2 - 3.5 ppm through automated peak fitting and integration.
     """
+
+
+    print(f"Working on tba fitting for: {filepath}")
+
+    if not is_override_previous_run:
+        json_path = os.path.splitext(filepath)[0] + '_tba_fitting_intg.json'  # replace the file extension to json
+        if os.path.exists(json_path):
+            print('Already calculated!')
+            return
+
     nmr_data = load_nmr_spectrum_from_csv(filepath)
 
     p0 = [3.72940090e+00, 1.85526572e-11, 8.08781799e-03, 4.69128724e+00,
@@ -322,45 +339,49 @@ def get_tba_peak_integration(filepath, instrumental_rms_error=0.002, verbose=0):
     #         f.write(f'    {param},\n')
     #     f.write(']\n')
 
-    # # plot the results of the fit
-    # vs = np.linspace(min_ppm, max_ppm, 1000)
-    # fitted_intensity = spectrum_function(*([vs] + list(popt)))
-    # plt.plot(vs, fitted_intensity, label='Fitted spectrum', color='gray')
-    # plt.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1, label='Data')
-    #
-    # colors = ['C1', 'C0']
-    # # plot axvlines for the centers of the peaks
-    # for i in range(n_bands):
-    #     center = popt[6 + i]
-    #     color_here = colors[i % len(colors)]
-    #     plt.axvline(center, color=color_here, linestyle='--', label=f'Line {i+1}: {center:.4f} ppm')
-    #
-    # for i in range(n_bands):
-    #     # plot separate lineshapes, one for each center
-    #     center = popt[6 + i]
-    #     amplitude_here = popt[6 + n_bands + i]
-    #     lineshape_params = single_peak_params[:]  # Use the parameters from the single peak fit
-    #     lineshape_params[0] = center  # Set the center to the current center
-    #     lineshape_params[2] = popt[3]  # Set the gamma to the current gamma
-    #     lineshape_params[4] = popt[4]  # Set the asymmetry to the current asymmetry
-    #     lineshape_params[5] = popt[5]  # Set the gaussian sigma to the current gaussian sigma
-    #     lineshape_intensity = amplitude_here * lineshape_function(vs, *lineshape_params)
-    #     # do a fillbetween for the lineshape
-    #     color_here = colors[i % len(colors)]
-    #     plt.fill_between(vs, lineshape_intensity, alpha=0.1, color=color_here)
-    # # plot the Gaussian shape
-    # gaussian_sigma = popt[0]
-    # gaussian_a = popt[1]
-    # offset = popt[2]
-    # gaussian_shape = gaussian_a * np.exp((vs-3.3)/gaussian_sigma) + offset
-    # plt.plot(vs, gaussian_shape, label='Exponential\nbackground', color='C2')
-    #
-    # # reverse the x-axis for chemical shift
-    # plt.gca().invert_xaxis()
-    # plt.legend()
-    # plt.xlabel('Chemical shift (ppm)')
-    # plt.ylabel('Intensity')
-    # plt.show()
+    if is_save_fiting_img:
+        # plot the results of the fit
+        vs = np.linspace(min_ppm, max_ppm, 1000)
+        fitted_intensity = spectrum_function(*([vs] + list(popt)))
+        plt.plot(vs, fitted_intensity, label='Fitted spectrum', color='gray')
+        plt.plot(cropped_data[:, 0], cropped_data[:, 1], 'o', color='black', alpha=0.5, markersize=1, label='Data')
+
+        colors = ['C1', 'C0']
+        # plot axvlines for the centers of the peaks
+        for i in range(n_bands):
+            center = popt[6 + i]
+            color_here = colors[i % len(colors)]
+            plt.axvline(center, color=color_here, linestyle='--', label=f'Line {i+1}: {center:.4f} ppm')
+
+        for i in range(n_bands):
+            # plot separate lineshapes, one for each center
+            center = popt[6 + i]
+            amplitude_here = popt[6 + n_bands + i]
+            lineshape_params = single_peak_params[:]  # Use the parameters from the single peak fit
+            lineshape_params[0] = center  # Set the center to the current center
+            lineshape_params[2] = popt[3]  # Set the gamma to the current gamma
+            lineshape_params[4] = popt[4]  # Set the asymmetry to the current asymmetry
+            lineshape_params[5] = popt[5]  # Set the gaussian sigma to the current gaussian sigma
+            lineshape_intensity = amplitude_here * lineshape_function(vs, *lineshape_params)
+            # do a fillbetween for the lineshape
+            color_here = colors[i % len(colors)]
+            plt.fill_between(vs, lineshape_intensity, alpha=0.1, color=color_here)
+        # plot the Gaussian shape
+        gaussian_sigma = popt[0]
+        gaussian_a = popt[1]
+        offset = popt[2]
+        gaussian_shape = gaussian_a * np.exp((vs-3.3)/gaussian_sigma) + offset
+        plt.plot(vs, gaussian_shape, label='Exponential\nbackground', color='C2')
+
+        # reverse the x-axis for chemical shift
+        plt.gca().invert_xaxis()
+        plt.legend()
+        plt.xlabel('Chemical shift (ppm)')
+        plt.ylabel('Intensity')
+        # plt.show()
+        img_path = os.path.splitext(filepath)[0] + '.png' # replace the file extension to png
+        os.makedirs(os.path.dirname(img_path), exist_ok=True) # make sure the dir exist
+        plt.savefig(img_path)
 
     # The main peak integration isolates the pure lineshape component by setting
     # sigmoid_amplitude=0 and vertical_offset=0, then using the remaining best-fit parameters to numerically integrate
@@ -436,13 +457,57 @@ def get_tba_peak_integration(filepath, instrumental_rms_error=0.002, verbose=0):
     # add integral to the report
     report['overall_integral'] = overall_integral
 
+    if is_save_report_to_json:
+        # save result to json
+        json_path = os.path.splitext(filepath)[0] + '_tba_fitting_intg.json'  # replace the file extension to json
+        with open(json_path, "w") as json_file:
+            json.dump(report, json_file, indent=4)
+
     # return main_peak_integral, main_peak_integral_uncertainty, dictionary_to_return
     return overall_integral, report
 
 
 if __name__ == '__main__':
-    # Example usage
-    filepath = 'test_data/tba/data1.csv'
-    overall_integral, report = get_tba_peak_integration(filepath=filepath)
-    print(f'main peak integral: {overall_integral} [ppm * intensity_unit]')
-    print(f'RMSE of the fit: {report["rmse"]} [intensity_unit]')
+    ## Example usage
+    # filepath = 'test_data/tba/data1.csv'
+    # overall_integral, report = get_tba_peak_integration(filepath=filepath)
+    # print(f'main peak integral: {overall_integral} [ppm * intensity_unit]')
+    # print(f'RMSE of the fit: {report["rmse"]} [intensity_unit]')
+
+    tbabr3_path = r"D:\Dropbox\brucelee\data\DPE_bromination"
+    folder_list = [
+                   # r'\2025-04-15-run01_DCE_TBABr3_normal',
+                   # r'\2025-04-15-run02_DCE_TBABr3_normal',
+                   # r'\2025-04-15-run03_DCE_TBABr3_normal',
+                   # r'\2025-04-15-run04_DCE_TBABr3_normal',
+                    r"\2025-04-22-run01_DCE_TBABr3_normal",
+                    r"\2025-09-11-run01_DCE_TBABr3_add",
+                    r"\2025-09-11-run02_DCE_TBABr3_add",
+                   ]
+    run_folder_paths = [tbabr3_path+folder_name for folder_name in folder_list]
+
+    data_dir_ls = []
+    data_file_ls = []
+
+    for run_folder_path in run_folder_paths:
+        result_folder = run_folder_path + r'\Results'
+        # Iterate through subfolders inside "Results", and get all csv data files
+        for folder in os.listdir(result_folder):
+            folder_path = os.path.join(result_folder, folder)
+
+            if "1D EXTENDED" in folder_path:
+                data_dir_ls.append(folder_path)
+                data_file = folder_path + "\\data.csv"
+                if not os.path.isfile(data_file):
+                    raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
+                data_file_ls.append(data_file)
+
+    # for data_file in data_file_ls:
+    #     # perform fitting here
+    #     get_tba_peak_integration(data_file)
+
+    import os
+    from concurrent.futures import ProcessPoolExecutor
+    max_workers = 16
+    with ProcessPoolExecutor(max_workers) as executor:
+        executor.map(get_tba_peak_integration, data_file_ls)

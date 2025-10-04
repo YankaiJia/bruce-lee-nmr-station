@@ -1590,7 +1590,7 @@ def analyze_one_run_folder(master_path,
     if not os.path.isdir(results_path):  # Ensure "Results" is a directory
         raise FileNotFoundError(f"Error! Results folder not found in: {master_path}")
 
-    # Iterate through subfolders inside "Results"
+    # Iterate through subfolders inside "Results", and get all csv data files
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
         if "1D EXTENDED" in folder_path:
