@@ -1683,7 +1683,10 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-05-30-run03_DCE_TBPBr_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-05-30-run04_DCE_TBPBr_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-09-10-run01_DCE_TBPBr_add", 'DCE', None],
-                [r"\\DPE_bromination\\2025-09-10-run02_DCE_TBPBr_add", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-09-10-run02_DCE_TBPBr_add", 'DCE', None],
+
+                [r"\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add", 'DCE', None],
+                [r"\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add", 'DCE', None],
 
                 # #NIK Calibration
                 # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],

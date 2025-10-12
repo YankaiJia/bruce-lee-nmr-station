@@ -11,6 +11,8 @@ import utils
 # get the system path of BRUCELEE_PROJECT_DATA_PATH
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
+OUTLIERS = []
+
 def check_and_return_folder_structure(run_folder):
 
     # make sure run name exists
@@ -91,7 +93,15 @@ def process_one_folder(run_dir, run_sol, run_outliers):
     #                                               outliers=run_outliers,
     #                                               is_show_plot=False)
 
-    conc_interpolation_2D.interp_one_folder(run_folder)
+    if "TBABr3" in run_dir:
+        # when the additive is TBABr3, no 2d calibration is made due to reaction
+        # between Br2 and DPE. Therefor, the calibration curve form TBABr is borrowed.
+        forced_use_of_2d_calibration_curve_from_additive = 'TBABr'
+    else:
+        forced_use_of_2d_calibration_curve_from_additive = None
+
+    conc_interpolation_2D.interp_one_folder(run_folder,
+                                            forced_use_of_2d_calibration_curve_from_additive)
 
 
 def post_treatment_to_get_params_for_cubes(all_result_csv_path,
@@ -102,12 +112,12 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
                             'conc_Br2': 'conc_Br2_0',
                             'conc_DPE': 'conc_DPE_0',
                             'conc_adduct': 'conc_HBr_adduct'})
-
+    print(f'df.columns: {df.columns}')
     # calc the S conversion
     df['DPE_consumed'] = df['conc_DPE_0'] - df['conc_DPE_final']
     df['DPE_conversion'] = df['DPE_consumed'] / df['conc_DPE_0'].replace(0, np.nan)
 
-    df['Bromine_source'] = df['conc_Br2_0'] + df['TBABr3'] if additive_name == 'TBABr3' else df['conc_Br2_0']
+    df['Bromine_source'] = df['conc_Br2_0'] + df['conc_TBABr3_0'] if additive_name == 'TBABr3' else df['conc_Br2_0']
     df['limitting_conc'] = df[['conc_DPE_0', 'Bromine_source']].min(axis=1)
 
     df['conc_prod_A'] = pd.to_numeric(df['conc_prod_A'], errors='coerce')
@@ -120,12 +130,9 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
     df['yield_prod_A'] = np.where(df['limitting_conc'] != 0, df['conc_prod_A'] / df['limitting_conc'] * 100, 0)
     df['yield_prod_B'] = np.where(df['limitting_conc'] != 0, df['conc_prod_B'] / df['limitting_conc'] * 100, 0)
 
-
     # cal limiting conc for alcohol
-    df['limitting_conc_for_alcohol'] = pd.DataFrame({
-                                                    'A': df['conc_DPE_0'],
-                                                    'half_B': 0.5 * df['Bromine_source']
-                                                }).min(axis=1)
+    df['limitting_conc_for_alcohol'] = pd.DataFrame({'A': df['conc_DPE_0'],
+                                                    'half_B': 0.5 * df['Bromine_source']}).min(axis=1)
 
     df['yield_alcohol'] = np.where(df['limitting_conc'] != 0, df['conc_alcohol'] / df['limitting_conc_for_alcohol'] * 100, 0)
     df['yield_HBr_adduct'] = np.where(df['limitting_conc'] != 0, df['conc_HBr_adduct'] / df['limitting_conc'] * 100, 0)
@@ -147,9 +154,9 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
                                             np.nan,
                                             df['conc_prod_A'] / (df['conc_prod_A'] + df['conc_prod_B'])
                                             )
-    # # delete rows if the list in the uuid column name
-    # patterns_to_remove = ['ZCCK', '9MEo']
-    # df = df[~df['uuid'].str.contains('|'.join(patterns_to_remove), case=False, na=False)]
+
+    # # remove outliers
+    df = df[~df['uuid'].str.contains('|'.join(OUTLIERS), case=False, na=False)]
 
     # if the init substrate concs are the same, keep only the last one.
     df = df[~df.duplicated(subset=[f'conc_{additive_type}_0', 'conc_Br2_0', 'conc_DPE_0'], keep='last')]
@@ -157,10 +164,12 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
     # reorder cols for plotting
     first_cols = ['uuid', 'conc_DPE_final', f'conc_{additive_type}_0', 'conc_Br2_0', 'conc_DPE_0']
     df = df[first_cols + [col for col in df.columns if col not in first_cols]]
+
     return df
 
 
 def get_additive_type_from_path(path: str) -> str:
+
     additive_types = ['TBABr3', 'TBABF4', 'TBPBr', 'TBABr']
     for salt in additive_types:
         if salt in path:
@@ -168,10 +177,82 @@ def get_additive_type_from_path(path: str) -> str:
     return 'TBABr'  # default fallback
 
 
+def append_reaction_results_without_additive(df_here, additive_type):
+
+    # read the TBABr result
+    TBABr_result_csv = r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr_2d_interp_0903.csv"
+    # Ensure file exists
+    if os.path.exists(TBABr_result_csv):
+        df_TBABr = pd.read_csv(TBABr_result_csv)
+        # Select only rows where TBABr concentration == 0
+        df_TBABr_is_zero = df_TBABr[df_TBABr["conc_TBABr_0"] == 0]
+        df_TBABr_is_zero = df_TBABr_is_zero.rename(columns={"conc_TBABr_0": f'conc_{additive_type}_0'})
+        # Optional: make sure both dataframes have matching columns before concatenation
+        common_cols = df_here.columns.intersection(df_TBABr_is_zero.columns)
+        # Concatenate along rows
+        df_here = pd.concat(
+            [df_here, df_TBABr_is_zero[common_cols]],
+            ignore_index=True
+        )
+        print(f"✅ Added {len(df_TBABr_is_zero)} rows from TBABr (conc=0) to {additive_type} dataset.")
+        return df_here
+    else:
+        print(f"⚠️ TBABr reference file not found: {TBABr_result_csv}")
+        return
+
+
 if __name__ == "__main__":
 
-    # import matplotlib
-    # matplotlib.use('WebAgg')
+    OUTLIERS = [
+        # Acid overlap, 2025-09-11-run01_DCE_TBABr3_add\\Results\\10-1D EXTENDED+-20250912-130752
+        "hGUPYwyiiGe94UBSB6HtyM",
+        # Yield of prod_B too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\6-1D EXTENDED+-20250912-174433
+        "3zcaskEYsSmCUcAeXZDAvK",
+        # Yield of prod_B too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\2-1D EXTENDED+-20250912-171350
+        "8fVQtffNmqZwXFVJHi3FVZ",
+        # Yield of prod_B too high, 2025-09-11-run01_DCE_TBABr3_add\\Results\\34-1D EXTENDED+-20250912-160154
+        "nHyFFbBecdkRwuszweUWna",
+        # Yield of prod_A too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\9-1D EXTENDED+-20250912-180612
+        "GXxTsVrSj4GVNnbYsP4d6L",
+        # Yield of prod_A too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\16-1D EXTENDED+-20250912-185543
+        "JoHTpg2Wqo2inSjrMtRq3C",
+        # HBr_adduct is wrong, 2025-09-11-run01_DCE_TBABr3_add\\Results\\32-1D EXTENDED+-20250912-154632
+        "dV3yitsANpi6KteH3HCMFG",
+        # HBr_adduct is wrong, 2025-09-11-run02_DCE_TBABr3_add\\Results\\19-1D EXTENDED+-20250912-191828
+        "cSbuh6sy7qZcH9fLjJPnH8",
+        # Yield of prod_B too high, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 26-1D EXTENDED+-20250429-210103
+        "7i5CGhGNEJ4ooKe9qjkVRZ",
+        # Yield of prod_B too high, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 16-1D EXTENDED+-20250429-194857
+        "VDxrRimQGie5q5uGM7DW5x",
+        # Yield of Alcohol too high, 04-28-run01 2
+        "cxPvN6tDvXNvgRabvGNYDV",
+        # Yield of Alcohol too high, 04-28-run01 8
+        "d6NmTysXaCR4sTETqLgXfx",
+        # Yield of Alcohol too high, 04-28-run01 22
+        "ErPe4gwEhybkJF62smrXxd",
+        # Yield of Alcohol too high, 04-28-run01 24
+        "Hxe4Bf4AciGqDfGh23cEAG",
+        # Yield of Alcohol too high, 04-28-run02 10
+        "bF8i3JmTjnsiUmj8JMH2aK",
+        # Yield of Alcohol too high, 04-28-run03 11
+        "88AFpG5cHcwSmHLH9sQaHP",
+        # Yield of Alcohol too high, 09-09-run01 37
+        "mnp4HQVLHijMxEkA4M4SYg",
+        # Yield of Alcohol too high, 09-09-run02 6
+        "YAvqJbnJCsGCN53hTijMMN",
+        # Yield of HBr_adduct too high, 09-09-run01 2
+        "5Nm6CfviHLhgiDd7ftDHhS",
+        # Yield of Alcohol too high, 05-30-run01 22
+        "U5zEU8jk76Cg6dPebEHqXX",
+        # Yield of Alcohol too high, 05-30-run02 10
+        "jLHqLvaq6AL7M4EbzYMmzy",
+        # Yield of Alcohol too high, 05-30-run02 14
+        "dbVLdLWJEa6MJJkyLxo4r7",
+        # Yield of Alcohol too high, 05-30-run04 12
+        "PzUND3jN3KUGRdFYnSUmpf",
+        # Yield of Alcohol too high, 09-10-run02 26
+        "LfQefrKHYR2GoT6J8BZgxc",
+    ]
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
     print(f'Data directory: {data_dir}')
@@ -183,8 +264,10 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run04_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-22-run01_DCE_TBABr3_normal\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add\\", 'DCE', None],
 
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
                 # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
@@ -199,14 +282,13 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add\\", 'DCE-BF4', None],
 
-                # [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
-
-    ]
+                [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
+                [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
+                [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
+                    ]
 
     for run_folder in run_folders:
 
@@ -223,17 +305,20 @@ if __name__ == "__main__":
         # do the fitting and interplation
         process_one_folder(run_dir, run_sol, run_outliers)
 
-
-    additive_types\
-        = [get_additive_type_from_path(run_folder[0]) for run_folder in run_folders]
+    additive_types = [get_additive_type_from_path(run_folder[0]) for run_folder in run_folders]
 
     assert len(set(additive_types)) == 1, 'There are multiple additives in this process.'
     additive_type = additive_types[0]
 
     run_folders_paths = [data_dir+ls[0] for ls in run_folders]
     all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders_paths, additive_type)
+    print(f'❌❌Path for all_result_df: {all_results_df}')
+    df = post_treatment_to_get_params_for_cubes(all_results_df,
+                                                additive_name=additive_type)
 
-    df = post_treatment_to_get_params_for_cubes(all_results_df)
+    if additive_type in ['TBABr3', 'TBABF4', 'TBPBr']:
+        # append the reaction results when the additive conc is zero, from the TBABr case
+        df = append_reaction_results_without_additive(df, additive_type)
 
     # save this df to csv
     save_path = data_dir + r"\\DPE_bromination"

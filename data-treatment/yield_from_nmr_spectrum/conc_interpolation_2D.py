@@ -127,10 +127,12 @@ def plot_interp_with_plt(X1, X2, y, rbf_model, save_path=None):
         fig.colorbar(surface, ax=ax, shrink=0.5, aspect=10, label='DPE_intg')
         plt.tight_layout()
         if save_path:
-            # Convert figure to HTML and save
-            html_str = mpld3.fig_to_html(fig)
-            with open(save_path + r"\\plot.html", "w") as f:
-                f.write(html_str)
+            file_path = os.path.join(save_path, "plot.html")
+            if not os.path.exists(file_path):
+                # Convert figure to HTML and save
+                html_str = mpld3.fig_to_html(fig)
+                with open(file_path, "w") as f:
+                    f.write(html_str)
 
 import os
 import numpy as np
@@ -189,15 +191,17 @@ def plot_interp(X1, X2, y, rbf_model, save_path=None, show=True, label_points=Tr
 
     # Save: accept folder or full path
     if save_path:
-        if os.path.isdir(save_path):
-            out_file = os.path.join(save_path, "plot.html")
-        else:
-            # If a filename was passed, ensure it ends with .html
-            root, ext = os.path.splitext(save_path)
-            out_file = save_path if ext.lower() == ".html" else root + ".html"
-        os.makedirs(os.path.dirname(out_file) or ".", exist_ok=True)
-        fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
-        print(f"Saved: {out_file}")
+        out_file = os.path.join(save_path, "plot.html")
+        if not os.path.exists(out_file):
+            if os.path.isdir(save_path):
+                out_file = out_file
+            else:
+                # If a filename was passed, ensure it ends with .html
+                root, ext = os.path.splitext(save_path)
+                out_file = save_path if ext.lower() == ".html" else root + ".html"
+            os.makedirs(os.path.dirname(out_file) or ".", exist_ok=True)
+            fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
+            print(f"Saved: {out_file}")
 
     return fig
 
@@ -246,7 +250,9 @@ def estimate_conc_by_rbf_model(additive_conc_here,
     return estimated_conc
 
 
-def get_all_concs(intg_list=None, additive_conc=None, additive_type=None):
+def get_all_concs(intg_list=None,
+                  additive_conc=None,
+                  additive_type=None):
 
     if (intg_list==None) or (additive_conc==None):
         print(f'Waring, wrong input! intg: {intg_list},additive: {additive_conc}')
@@ -283,11 +289,22 @@ def get_additive_type_from_path(path: str) -> str:
             return salt
     return 'TBABr'  # default fallback
 
-def interp_one_folder(run_path = None):
+
+def interp_one_folder(run_path=None,
+                      forced_use_of_2d_calibration_curve_from_additive=None):
 
     print(f"Processing folder: {run_path}")
-    # get the additive type for this folder
+
     additive_type = get_additive_type_from_path(run_path)
+
+    # get the additive type for this folder
+    if forced_use_of_2d_calibration_curve_from_additive:
+        # when the additive is TBABr3, no 2d calibration is made due to reaction
+        # between Br2 and DPE. Therefor, the calibration curve form TBABr is borrowed.
+        additive_type_for_2d_fitting = forced_use_of_2d_calibration_curve_from_additive
+    else:
+        additive_type_for_2d_fitting = additive_type
+
     results_folder = run_path + r'\\Results'
     # get all the subfolders
     subfolders = [
@@ -303,7 +320,11 @@ def interp_one_folder(run_path = None):
 
         # get reaction info from json
         reaction_info_json = folder + r'\\reaction_info.json'
-        assert os.path.exists(reaction_info_json), f"File not found: {reaction_info_json}"
+
+        # assert os.path.exists(reaction_info_json), f"File not found: {reaction_info_json}"
+        if not os.path.exists(reaction_info_json):
+            print(f"⚠️⚠️⚠️File not found: {reaction_info_json}")
+            continue
         with open(reaction_info_json, 'r', encoding='utf-8') as f:
             reaction_info_dict = json.load(f)
 
@@ -321,21 +342,31 @@ def interp_one_folder(run_path = None):
 
         # get integrations for all cmpds from fitting result
         keys = fitting_result_dict.keys()
-        cmpds = ["Starting material", "Product A", "Product B", additive_type, 'Alcohol', 'Acid']
+        cmpds = ["Starting material",
+                 "Product A",
+                 "Product B",
+                 "HBr_adduct",
+                 'Alcohol',
+                 'Acid']
         intg_list = []
         for cmpd in cmpds:
             intg_here = fitting_result_dict[cmpd] if cmpd in keys else 0
             intg_list.append(intg_here)
         assert len(intg_list) == 6, "intg_list len incorrect!"
 
-        conc_list = get_all_concs(intg_list, additive_conc, additive_type) # [conc_dpe, conc_a, conc_b, conc_adduct, conc_alcohol, conc_acid]
+        # [conc_dpe, conc_a, conc_b, conc_adduct, conc_alcohol, conc_acid]
+        conc_list = get_all_concs(intg_list, additive_conc, additive_type_for_2d_fitting)
         assert len(conc_list) == 6, "conc_list len incorrect!"
 
         # save all the concs to a json in the folder
         conc_dict = dict(zip(
-            ['conc_DPE_final', 'conc_prod_A', 'conc_prod_B', 'conc_adduct', 'conc_alcohol', 'conc_acid'],
-            conc_list
-        ))
+            ['conc_DPE_final',
+             'conc_prod_A',
+             'conc_prod_B',
+             'conc_adduct',
+             'conc_alcohol',
+             'conc_acid'],
+            conc_list))
 
         print(f'conc_dict here: {conc_dict}')
         output_json = os.path.join(folder, 'interp_conc.json')
@@ -358,22 +389,34 @@ if __name__ == "__main__":
         # r"\2025-03-05-run01_normal_run",
         # r"\2025-03-12-run01_better_shimming",
         # r"\2025-07-01-run01_DCE_TBABr_rerun"
-        r'\2025-04-28-run01_DCE_TBABF4_normal',
-        r'\2025-04-28-run02_DCE_TBABF4_normal',
-        r'\2025-04-28-run03_DCE_TBABF4_normal',
-        r'\2025-04-28-run04_DCE_TBABF4_normal',
-        r'\2025-09-09-run01_DCE_TBABF4_add',
-        r'\2025-09-09-run01_DCE_TBABF4_add',
+
+        # r'\2025-04-28-run01_DCE_TBABF4_normal',
+        # r'\2025-04-28-run02_DCE_TBABF4_normal',
+        # r'\2025-04-28-run03_DCE_TBABF4_normal',
+        # r'\2025-04-28-run04_DCE_TBABF4_normal',
+        # r'\2025-09-09-run01_DCE_TBABF4_add',
+        # r'\2025-09-09-run01_DCE_TBABF4_add',
+
         # r'\2025-05-30-run01_DCE_TBPBr_normal',
         # r'\2025-05-30-run02_DCE_TBPBr_normal',
         # r'\2025-05-30-run03_DCE_TBPBr_normal',
         # r'\2025-05-30-run04_DCE_TBPBr_normal',
         # r'\2025-09-10-run01_DCE_TBPBr_add',
         # r'\2025-09-10-run02_DCE_TBPBr_add',
+
+        # TBABr3
+        r'\2025-04-15-run01_DCE_TBABr3_normal',
+        r'\2025-04-15-run02_DCE_TBABr3_normal',
+        r'\2025-04-15-run03_DCE_TBABr3_normal',
+        r'\2025-04-15-run04_DCE_TBABr3_normal',
+        r"\2025-04-22-run01_DCE_TBABr3_normal",
+        r"\2025-09-11-run01_DCE_TBABr3_add",
+        r"\2025-09-11-run02_DCE_TBABr3_add",
+
     ]
 
     run_folders = [brom_folder+name for name in run_names]
 
     for folder in run_folders:
 
-        interp_one_folder(folder)
+        interp_one_folder(folder, forced_use_of_2d_calibration_curve_from_additive='TBABr')

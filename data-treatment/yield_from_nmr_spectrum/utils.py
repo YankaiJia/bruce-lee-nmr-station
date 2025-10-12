@@ -686,8 +686,7 @@ def collect_all_json_results_form_every_spectrum(run_folders, additive_type:str)
 
     return all_results_df
 
-def combine_jsons(run_path=None):
-    if run_path == None: return
+def get_subfolder_path(run_path):
 
     results_folder = run_path + r'\\Results'
     # get all the subfolders
@@ -700,6 +699,15 @@ def combine_jsons(run_path=None):
     spec_folders_path = sorted(spec_folders_path,
                             key=lambda x: int(re.search(r'\\\s*(\d+)-1D EXTENDED', x).group(1)))
     spec_folders_name = [os.path.basename(folder) for folder in spec_folders_path]
+
+    return spec_folders_path, spec_folders_name
+
+def combine_jsons(run_path=None):
+
+    if run_path is None:
+        return
+
+    spec_folders_path, spec_folders_name = get_subfolder_path(run_path)
 
     for spec_folder in spec_folders_path:
         reaction_info_all_dict = {}
@@ -731,9 +739,10 @@ def combine_jsons(run_path=None):
             continue
         with open(fitting_result_for_tba_json, 'r', encoding='utf-8') as f:
             d = json.load(f)
+            # ❗❗❗❗❗The tba intg and its rmse is scaled up by 1000❗❗❗❗❗
             fitting_result_for_tba_dict_filtered = {
-                                                    'tba_intg': d['overall_integral'],
-                                                    'tba_intg_rmse': d['rmse']}
+                                                    'tba_intg': d['overall_integral'] * 1000,
+                                                    'tba_intg_rmse': d['rmse'] * 1000}
             reaction_info_all_dict.update(fitting_result_for_tba_dict_filtered)
 
         # save reaction_info_all_dict to json
@@ -742,9 +751,45 @@ def combine_jsons(run_path=None):
             json.dump(reaction_info_all_dict, f, indent=4)
             print(f"json of all info is saved: {json_all} ")
 
+def combine_jsons_from_folders_to_one_json(run_path):
+
+    spec_folders_path, spec_folders_name = get_subfolder_path(run_path)
+
+    df_here = pd.DataFrame()
+
+    for spec_folder in spec_folders_path:
+        # 1. Read and append reaction condition to dict
+        reaction_info_all_json = spec_folder + r'\\reaction_info_all.json'
+        if not os.path.exists(reaction_info_all_json):
+            print(f"❌ File not found: {reaction_info_all_json}")
+            continue
+        with open(reaction_info_all_json, 'r', encoding='utf-8') as f:
+            reaction_condition_dict = json.load(f)
+
+        # Convert dict to DataFrame (single-row)
+        temp_df = pd.DataFrame([reaction_condition_dict])
+
+        # Append to overall DataFrame
+        df_here = pd.concat([df_here, temp_df], ignore_index=True)
+
+    # Save final CSV
+    save_path = os.path.join(run_path, 'combined_run_result.csv')
+    df_here.to_csv(save_path, index=False, encoding='utf-8')
+    print(f"✅ Combined CSV saved to: {save_path}")
+
+def analyze_csv(path):
+
+    df = pd.read_csv(path)
+
+    # plot tba intg vs tbabr3 conc
+    plt.scatter(df['conc_TBABr3'], df['tba_intg'])
+    plt.show()
+    return df
+
 if __name__ == '__main__':
 
     bromination_path = r"D:\Dropbox\brucelee\data\DPE_bromination"
+
     run_folders = [
         # bromination_path+r"\2025-02-19-run02_normal_run",
         # bromination_path+r"\2025-03-01-run01_normal_run",
@@ -782,4 +827,17 @@ if __name__ == '__main__':
         put_fitting_results_in_spec_folder(path)
         combine_jsons(path)
 
+        combine_jsons_from_folders_to_one_json(path)
+
+    all_result_df = pd.DataFrame()
+    for path in run_folders:
+        combined_run_result_file = os.path.join(path,"combined_run_result.csv")
+        df_here = pd.read_csv(combined_run_result_file)
+        all_result_df = pd.concat([all_result_df, df_here], ignore_index=True)
+
+    # all_result_df.to_csv(bromination_path+r"\\full_experiment_DCE_TBABr3_with_TBA_fitting.csv", index=False, encoding='utf-8')
+
     # all_results_df = collect_all_json_results_form_every_spectrum(run_folders)
+
+    analyze_csv(path=r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr3_with_TBA_fitting.csv")
+

@@ -22,11 +22,16 @@ import os
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("WebAgg")  # Use WebAgg backend
+
 from matplotlib.gridspec import GridSpec
 import cmath
 from scipy.optimize import curve_fit
 from scipy.integrate import quad
 from scipy.signal import savgol_filter
+
+from concurrent.futures import ProcessPoolExecutor
 
 
 def load_nmr_spectrum_from_csv(filepath):
@@ -174,7 +179,7 @@ def get_tba_peak_integration(filepath,
                              verbose=True,
                              is_save_fiting_img=True,
                              is_save_report_to_json=True,
-                             is_override_previous_run=False):
+                             is_override_previous_run=True):
     """
     Quantify the NMR peaks of TBA around 2 - 3.5 ppm through automated peak fitting and integration.
     """
@@ -280,7 +285,7 @@ def get_tba_peak_integration(filepath,
     initial_guess[1] = new_gaussian_a
 
     ## UNCOMMENT IF DEGUGGING
-    # # Don't fit yet, just plot initial guess over the cropped data
+    # Don't fit yet, just plot initial guess over the cropped data
     # vs = np.linspace(min_ppm, max_ppm, 1000)
     # initial_shape = spectrum_function(*([vs] + initial_guess))
     # plt.plot(vs, initial_shape, label='Initial Guess Spectrum Function', color='red')
@@ -420,7 +425,7 @@ def get_tba_peak_integration(filepath,
     integration_halfwidth = 0.7
 
     ### UNCOMMENT IF DEGUGGING
-    # # plot the fit_spectrum_without_baseline
+    # # # plot the fit_spectrum_without_baseline
     # vs = np.linspace(center - integration_halfwidth, center + integration_halfwidth, 1000)
     # fitted_intensity_without_baseline = fit_spectrum_without_baseline(vs)
     # plt.fill_between(x=vs, y1=0, y2=fitted_intensity_without_baseline, label='Fitted spectrum without baseline',
@@ -433,6 +438,7 @@ def get_tba_peak_integration(filepath,
                               center + integration_halfwidth,
                               limit=1000, points=[centers],
                               epsabs=1e-10)
+
     overall_integral, integration_error = integration_result
 
     report = dict()
@@ -476,14 +482,38 @@ if __name__ == '__main__':
 
     tbabr3_path = r"D:\Dropbox\brucelee\data\DPE_bromination"
     folder_list = [
-                   # r'\2025-04-15-run01_DCE_TBABr3_normal',
-                   # r'\2025-04-15-run02_DCE_TBABr3_normal',
-                   # r'\2025-04-15-run03_DCE_TBABr3_normal',
-                   # r'\2025-04-15-run04_DCE_TBABr3_normal',
-                    r"\2025-04-22-run01_DCE_TBABr3_normal",
-                    r"\2025-09-11-run01_DCE_TBABr3_add",
-                    r"\2025-09-11-run02_DCE_TBABr3_add",
-                   ]
+
+        # TBABr3
+           # r'\2025-04-15-run01_DCE_TBABr3_normal',
+           # r'\2025-04-15-run02_DCE_TBABr3_normal',
+           # r'\2025-04-15-run03_DCE_TBABr3_normal',
+           # r'\2025-04-15-run04_DCE_TBABr3_normal',
+           #  r"\2025-04-22-run01_DCE_TBABr3_normal",
+           #  r"\2025-09-11-run01_DCE_TBABr3_add",
+           #  r"\2025-09-11-run02_DCE_TBABr3_add",
+
+        # Others
+         r'\2025-02-19-run02_normal_run',
+         r'\2025-03-01-run01_normal_run',
+         r'\2025-03-03-run01_normal_run',
+         r'\2025-03-03-run02_normal_run',
+         r'\2025-03-05-run01_normal_run',
+         r'\2025-03-12-run01_better_shimming',
+         r'\2025-04-28-run01_DCE_TBABF4_normal',
+         r'\2025-04-28-run02_DCE_TBABF4_normal',
+         r'\2025-04-28-run03_DCE_TBABF4_normal',
+         r'\2025-04-28-run04_DCE_TBABF4_normal',
+         r'\2025-05-30-run01_DCE_TBPBr_normal',
+         r'\2025-05-30-run02_DCE_TBPBr_normal',
+         r'\2025-05-30-run03_DCE_TBPBr_normal',
+         r'\2025-05-30-run04_DCE_TBPBr_normal',
+         r'\2025-07-01-run01_DCE_TBABr_rerun',
+         r'\2025-09-09-run01_DCE_TBABF4_add',
+         r'\2025-09-09-run02_DCE_TBABF4_add',
+         r'\2025-09-10-run01_DCE_TBPBr_add',
+         r'\2025-09-10-run02_DCE_TBPBr_add',
+         ]
+
     run_folder_paths = [tbabr3_path+folder_name for folder_name in folder_list]
 
     data_dir_ls = []
@@ -499,15 +529,15 @@ if __name__ == '__main__':
                 data_dir_ls.append(folder_path)
                 data_file = folder_path + "\\data.csv"
                 if not os.path.isfile(data_file):
-                    raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
+                    # raise FileNotFoundError(f"Error! Data file not found in: {folder_path}")
+                    print(f"❌❌Error!❌❌ Data file not found in: {folder_path}")
+                    continue
                 data_file_ls.append(data_file)
 
-    # for data_file in data_file_ls:
+    # for data_file in data_file_ls[0:1]:
     #     # perform fitting here
     #     get_tba_peak_integration(data_file)
 
-    import os
-    from concurrent.futures import ProcessPoolExecutor
     max_workers = 16
     with ProcessPoolExecutor(max_workers) as executor:
         executor.map(get_tba_peak_integration, data_file_ls)
