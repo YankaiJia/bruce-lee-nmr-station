@@ -1,3 +1,7 @@
+""""
+Interpolation of concentrations for bromination reactions.
+"""
+
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -142,8 +146,8 @@ def get_interp_funcs(solvent_name, is_show_ref_curve=False, ):
         ref_conc_S = tuple([425.350, 212.675, 106.338, 53.169, 26.584])
 
         print(f'folder for references: {folder_ref}')
-        print(f'df_ref_B: {df_ref_B['intg_B']}')
-        print(f'df_ref_S: {df_ref_S['intg_S']}')
+        print(f'df_ref_B: {df_ref_B["intg_B"]}')
+        print(f'df_ref_S: {df_ref_S["intg_S"]}')
 
     # Normalize the integrals by number of protons
     S_proton_count, B_proton_count = 2, 1
@@ -158,7 +162,7 @@ def get_interp_funcs(solvent_name, is_show_ref_curve=False, ):
     # interp_func_combined = interp1d(combined_intg, combined_conc, kind='linear', fill_value='extrapolate')
 
     # Use linear regression to fit the calibration curve
-    model = LinearRegression()
+    model = LinearRegression(fit_intercept=False)
     model.fit(combined_intg.reshape(-1, 1), combined_conc)
 
     # Plot if requested
@@ -202,9 +206,25 @@ def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False)
     A_intg_norm = df['intg_A'] / A_proton_count
     B_intg_norm = df['intg_B'] / B_proton_count
 
-    df['c#_S'] = lin_reg_model.predict(S_intg_norm.values.reshape(-1, 1))
-    df['c#_A'] = lin_reg_model.predict(A_intg_norm.values.reshape(-1, 1))
-    df['c#_B'] = lin_reg_model.predict(B_intg_norm.values.reshape(-1, 1))
+    print(f"S_intg_norm: {S_intg_norm}")
+
+    def calculate_conc_by_interpolation(intg_norm: list, interpolate_func=lin_reg_model):
+
+        conc_list = interpolate_func.predict(intg_norm)
+
+        # Set predicted values to zero where the original input was zero
+        intg_norm = np.array(intg_norm).flatten()  # Ensure it's a 1D array
+        conc_list[intg_norm == 0] = 0  # zero_mask = intg_norm == 0
+
+        # assert all conc_list are non-negative
+        assert (conc_list >= 0).all(), "Negative concentration found in calculated concentrations"
+
+        return conc_list
+
+    # Calculate concentrations by interpolation
+    df['conc_S'] = calculate_conc_by_interpolation(S_intg_norm.values.reshape(-1, 1))
+    df['conc_A'] = calculate_conc_by_interpolation(A_intg_norm.values.reshape(-1, 1))
+    df['conc_B'] = calculate_conc_by_interpolation(B_intg_norm.values.reshape(-1, 1))
 
     col_list = ['intg_sol_down', 'intg_sol_up',  'intg_impr_SM1',  'intg_impr_SM2',
                  'intg_impr1','intg_impr2',  'intg_impr3',  'intg_impr4',
@@ -213,18 +233,32 @@ def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False)
     for col_name in col_list:
         if not col_name in df.columns:
             continue
-        conc_str = col_name.replace('intg_', 'c#_')
-        # assuming the number of protons is 1 for all other products
-        df[conc_str] = lin_reg_model.predict(df[col_name].values.reshape(-1, 1))
+        conc_str = col_name.replace('intg_', 'conc_')
+        print(f"Processing column: {col_name} -> {conc_str}")
+
+        # assuming the number of protons is 1 unless specified otherwise
+        if 'HBr_adduct' in conc_str:
+            proton_count = 3
+        else:
+            proton_count = 1
+
+        intg_norm_here = df[col_name].values.reshape(-1, 1) / proton_count
+
+        df[conc_str] = lin_reg_model.predict(intg_norm_here)
+
+        # Set predicted values to zero where the original input was zero
+        df.loc[df[col_name] == 0, conc_str] = 0  #zero_mask = df[col_name] == 0
+        # assert all conc_str are non-negative
+        assert (df[conc_str] >= 0).all(), f"Negative concentration found in {conc_str}"
 
     # plot the integral vs conc on the reference curve
     # Prepare data for plotting
     plt.figure(figsize=(10, 5))
 
     # Scatter plots for interpolated concentrations
-    plt.scatter(S_intg_norm, df['c#_S'], label="S", marker='o')
-    plt.scatter(B_intg_norm, df['c#_B'], label="B", marker='s')
-    plt.scatter(A_intg_norm, df['c#_A'], label="A", marker='^')
+    plt.scatter(S_intg_norm, df['conc_S'], label="S", marker='o')
+    plt.scatter(B_intg_norm, df['conc_B'], label="B", marker='s')
+    plt.scatter(A_intg_norm, df['conc_A'], label="A", marker='^')
 
     plt.xlabel("Integral")
     plt.ylabel("Interpolated Concentration (mM)")

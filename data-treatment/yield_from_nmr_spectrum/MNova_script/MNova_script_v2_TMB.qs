@@ -3,34 +3,27 @@
 //The pre-process includes baseline correction, phase correction and referencing etc.
 
 //Author: Yankai Jia
-//Last update: 2025.03
+//Last update: 2025.04
 //************************************************//
-// THIS VERSION IS FOR MECN AS SOLVENT
-//************************************************//
+
+const TMB_ref_peak = 2.30;
+const TMB_peak_search_from_ppm = 2.2;//Search range for REF peak pick
+const TMB_peak_search_to_ppm = 2.9;
+
 
 // Global variables
-const MECN_peak_ppm = 1.94;//Real DCE peak ppm
+const REF_peak_ppm = TMB_ref_peak;//Real peak ppm
+const REF_peak_search_from_ppm = TMB_peak_search_from_ppm;//Search range for REF peak pick
+const REF_peak_search_to_ppm = TMB_peak_search_to_ppm;
 
-const MECN_peak_search_from_ppm = 1.05;//Search range for DCE peak pick
-const MECN_peak_search_to_ppm = 2.05;//Search range for DCE peak pick
-
-const prd_B_peak_integration_from_ppm = 6.6; 
-const prd_B_peak_integration_to_ppm = 7.0;
-
-const DPE_peak_integration_from_ppm = 5.25;
-const DPE_peak_integration_to_ppm = 5.7;
-
-var prd_B_peak_integration_ls = [];
-var DPE_peak_integration_ls = [];
- 
-var dataExtension = "/data.1d";// Global variable for the file extension
+var dataExtension = "/fid";// Global variable for the file extension
 
 // useful methods, get params of how the spectrum is processed
 //MessageBox.information(spec.proc.getParameter("PC"))       
         
 // get the parent folder path, automatic or manual
 //var parentFolder = "D:\\Dropbox\\brucelee\\data\\DPE_bromination\\_Refs\\ref_B_TEST"
-var parentFolder = FileDialog.getExistingDirectory("D:\\Dropbox\\brucelee\\data\\DPE_bromination", "Select Parent Folder");
+var parentFolder = FileDialog.getExistingDirectory("D:\\Dropbox\\brucelee\\data\\", "Select Parent Folder");
 
 function processSpectrum(){
 
@@ -44,7 +37,7 @@ function processSpectrum(){
 	//**********************************Trimming*************************************//
 	var regs = new Array(2);
 	regs[0]  = new SpectrumRegion(-28, 0);
-	regs[1] = new SpectrumRegion(12, 36);
+	regs[1] = new SpectrumRegion(9, 36);
 	p.setParameter("cuts.apply", true);
 	p.setParameter("cuts.list", regs);
 	
@@ -52,12 +45,28 @@ function processSpectrum(){
 
 	//*****************************PHASE CORRECTION**********************************//
 	//p.setParameter("PC.method", "NoPC")
-	p.setParameter("PC.method", "Global, Metabonomics"); // this is good for DPE
+	//p.setParameter("PC.method", "Global, Metabonomics"); // this is good for DPE
+	//p.setParameter("PC.method", "Imported, Metabonomics"); // this is for TMB
+		
 	//MessageBox.information(p.getParameter("PC"))
 	//	p.setParameter("PC.method", "Min Entropy")
 	//Reassign the updated processing object to the spectrum and process
 	//spec.proc = p;
 	//spec.process();
+	
+	
+	 print("Old Method: ", p.getParameter("PC.algorithms"));
+    p.setParameter("PC.method", "Global, Metabonomics");
+    print("New Method: ", p.getParameter("PC.algorithms"));    
+    
+     //p.setParameter("PC.method", "Manual");
+     //p.setParameter("PC.PH0",-2.01498262);
+     //p.setParameter("PC.PHI", -0.50230576);    
+	
+	 print("Init: {0}".format(p.getParameter("PC.InitMode")));
+    p.setParameter("PC.InitMode", "InitZero");
+    print("New Init: {0}".format(p.getParameter("PC.InitMode")));    
+	
 	//******************************************************************************//
 	
 	//**************************BASELINE CORRECTION**********************************//
@@ -68,11 +77,22 @@ function processSpectrum(){
 	//MessageBox.information("BC[1].Apply = " + p.getParameter("BC[1].Apply"));
 	//MessageBox.information("BC[1].algorithm = " + p.getParameter("BC[1].algorithm"));
 	//Enable baseline correction
+	
+	
 	p.setParameter("BC[1].Apply", true);
+	
+	
 	//Choose a baseline correction algorithm (e.g. "Splines", "Whittaker", "PolyFit", etc.)
-	p.setParameter("BC[1].algorithm", "Bernstein");
-	p.setParameter("BC[1].PolyOrder", 3);
-	//Reassign the updated processing object to the spectrum and process
+	//p.setParameter("BC[1].algorithm", "Bernstein");
+	//p.setParameter("BC[1].PolyOrder", 5);
+	
+		
+	p.setParameter("BC[1].algorithm", "Whittaker");
+	//p.setParameter("BC[1].Filter", 0); // Zero value means "autodetect"
+	//p.setParameter("BC[1].Smooth", 1)  // Zero value means "autodetect"		
+	
+	
+			//Reassign the updated processing object to the spectrum and process
 	//spec.proc = p;
 	//spec.process();	
 	//******************************************************************************//
@@ -86,9 +106,9 @@ function processSpectrum(){
     p.setParameter("PP.Method", "Standard");
     // Optionally adjust sensitivity and noise factor:
     p.setParameter("PP.Sensitivity", 0.05);
-    p.setParameter("PP.NoiseFactor", 1.0);
+    p.setParameter("PP.NoiseFactor", 1);
     // Set the maximum number of peaks to detect
-    p.setParameter("PP.MaxPeaks", 1); // Find one peak, it should be the solvent peak.
+    p.setParameter("PP.MaxPeaks", 3); // Find one peak, it should be the solvent peak.
     // Update the spectrum's processing parameters and re-process the spectrum
     //spec.proc = p;
     //spec.process(); 
@@ -101,12 +121,17 @@ function processSpectrum(){
 //*****************************REFERENCING*******************************************//
     // Retrieve the list of detected peaks
     var peaks = spec.peaks();
+    //MessageBox.critical(peaks);
+    		
+    
     // find the solvent peak
     var solvent_peak_ppm = [];
     for (var i = 0; i < peaks.count; i++) {
 		var peak = peaks.at(i);
+		    //MessageBox.critical(peak.delta());
+		    
 		var delta = peak.delta(); // Assumes delta() returns the ppm value
-		if (delta >= MECN_peak_search_from_ppm && delta <= MECN_peak_search_to_ppm) {
+		if (delta >= REF_peak_search_from_ppm && delta <= REF_peak_search_to_ppm) {
 				solvent_peak_ppm.push(peak.delta());
 				}
     	}
@@ -118,11 +143,10 @@ function processSpectrum(){
 		}
     
     //var spec = new NMRSpectrum(nmr.activeSpectrum());
-    
     // Do referencing    
     //var p = new NMRProcessing(spec.proc)
     p.setParameter("ref[1].Apply", true);
-    p.setParameter("ref[1].Shift", solvent_peak_ppm[0], MECN_peak_ppm);
+    p.setParameter("ref[1].Shift", solvent_peak_ppm[0], REF_peak_ppm);
     p.setParameter("ref.autotune", false);
             
                                                              
@@ -134,25 +158,8 @@ function processSpectrum(){
 	//print(p.getParameter("Ref"))
 	//print(p.getParameter("PP"))
 	spec.proc = p;
-   spec.process();   
+  spec.process();   
 	
-//*********************PEAK INTEGRATION*********************************************// 
-	var sReg_B = new SpectrumRegion(prd_B_peak_integration_from_ppm, prd_B_peak_integration_to_ppm);
-	var newInt_B = new Integral( spec, sReg_B, false );
-	//MessageBox.information(newInt_B.calculationParams.method);                    
-	var sReg_DPE = new SpectrumRegion(DPE_peak_integration_from_ppm, DPE_peak_integration_to_ppm);
-	var newInt_DPE = new Integral( spec, sReg_DPE, false );
-	//MessageBox.information(newInt);
-	//MessageBox.information(newInt_B.integralValue(), newInt_DPE.integralValue());
-	//MessageBox.information(newInt_DPE.integralValue());  
-	//spec.integrals().append(newInt); 
-	spec.process();
-	spec.update();	
-	mainWindow.activeWindow().update();	
-	prd_B_peak_integration_ls.push(newInt_B.integralValue())
-	DPE_peak_integration_ls.push(newInt_DPE.integralValue()); 
-	// Save this integral to local file
-	// TODO
 //*****************************************************************************//
 	//print(p1.getParameter("PC"))
 	//print(p1.getParameter("Apodization[1]"))
@@ -168,7 +175,7 @@ function processSpectrum(){
 	
 	//**********************ZOOM*****************************//
 	//spec.horZoom(0, 12);
-	spec.vertZoom(-0.5, 4);
+	spec.vertZoom(-50000, 1000000);
 	spec.update();
 	//**********************************************************//
 	
@@ -189,10 +196,13 @@ function getSubfolderPath_dir(folderPath){
      	var fullPath = myDir.filePath(subFolders[i]);
      	//MessageBox.information("Subfolder path: " + fullPath);
        // Skip the subfolder if it does not contain "1D EXTENSION" in the full path
-       if (fullPath.indexOf("1D EXTENDED") === -1) continue;
+       //if (fullPath.indexOf("1D EXTENDED") == -1) continue;
 		dirFullPathList.push(fullPath);
 		}
-    return dirFullPathList    
+		
+	MessageBox.information(dirFullPathList);
+		
+   return dirFullPathList    
 }
 
 function getSubfolderPath_file(folderPath){
@@ -208,10 +218,12 @@ function getSubfolderPath_file(folderPath){
      	var fullPath = myDir.filePath(subFolders[i]);
      	//MessageBox.information("Subfolder path: " + fullPath);
        // Skip the subfolder if it does not contain "1D EXTENSION" in the full path
-       if (fullPath.indexOf("1D EXTENDED") === -1) continue;
+       //if (fullPath.indexOf("1D EXTENDED") == -1) continue;
 		fileFullPathList.push(fullPath+dataExtension);
     }
     
+    MessageBox.information(fileFullPathList);
+    	    
     return fileFullPathList 
  }
  
@@ -242,7 +254,7 @@ function getSubfolderPath_file(folderPath){
 		// Build CSV content with header
 	var csvContent = "x,y\n";
 	for (var i = 0; i < N; i++) {
-		csvContent += xData[i] + "," + yData[i] + "\n";
+		csvContent += xData[i] + "," + yData[N-1-i] + "\n";
 	} 
 
 	var outPath = dir_path + "/" + "data.csv";
@@ -281,6 +293,3 @@ for (var j=0; j<dirFullPathList.length; j++){
 	print('**************************************\n\n')
 		
 }
-
-//print("B integrals:", prd_B_peak_integration_ls);
-//print("DPE integrals", DPE_peak_integration_ls)
