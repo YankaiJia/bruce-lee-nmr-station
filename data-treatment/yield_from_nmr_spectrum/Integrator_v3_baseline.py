@@ -1668,7 +1668,7 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', None],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None],
-                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBPBr", 'DCE', None],
+                [r"\\DPE_bromination\\_Refs\\ref_S_all_TBPBr", 'DCE', None],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABF4", 'DCE', None],
 
                 # [r"\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal", 'DCE', None],
@@ -1685,8 +1685,8 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-09-10-run01_DCE_TBPBr_add", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-09-10-run02_DCE_TBPBr_add", 'DCE', None],
 
-                [r"\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add", 'DCE', None],
-                [r"\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add", 'DCE', None],
+                # [r"\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add", 'DCE', None],
 
                 # #NIK Calibration
                 # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],

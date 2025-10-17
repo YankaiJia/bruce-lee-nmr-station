@@ -283,11 +283,11 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add\\", 'DCE-BF4', None],
 
                 [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
-                [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
-                [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
-                [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
-                [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
-                [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
                     ]
 
     for run_folder in run_folders:
@@ -320,8 +320,8 @@ if __name__ == "__main__":
         # append the reaction results when the additive conc is zero, from the TBABr case
         df = append_reaction_results_without_additive(df, additive_type)
 
-    # save this df to csv
-    save_path = data_dir + r"\\DPE_bromination"
-    csv_file_name = fr'\\full_experiment_DCE_{additive_type}_type_2d_interp.csv'
-    df.to_csv(save_path+csv_file_name, index=False)  # index=False prevents writing the row index
-    print(f"Data saved to: {save_path+csv_file_name}")
+    # # save this df to csv
+    # save_path = data_dir + r"\\DPE_bromination"
+    # csv_file_name = fr'\\full_experiment_DCE_{additive_type}_type_2d_interp.csv'
+    # df.to_csv(save_path+csv_file_name, index=False)  # index=False prevents writing the row index
+    # print(f"Data saved to: {save_path+csv_file_name}")

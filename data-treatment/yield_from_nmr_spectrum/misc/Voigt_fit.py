@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import ace_tools_open as tools
 
-df = pd.read_csv('intensity_array.csv')
+df = pd.read_csv('../intensity_array.csv')
 
 # Filter the DataFrame so than the 'Shift (ppm)' is between 6.1 and 6.2
 df = df[(df['Shift (ppm)'] >= 6.1) & (df['Shift (ppm)'] <= 6.2)]
