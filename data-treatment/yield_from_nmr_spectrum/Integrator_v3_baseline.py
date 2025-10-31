@@ -1668,8 +1668,10 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', None],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None],
-                [r"\\DPE_bromination\\_Refs\\ref_S_all_TBPBr", 'DCE', None],
+                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBPBr", 'DCE', None],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABF4", 'DCE', None],
+
+                [r"\\DPE_bromination\\_Refs\\ref_TCE_all_TBABr3", 'DCE', None],
 
                 # [r"\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal", 'DCE', None],
