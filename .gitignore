@@ -105,3 +105,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 data-treatment/yield_from_nmr_spectrum/Interpolator_LGA-for_NIK(old).py
+data-treatment/yield_from_nmr_spectrum/Interpolator_LGA-for_NIK_using_corrected_csv.py
