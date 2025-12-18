@@ -13,6 +13,7 @@ import concurrent.futures
 from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
 import matplotlib
+from pybaselines import Baseline
 
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
@@ -45,9 +46,10 @@ def specify_para(sol_name, outlier_type=None):
     requiring different windows or thresholds via `outlier_type` (eg."Type1" or "Type2")."""
 
 
-    global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
+    global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift, resolution_quality
 
     if sol_name == 'DCE':
+        resolution_quality = "80 MHz" 
         solvent_shift = 3.73  #ppm DCE
         peak_width_50 = 0.008  #ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
@@ -178,6 +180,7 @@ def specify_para(sol_name, outlier_type=None):
             } 
 
     elif sol_name == 'DCE-BF4':
+        resolution_quality = "80 MHz" 
         solvent_shift = 3.73  #ppm DCE
         peak_width_50 = 0.008  #ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
@@ -216,8 +219,150 @@ def specify_para(sol_name, outlier_type=None):
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
     
+    elif sol_name == 'BDE-DCE': #400 MHz
+        resolution_quality = "400 MHz" 
+        solvent_shift = 3.73  #ppm DCE
+        peak_width_50 = 0.0005  #ppm at 50% #Default 0.01
+        threshold_amplitude = 10  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of interest, End of region of interest, expected peak number
+            [4.0, 5.2],  # Methylenes
+            [5.8,7.0],  # Low alkenes
+            [7.92,8.4], # High alekenes
+        ]
+        reference_shift = {
+            "Starting material-1": [6.69],  # ppm #Confirmed
+            "Starting material-2": [6.65],
 
-        
+            "Product_PX1-1": [5.3345],
+            "Product_PX1-2": [5.3045],
+            "Product_PX1-3": [4.99],
+            "Product_PX1-4": [4.97],
+            
+            "Product_PX1_prime-1": [5.3515],
+            "Product_PX1_prime-2": [5.3275],
+            "Product_PX1_prime-3": [4.9250],
+            "Product_PX1_prime-4": [4.9000],
+
+            "Product_PX2-1": [5.3850],
+            "Product_PX2-2": [5.3570],
+            "Product_PX2-3": [5.3300],
+            "Product_PX2-4": [5.3000],
+            "Product_PX2-5": [4.3850],
+            "Product_PX2-6": [4.3515],
+            "Product_PX2-7": [4.2654],
+            "Product_PX2-8": [4.2313],
+
+            "Product_PX3-1": [6.43],
+            "Product_PX3-2": [5.4550],
+            "Product_PX3-3": [5.4290],
+            "Product_PX3-4": [5.4100],
+            "Product_PX3-5": [5.3800],
+
+            "Product_PX4-1": [8.00],
+
+            "Product_PX5-1": [8.09],
+            "Product_PX5-2": [4.4900],
+            
+            "Product_PX5_prime-1": [8.07],
+            "Product_PX5_prime-2": [4.7500],
+
+            "Product_PX6-1": [8.23],
+            "Product_PX6-2": [7.000],
+
+            "Product_PX7-1": [6.8780],
+            "Product_PX7-2": [6.9180],
+            "Product_PX7-3": [4.1180],
+            "Product_PX7-4": [7.6140],
+            "Product_PX7-5": [7.6560],
+
+            "Product_PX7_prime-1": [6.9500],
+            "Product_PX7_prime-2": [6.9836],
+            "Product_PX7_prime-3": [4.3366],
+            "Product_PX7_prime-4": [7.8000],
+            "Product_PX7_prime-5": [7.8393],
+
+            "Product_PX8-1": [7.2020],
+            "Product_PX8-2": [7.2440],
+            "Product_PX8-3": [6.0520],
+            "Product_PX8-4": [7.8000],
+            "Product_PX8-5": [7.8390],
+
+            "Product_PX8_prime-1": [7.1390],
+            "Product_PX8_prime-2": [7.7840],
+            "Product_PX8_prime-3": [6.1515],
+            "Product_PX8_prime-4": [7.8126],
+            "Product_PX8_prime-5": [7.8517],
+
+            "Product_PU1-1": [5.9224],            
+        }
+        dictionnary_H_count= {  #Normalisation dictionnary
+            "Starting material-1": 1, #H expected for this signal  
+            "Starting material-2": 1, #H expected for this signal
+
+            "Product_PX1-1": 0.5, #H expected for this signal
+            "Product_PX1-2": 0.5, #H expected for this signal
+            "Product_PX1-3": 0.5, #H expected for this signal
+            "Product_PX1-4": 0.5, #H expected for this signal
+            
+            "Product_PX1_prime-1": 0.5, #H expected for this signal
+            "Product_PX1_prime-2": 0.5, #H expected for this signal
+            "Product_PX1_prime-3": 0.5, #H expected for this signal
+            "Product_PX1_prime-4": 0.5, #H expected for this signal
+
+            "Product_PX2-1": 0.5, #H expected for this signal
+            "Product_PX2-2": 0.5, #H expected for this signal
+            "Product_PX2-3": 0.5, #H expected for this signal
+            "Product_PX2-4": 0.5, #H expected for this signal
+            "Product_PX2-5": 0.5, #H expected for this signal
+            "Product_PX2-6": 1, #H expected for this signal
+            "Product_PX2-7": 1, #H expected for this signal
+            "Product_PX2-8": 0.5, #H expected for this signal
+
+            "Product_PX3-1": 1,#H expected for this signal
+            "Product_PX3-2": 0.5, #H expected for this signal
+            "Product_PX3-3": 0.5, #H expected for this signal
+            "Product_PX3-4": 0.5, #H expected for this signal
+            "Product_PX3-5": 0.5, #H expected for this signal
+
+            "Product_PX4-1": 1, #H expected for this signal
+
+            "Product_PX5-1": 1, #H expected for this signal
+            "Product_PX5-2": 2, #H expected for this signal
+            
+            "Product_PX5_prime-1": 1, #H expected for this signal
+            "Product_PX5_prime-2": 2, #H expected for this signal
+
+            "Product_PX6-1": 1, #H expected for this signal
+            "Product_PX6-2": 1, #H expected for this signal
+
+            "Product_PX7-1": 0.5, #H expected for this signal
+            "Product_PX7-2": 0.5, #H expected for this signal
+            "Product_PX7-3": 2, #H expected for this signal
+            "Product_PX7-4": 0.5, #H expected for this signal
+            "Product_PX7-5": 0.5, #H expected for this signal
+
+            "Product_PX7_prime-1": 0.5, #H expected for this signal
+            "Product_PX7_prime-2": 0.5, #H expected for this signal
+            "Product_PX7_prime-3": 2, #H expected for this signal
+            "Product_PX7_prime-4": 0.5, #H expected for this signal
+            "Product_PX7_prime-5": 0.5, #H expected for this signal
+
+            "Product_PX8-1": 0.5, #H expected for this signal
+            "Product_PX8-2": 0.5, #H expected for this signal
+            "Product_PX8-3": 1, #H expected for this signal
+            "Product_PX8-4": 0.5, #H expected for this signal
+            "Product_PX8-5": 0.5, #H expected for this signal
+
+            "Product_PX8_prime-1": 0.5, #H expected for this signal
+            "Product_PX8_prime-2": 0.5, #H expected for this signal
+            "Product_PX8_prime-3": 1, #H expected for this signal
+            "Product_PX8_prime-4": 0.5, #H expected for this signal
+            "Product_PX8_prime-5": 0.5, #H expected for this signal
+
+            "Product_PU1-1": 1, #H hypothtetical, structure unknow 
+                    
+            }
+
 
 def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the inverted ppm scale
     
@@ -453,6 +598,7 @@ def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, st
 
     kwargs={
         'x_scale' : x_scale,
+        'verbose' : 1,
         }
 
     if x_scale is not None:
@@ -544,9 +690,6 @@ def exponential_decay(x, a, b, c):   # Gaussian type baseline
 def linear_baseline (x,a,b): #Linear type baseline
     return a*x+b
 
-def exponential_decay_linear_corrected(x, a, b, c, d):   #EXPERIMENTAL (NOT TESTED YET)
-    return np.exp(np.clip(a * (x + b), -700, 700)) + c + d * x  # add clip to avoid overflow
-
 def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_correction=False, force_line=False, ppm_window=0.1): #ppm_window=0.1 Default
     
     """Fit a baseline to spectral data using exponential or linear models. Data
@@ -624,16 +767,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
             log_start/log_slope,  # B_guess (Decay/Growth)
             np.min(intensity_array),  # C_guess (Offset)
         ]
-    else:
-        baseline_function = exponential_decay_linear_corrected
-        initial_guess = [
-            log_slope,   # A_guess (Amplitude)
-            log_start/log_slope,  # B_guess (Decay/Growth)
-            np.min(intensity_array),  # C_guess (Offset)
-            0 # D_guess (Linear correction)
-        ]
-
-    if force_line == True:
+    elif force_line == True:
         baseline_function = linear_baseline
         initial_guess = [
             (intensity_array[0]-intensity_array[-1])/(shift_array[0]-shift_array[-1]),   # A_guess (Slope)
@@ -732,7 +866,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
         `'intensity'`, `'shift'`, `'width'`,
         `'intensity_error'`, `'shift_error'`, `'width_error'`,
         `'peak_intensity_lorentzian'`.
-"""
+    """
     
     
     shift_array = NMR_spectrum[:, 0]
@@ -742,12 +876,33 @@ def fit_peaks(NMR_spectrum, std_deviation,
     warning_string = None
     
 
+    if resolution_quality == "400 MHz":
 
-    peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
-    # If no peaks are found, stop
-    if len(peaks) == 0:
-        print(f"Slices skipped, no peak found.")
-        return [], [], None, []
+        if baseline_correction == True:
+
+            bl = Baseline(shift_array)
+            baseline, params = bl.mixture_model(intensity_array, lam=10000.0, p=0.001, num_knots=150, spline_degree=3, diff_order=3, max_iter=200, tol=0.001, weights=None, symmetric=False, num_bins=None)
+            intensity_array -= baseline
+        
+        peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes,prominence=std_deviation*6,rel_height=0.2)
+
+        # If no peaks are found, stop
+        if len(peaks) == 0:
+            print(f"Slices skipped, no peak found.")
+            return [], [], None, []
+
+    else:
+
+        peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes ) 
+
+        # If no peaks are found, stop
+        if len(peaks) == 0:
+            print(f"Slices skipped, no peak found.")
+            return [], [], None, []
+
+
+
+
 
     # Get initial guesses for peak parameters (amplitude, center, width)
     initial_guesses = []
@@ -788,29 +943,31 @@ def fit_peaks(NMR_spectrum, std_deviation,
         parameter_number=5
 
 
-    if baseline_correction == True:
+    if resolution_quality=="80 MHz":
+        if baseline_correction == True:
 
-        try:
-            baseline = baseline_fit(shift_array, intensity_array, ppm_step)
-        except Exception as e:
-            print(f"Baseline could not be corrected:{e} \nAttempt with reduced window...")
             try:
-                baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.05)
-            except:
-                warning_string = "Baseline difficult to fit"
+                baseline = baseline_fit(shift_array, intensity_array, ppm_step)
+            except Exception as e:
+                print(f"Baseline could not be corrected:{e} \nAttempt with reduced window...")
                 try:
-                    baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.025)
+                    baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.05)
                 except:
-                    print("Exponential baseline could not be fitted")
-                    warning_string = "Exponential baseline could not be fitted"
+                    warning_string = "Baseline difficult to fit"
                     try:
-                        baseline = baseline_fit(shift_array, intensity_array, ppm_step,force_line=True, ppm_window=0.025)
+                        baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.025)
                     except:
-                        baseline = np.zeros_like(intensity_array)
-                        warning_string = "No baseline could be fitted"
+                        print("Exponential baseline could not be fitted")
+                        warning_string = "Exponential baseline could not be fitted"
+                        try:
+                            baseline = baseline_fit(shift_array, intensity_array, ppm_step,force_line=True, ppm_window=0.025)
+                        except:
+                            baseline = np.zeros_like(intensity_array)
+                            warning_string = "No baseline could be fitted"
 
-        finally:
-            intensity_array -= baseline
+            finally:
+                intensity_array -= baseline
+
 
     x_scale=initial_guesses
 
@@ -1391,7 +1548,8 @@ def analyze_one_run_folder(master_path,
     # Iterate through subfolders inside "Results"
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
-        if "1D EXTENDED" in folder_path:
+
+        if "1D EXTENDED" in folder_path or "BDA" in folder_path  :
             try:
                 data_dir_ls.append(folder_path)
                 data_file = folder_path + "\\data.csv"
@@ -1407,7 +1565,7 @@ def analyze_one_run_folder(master_path,
 
     # Use ThreadPoolExecutor for multithreaded analysis
     #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Comment this if your set-up have issue with multithreading
-    with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
+    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
 
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
@@ -1465,7 +1623,10 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', {21: 'Type1'}],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
-                
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_long_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run02_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run02_long_48h_400MHz",'BDE-DCE',None]
             ]
 
     for run_folder in run_folders:
