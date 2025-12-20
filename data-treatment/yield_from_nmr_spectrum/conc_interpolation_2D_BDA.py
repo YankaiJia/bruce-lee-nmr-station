@@ -8,16 +8,19 @@ import plotly.graph_objects as go
 
 import json, os, re
 
-from sklearn.model_selection import KFold
+from scipy.optimize import minimize_scalar
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.interpolate import Rbf
-from scipy.optimize import minimize_scalar
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error
 
 import mpld3
 
 import matplotlib
-
 matplotlib.use('WebAgg')
+
+
+
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
@@ -94,7 +97,7 @@ def append_starting_materials_intg(
 
 
     # Compute average (row-wise, NaN-safe)
-    df["BDA_avg"] = round(df[["BDA_1", "BDA_2"]].mean(axis=1),1)
+    df["BDA_avg"] = df[["BDA_1", "BDA_2"]].mean(axis=1)
 
     # Save if requested
     if save_path is not None:
@@ -139,11 +142,6 @@ def five_fold_validation(X, y):
     print(f"  Average R² Score: {avg_r2:.4f}")
 
     return avg_rmse, avg_r2
-
-import numpy as np
-from scipy.interpolate import Rbf
-from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
 
 
 def five_fold_validation(
@@ -222,10 +220,105 @@ def five_fold_validation(
     }
 
 
+def plot_interp(X1, X2, y, rbf_model,
+                save_path=None,
+                label_points=True, additive_type='TBABr'):
+    """
+    Interactive 3D RBF surface + scatter with Plotly.
+    - Saves to plot.html if save_path is provided (directory or full file path).
+    - show=True opens an interactive window in your browser.
+    - label_points=True shows value labels above scatter points.
+    """
+
+    # Make grid and predict
+    dpe_vals = np.linspace(np.nanmin(X1), np.nanmax(X1), 50)
+    tbabr_vals = np.linspace(np.nanmin(X2), np.nanmax(X2), 50)
+    dpe_grid, tbabr_grid = np.meshgrid(dpe_vals, tbabr_vals)
+    dep_pred = rbf_model(dpe_grid, tbabr_grid)  # shape (50, 50)
+
+    # Build figure
+    fig = go.Figure()
+
+    # Surface
+    fig.add_trace(go.Surface(
+        x=dpe_grid, y=tbabr_grid, z=dep_pred,
+        colorbar_title="Integration",
+        name="RBF Surface",
+        showscale=True
+    ))
+
+    # Scatter3d of original points with hover
+    fig.add_trace(go.Scatter3d(
+        x=X1, y=X2, z=y,
+        mode='markers+text' if label_points else 'markers',
+        text=[f"{val:.1f}" for val in y] if label_points else None,
+        textposition="top center",
+        marker=dict(size=5),
+        name="Data Points",
+        hovertemplate=(
+            "DPE: %{x}<br>"
+            "TBABr: %{y}<br>"
+            "DPE_intg_norm: %{z}<extra>Data Point</extra>"
+        )
+    ))
+
+    fig.update_layout(
+        title="3D Interpolated Surface",
+        scene=dict(
+            xaxis_title="DPE(mM)",
+            yaxis_title=f"{additive_type}(mM)",
+            zaxis_title="Normalized DPE Integration",
+            camera=dict(
+                eye=dict(x=0, y=2.5, z=2.5)  # Adjust orientation here
+            )
+
+        ),
+        width=950,
+        height=750
+    )
+
+    # Save: accept folder or full path
+    if save_path:
+        out_file = os.path.join(save_path, "plot.html")
+        if os.path.isdir(save_path):
+            out_file = out_file
+        else:
+            # If a filename was passed, ensure it ends with .html
+            root, ext = os.path.splitext(save_path)
+            out_file = save_path if ext.lower() == ".html" else root + ".html"
+        os.makedirs(os.path.dirname(out_file) or ".", exist_ok=True)
+        fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
+        print(f"Saved: {out_file}")
+
+    return fig
+
+
+def estimate_conc_by_rbf_model(additive_conc_here,
+                               integral_value_normalized,
+                               rbf_model):
+
+    if integral_value_normalized < 1E-4:
+        return 0
+
+    # === Numerical inversion: find cmpd conc that gives closest integral ===
+    def objective(dpe_guess):
+        pred = rbf_model(dpe_guess, additive_conc_here)
+        return abs(pred - integral_value_normalized)
+
+    result = minimize_scalar(objective, bounds=(0, 450), method='bounded')
+    estimated_conc = result.x if result.success else None
+    assert estimated_conc, 'Finding estimated_dpe failed!'
+    estimated_conc = 0 if estimated_conc < 1E-4 else estimated_conc
+
+    return estimated_conc
+
+
 if __name__ == "__main__":
 
-    intg_result_file = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results\fitting_results.json"
-    calib_info_path = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results\calibration_TBABr_BDA_conc.xlsx"
+
+    intg_result_folder = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results"
+    intg_result_file = intg_result_folder + r"\fitting_results.json"
+    calib_info_path = intg_result_folder + r"\calibration_TBABr_BDA_conc.xlsx"
 
     calib_info_path_updated = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results\calibration_TBABr_BDA_conc_with_BDA.xlsx"
 
@@ -241,9 +334,25 @@ if __name__ == "__main__":
                                                     save_path=calib_info_path_updated)
     print(f'calib_info_df: {calib_info_df}')
 
+    BDA_proton_count = 1
     x1 = calib_info_df['[BDA](mM)']
     x2 = calib_info_df['[TBABr](mM)']
-    y = calib_info_df['BDA_avg']
-    rbf_model_here = Rbf(x1, x2, y, function='multiquadric')
+    y = calib_info_df['BDA_avg'] / BDA_proton_count
+    # y = np.log10(y)  # logarithm the values to avoid very large numbers
+
+    rbf_model = Rbf(x1, x2, y, function='multiquadric')
     cv_result = five_fold_validation(x1, x2, y,)
     print(cv_result)
+
+    plot_interp(x1, x2, y, rbf_model, save_path=intg_result_folder)
+
+    a = estimate_conc_by_rbf_model(additive_conc_here=75,
+                               integral_value_normalized=1195527,
+                               rbf_model=rbf_model)
+
+    print(a)
+
+
+
+
+
