@@ -99,40 +99,6 @@ def five_fold_validation(X, y):
     # print(f"  Average R² Score: {avg_r2:.4f}")
 
     return avg_rmse, avg_r2
-#
-# def plot_interp_with_plt(X1, X2, y, rbf_model, save_path=None):
-#
-#         dpe_vals = np.linspace(X1.min(), X1.max(), 50)
-#         tbabr_vals = np.linspace(X2.min(), X2.max(), 50)
-#         dpe_grid, tbabr_grid = np.meshgrid(dpe_vals, tbabr_vals)
-#         dep_pred = rbf_model(dpe_grid, tbabr_grid)
-#
-#         fig = plt.figure(figsize=(10, 8))
-#         ax = fig.add_subplot(111, projection='3d')
-#         surface = ax.plot_surface(dpe_grid, tbabr_grid, dep_pred, cmap='viridis', alpha=0.9)
-#         ax.scatter(X1, X2, y, color='red', label='Data Points')
-#
-#         # print(X1)
-#         # print(X2)
-#         # print(y)
-#
-#         # Annotate each data point with its DPE_intg value
-#         for i in range(len(X1)):
-#             a, b, c = X1[i], X2[i], y[i]
-#             ax.text(a, b, c + 1, f'{c:.1f}', color='black', fontsize=8, ha='center')
-#
-#         ax.set_xlabel("DPE")
-#         ax.set_ylabel("TBABr")
-#         ax.set_zlabel("DPE_intg_normalized")
-#         ax.set_title("3D RBF Interpolated Surface of DPE_intg")
-#         fig.colorbar(surface, ax=ax, shrink=0.5, aspect=10, label='DPE_intg')
-#         plt.tight_layout()
-#         if save_path:
-#             file_path = os.path.join(save_path, "plot.html")
-#             # Convert figure to HTML and save
-#             html_str = mpld3.fig_to_html(fig)
-#             with open(file_path, "w") as f:
-#                 f.write(html_str)
 
 
 def plot_interp(X1, X2, y, rbf_model,

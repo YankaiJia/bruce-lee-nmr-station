@@ -232,12 +232,16 @@ if __name__ == "__main__":
     phen_conc_list = df['[phen] (mM)']  # [25, 50, 100, 200, 400, 25, 50, 100, 200, 400, 25, 50, 100, 200, 400]
 
     phen_integration_list = df['phen_intg']  # [63004857.72, 126210057.9, 262883967.1, 368881550.8, 381122395.4,
-    #  23884272.97, 42892170.13, 90001504, 160842143.3, 200029941.7,
-    #  15487644.66, 30491082.95, 43612772.76, 89277791.87, 156836630.2]
+                                             #  23884272.97, 42892170.13, 90001504, 160842143.3, 200029941.7,
+                                             #  15487644.66, 30491082.95, 43612772.76, 89277791.87, 156836630.2]
+
+    # phen_integration_normalized_list = phen_integration_list / 2  # phenanthrene: 2H
+    phen_integration_normalized_list = phen_integration_list # this is WRONG, just for testing
+
 
     rbf_model = generate_rbf_model_for_phen(X1=TBABr_conc_list,
                                             X2=phen_conc_list,
-                                            y=phen_integration_list)
+                                            y=phen_integration_normalized_list)
 
     result_excel_path = BRUCELEE_PROJECT_DATA_PATH + r"\DPE_bromination\2025-11-10-phenanthrene_results\_results.xlsx"
     df_result = pd.read_excel(result_excel_path, sheet_name='Integration_results')
@@ -247,6 +251,7 @@ if __name__ == "__main__":
     p1_intg_list = df_result['intg_p1'].to_numpy() / 2  # P1, 2H. Normalized.
     p2_intg_list = df_result['intg_p2'].to_numpy()  # 1H
     p4_intg_list = df_result['intg_p4'].to_numpy()  # 1H
+    a_intg_list  = df_result['intg_A'].to_numpy()   # 1H
 
     p1_conc = estimate_phen_conc(tbabr_conc_list=tbabr_conc_list,
                        measured_integration_list=p1_intg_list,
@@ -257,14 +262,25 @@ if __name__ == "__main__":
     p4_conc = estimate_phen_conc(tbabr_conc_list=tbabr_conc_list,
                        measured_integration_list=p4_intg_list,
                        rbf_model=rbf_model)
+    a_conc = estimate_phen_conc(tbabr_conc_list=tbabr_conc_list,
+                       measured_integration_list=a_intg_list,
+                       rbf_model=rbf_model)
 
     df_result['P1_conc'] = p1_conc
     df_result['P2_conc'] = p2_conc
     df_result['P4_conc'] = p4_conc
+    df_result['A_conc'] = a_conc
+
+    limit_reagent_for_p1_p2 = df_result[['[phen]0 (mM)', '[Br2]0 (mM)']].min(axis=1)
+
+    safe_limit = limit_reagent_for_p1_p2.replace(0, np.nan)  # avoid divide by zero
+    df_result['P1_yield'] = (df_result['P1_conc'] / safe_limit * 100).fillna(0)
+    df_result['P2_yield'] = (df_result['P2_conc'] / safe_limit * 100).fillna(0)
+
 
     # save results
     df_result.to_csv(BRUCELEE_PROJECT_DATA_PATH +
-                     r"\DPE_bromination\2025-11-10-phenanthrene_results\_results_with_conc.csv",
+                     r"\DPE_bromination\2025-11-10-phenanthrene_results\_results_with_conc_new.csv",
                      index=False)
 
 

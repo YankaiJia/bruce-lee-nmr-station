@@ -39,8 +39,8 @@ function processSpectrum(){
 	//regs[0]  = new SpectrumRegion(-28, 5);
 	//regs[1] = new SpectrumRegion(7, 36);
 	
-	regs[0]  = new SpectrumRegion(-28, 7);
-	regs[1] = new SpectrumRegion(8, 36);		
+	regs[0]  = new SpectrumRegion(-28, 9.5);
+	regs[1] = new SpectrumRegion(11.5, 36);		
 			
 	p.setParameter("cuts.apply", true);
 	p.setParameter("cuts.list", regs);
@@ -192,8 +192,8 @@ function processSpectrum(){
 	
 	//**********************ZOOM*****************************//
 	spec.horZoom(0, 12);
-//	spec.vertZoom(-5000, 50000);
-		spec.vertZoom(-5000, 5000000);
+	spec.vertZoom(-5000, 10000);
+	//spec.vertZoom(-5000, 5000000);
 		
 	spec.update();
 	//**********************************************************//

@@ -549,18 +549,17 @@ def check_pulse_angle_in_dot_par_files():
 # df = check_pulse_angle_in_dot_par_files()
 
 
-def put_run_condition_in_spectrum_folder(run_path=None):
+def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400MHz'):
 
     print(f'running: {run_path}')
 
     conc_file = run_path + r'//outVandC//out_concentrations.csv'
     df_global_conc = pd.read_csv(conc_file)
-    columns_of_conc = ['conc_'+i for i in df_global_conc.columns[1:].tolist()]
-    df_global_conc.columns = ['global_index'] + columns_of_conc
+    # columns_of_conc = ['conc_'+i for i in df_global_conc.columns[1:].tolist()]
+    # df_global_conc.columns = ['global_index'] + columns_of_conc
 
     run_folder_name = os.path.basename(os.path.normpath(run_path))
-    excel_name = re.match(r'^(\d{4}-\d{2}-\d{2}-run\d{2})', run_folder_name).group(1)
-    excel_file = run_path + r'\\' + excel_name + '.xlsx'
+    excel_file = run_path + r'\\' + run_folder_name + '.xlsx'
     assert os.path.exists(excel_file), "Run excel file not found: {excel_path}"
     df_run_excel = pd.read_excel(excel_file)
     # merge by 'global_index'
@@ -575,11 +574,21 @@ def put_run_condition_in_spectrum_folder(run_path=None):
         for name in os.listdir(results_folder)
         if os.path.isdir(os.path.join(results_folder, name))
     ]
-    spec_folders_path = [folder for folder in subfolders if '1D EXTENDED' in folder]
-    spec_folders_path = sorted(spec_folders_path,
-                            key=lambda x: int(re.search(r'\\\s*(\d+)-1D EXTENDED', x).group(1)))
+    if spectrum_frequency == '80MHz':
+        spec_folders_path = [folder for folder in subfolders if '1D EXTENDED' in folder]
+        spec_folders_path = sorted(spec_folders_path,
+                                key=lambda x: int(re.search(r'\\\s*(\d+)-1D EXTENDED', x).group(1)))
+    elif spectrum_frequency == '400MHz':
+        spec_folders_path = subfolders
+
+
     spec_folders_name = [os.path.basename(folder) for folder in spec_folders_path]
-    spec_indices = [int(name.split('-1D')[0]) for name in spec_folders_name]
+    spec_indices=None
+    if spectrum_frequency == '80MHz':
+        spec_indices = [int(name.split('-1D')[0]) for name in spec_folders_name]
+    folder_structure = 'YS'
+    if folder_structure == 'YS':
+        spec_indices = [int(name.split('-')[-1]) for name in spec_folders_name]
 
     # save each row to corresponding spec folder
     for idx, spec_index in enumerate(spec_indices):
@@ -597,6 +606,7 @@ def put_run_condition_in_spectrum_folder(run_path=None):
             row_dict = match_row.iloc[0].to_dict()
             row_dict['spectrum_path'] = spec_folders_path[idx]
             json.dump(row_dict, f, ensure_ascii=False, indent=2)
+            print(f'Saved reacion info json: {json_path}')
 
 def put_fitting_results_in_spec_folder(run_path=None):
 
@@ -811,33 +821,41 @@ if __name__ == '__main__':
         # bromination_path +r'\2025-05-30-run04_DCE_TBPBr_normal',
         # bromination_path +r'\2025-09-10-run01_DCE_TBPBr_add',
         # bromination_path +r'\2025-09-10-run02_DCE_TBPBr_add',
-
-        bromination_path + r"\2025-04-15-run01_DCE_TBABr3_normal",
-        bromination_path + r"\2025-04-15-run02_DCE_TBABr3_normal",
-        bromination_path + r"\2025-04-15-run03_DCE_TBABr3_normal",
-        bromination_path + r"\2025-04-15-run04_DCE_TBABr3_normal",
-        bromination_path + r"\2025-04-22-run01_DCE_TBABr3_normal",
-        bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
-        bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
+        #
+        # bromination_path + r"\2025-04-15-run01_DCE_TBABr3_normal",
+        # bromination_path + r"\2025-04-15-run02_DCE_TBABr3_normal",
+        # bromination_path + r"\2025-04-15-run03_DCE_TBABr3_normal",
+        # bromination_path + r"\2025-04-15-run04_DCE_TBABr3_normal",
+        # bromination_path + r"\2025-04-22-run01_DCE_TBABr3_normal",
+        # bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
+        # bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz'
     ]
 
 
+    # for path in run_folders:
+    #     put_run_condition_in_spectrum_folder(path)
+    #     put_fitting_results_in_spec_folder(path)
+    #     combine_jsons(path)
+    #
+    #     combine_jsons_from_folders_to_one_json(path)
+    #
+    # all_result_df = pd.DataFrame()
+    # for path in run_folders:
+    #     combined_run_result_file = os.path.join(path,"combined_run_result.csv")
+    #     df_here = pd.read_csv(combined_run_result_file)
+    #     all_result_df = pd.concat([all_result_df, df_here], ignore_index=True)
+    #
+    # # all_result_df.to_csv(bromination_path+r"\\full_experiment_DCE_TBABr3_with_TBA_fitting.csv", index=False, encoding='utf-8')
+    #
+    # # all_results_df = collect_all_json_results_form_every_spectrum(run_folders)
+    #
+    # analyze_csv(path=r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr3_with_TBA_fitting.csv")
+    #
+    #
     for path in run_folders:
-        put_run_condition_in_spectrum_folder(path)
+        put_run_condition_in_spectrum_folder(path, spectrum_frequency='400MHz')
         put_fitting_results_in_spec_folder(path)
-        combine_jsons(path)
-
-        combine_jsons_from_folders_to_one_json(path)
-
-    all_result_df = pd.DataFrame()
-    for path in run_folders:
-        combined_run_result_file = os.path.join(path,"combined_run_result.csv")
-        df_here = pd.read_csv(combined_run_result_file)
-        all_result_df = pd.concat([all_result_df, df_here], ignore_index=True)
-
-    # all_result_df.to_csv(bromination_path+r"\\full_experiment_DCE_TBABr3_with_TBA_fitting.csv", index=False, encoding='utf-8')
-
-    # all_results_df = collect_all_json_results_form_every_spectrum(run_folders)
-
-    analyze_csv(path=r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr3_with_TBA_fitting.csv")
-
