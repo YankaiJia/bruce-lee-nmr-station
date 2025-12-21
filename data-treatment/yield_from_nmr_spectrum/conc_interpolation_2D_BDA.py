@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+from collections import defaultdict
 
 import json, os, re
 
@@ -19,6 +20,7 @@ import mpld3
 import matplotlib
 matplotlib.use('WebAgg')
 
+import config
 
 
 
@@ -308,9 +310,78 @@ def estimate_conc_by_rbf_model(additive_conc_here,
     result = minimize_scalar(objective, bounds=(0, 450), method='bounded')
     estimated_conc = result.x if result.success else None
     assert estimated_conc, 'Finding estimated_dpe failed!'
-    estimated_conc = 0 if estimated_conc < 1E-4 else estimated_conc
+    estimated_conc = 0 if estimated_conc < 1E-10 else estimated_conc
 
     return estimated_conc
+
+def extract_products_and_starting_materials(data):
+    """
+    Extract Product_* and Starting material-* entries from a result dict.
+
+    Parameters
+    ----------
+    data : dict
+        Result dictionary containing aggregated peak areas.
+
+    Returns
+    -------
+    dict
+        Combined dictionary of products and starting materials with values.
+    """
+    result = {}
+
+    for k, v in data.items():
+        if not isinstance(v, (int, float)):
+            continue
+
+        if k.startswith("Product_") or k.startswith("Starting material"):
+            result[k] = v
+
+    result_final = {'intg_norm': {}, 'conc_mM': {}}
+
+    for key, value in result.items():
+        result_final['intg_norm'][key] = value / config.dictionnary_H_count[key]
+
+    return result_final
+
+
+def add_conc_mM_median(data, ignore_zero=False):
+    """
+    Add median concentration per molecule (collapsed key) to data dict.
+
+    Parameters
+    ----------
+    data : dict
+        Must contain key 'conc_mM'
+    ignore_zero : bool
+        If True, zeros / near-zeros are ignored in median calculation
+
+    Returns
+    -------
+    dict
+        Same dict with added key 'conc_mM_median'
+    """
+
+    grouped = defaultdict(list)
+
+    for k, v in data.get('conc_mM', {}).items():
+        # remove trailing -number
+        base_key = re.sub(r'-\d+$', '', k)
+
+        val = float(v)
+
+        if ignore_zero and val <= 0:
+            continue
+
+        grouped[base_key].append(val)
+
+    data['conc_mM_median'] = {
+        k: float(np.median(vs))
+        for k, vs in grouped.items()
+        if vs
+    }
+
+    return data
 
 
 if __name__ == "__main__":
@@ -351,6 +422,87 @@ if __name__ == "__main__":
                                rbf_model=rbf_model)
 
     print(a)
+
+    run_folders = \
+        [r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz'
+        ]
+
+    spectrum_folders = []
+    for folder in run_folders:
+        result_folder = folder + r'\Results'
+        assert os.path.isdir(result_folder), 'Result folder does not exist!!'
+        # get all subfolders that contain 'BDA' in the folder name
+        subfolders_for_spectrum = [
+            os.path.join(result_folder, name)
+            for name in os.listdir(result_folder)
+            if 'BDA' in name and os.path.isdir(os.path.join(result_folder, name))
+        ]
+        assert len(subfolders_for_spectrum)>0, 'Results folder is empty!!'
+        spectrum_folders.extend(subfolders_for_spectrum)
+
+    print(spectrum_folders)
+
+    for folder in spectrum_folders:
+        print(f'processing folder: {folder}')
+        fitting_result_json = folder + r'\\fitting_result.json'
+        reaction_info_json = folder + r'\\reaction_info.json'
+        assert os.path.isfile(fitting_result_json), f'Result folder does not exist in {fitting_result_json}'
+        with open(fitting_result_json) as f:
+            fitting_result_here = json.load(f)
+
+        assert os.path.isfile(reaction_info_json), f'Result folder does not exist in {spectrum_folders}'
+        with open(reaction_info_json) as f:
+            reaction_info_here = json.load(f)
+
+        conc_additive = reaction_info_here.get('conc_AA')
+
+        fitting_intg_and_conc = extract_products_and_starting_materials(fitting_result_here)
+
+        for key, value in fitting_intg_and_conc['intg_norm'].items():
+
+            fitting_intg_and_conc['conc_mM'][key] = (
+                estimate_conc_by_rbf_model(additive_conc_here=conc_additive,
+                                           integral_value_normalized=value,
+                                           rbf_model=rbf_model))
+
+        fitting_intg_and_conc = add_conc_mM_median(fitting_intg_and_conc, ignore_zero=True)
+
+        fitting_result_with_conc_json = folder + r'\\fitting_result_with_conc.json'
+        with open(fitting_result_with_conc_json,'w', encoding='utf-8') as f:
+            json.dump(fitting_intg_and_conc,f,ensure_ascii=False,indent=2)
+        print(f'Saved json: {fitting_intg_and_conc}')
+
+    for folder in run_folders:
+        df_all = pd.DataFrame()
+        result_folder = folder + r'\Results'
+        result_all_csv = result_folder + r'\result_all.csv'
+        # get all the files iteratively in the subfolders of result_folder named: fitting_result_with_conc.json
+        for root, dirs, files in os.walk(result_folder):
+            if 'fitting_result_with_conc.json' in files:
+                fitting_result_json_path = os.path.join(root, 'fitting_result_with_conc.json')
+                with open(fitting_result_json_path, encoding='utf-8') as f:
+                    fitting_result_from_json = json.load(f)
+                reaction_info_json = os.path.join(root, 'reaction_info.json')
+                with open(reaction_info_json, encoding='utf-8') as f:
+                    reaction_info = json.load(f)
+
+                ## append the info to df_all
+                row_here = pd.json_normalize(reaction_info)
+
+                for key, value in fitting_result_from_json['conc_mM_median'].items():
+                    row_here[f'conc_{key}'] = value
+
+                df_all = pd.concat([df_all, row_here], ignore_index=True)
+                df_all = df_all.sort_values(by='local_index')
+
+        # save df_all to local file
+        df_all.to_csv(result_all_csv)
+
+
+
 
 
 
