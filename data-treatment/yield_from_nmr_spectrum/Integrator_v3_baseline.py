@@ -359,8 +359,37 @@ def specify_para(sol_name, outlier_type=None):
             "Product_PX8_prime-4": 0.5, #H expected for this signal
             "Product_PX8_prime-5": 0.5, #H expected for this signal
 
-            "Product_PU1-1": 1, #H hypothtetical, structure unknow 
+            "Product_PU1-1": 1, #H hypothtetical, structure unknown 
                     
+            }
+        dictionnary_stockiometry= {  #Stockiometry dictionnary
+            "Starting material": {'Br':0,'BDA':1},   
+
+            "Product_PX1": {'Br':1,'BDA':1},  
+            
+            "Product_PX1_prime": {'Br':1,'BDA':1},  
+
+            "Product_PX2": {'Br':2,'BDA':1},  
+
+            "Product_PX3": {'Br':3,'BDA':1},  
+
+            "Product_PX4": {'Br':1,'BDA':1},  
+
+            "Product_PX5": {'Br':2,'BDA':1},  
+            
+            "Product_PX5_prime": {'Br':2,'BDA':1},  
+
+            "Product_PX6": {'Br':3,'BDA':1},  
+
+            "Product_PX7": {'Br':1,'BDA':1},  
+
+            "Product_PX7_prime": {'Br':1,'BDA':1},  
+
+            "Product_PX8": {'Br':2,'BDA':1},  
+
+            "Product_PX8_prime": {'Br':2,'BDA':1},  
+
+            "Product_PU1": {'Br':1,'BDA':1},   #structure unknow, stockiometry placeholder 
             }
 
 
@@ -1623,10 +1652,11 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', {21: 'Type1'}],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
-                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_400MHz",'BDE-DCE',None],
-                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_long_400MHz",'BDE-DCE',None],
-                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run02_400MHz",'BDE-DCE',None],
-                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run02_long_48h_400MHz",'BDE-DCE',None]
+                # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run03_BDA_calibration\\400MHz",'BDE-DCE',None],
+                # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_400MHz",'BDE-DCE',None],
+                # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_long_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run02_BDA_2nd\\Results_2025-12-12-run02_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run02_BDA_2nd\\Results_2025-12-12-run02_long_48h_400MHz",'BDE-DCE',None]
             ]
 
     for run_folder in run_folders:
