@@ -296,8 +296,8 @@ def specify_para(sol_name, outlier_type=None):
             "Product_PU1-1": [5.9224],            
         }
         dictionnary_H_count= {  #Normalisation dictionnary
-            "Starting material-1": 1, #H expected for this signal  
-            "Starting material-2": 1, #H expected for this signal
+            "Starting material-1": 0.5, #H expected for this signal  
+            "Starting material-2": 0.5, #H expected for this signal
 
             "Product_PX1-1": 0.5, #H expected for this signal
             "Product_PX1-2": 0.5, #H expected for this signal
