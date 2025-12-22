@@ -497,6 +497,56 @@ if __name__ == "__main__":
 
                 df_all = pd.concat([df_all, row_here], ignore_index=True)
                 df_all = df_all.sort_values(by='local_index')
+        # change col name for AA, BB, CC->TBABr, Br2, BDA
+        rename_map = {
+                    "conc_AA": "[TBABr]0",
+                    "conc_BB": "[Br2]0",
+                    "conc_CC": "[BDA]0", }
+        df_all = df_all.rename(columns=rename_map)
+
+        # add cols of 0s if not detected.
+        compds_in_crude = config.compds_in_crude
+        compds_in_crude_with_conc = [f'conc_{compd}' for compd in compds_in_crude]
+        # add missing columns filled with 0
+        for col in compds_in_crude_with_conc:
+            if col not in df_all.columns:
+                df_all[col] = 0.0
+
+        # reorder columns: keep existing non-conc columns first, then conc columns in given order
+        non_conc_cols = [c for c in df_all.columns if c not in compds_in_crude_with_conc]
+        df_all = df_all[non_conc_cols + compds_in_crude_with_conc]
+
+        # calculate the yield for all the cmpds
+        for cmpd in compds_in_crude:
+            cmpd_with_conc = f'conc_{cmpd}'
+            stoi_dict = config.dictionnary_stockiometry
+
+            # cal for limiting reagent conc
+            stoi_for_br2 = stoi_dict.get(cmpd).get('Br')
+            stoi_for_bda = stoi_dict.get(cmpd).get('BDA')
+            if stoi_for_br2 == 0:
+                limit_reagent_conc = df_all['[BDA]0'] * stoi_for_bda
+            elif stoi_for_bda == 0:
+                limit_reagent_conc = df_all['[Br2]0'] * stoi_for_br2
+            else:
+                limit_reagent_conc = np.minimum(df_all['[Br2]0'] * stoi_for_br2, df_all['[BDA]0'] * stoi_for_bda)
+
+            # cal for yield
+            numerator = df_all[cmpd_with_conc]
+            denominator = limit_reagent_conc
+
+            yield_col = f"yield_{cmpd}"
+
+            df_all[yield_col] = np.where(
+                numerator == 0,
+                0.0,
+                np.where(
+                    denominator == 0,
+                    np.nan,
+                    numerator / denominator,
+                ),
+            )
+
 
         # save df_all to local file
         df_all.to_csv(result_all_csv)
