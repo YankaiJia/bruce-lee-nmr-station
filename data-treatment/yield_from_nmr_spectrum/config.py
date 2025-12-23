@@ -1,6 +1,6 @@
 dictionnary_H_count = {  # Normalisation dictionnary
-    "Starting material-1": 1,  # H expected for this signal
-    "Starting material-2": 1,  # H expected for this signal
+    "Starting material-1": 0.5,  # H expected for this signal
+    "Starting material-2": 0.5,  # H expected for this signal
 
     "Product_PX1-1": 0.5,  # H expected for this signal
     "Product_PX1-2": 0.5,  # H expected for this signal

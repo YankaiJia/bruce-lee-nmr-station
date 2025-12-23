@@ -383,6 +383,26 @@ def add_conc_mM_median(data, ignore_zero=False):
 
     return data
 
+from collections import defaultdict
+from typing import Dict, Any
+
+def add_intg_norm_grouped(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Collapse intg_norm replicate values into lists by molecule name
+    and append the result as 'intg_norm_grouped'.
+    """
+    if "intg_norm" not in data or not isinstance(data["intg_norm"], dict):
+        raise ValueError("data must contain an 'intg_norm' dictionary")
+
+    grouped = defaultdict(list)
+
+    for key, value in data["intg_norm"].items():
+        molecule = key.rsplit("-", 1)[0]
+        grouped[molecule].append(value)
+
+    data["intg_norm_grouped"] = dict(grouped)
+    return data
+
 
 if __name__ == "__main__":
 
@@ -405,7 +425,7 @@ if __name__ == "__main__":
                                                     save_path=calib_info_path_updated)
     print(f'calib_info_df: {calib_info_df}')
 
-    BDA_proton_count = 1
+    BDA_proton_count = config.dictionnary_H_count.get("Starting material-1")
     x1 = calib_info_df['[BDA](mM)']
     x2 = calib_info_df['[TBABr](mM)']
     y = calib_info_df['BDA_avg'] / BDA_proton_count
@@ -470,6 +490,9 @@ if __name__ == "__main__":
 
         fitting_intg_and_conc = add_conc_mM_median(fitting_intg_and_conc, ignore_zero=True)
 
+        # add intg_norm_grouped into one dict
+        fitting_intg_and_conc = add_intg_norm_grouped(fitting_intg_and_conc)
+
         fitting_result_with_conc_json = folder + r'\\fitting_result_with_conc.json'
         with open(fitting_result_with_conc_json,'w', encoding='utf-8') as f:
             json.dump(fitting_intg_and_conc,f,ensure_ascii=False,indent=2)
@@ -491,6 +514,8 @@ if __name__ == "__main__":
 
                 ## append the info to df_all
                 row_here = pd.json_normalize(reaction_info)
+                for key, value in fitting_result_from_json['intg_norm_grouped'].items():
+                    row_here[f'intg_norm_grouped_{key}'] = [value]
 
                 for key, value in fitting_result_from_json['conc_mM_median'].items():
                     row_here[f'conc_{key}'] = value
@@ -507,14 +532,22 @@ if __name__ == "__main__":
         # add cols of 0s if not detected.
         compds_in_crude = config.compds_in_crude
         compds_in_crude_with_conc = [f'conc_{compd}' for compd in compds_in_crude]
+        compds_in_crude_with_intg = [f'intg_norm_grouped_{compd}' for compd in compds_in_crude]
         # add missing columns filled with 0
         for col in compds_in_crude_with_conc:
             if col not in df_all.columns:
                 df_all[col] = 0.0
+        for col in compds_in_crude_with_intg:
+            if col not in df_all.columns:
+                df_all[col] = 0.0
 
         # reorder columns: keep existing non-conc columns first, then conc columns in given order
+        non_intg_cols = [c for c in df_all.columns if c not in compds_in_crude_with_intg]
+        df_all = df_all[non_intg_cols + compds_in_crude_with_intg]
+
         non_conc_cols = [c for c in df_all.columns if c not in compds_in_crude_with_conc]
         df_all = df_all[non_conc_cols + compds_in_crude_with_conc]
+
 
         # calculate the yield for all the cmpds
         for cmpd in compds_in_crude:
