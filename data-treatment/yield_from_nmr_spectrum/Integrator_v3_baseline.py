@@ -913,7 +913,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
             baseline, params = bl.mixture_model(intensity_array, lam=10000.0, p=0.001, num_knots=150, spline_degree=3, diff_order=3, max_iter=200, tol=0.001, weights=None, symmetric=False, num_bins=None)
             intensity_array -= baseline
         
-        peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes,prominence=std_deviation*6,rel_height=0.2)
+        peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes,prominence=std_deviation*4,rel_height=0.1)
 
         # If no peaks are found, stop
         if len(peaks) == 0:
@@ -1455,6 +1455,7 @@ def process_nmr_peaks(
     if is_save_plot and fig_combined:
         fig_combined.savefig(file_dir + "\\fitting_results.png")
 
+
     return results_dictionary
 
 def analyze_one_spectrum(file_name, sol_name,  outliers):
@@ -1579,6 +1580,7 @@ def analyze_one_run_folder(master_path,
         folder_path = os.path.join(results_path, folder)
 
         if "1D EXTENDED" in folder_path or "BDA" in folder_path  :
+            
             try:
                 data_dir_ls.append(folder_path)
                 data_file = folder_path + "\\data.csv"
@@ -1653,8 +1655,8 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', {21: 'Type1'}],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
                 # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run03_BDA_calibration\\400MHz",'BDE-DCE',None],
-                # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_400MHz",'BDE-DCE',None],
-                # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_long_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_long_400MHz",'BDE-DCE',None],
                 [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run02_BDA_2nd\\Results_2025-12-12-run02_400MHz",'BDE-DCE',None],
                 [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run02_BDA_2nd\\Results_2025-12-12-run02_long_48h_400MHz",'BDE-DCE',None]
             ]
