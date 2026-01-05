@@ -1,5 +1,9 @@
-""""
-Interpolation of concentrations for bromination reactions.
+"""
+This module is for interpolation of BDA reactions ONLY. Its input is the integrated area of peaks from different
+compounds, which is calculated by Louis. This module takes the area and interpolates them by a 2D calibration curve.
+The output of this script is the interpolated concentrations of different compounds.
+
+Yankai Jia 2026.01.05
 """
 from matplotlib import pyplot as plt
 import pandas as pd
