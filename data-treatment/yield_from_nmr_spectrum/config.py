@@ -101,3 +101,21 @@ dictionnary_stockiometry = {
                             "Product_PU1": {'Br': 1, 'BDA': 1},  # structure unknow, stockiometry placeholder
                         }
 
+outliers = {
+    'px2': r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-13', # wrong peak assign during fitting. Tiny peaks are not detectd.
+    'px2': r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-0',  # mark it as outlier. The peaks are at noise level, conc is very small
+    'px2': r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-22',
+}
+
+##px2 outliers
+# in these three cases, use the two orange peaks as hcp.
+r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-7'
+r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-10'
+r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-22'
+
+
+##px5 outliers
+# px1p needs to be removed from the slice
+r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz\Results\BDA-2025-12-12-run01-long-17'
+r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-9'
+
