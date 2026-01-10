@@ -15,6 +15,21 @@ from matplotlib import pyplot as plt
 import itertools
 import warnings
 
+PROTON_COUNT = {
+                 'bda_ha': 1,
+                 'px1_ha': 1,
+                 'px1p_ha': 1,
+                 'px2_hc': 1,
+                 'px2_hcp': 1,
+                 'px3_hc': 1,
+                 'px4_hb': 1,
+                 'px5_hc': 2,
+                 'px5p_hc': 2,
+                 'px7_hc': 2,
+                 'px7p_hc': 2,
+                 'px8_hc': 1,
+                 'px8p_hc': 1
+                }
 
 def get_all_result_json(run_folders):
     json_list = []
@@ -166,19 +181,24 @@ def parse_px1_px1p(
     intensity_min=11,
 ):
     """
-    Parse PX1 / PX1' peaks with extended rules.
+    Parse PX1 / PX1' Ha peaks.
+
+    Labels
+    ------
+      - px1_ha
+      - px1_prime_ha
 
     Special rules:
       - amplitude filtering ONLY applies when raw peak count is 5 or 6
       - UPDATED 5-peak rule:
-            if any peak has ppm < 4.85 → ignore that peak
-            else                       → ignore leftmost peak
+            if any peak has ppm < ppm_window[0] → ignore that peak
+            else                                → ignore leftmost peak
 
     Rules (after sorting by center_ppm descending):
-      2 peaks  -> px1 OR px1_prime (threshold-based)
-      3 peaks  -> left 2 px1, right 1 ignored
-      4 peaks  -> left 2 px1, right 2 px1_prime
-      5 peaks  -> special rule (see above), then apply 4-peak rule
+      2 peaks  -> px1_ha OR px1_prime_ha (threshold-based)
+      3 peaks  -> left 2 px1_ha, right 1 ignored
+      4 peaks  -> left 2 px1_ha, right 2 px1_prime_ha
+      5 peaks  -> special rule, then apply 4-peak rule
       6 peaks  -> ignore left 2, then apply 4-peak rule
     """
 
@@ -205,7 +225,6 @@ def parse_px1_px1p(
     # --------------------------------------------------
     # apply intensity filter ONLY for 5 / 6 peaks
     # --------------------------------------------------
-
     if n_raw in (5, 6):
         df_valid = df_sorted[
             df_sorted["amplitude"] >= intensity_min
@@ -223,46 +242,41 @@ def parse_px1_px1p(
     if n == 2:
         max_ppm = df_valid["center_ppm"].max()
         if max_ppm < px1_threshold:
-            df_valid.loc[:, "assigned_species"] = "px1_prime"
+            df_valid.loc[:, "assigned_species"] = "px1p_ha"
         else:
-            df_valid.loc[:, "assigned_species"] = "px1"
+            df_valid.loc[:, "assigned_species"] = "px1_ha"
 
     # ---------- case: 3 peaks ----------
     elif n == 3:
-        df_valid.loc[0:1, "assigned_species"] = "px1"
+        df_valid.loc[df_valid.index[0:2], "assigned_species"] = "px1_ha"
 
     # ---------- case: 4 peaks ----------
     elif n == 4:
-        df_valid.loc[df_valid.index[0:2], "assigned_species"] = "px1"
-        df_valid.loc[df_valid.index[2:4], "assigned_species"] = "px1_prime"
+        df_valid.loc[df_valid.index[0:2], "assigned_species"] = "px1_ha"
+        df_valid.loc[df_valid.index[2:4], "assigned_species"] = "px1p_ha"
 
     # ---------- case: 5 peaks (UPDATED) ----------
     elif n == 5:
-        # check if there is a peak with ppm < 4.85
         low_ppm_mask = df_valid["center_ppm"] < ppm_window[0]
 
         if low_ppm_mask.any():
-            # ignore that low-ppm peak
             idx_ignore = df_valid[low_ppm_mask].index[0]
             core = df_valid.drop(index=idx_ignore).copy()
         else:
-            # ignore leftmost (highest ppm)
             core = df_valid.iloc[1:].copy()
 
-        # now core must have 4 peaks
         core = core.sort_values("center_ppm", ascending=False)
 
-        core.loc[core.index[0:2], "assigned_species"] = "px1"
-        core.loc[core.index[2:4], "assigned_species"] = "px1_prime"
+        core.loc[core.index[0:2], "assigned_species"] = "px1_ha"
+        core.loc[core.index[2:4], "assigned_species"] = "px1p_ha"
 
         df_valid.loc[core.index, "assigned_species"] = core["assigned_species"]
-
 
     # ---------- case: 6 peaks ----------
     elif n == 6:
         core = df_valid.iloc[2:].copy()
-        core.loc[core.index[0:2], "assigned_species"] = "px1"
-        core.loc[core.index[2:4], "assigned_species"] = "px1_prime"
+        core.loc[core.index[0:2], "assigned_species"] = "px1_ha"
+        core.loc[core.index[2:4], "assigned_species"] = "px1p_ha"
         df_valid.loc[core.index, "assigned_species"] = core["assigned_species"]
 
     else:
@@ -279,7 +293,6 @@ def parse_px1_px1p(
     ] = df_valid["assigned_species"].values
 
     return df_win
-
 
 
 def _within_frac(a, b, frac):
@@ -592,18 +605,22 @@ def parse_px4(
 
     df_win.drop(columns=["ppm_dist"], inplace=True)
     return df_win
-
 def parse_px5_px5p_by_hc(
     df,
     ppm_window=(4.45, 4.85),
     px5_center=4.52,
     px5p_center=4.75,
-    split_ppm=4.63,
-    pair_ppm_tol=0.05,
+    split_ppm=4.65,
+    pair_ppm_tol=0.03,
     area_ratio_tol=0.20,
 ):
     """
-    Parse PX5 / PX5' using Hc peaks at ~4.52 and ~4.75 ppm.
+    Parse PX5 / PX5' using Hc singlets at ~4.52 (PX5) and ~4.75 ppm (PX5').
+
+    Labels
+    ------
+      - px5_hc
+      - px5_prime_hc
 
     Rules
     -----
@@ -629,8 +646,7 @@ def parse_px5_px5p_by_hc(
     # slice window
     # --------------------------------------------------
     df_win = df[
-        (df["center_ppm"] >= ppm_window[0]) &
-        (df["center_ppm"] <= ppm_window[1])
+        df["center_ppm"].between(*ppm_window)
     ].copy()
 
     if df_win.empty:
@@ -662,19 +678,17 @@ def parse_px5_px5p_by_hc(
         if area_ratio <= area_ratio_tol:
             unknown_indices.update([r1["index"], r2["index"]])
 
-    # mark unknown pair as ignored
     if unknown_indices:
         df_win.loc[list(unknown_indices), "assigned_species"] = "ignored"
 
     # --------------------------------------------------
-    # Step 2: build candidate pool (exclude unknown)
+    # Step 2: candidate pool
     # --------------------------------------------------
     df_cand = df_win.drop(index=list(unknown_indices), errors="ignore").copy()
 
     if df_cand.empty:
         return df_win
 
-    # distances
     df_cand["dist_px5"] = abs(df_cand["center_ppm"] - px5_center)
     df_cand["dist_px5p"] = abs(df_cand["center_ppm"] - px5p_center)
 
@@ -689,28 +703,28 @@ def parse_px5_px5p_by_hc(
             ppm = r["center_ppm"]
 
             if ppm < split_ppm:
-                df_win.loc[idx, "assigned_species"] = "px5"
+                df_win.loc[idx, "assigned_species"] = "px5_hc"
             elif ppm > split_ppm:
-                df_win.loc[idx, "assigned_species"] = "px5_prime"
+                df_win.loc[idx, "assigned_species"] = "px5p_hc"
             else:
                 # fallback: closest center
                 if r["dist_px5"] <= r["dist_px5p"]:
-                    df_win.loc[idx, "assigned_species"] = "px5"
+                    df_win.loc[idx, "assigned_species"] = "px5_hc"
                 else:
-                    df_win.loc[idx, "assigned_species"] = "px5_prime"
+                    df_win.loc[idx, "assigned_species"] = "px5p_hc"
 
-    # ---------- case: >=3 peaks ----------
+    # ---------- case: ≥3 peaks ----------
     else:
         df_left = df_cand[df_cand["center_ppm"] < split_ppm]
         df_right = df_cand[df_cand["center_ppm"] > split_ppm]
 
         if not df_left.empty:
             idx_px5 = df_left["dist_px5"].idxmin()
-            df_win.loc[idx_px5, "assigned_species"] = "px5"
+            df_win.loc[idx_px5, "assigned_species"] = "px5_hc"
 
         if not df_right.empty:
             idx_px5p = df_right["dist_px5p"].idxmin()
-            df_win.loc[idx_px5p, "assigned_species"] = "px5_prime"
+            df_win.loc[idx_px5p, "assigned_species"] = "px5p_hc"
 
     return df_win
 
@@ -770,7 +784,7 @@ def parse_px6(
         fpath = df["file_path"].iloc[0] if "file_path" in df.columns and len(df) > 0 else ""
         msg = (f"[PX6] Hb candidate found: ppm={hb_pick['center_ppm']:.4f}, "
                f"area={hb_pick['area']:.2f} | {fpath[-80:]}")
-        print(msg)
+        warnings.warn(msg)
 
     # -------------------------
     # Step 3) Hc confirmation
@@ -1034,7 +1048,7 @@ def assign_px7_px7p_by_hc(
     if len(ha_pairs) == 1:
 
         ha_area = ha_areas[0] * 2  # account for 2 HC
-        print(f'ha_area: {ha_area}')
+        # print(f'ha_area: {ha_area}')
 
         best_idx = None
         best_side = None
@@ -1043,7 +1057,7 @@ def assign_px7_px7p_by_hc(
         # ==================================================
         # CASE 1 (UPDATED): ONE Ha doublet → ALWAYS assume overlap
         # ==================================================
-        print(f"[PX7] Ha doublet area = {ha_area:.3f}")
+        # print(f"[PX7] Ha doublet area = {ha_area:.3f}")
 
         best_idx = None
         best_side = None
@@ -1085,7 +1099,8 @@ def assign_px7_px7p_by_hc(
                     assign["px7p"].append(idx)
                     break
             else:
-                print("No px7p_Hc detected!")
+                pass
+                # warnings.warn("No px7p_Hc detected!")
 
         else:  # best_side == "right"
             assign["px7p"].append(best_idx)
@@ -1096,7 +1111,7 @@ def assign_px7_px7p_by_hc(
                     assign["px7"].append(idx)
                     break
             else:
-                print("No px7_Hc detected!")
+                warnings.warn("No px7_hc detected!")
 
         return assign
 
@@ -1113,7 +1128,7 @@ def assign_px7_px7p_by_hc(
                 a_left = df.loc[i_left, "area"]
                 a_right = df.loc[i_right, "area"]
 
-                print((a_left + a_right) / 2, ha_area1 + ha_area2)
+                # print((a_left + a_right) / 2, ha_area1 + ha_area2)
 
                 # pf1 + pf2 must match total Ha area
                 if not _area_within(
@@ -1175,7 +1190,7 @@ def apply_px7_px7p_to_df_win(
     # clear old px7 labels
     df_win.loc[
         df_win["assigned_species"].isin(
-            ["px7_Hc", "px7p_Hc", "px7_Ha"]
+            ["px7_hc", "px7p_hc", "px7_ha"]
         ),
         "assigned_species"
     ] = "ignored"
@@ -1187,42 +1202,128 @@ def apply_px7_px7p_to_df_win(
             if ha_window[0] <= ppm <= ha_window[1]:
                 df_win.loc[idx, "assigned_species"] = "px7_Ha"
             else:
-                df_win.loc[idx, "assigned_species"] = "px7_Hc"
+                df_win.loc[idx, "assigned_species"] = "px7_hc"
 
     # -------- px7p --------
     for idx in assign_map.get("px7p", []):
         if idx in df_win.index:
-            df_win.loc[idx, "assigned_species"] = "px7p_Hc"
+            df_win.loc[idx, "assigned_species"] = "px7p_hc"
 
     return df_win
 
+
+def parse_px7_px7p_block(
+    df_peaks: pd.DataFrame,
+    ha_window=(6.85, 7.05),
+    hc_window_7=(4.05, 4.20),
+    hc_window_7p=(4.20, 4.40),
+    area_tol=0.20,
+):
+    """
+    Parse PX7 / PX7p using:
+      - Ha doublets at ~6.9–7.0 ppm
+      - Hc singlets at ~4.12 (PX7) and ~4.34 (PX7p)
+
+    This function:
+      1) Collects all relevant Ha + Hc peaks into df_win7
+      2) Detects 0 / 1 / 2 Ha doublets
+      3) Uses Hc–Ha area logic to assign px7 / px7p
+      4) Writes assignments back into df_win7
+
+    Returns
+    -------
+    df_win7 : pandas.DataFrame
+        Subset of df_peaks with column `assigned_species`
+        ∈ {"px7", "px7p", "ignored"}
+    """
+
+    # --------------------------------------------------
+    # Step 0: collect window (Ha + Hc)
+    # --------------------------------------------------
+    df_win7 = df_peaks[
+        (df_peaks["center_ppm"].between(*ha_window)) |
+        (df_peaks["center_ppm"].between(*hc_window_7)) |
+        (df_peaks["center_ppm"].between(*hc_window_7p))
+    ].copy()
+
+    if df_win7.empty:
+        return df_win7
+
+    df_win7["assigned_species"] = "ignored"  # default
+
+    # --------------------------------------------------
+    # Step 1: find Ha doublets
+    # --------------------------------------------------
+    df_ha = df_win7[df_win7["center_ppm"].between(*ha_window)]
+
+    ha_pairs = parse_px7_px7p_ha_doublets(df_ha)
+    # expected:
+    #   [] |
+    #   [(i1, i2)] |
+    #   [(i1, i2), (i3, i4)]
+    # where i's are row indices of df_peaks
+
+    if not ha_pairs:
+        # no Ha → nothing to assign
+        return df_win7
+
+    # --------------------------------------------------
+    # Step 2: assign px7 / px7p via Hc peaks
+    # --------------------------------------------------
+    assign_map = assign_px7_px7p_by_hc(
+        df=df_peaks,
+        ha_pairs=ha_pairs,
+        hc_window_left=hc_window_7,
+        hc_window_right=hc_window_7p,
+        area_tol=area_tol,
+    )
+
+    if not assign_map:
+        # assignment failed safely upstream
+        return df_win7
+
+    # --------------------------------------------------
+    # Step 3: write assignment back to df_win7
+    # --------------------------------------------------
+    df_win7 = apply_px7_px7p_to_df_win(
+        df_win=df_win7,
+        assign_map=assign_map,
+        ha_window=ha_window,  # IMPORTANT: distinguish Ha vs Hc
+    )
+
+    return df_win7
 
 def parse_px8_px8p_by_hc(
     df,
     ppm_window=(5.8, 6.2),
     px8_center=6.05,
     px8p_center=6.15,
-    tol=None,  # 可选：比如 0.03；None 表示不做容差硬过滤
+    tol=None,  # optional hard tolerance
 ):
     """
     Parse PX8 / PX8' using Hc singlets near 6.05 (PX8) and 6.15 (PX8').
 
-    Rules:
-      - slice peaks in ppm_window
-      - if 0 peak: return empty
-      - init assigned_species = "ignored"
-      - if 1 peak: assign to whichever center is closer
-      - if >=2 peaks:
-            pick closest to px8_center  -> "px8"
-            pick closest to px8p_center -> "px8_prime"
-            (handle collision if both pick same peak)
+    Labels:
+      - px8_hc
+      - px8_prime_hc
 
-      - optional tol: if provided, only assign when |ppm-center| <= tol
+    Rules
+    -----
+    1) Slice peaks in ppm_window
+    2) Init assigned_species = "ignored"
+    3) If 1 peak:
+         assign to whichever center is closer
+    4) If >=2 peaks:
+         pick closest to px8_center  -> px8_hc
+         pick closest to px8p_center -> px8_prime_hc
+         (resolve collision if both pick the same peak)
     """
 
+    # -------------------------
+    # slice window
+    # -------------------------
     df_win = df[
-        (df["center_ppm"] >= ppm_window[0]) &
-        (df["center_ppm"] <= ppm_window[1])
+        df["center_ppm"].between(*ppm_window)
     ].copy()
 
     if df_win.empty:
@@ -1230,61 +1331,153 @@ def parse_px8_px8p_by_hc(
 
     df_win["assigned_species"] = "ignored"
 
-    df_win["dist_px8"] = np.abs(df_win["center_ppm"] - px8_center)
-    df_win["dist_px8p"] = np.abs(df_win["center_ppm"] - px8p_center)
+    # distances
+    df_win["dist_px8"] = abs(df_win["center_ppm"] - px8_center)
+    df_win["dist_px8p"] = abs(df_win["center_ppm"] - px8p_center)
 
     n = len(df_win)
 
-    # ---------- 1 peak ----------
+    # -------------------------
+    # case: only 1 peak
+    # -------------------------
     if n == 1:
         idx = df_win.index[0]
+
         if df_win.loc[idx, "dist_px8"] <= df_win.loc[idx, "dist_px8p"]:
             if tol is None or df_win.loc[idx, "dist_px8"] <= tol:
-                df_win.loc[idx, "assigned_species"] = "px8"
+                df_win.loc[idx, "assigned_species"] = "px8_hc"
         else:
             if tol is None or df_win.loc[idx, "dist_px8p"] <= tol:
-                df_win.loc[idx, "assigned_species"] = "px8_prime"
+                df_win.loc[idx, "assigned_species"] = "px8p_hc"
 
         return df_win.drop(columns=["dist_px8", "dist_px8p"])
 
-    # ---------- >=2 peaks ----------
-    # best for px8
+    # -------------------------
+    # case: >=2 peaks
+    # -------------------------
     px8_sorted = df_win.sort_values("dist_px8")
     px8p_sorted = df_win.sort_values("dist_px8p")
 
     idx_px8 = px8_sorted.index[0]
     idx_px8p = px8p_sorted.index[0]
 
-    # if collision (same peak picked for both), resolve by choosing the better match,
-    # and assign the other to its next-best candidate.
+    # collision: same peak picked for both
     if idx_px8 == idx_px8p:
         d8 = df_win.loc[idx_px8, "dist_px8"]
         d8p = df_win.loc[idx_px8, "dist_px8p"]
 
         if d8 <= d8p:
-            # keep for px8, find next for px8p
-            df_win.loc[idx_px8, "assigned_species"] = "px8" if (tol is None or d8 <= tol) else "ignored"
+            # keep for px8
+            if tol is None or d8 <= tol:
+                df_win.loc[idx_px8, "assigned_species"] = "px8_hc"
+
+            # find next-best px8p
             for idx2 in px8p_sorted.index[1:]:
-                d2 = df_win.loc[idx2, "dist_px8p"]
-                if tol is None or d2 <= tol:
-                    df_win.loc[idx2, "assigned_species"] = "px8_prime"
+                if tol is None or df_win.loc[idx2, "dist_px8p"] <= tol:
+                    df_win.loc[idx2, "assigned_species"] = "px8p_hc"
                     break
         else:
-            # keep for px8p, find next for px8
-            df_win.loc[idx_px8, "assigned_species"] = "px8_prime" if (tol is None or d8p <= tol) else "ignored"
+            # keep for px8'
+            if tol is None or d8p <= tol:
+                df_win.loc[idx_px8, "assigned_species"] = "px8p_hc"
+
+            # find next-best px8
             for idx2 in px8_sorted.index[1:]:
-                d2 = df_win.loc[idx2, "dist_px8"]
-                if tol is None or d2 <= tol:
-                    df_win.loc[idx2, "assigned_species"] = "px8"
+                if tol is None or df_win.loc[idx2, "dist_px8"] <= tol:
+                    df_win.loc[idx2, "assigned_species"] = "px8_hc"
                     break
     else:
         # normal case
         if tol is None or df_win.loc[idx_px8, "dist_px8"] <= tol:
-            df_win.loc[idx_px8, "assigned_species"] = "px8"
+            df_win.loc[idx_px8, "assigned_species"] = "px8_hc"
+
         if tol is None or df_win.loc[idx_px8p, "dist_px8p"] <= tol:
-            df_win.loc[idx_px8p, "assigned_species"] = "px8_prime"
+            df_win.loc[idx_px8p, "assigned_species"] = "px8p_hc"
 
     return df_win.drop(columns=["dist_px8", "dist_px8p"])
+
+
+def parse_bda_by_ha_doublet(
+    df,
+    ppm_window=(6.5, 6.8),
+    target_center=6.67,
+    area_tol=0.20,
+    ppm_span_min=0.01,
+    ppm_span_max=0.10,
+):
+    """
+    Identify BDA by its Ha doublet (~6.67 ppm, d, J~16 Hz).
+
+    Rules
+    -----
+    1) Slice peaks in ppm_window
+    2) Bruteforce choose 2 peaks
+    3) A valid doublet satisfies:
+         - ppm distance in [ppm_span_min, ppm_span_max]
+         - areas within ±area_tol
+    4) If multiple valid doublets:
+         - choose the one whose center is closest to target_center
+    5) Assign BOTH peaks as 'bda_ha'
+
+    Returns
+    -------
+    df_win : DataFrame
+        Peaks in window with column 'assigned_species'
+        in {'bda_ha', 'ignored'}
+    """
+
+    # -------------------------
+    # slice window
+    # -------------------------
+    df_win = df[
+        df["center_ppm"].between(*ppm_window)
+    ].copy()
+
+    if len(df_win) < 2:
+        return df_win
+
+    df_win["assigned_species"] = "ignored"
+
+    best_pair = None
+    best_center_diff = float("inf")
+
+    rows = list(df_win.iterrows())
+
+    # -------------------------
+    # brute-force doublet search
+    # -------------------------
+    for (i1, r1), (i2, r2) in itertools.combinations(rows, 2):
+
+        # ppm span
+        d_ppm = abs(r1["center_ppm"] - r2["center_ppm"])
+        if not (ppm_span_min <= d_ppm <= ppm_span_max):
+            continue
+
+        # area similarity
+        a1, a2 = r1["area"], r2["area"]
+        if a1 <= 0 or a2 <= 0:
+            continue
+
+        area_diff = abs(a1 - a2) / ((a1 + a2) / 2)
+        if area_diff > area_tol:
+            continue
+
+        # center closeness
+        center = 0.5 * (r1["center_ppm"] + r2["center_ppm"])
+        center_diff = abs(center - target_center)
+
+        if center_diff < best_center_diff:
+            best_center_diff = center_diff
+            best_pair = (i1, i2)
+
+    # -------------------------
+    # assign
+    # -------------------------
+    if best_pair is not None:
+        df_win.loc[list(best_pair), "assigned_species"] = "bda_ha"
+
+    return df_win
+
 
 
 def plot_peak_parser_debug(
@@ -1600,6 +1793,106 @@ def remove_assigned_peaks_by_index(df_peaks, df_assigned, assigned_labels):
     return df_peaks.drop(index=idx_drop, errors="ignore").copy()
 
 
+def merge_assignment_into_master(
+    df_master: pd.DataFrame,
+    df_win: pd.DataFrame,
+    label_col="assigned_species",
+):
+    """
+    Merge assignments from df_win into df_master by index.
+
+    Rules:
+      - Only rows with assigned_species != 'ignored' are merged
+      - Assignment is written by index
+      - Existing values in df_master are overwritten
+    """
+
+    if label_col not in df_win.columns:
+        return df_master
+
+    mask = df_win[label_col] != "ignored"
+    if not mask.any():
+        return df_master
+
+    df_master.loc[
+        df_win.loc[mask].index,
+        label_col
+    ] = df_win.loc[mask, label_col]
+
+    return df_master
+
+import re
+import numpy as np
+
+def sort_df_by_px_number(
+    df: pd.DataFrame,
+    col="assigned_species",
+):
+    """
+    Sort dataframe by px_N number extracted from assigned_species.
+
+    Examples:
+      px1, px1_prime   -> 1
+      px2_hc, px2_hcp  -> 2
+      px8_prime        -> 8
+      ignored / NaN    -> inf (sorted last)
+    """
+
+    def extract_px_num(val):
+        if not isinstance(val, str):
+            return np.inf
+
+        m = re.match(r"px(\d+)", val)
+        if m:
+            return int(m.group(1))
+        return np.inf
+
+    df = df.copy()
+    df["_px_order"] = df[col].apply(extract_px_num)
+
+    df = df.sort_values(
+        by=["_px_order", col],
+        ascending=[True, True]
+    )
+
+    return df.drop(columns="_px_order")
+
+
+def merge_species_with_normalization(
+    species_area_sum,
+    new_name,
+    old_names,
+    norm_divisor=1,
+):
+    """
+    Merge multiple species into one.
+
+    area_sum:
+        - direct sum
+
+    area_sum_normalized:
+        - (direct sum) / norm_divisor
+    """
+
+    # ---------- area_sum ----------
+    total_area = 0.0
+    for old in old_names:
+        if old in species_area_sum["area_sum"]:
+            total_area += species_area_sum["area_sum"].pop(old)
+
+    if total_area > 0:
+        species_area_sum["area_sum"][new_name] = total_area
+
+    # ---------- area_sum_normalized ----------
+    total_norm = 0.0
+    for old in old_names:
+        if old in species_area_sum["area_sum_normalized"]:
+            total_norm += species_area_sum["area_sum_normalized"].pop(old)
+
+    if total_norm > 0:
+        species_area_sum["area_sum_normalized"][new_name] = total_norm / norm_divisor
+
+    return species_area_sum
 
 if __name__ == "__main__":
 
@@ -1617,6 +1910,8 @@ if __name__ == "__main__":
     # string_to_proceed = "12-12-run01-7"
     # idx_to_proceed = next(i for i, s in enumerate(json_list) if string_to_proceed in s)
 
+    all_species_name = []
+
     for idx, fit_json in enumerate(json_list):
 
         if idx < idx_to_proceed:
@@ -1632,163 +1927,185 @@ if __name__ == "__main__":
 
         print(f'fit_json: {fit_json}')
 
-        ## work on px1 and px1p
-        # px1_px1p_window = (4.85, 5.05)
-        # df_win1 = parse_px1_px1p(df_peaks,
-        #                          ppm_window=px1_px1p_window)
-        # plot_peak_parser_debug_with_full_spectrum(
-        #     df_peaks,
-        #     df_win1,
-        #     ppm_window=px1_px1p_window,
-        #     title_prefix="PX1",
-        #     assignment_labels=["px1", "px1_prime"],
-        # )
+        df_master = df_peaks.copy()
+        df_master["assigned_species"] = "ignored"
+
+        do_show_plot = False
+
+        # ## work on px1 and px1p
+        px1_px1p_window = (4.85, 5.05)
+        df_win1 = parse_px1_px1p(df_peaks, ppm_window=px1_px1p_window)
+        df_master = merge_assignment_into_master(df_master, df_win1)
+
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+                df_peaks,
+                df_win1,
+                ppm_window=px1_px1p_window,
+                title_prefix="PX1",
+                assignment_labels=["px1_ha", "px1p_ha"],
+                )
 
         ## work on px5
-        # df_px5 = parse_px5_px5p_by_hc(df_peaks)
-        # plot_peak_parser_debug_with_full_spectrum(
-        #     df_peaks,
-        #     df_px5,
-        #     ppm_window=(4.45, 4.85),
-        #     title_prefix="PX5 / PX5′ (Hc-based)",
-        #     assignment_labels=["px5", "px5_prime"],
-        # )
+        df_px5 = parse_px5_px5p_by_hc(df_peaks)
+        df_master = merge_assignment_into_master(df_master, df_px5)
 
-        # work on px2
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+                df_peaks,
+                df_px5,
+                ppm_window=(4.45, 4.85),
+                title_prefix="PX5 / PX5′ (Hc-based)",
+                assignment_labels=["px5", "px5p"],
+                )
+
+        # # work on px2
         df_win2 = parse_px2_hc_hcp_bruteforce(df_peaks)
-        # plot_peak_parser_debug_with_full_spectrum(
-        #                                         df_peaks,
-        #                                         df_win2,
-        #                                         ppm_window=(4.225, 4.475),
-        #                                         title_prefix="PX2 (Hc / Hc′)",
-        #                                         assignment_labels=["px2_hc", "px2_hcp"],
-        #                                         )
+        df_master = merge_assignment_into_master(df_master, df_win2)
 
-        df_peaks_no_px2 = remove_assigned_peaks_by_index(df_peaks, df_win2, ["px2_hc", "px2_hcp"])
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+                                                df_peaks,
+                                                df_win2,
+                                                ppm_window=(4.225, 4.475),
+                                                title_prefix="PX2 (Hc / Hc′)",
+                                                assignment_labels=["px2_hc", "px2_hcp"],
+                                                )
 
-        df_peaks = df_peaks_no_px2
+        df_peaks_no_px2 = remove_assigned_peaks_by_index(df_peaks,df_win2,["px2_hc", "px2_hcp"])
 
         # work on px7 and px7p. Remove PX2 quad first
-        ha_window = (6.85, 7.05)
-        hc_window_7 = (4.05, 4.2)
-        hc_window_7p = (4.2, 4.4)
-        area_tol = 0.20
+        df_px7 = parse_px7_px7p_block(df_peaks_no_px2)
+        df_master = merge_assignment_into_master(df_master, df_px7)
 
-        # --------------------------------------------------
-        # Step 0: collect window (Ha + Hc)
-        # --------------------------------------------------
-        df_win7 = df_peaks[
-                        (df_peaks["center_ppm"].between(*ha_window)) |
-                        (df_peaks["center_ppm"].between(*hc_window_7)) |
-                        (df_peaks["center_ppm"].between(*hc_window_7p))
-                        ].copy()
-
-        df_win7["assigned_species"] = "ignored" # set default
-
-        # --------------------------------------------------
-        # Step 1: find Ha doublets
-        # --------------------------------------------------
-        df_ha = df_win7[df_win7["center_ppm"].between(*ha_window)]
-        ha_pairs = parse_px7_px7p_ha_doublets(df_ha)
-        # expected: [] | [(i1, i2)] | [(i1, i2), (i3, i4)]. i's are row indices of df_peaks
-
-        assign_map = assign_px7_px7p_by_hc(
-            df=df_peaks,
-            ha_pairs=ha_pairs,
-            hc_window_left=hc_window_7,
-            hc_window_right=hc_window_7p,
-            area_tol=area_tol,
-        )
-
-        df_win7_dbg = apply_px7_px7p_to_df_win(
-            df_win=df_win7,
-            assign_map=assign_map,
-            ha_window=ha_window,  # IMPORTANT: needed to detect Ha vs Hc
-        )
-
-        plot_peak_parser_debug_with_full_spectrum(
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
             df=df_peaks_no_px2,  # full peak table (PX2 already removed)
-            df_win=df_win7_dbg,  # window + px7_Ha / px7_Hc / px7p_Hc
+            df_win=df_px7,  # window + px7_Ha / px7_Hc / px7p_Hc
             ppm_window=(4.0, 7.05),
             title_prefix="PX7 / PX7′ debug"
-        )
+            )
 
-        # # --------------------------------------------------
-        # # Step 3: write assignment back
-        # # --------------------------------------------------
-        # for label, idxs in assign_map.items():
-        #     df_win7.loc[idxs, "assigned_species"] = label
-        #
-        # plot_peak_parser_debug_with_full_spectrum(
-        #     df=df_peaks_no_px2,
-        #     df_win=df_win7,
-        #     ppm_window=(6.85, 7.05),
-        #     title_prefix="PX7 / PX7′ Ha doublets",
-        #     assignment_labels=["px7_ha"],
-        # )
+        # ## work on px3
+        df_px3 = parse_px3(df_peaks)
+        df_master = merge_assignment_into_master(df_master, df_px3)
 
-        ## work on px3
-        # df_px3 = parse_px3(df_peaks)
-        #
-        # plot_peak_parser_debug_with_full_spectrum(
-        #     df_peaks,
-        #     df_px3,
-        #     ppm_window=(6.35, 6.50),
-        #     title_prefix="PX3",
-        #     assignment_labels=["px3_hc"],
-        # )
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+            df_peaks,
+            df_px3,
+            ppm_window=(6.35, 6.50),
+            title_prefix="PX3",
+            assignment_labels=["px3_hc"],
+            )
 
-        ## work on px4
-        # df_px4 = parse_px4(df_peaks)
-        #
-        # plot_peak_parser_debug_with_full_spectrum(
-        #     df_peaks,
-        #     df_px4,
-        #     ppm_window=(7.95, 8.05),
-        #     title_prefix="PX4",
-        #     assignment_labels=["px4_hb"],
-        # )
+        # ## work on px4
+        df_px4 = parse_px4(df_peaks)
+        df_master = merge_assignment_into_master(df_master, df_px4)
+
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+            df_peaks,
+            df_px4,
+            ppm_window=(7.95, 8.05),
+            title_prefix="PX4",
+            assignment_labels=["px4_hb"],
+            )
 
         ## work on px8 and px8p
-        # window_for_px8_and_px8p = (5.95, 6.2)
-        # df_px8 = parse_px8_px8p_by_hc(df_peaks, ppm_window=window_for_px8_and_px8p)
-        # plot_peak_parser_debug_with_full_spectrum(
-        #     df_peaks,
-        #     df_px8,
-        #     ppm_window=window_for_px8_and_px8p,
-        #     title_prefix="PX8 / PX8′ (Hc)",
-        #     assignment_labels=["px8", "px8_prime"],
-        # )
+        window_for_px8_and_px8p = (5.95, 6.2)
+        df_px8 = parse_px8_px8p_by_hc(df_peaks, ppm_window=window_for_px8_and_px8p)
+        df_master = merge_assignment_into_master(df_master, df_px8)
 
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+            df_peaks,
+            df_px8,
+            ppm_window=window_for_px8_and_px8p,
+            title_prefix="PX8 / PX8′ (Hc)",
+            assignment_labels=["px8", "px8p"],
+            )
 
+        ## work on the starting material BDA
+        df_bda = parse_bda_by_ha_doublet(df_peaks)
+        df_master = merge_assignment_into_master(df_master, df_bda)
+
+        if do_show_plot:
+            plot_peak_parser_debug_with_full_spectrum(
+                df_peaks,
+                df_bda,
+                ppm_window=(6.5, 6.8),
+                title_prefix="BDA (Ha doublet)",
+                assignment_labels=["bda_ha"],
+                )
 
         # work on px6
         # df_px6 = parse_px6(df_peaks, strict=False, verbose=True)
+        # df_master = merge_assignment_into_master(df_master, df_px6)
 
-        # debug: Hb 窗口
-        # plot_peak_parser_debug(
-        #     df_peaks,
-        #     df_px6[df_px6["center_ppm"].between(8.18, 8.35)],
-        #     ppm_window=(8.18, 8.35),
-        #     title_prefix="PX6 Hb",
-        #     assignment_labels=["px6_hb"],
-        # )
-        # #
-        # # # debug: Hc 窗口
-        # # plot_peak_parser_debug(
-        # #     df_peaks,
-        # #     df_px6[df_px6["center_ppm"].between(6.9, 7.1)],
-        # #     ppm_window=(6.9, 7.1),
-        # #     title_prefix="PX6 Hc",
-        # #     assignment_labels=["px6_hc"],
-        # # )
+        df_master = df_master[df_master['assigned_species'] != 'ignored']
+        df_master = sort_df_by_px_number(df_master)
+        json_folder_path = os.path.dirname(fit_json)
+        df_master.to_csv(json_folder_path + r'/re_assignment.csv')
+        assigned_ls = df_master['assigned_species'].tolist()
+        print(assigned_ls)
+
+        all_species_name.extend(assigned_ls)
+
+        species_area_sum = {
+            "area_sum": {},
+            "area_sum_normalized": {},
+        }
 
 
-        ##
+        ## cal the sum area of each species and normalized the sum by proton count
+        for species, df_grp in df_master.groupby("assigned_species"):
+            if species not in PROTON_COUNT:
+                warnings.warn(f"No proton count defined for {species}, skipping")
+                continue
+
+            area_sum = df_grp["area"].sum()
+            area_norm = area_sum / PROTON_COUNT[species]
+
+            species_area_sum["area_sum"][species] = area_sum
+            species_area_sum["area_sum_normalized"][species] = area_norm
+
+
+        ## merge px2_hc and px2_hcp
+        species_area_sum = merge_species_with_normalization(
+                                        species_area_sum,
+                                        new_name="px2",
+                                        old_names=["px2_hc", "px2_hcp"],
+                                        norm_divisor=2,  # ← 关键：CH2 两个质子
+                                    )
+
+        ## Remove proton name, only keep px1, px2...
+        species_area_sum = {
+            k: {s.split("_")[0]: v for s, v in d.items()}
+            for k, d in species_area_sum.items()
+        }
+        print(species_area_sum)
+
+        with open(json_folder_path + r"\fitting_result_with_conc_re-assigned.json", "w", encoding="utf-8") as f:
+            json.dump(species_area_sum, f, indent=2, default=float)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         # assert 0
-
 
 
     print(1)
