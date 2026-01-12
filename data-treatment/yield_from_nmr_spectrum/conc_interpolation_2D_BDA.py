@@ -22,7 +22,7 @@ from sklearn.metrics import mean_squared_error
 import mpld3
 
 import matplotlib
-matplotlib.use('WebAgg')
+matplotlib.use("TKAgg")
 
 import config
 
@@ -408,44 +408,145 @@ def add_intg_norm_grouped(data: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
-if __name__ == "__main__":
+intg_result_folder = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results"
+intg_result_file = intg_result_folder + r"\fitting_results.json"
+calib_info_path = intg_result_folder + r"\calibration_TBABr_BDA_conc.xlsx"
 
+calib_info_path_updated = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results\calibration_TBABr_BDA_conc_with_BDA.xlsx"
 
-    intg_result_folder = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results"
-    intg_result_file = intg_result_folder + r"\fitting_results.json"
-    calib_info_path = intg_result_folder + r"\calibration_TBABr_BDA_conc.xlsx"
+# load json to dict
+with open(intg_result_file) as f:
+    intg_result_dict = json.load(f)
 
-    calib_info_path_updated = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results\calibration_TBABr_BDA_conc_with_BDA.xlsx"
+starting_material_intg = parse_starting_materials(intg_result_dict)
+print(starting_material_intg)
 
-    # load json to dict
-    with open(intg_result_file) as f:
-        intg_result_dict = json.load(f)
+calib_info_df = append_starting_materials_intg(xlsx_path=calib_info_path,
+                                               starting_materials=starting_material_intg,
+                                               save_path=calib_info_path_updated)
+print(f'calib_info_df: {calib_info_df}')
+calib_info_df.to_csv(intg_result_folder + r'\BDA_calibration_all.csv')
 
-    starting_material_intg = parse_starting_materials(intg_result_dict)
-    print(starting_material_intg)
+BDA_proton_count = config.dictionnary_H_count.get("Starting material-1")
+x1 = calib_info_df['[BDA](mM)']
+x2 = calib_info_df['[TBABr](mM)']
+y = calib_info_df['BDA_avg'] / BDA_proton_count
+# y = np.log10(y)  # logarithm the values to avoid very large numbers
 
-    calib_info_df = append_starting_materials_intg(xlsx_path=calib_info_path,
-                                                    starting_materials=starting_material_intg,
-                                                    save_path=calib_info_path_updated)
-    print(f'calib_info_df: {calib_info_df}')
+rbf_model = Rbf(x1, x2, y, function='multiquadric')
+cv_result = five_fold_validation(x1, x2, y, )
+print(cv_result)
 
-    BDA_proton_count = config.dictionnary_H_count.get("Starting material-1")
-    x1 = calib_info_df['[BDA](mM)']
-    x2 = calib_info_df['[TBABr](mM)']
-    y = calib_info_df['BDA_avg'] / BDA_proton_count
-    # y = np.log10(y)  # logarithm the values to avoid very large numbers
+plot_interp(x1, x2, y, rbf_model, save_path=intg_result_folder)
 
-    rbf_model = Rbf(x1, x2, y, function='multiquadric')
-    cv_result = five_fold_validation(x1, x2, y,)
-    print(cv_result)
-
-    plot_interp(x1, x2, y, rbf_model, save_path=intg_result_folder)
-
-    a = estimate_conc_by_rbf_model(additive_conc_here=75,
+a = estimate_conc_by_rbf_model(additive_conc_here=75,
                                integral_value_normalized=1195527,
                                rbf_model=rbf_model)
 
-    print(a)
+print(a)
+
+
+# ==================================================
+# Linear calibration: y = k * x  (through origin)
+# ==================================================
+def fit_linear_origin(x, y):
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+
+    if np.any(x < 0) or np.any(y < 0):
+        raise ValueError("Negative values detected.")
+
+    denom = np.dot(x, x)
+    if denom == 0:
+        raise ZeroDivisionError("All x are zero.")
+
+    return np.dot(x, y) / denom
+
+
+def linear_origin_metrics(x, y, k):
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+    y_pred = k * x
+
+    rmse = np.sqrt(np.mean((y - y_pred) ** 2))
+    r2 = 1 - np.sum((y - y_pred) ** 2) / np.sum(y ** 2)
+
+    return {"slope": k, "rmse": rmse, "r2_origin": r2}
+
+def predict_linear(integral_value_normalized):
+
+    BDA_proton_count = config.dictionnary_H_count["Starting material-1"]
+
+    xx = calib_info_df["BDA_avg"] / BDA_proton_count  # normalized integral
+    y = calib_info_df["[BDA](mM)"]  # concentration
+
+    k_bda = fit_linear_origin(xx, y)
+    metrics = linear_origin_metrics(xx, y, k_bda)
+    # print(metrics)
+
+    k = k_bda
+
+    return k * np.asarray(integral_value_normalized, float)
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+# ============================================
+# Plot linear regression through origin
+# ============================================
+def plot_linear_origin_fit(
+    save_path='linear_fit.png',
+    title="Linear calibration (through origin)",
+    xlabel="Normalized NMR integral",
+    ylabel="Concentration (mM)",
+):
+
+    x = calib_info_df["BDA_avg"] / BDA_proton_count  # normalized integral
+    y = calib_info_df["[BDA](mM)"]  # concentration
+
+    k_bda = fit_linear_origin(x, y)
+    k = k_bda
+
+    x = np.asarray(x, float)
+    y = np.asarray(y, float)
+
+    # regression line
+    x_line = np.linspace(0, x.max() * 1.05, 200)
+    y_line = k_bda * x_line
+
+    plt.figure(figsize=(5, 4), dpi=300)
+
+    # scatter
+    plt.scatter(x, y, s=35, alpha=0.8, label="Calibration points")
+
+    # regression line
+    plt.plot(
+        x_line,
+        y_line,
+        color="red",
+        lw=2,
+        label=f"y = {k:.4g} · x"
+    )
+
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.legend(frameon=False)
+    plt.grid(True, linestyle="--", alpha=0.4)
+
+    plt.tight_layout()
+    plt.savefig(save_path)
+    plt.close()
+
+
+
+if __name__ == "__main__":
+
+    estimate_conc_by_rbf_model = get_estimator()
+
+    # assert 0
 
     run_folders = \
         [r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',

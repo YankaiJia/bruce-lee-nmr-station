@@ -11,9 +11,17 @@ import math
 import os
 import numpy as np
 import pandas as pd
+import re
+
+import matplotlib
+matplotlib.use("TKAgg")
+
 from matplotlib import pyplot as plt
+
 import itertools
 import warnings
+
+import conc_interpolation_2D_BDA
 
 PROTON_COUNT = {
                  'bda_ha': 1,
@@ -30,6 +38,35 @@ PROTON_COUNT = {
                  'px8_hc': 1,
                  'px8p_hc': 1
                 }
+
+BR_COUNT_IN_A_CMPD = {
+                "px1": 1,
+                "px1p": 1,
+                "px2": 2,
+                "px3": 3,
+                "px4": 1,
+                "px5": 2,
+                "px6": 3,
+                "px7": 1,
+                "px7p": 1,
+                "px8": 2,
+                "px8p": 2,
+                'px8ANDpx8p': 2}
+
+CMPD_LS = [ 'bda',
+            'px1',
+            'px1p',
+            'px2',
+            'px3',
+            'px4',
+            'px5',
+            'px5p',
+            'px6',
+            'px7',
+            'px7p',
+            'px8',
+            'px8p',
+            'px8ANDpx8p']
 
 def get_all_result_json(run_folders):
     json_list = []
@@ -1397,6 +1434,21 @@ def parse_px8_px8p_by_hc(
     return df_win.drop(columns=["dist_px8", "dist_px8p"])
 
 
+
+def merge_px8_px8p(species_area_sum):
+
+    '''It is difficult to separate px8 and px8p, so they are merged.'''
+    px8_area, px8p_area = 0, 0
+    if ("px8" in species_area_sum['area_sum'].keys()):
+        px8_area = species_area_sum['area_sum']['px8']
+    if ("px8p" in species_area_sum['area_sum'].keys()):
+        px8p_area = species_area_sum['area_sum']['px8p']
+    species_area_sum['area_sum']['px8ANDpx8p'] = px8_area + px8p_area
+    species_area_sum['area_sum_normalized']['px8ANDpx8p'] = px8_area + px8p_area
+
+    return species_area_sum
+
+
 def parse_bda_by_ha_doublet(
     df,
     ppm_window=(6.5, 6.8),
@@ -1751,6 +1803,7 @@ def plot_peak_parser_debug_with_full_spectrum(
         ax.set_xlabel("ppm")
 
     plt.tight_layout()
+
     plt.show()
 
 
@@ -1820,9 +1873,6 @@ def merge_assignment_into_master(
     ] = df_win.loc[mask, label_col]
 
     return df_master
-
-import re
-import numpy as np
 
 def sort_df_by_px_number(
     df: pd.DataFrame,
@@ -1894,14 +1944,80 @@ def merge_species_with_normalization(
 
     return species_area_sum
 
+
+def reorder_intg_and_conc_columns(df):
+    """
+    Reorder DataFrame columns so that:
+      1) base columns come first
+      2) all intg_norm_* columns come next (sorted by px number)
+      3) all conc_* columns come last (sorted by px number)
+
+    Special rule:
+      - bda is always placed before px species
+    """
+
+    cols = list(df.columns)
+
+    # ------------------------------
+    # 1. base columns
+    # ------------------------------
+    base_cols = [
+        c for c in cols
+        if not (c.startswith("intg_norm_") or c.startswith("conc_"))
+    ]
+
+    # ------------------------------
+    # 2. collect species names
+    # ------------------------------
+    species = set()
+    for c in cols:
+        if c.startswith("intg_norm_"):
+            species.add(c.replace("intg_norm_", ""))
+        elif c.startswith("conc_"):
+            species.add(c.replace("conc_", ""))
+
+    # ------------------------------
+    # 3. sorting rule for px species
+    # ------------------------------
+    def px_key(s):
+        if s == "bda":
+            return (-1, "")     # always first
+        m = re.match(r"px(\d+)(p?)", s)
+        if m:
+            return (int(m.group(1)), m.group(2))
+        return (999, s)
+
+    species_sorted = sorted(species, key=px_key)
+
+    # ------------------------------
+    # 4. build ordered column lists
+    # ------------------------------
+    intg_cols = [
+        f"intg_norm_{s}"
+        for s in species_sorted
+        if f"intg_norm_{s}" in cols
+    ]
+
+    conc_cols = [
+        f"conc_{s}"
+        for s in species_sorted
+        if f"conc_{s}" in cols
+    ]
+
+    # ------------------------------
+    # 5. reorder DataFrame
+    # ------------------------------
+    return df[base_cols + intg_cols + conc_cols]
+
+
 if __name__ == "__main__":
 
     run_folders = \
         [
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
         r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz'
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
+        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz'
         ]
 
     json_list = get_all_result_json(run_folders)
@@ -1912,7 +2028,13 @@ if __name__ == "__main__":
 
     all_species_name = []
 
+    df_result_reassigned_short = pd.DataFrame()
+    df_result_reassigned_long = pd.DataFrame()
+
+
     for idx, fit_json in enumerate(json_list):
+
+        folder = os.path.dirname(fit_json)
 
         if idx < idx_to_proceed:
             continue
@@ -2043,10 +2165,12 @@ if __name__ == "__main__":
         # df_px6 = parse_px6(df_peaks, strict=False, verbose=True)
         # df_master = merge_assignment_into_master(df_master, df_px6)
 
+        ### THE FOLLOWING IS POST PROCESSING####
+
         df_master = df_master[df_master['assigned_species'] != 'ignored']
         df_master = sort_df_by_px_number(df_master)
-        json_folder_path = os.path.dirname(fit_json)
-        df_master.to_csv(json_folder_path + r'/re_assignment.csv')
+        json_folder_path = folder
+        df_master.to_csv(json_folder_path + r'/re_assignment.csv', index=False)
         assigned_ls = df_master['assigned_species'].tolist()
         print(assigned_ls)
 
@@ -2056,7 +2180,6 @@ if __name__ == "__main__":
             "area_sum": {},
             "area_sum_normalized": {},
         }
-
 
         ## cal the sum area of each species and normalized the sum by proton count
         for species, df_grp in df_master.groupby("assigned_species"):
@@ -2076,7 +2199,7 @@ if __name__ == "__main__":
                                         species_area_sum,
                                         new_name="px2",
                                         old_names=["px2_hc", "px2_hcp"],
-                                        norm_divisor=2,  # ← 关键：CH2 两个质子
+                                        norm_divisor=1,  # sum conc of px8 and px8p
                                     )
 
         ## Remove proton name, only keep px1, px2...
@@ -2084,28 +2207,96 @@ if __name__ == "__main__":
             k: {s.split("_")[0]: v for s, v in d.items()}
             for k, d in species_area_sum.items()
         }
-        print(species_area_sum)
+
+        ## NEW: merge px8 and px8p AFTER parsing
+        species_area_sum = merge_px8_px8p(species_area_sum)
+        print(f'species_area_sum: {species_area_sum}')
 
         with open(json_folder_path + r"\fitting_result_with_conc_re-assigned.json", "w", encoding="utf-8") as f:
             json.dump(species_area_sum, f, indent=2, default=float)
 
+        ## get reaction info from json
+        reaction_info_json = folder + r'\\reaction_info.json'
+        assert os.path.isfile(reaction_info_json), f'Result folder does not exist in {folder}'
+        with open(reaction_info_json) as f:
+            reaction_info_here = json.load(f)
+        # reassemble the dict for fitting_result_all_reassigned
+        fitting_result_all_reassigned = reaction_info_here
 
+        fitting_result_all_reassigned.update({
+            f"intg_norm_{k}": v
+            for k, v in species_area_sum["area_sum_normalized"].items()
+        })
+        # delete unnecessary items.
+        for k in ['status', 'plate_barcodes_for_dilution',
+                  'full_status', 'slot_id', 'plate_barcode', 'container_id',]:
+            fitting_result_all_reassigned.pop(k, None)
 
+        rename_map = {'conc_AA': '[TBABr]0', 'conc_BB': '[Br2]0', 'conc_CC': '[BDA]0'}
+        fitting_result_all_reassigned = {rename_map.get(k, k): v for k, v in fitting_result_all_reassigned.items()}
 
+        ## assign zero values to integration. if characteristic peak for a cmpd is not found, its ingt is considered to be zero.
+        for cmpd in CMPD_LS:
+            cmpd_intg_name = f'intg_norm_{cmpd}'
+            if cmpd_intg_name not in fitting_result_all_reassigned.keys():
+                fitting_result_all_reassigned[cmpd_intg_name] = 0
 
+        ## calculate conc for all products
+        init_conc_of_TBABr = fitting_result_all_reassigned['[TBABr]0']
+        intg_norm_ls = [key for key in fitting_result_all_reassigned.keys() if 'intg_norm' in key]
+        for intg in intg_norm_ls:
+            cmpd_name = intg.split('_')[-1]
+            # RBF model does not work well at lower intg values.
+            # fitting_result_all_reassigned[f'conc_{cmpd_name}'] = (
+            #     conc_interpolation_2D_BDA.estimate_conc_by_rbf_model(
+            #                                    additive_conc_here=init_conc_of_TBABr,
+            #                                    integral_value_normalized=fitting_result_all_reassigned[intg],
+            #                                    rbf_model=conc_interpolation_2D_BDA.rbf_model))
 
+            fitting_result_all_reassigned[f'conc_{cmpd_name}'] = \
+                conc_interpolation_2D_BDA.predict_linear(integral_value_normalized=fitting_result_all_reassigned[intg])
 
+        ## calculate yield
+        for cmpd, br_count in BR_COUNT_IN_A_CMPD.items():
 
+            if f'conc_{cmpd}' in fitting_result_all_reassigned.keys():
+                limiting_reagent_conc = min(fitting_result_all_reassigned['[BDA]0'],
+                                            fitting_result_all_reassigned['[Br2]0'] / br_count)
 
+                fitting_result_all_reassigned[f'yield_{cmpd}'] = \
+                        fitting_result_all_reassigned[f'conc_{cmpd}'] / limiting_reagent_conc * 100
 
+            # save fitting_result_all_reassigned
+            with open("fitting_result_all_reassigned.json", "w", encoding="utf-8") as f:
+                json.dump(fitting_result_all_reassigned, f, indent=2, ensure_ascii=False, default=float)
 
+        ## save re-assigned results to two separated dataframe
+        new_row = pd.DataFrame([fitting_result_all_reassigned])
+        # ✅ remove 'Unnamed' cols
+        new_row = new_row.loc[:, ~new_row.columns.str.startswith("Unnamed")]
 
+        if 'long' in fit_json:
+            df_result_reassigned_long = pd.concat(
+                [df_result_reassigned_long, new_row],
+                ignore_index=True
+            )
+        else:
+            df_result_reassigned_short = pd.concat(
+                [df_result_reassigned_short, new_row],
+                ignore_index=True
+            )
 
+        # conc_interpolation_2D_BDA.plot_linear_origin_fit()
 
-
-
+        print(fitting_result_all_reassigned)
 
         # assert 0
+
+    df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
+    df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
+    campaign_folder = r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone'
+    df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
+    df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)
 
 
     print(1)
