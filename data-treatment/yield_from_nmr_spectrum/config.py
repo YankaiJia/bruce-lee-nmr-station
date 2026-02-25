@@ -119,3 +119,18 @@ r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-ru
 r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz\Results\BDA-2025-12-12-run01-long-17'
 r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-9'
 
+
+OLD_NAME_VS_NEW_NAME_DICT = {
+    'px1': 'anti-Q1',
+    'px1p': 'syn-Q1',
+    'px2': 'Q4',
+    'px3': 'Q5',
+    'px4': 'Q6',
+    'px5': 'Q7',
+    'px5p': "Q7'",
+    'px6': 'Q8',
+    'px7': 'Q2',
+    'px7p': "Q2'",
+    'px8': 'Q3',
+    'px8p': "Q3'"
+}

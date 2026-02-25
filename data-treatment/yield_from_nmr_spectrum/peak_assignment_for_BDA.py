@@ -1,10 +1,53 @@
 """
-After integration of peaks in the crude NMR spectra, it is found that the peaks are not well
-assigned to the corresponding compounds. The mis-assignment is caused mainly by overlapping
-and peak shift.
+NMR Peak Assignment for BDA Bromination Reactions
+==================================================
 
-So this script is an attempt to make the assignments better by studying each compound and
-write a parser for each compound or compound pair.
+Reassigns 1H NMR peaks from crude reaction spectra to the correct chemical species
+in the BDA (benzylideneacetone) bromination system. Automated peak fitting alone is
+insufficient due to overlapping signals and chemical shift drift; this module applies
+compound-specific parsing logic to correct those mis-assignments.
+
+Reaction system
+---------------
+BDA (starting material) undergoes bromination to produce a mixture of mono-, di-, and
+tri-brominated products (px1–px8) and their stereoisomers (px1p, px2, px5p, px7p, px8p).
+All compounds are tracked in `CMPD_LS`.
+
+Pipeline
+--------
+1. Load pseudo-Voigt peak fitting results from `fitting_result.json`.
+2. Run compound-specific parsers sequentially (order matters — later parsers may
+   exclude peaks claimed by earlier ones):
+       px1/px1p → px5/px5p → px2 → px7/px7p → px3 → px4 → px8/px8p → bda
+3. Sum and normalise peak areas by proton count (`PROTON_COUNT`).
+4. Merge symmetry-equivalent pairs (px2_hc/px2_hcp → px2; px8/px8p → px8ANDpx8p).
+5. Convert normalised integrals to concentrations via `conc_interpolation_2D_BDA`.
+6. Calculate yield: yield = conc / (c_limiting / br_count) × 100.
+7. Export per-sample JSON and a campaign-level CSV summary.
+
+Parser strategies
+-----------------
+- **Rule-based ppm splitting** (px1/px1p, px5/px5p, px8/px8p): assign by position
+  relative to a threshold chemical shift; resolve collisions by proximity.
+- **Brute-force quartet search** (px2): test all C(n,4) peak subsets and validate
+  as two doublets with matching coupling constants and areas. O(n^4) — warns if
+  the combination count exceeds 50 000.
+- **Chemical stoichiometry constraint** (px7/px7p): enforce area(Hc) ≈ 2×area(Ha)
+  to disambiguate overlapping Ha doublets.
+- **Multi-peak confirmation** (px6): require both Hb and Hc peaks with consistent
+  area ratio; marked unreliable and excluded from the main loop.
+- **Proximity fallback**: for singlets (px3, px4, bda), pick the peak closest to
+  the expected chemical shift within a defined ppm window.
+
+Outputs
+-------
+Per NMR folder:
+    re_assignment.csv  — filtered peaks with assigned_species
+    fitting_result_with_conc_re-assigned.json — area sums and normalised integrals
+
+Campaign summary:
+    result_all_short_reassigned.csv
+    result_all_long_reassigned.csv
 """
 import json
 import math
@@ -22,6 +65,9 @@ import itertools
 import warnings
 
 import conc_interpolation_2D_BDA
+import config
+
+OLD_NAME_VS_NEW_NAME_DICT = config.OLD_NAME_VS_NEW_NAME_DICT
 
 PROTON_COUNT = {
                  'bda_ha': 1,
