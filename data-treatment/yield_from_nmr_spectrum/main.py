@@ -26,11 +26,10 @@ import Integrator_v3_baseline
 import conc_interpolation_2D
 
 import utils
+import config
 
-# get the system path of BRUCELEE_PROJECT_DATA_PATH
-BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
-
-OUTLIERS = []
+# data/ folder at repo root (two levels up from this file)
+BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data'))
 
 def check_and_return_folder_structure(run_folder):
     """Validate the expected directory layout for a single run folder.
@@ -316,62 +315,39 @@ def append_reaction_results_without_additive(df_here, additive_type):
 
 if __name__ == "__main__":
 
-    OUTLIERS = [
-        # Acid overlap, 2025-09-11-run01_DCE_TBABr3_add\\Results\\10-1D EXTENDED+-20250912-130752
-        "hGUPYwyiiGe94UBSB6HtyM",
-        # Yield of prod_B too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\6-1D EXTENDED+-20250912-174433
-        "3zcaskEYsSmCUcAeXZDAvK",
-        # Yield of prod_B too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\2-1D EXTENDED+-20250912-171350
-        "8fVQtffNmqZwXFVJHi3FVZ",
-        # Yield of prod_B too high, 2025-09-11-run01_DCE_TBABr3_add\\Results\\34-1D EXTENDED+-20250912-160154
-        "nHyFFbBecdkRwuszweUWna",
-        # Yield of prod_A too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\9-1D EXTENDED+-20250912-180612
-        "GXxTsVrSj4GVNnbYsP4d6L",
-        # Yield of prod_A too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\16-1D EXTENDED+-20250912-185543
-        "JoHTpg2Wqo2inSjrMtRq3C",
-        # HBr_adduct is wrong, 2025-09-11-run01_DCE_TBABr3_add\\Results\\32-1D EXTENDED+-20250912-154632
-        "dV3yitsANpi6KteH3HCMFG",
-        # HBr_adduct is wrong, 2025-09-11-run02_DCE_TBABr3_add\\Results\\19-1D EXTENDED+-20250912-191828
-        "cSbuh6sy7qZcH9fLjJPnH8",
-        # Yield of prod_B too high, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 26-1D EXTENDED+-20250429-210103
-        "7i5CGhGNEJ4ooKe9qjkVRZ",
-        # Yield of prod_B too high, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 16-1D EXTENDED+-20250429-194857
-        "VDxrRimQGie5q5uGM7DW5x",
-        # Yield of Alcohol too high, 04-28-run01 2
-        "cxPvN6tDvXNvgRabvGNYDV",
-        # Yield of Alcohol too high, 04-28-run01 8
-        "d6NmTysXaCR4sTETqLgXfx",
-        # Yield of Alcohol too high, 04-28-run01 22
-        "ErPe4gwEhybkJF62smrXxd",
-        # Yield of Alcohol too high, 04-28-run01 24
-        "Hxe4Bf4AciGqDfGh23cEAG",
-        # Yield of Alcohol too high, 04-28-run02 10
-        "bF8i3JmTjnsiUmj8JMH2aK",
-        # Yield of Alcohol too high, 04-28-run03 11
-        "88AFpG5cHcwSmHLH9sQaHP",
-        # Yield of Alcohol too high, 09-09-run01 37
-        "mnp4HQVLHijMxEkA4M4SYg",
-        # Yield of Alcohol too high, 09-09-run02 6
-        "YAvqJbnJCsGCN53hTijMMN",
-        # Yield of HBr_adduct too high, 09-09-run01 2
-        "5Nm6CfviHLhgiDd7ftDHhS",
-        # Yield of Alcohol too high, 05-30-run01 22
-        "U5zEU8jk76Cg6dPebEHqXX",
-        # Yield of Alcohol too high, 05-30-run02 10
-        "jLHqLvaq6AL7M4EbzYMmzy",
-        # Yield of Alcohol too high, 05-30-run02 14
-        "dbVLdLWJEa6MJJkyLxo4r7",
-        # Yield of Alcohol too high, 05-30-run04 12
-        "PzUND3jN3KUGRdFYnSUmpf",
-        # Yield of Alcohol too high, 09-10-run02 26
-        "LfQefrKHYR2GoT6J8BZgxc",
-    ]
+    OUTLIERS = config.OUTLIERS
 
     data_dir = BRUCELEE_PROJECT_DATA_PATH
     print(f'Data directory: {data_dir}')
 
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
+                ### TBABr runs
+                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
+
+                ### TBABF4 runs
+                # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add\\", 'DCE-BF4', None],
+                # ["\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add\\", 'DCE-BF4', None],
+                
+                ### TBPBr runs
+                # [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
+
+                ### TBABr3 runs
                 # ["\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run02_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
@@ -380,28 +356,11 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add\\", 'DCE', None],
 
-                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
-
-                # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                # ["\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                # ["\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                # ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
-                # ["\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add\\", 'DCE-BF4', None],
-                # ["\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add\\", 'DCE-BF4', None],
-
-                [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-05-30-run04_DCE_TBPBr_normal\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
-                    ]
+                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz','DCE', None],
+                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz','DCE', None],
+                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz','DCE', None],
+                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz','DCE', None],
+    ]
 
     for run_folder in run_folders:
 

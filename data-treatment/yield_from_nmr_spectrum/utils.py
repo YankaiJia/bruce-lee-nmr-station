@@ -560,7 +560,9 @@ def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400M
 
     run_folder_name = os.path.basename(os.path.normpath(run_path))
     excel_file = run_path + r'\\' + run_folder_name + '.xlsx'
+    print(f'excel_file: {excel_file}')
     assert os.path.exists(excel_file), "Run excel file not found: {excel_path}"
+
     df_run_excel = pd.read_excel(excel_file)
     # merge by 'global_index'
     df_merged = pd.merge(df_run_excel, df_global_conc, on='global_index', how='inner')  # or 'left' if needed
@@ -829,6 +831,7 @@ if __name__ == '__main__':
         # bromination_path + r"\2025-04-22-run01_DCE_TBABr3_normal",
         # bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
         # bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
+        
         r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
         r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
         r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz',
