@@ -28,8 +28,8 @@ import conc_interpolation_2D
 import utils
 import config
 
-# data/ folder at repo root (two levels up from this file)
-BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data'))
+# data/ folder at repo root (one level up from this file)
+BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
 
 def check_and_return_folder_structure(run_folder):
     """Validate the expected directory layout for a single run folder.
