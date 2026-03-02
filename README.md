@@ -2,10 +2,6 @@
 
 An automated NMR laboratory station for high-throughput chemical screening. The system integrates a robotic arm, an automated liquid handler, and a benchtop NMR spectrometer to autonomously prepare samples, acquire spectra, and calculate chemical yields — with minimal human intervention.
 
-Developed in the Brucelee group for BDA (benzylideneacetone) bromination reaction studies.
-
----
-
 ## Overview
 
 The platform operates in two stages:
@@ -14,14 +10,13 @@ The platform operates in two stages:
    - Robot arm picks up and transports sample tubes
    - Pipetter aspirates reaction samples into measurement tubes
    - NMR spectrometer acquires 1H spectra on demand
-   - Tubes are automatically cleaned and dried after each measurement
+   - NMR tubes are automatically cleaned and dried after each measurement
 
 2. **Data Treatment** (`data-treatment/`) — A post-processing pipeline calculates chemical yields:
    - Integrates NMR peaks with baseline correction
    - Interpolates concentrations from 2D calibration curves
    - Exports yield, conversion, and selectivity metrics to CSV
 
----
 
 ## System Architecture
 
@@ -29,7 +24,7 @@ The platform operates in two stages:
 ┌─────────────────────────────────────────────────────────────┐
 │                      nmr-station/                           │
 │                                                             │
-│   app.py (Flask UI)  ──►  scheduler.py (Orchestrator)      │
+│   app.py (Flask UI)  ──►  scheduler.py (Orchestrator)       │
 │                               │                             │
 │              ┌────────────────┼────────────────┐            │
 │              ▼                ▼                ▼            │
@@ -38,7 +33,7 @@ The platform operates in two stages:
 │       (TCP/IP)          (TCP/IP XML)       (Serial)         │
 └─────────────────────────────────────────────────────────────┘
                               │
-                   NMR spectra (Bruker format)
+                          NMR spectra
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -50,7 +45,6 @@ The platform operates in two stages:
 └─────────────────────────────────────────────────────────────┘
 ```
 
----
 
 ## Hardware Requirements
 
@@ -60,7 +54,6 @@ The platform operates in two stages:
 | NMR spectrometer | Spinsolve 80 MHz | TCP/IP — `127.0.0.1:13000` (XML protocol) |
 | Liquid handler | miniPi (GRBL-based) | Serial (USB) |
 
----
 
 ## Software Requirements
 
@@ -73,15 +66,10 @@ Key packages:
 |---------|---------|
 | `mecademicpy` | Mecademic robot arm control |
 | `nmrglue` | NMR spectrum reading and processing |
-| `numpy`, `scipy` | Numerical computation |
-| `pandas` | Data manipulation and CSV export |
-| `matplotlib` | Plotting |
 | `Flask` | Web UI for automation control |
 | `PySimpleGUI` | Desktop dialogs for data treatment |
 | `pyserial` | Serial communication with pipetter |
-| `python-dotenv` | Environment variable loading |
 
----
 
 ## Installation
 
@@ -230,7 +218,7 @@ conc_interpolation_2D.py
   - Area → concentration conversion
         │
         ▼
-peak_assignment_for_BDA.py
+optional:peak_assignment_for_BDA.py
   - Rule-based peak assignment per species
   - Stoichiometric area constraints
   - Collision resolution for overlapping peaks
@@ -240,10 +228,6 @@ Yield / Selectivity / Conversion
   - CSV export with per-sample metrics
   - Outlier filtering by UUID
 ```
-
-**Compounds tracked** (BDA bromination system): anti-Q1, syn-Q1, Q2, Q2', Q3, Q3', Q4, Q5, Q6, Q7, Q7', Q8, and starting material BDA.
-
----
 
 ## Configuration Reference
 
