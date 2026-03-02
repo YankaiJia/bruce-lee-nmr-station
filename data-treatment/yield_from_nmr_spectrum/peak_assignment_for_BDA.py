@@ -2338,11 +2338,9 @@ if __name__ == "__main__":
 
         # assert 0
 
-    df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
-    df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
-    campaign_folder = r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone'
-    df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
-    df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)
-
-
-    print(1)
+    # save re-assigned results to csv
+    # df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
+    # df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
+    # campaign_folder = r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone'
+    # df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
+    # df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)
