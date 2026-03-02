@@ -1,3 +1,22 @@
+"""
+Main entry point for the DPE bromination NMR data treatment pipeline.
+
+Workflow for each run folder:
+    1. Validate the expected folder structure (Excel file, outVandC/, Results/).
+    2. Attach per-spectrum run conditions and fitting results (utils helpers).
+    3. Run 2-D concentration interpolation (conc_interpolation_2D) to convert
+       NMR integrals into absolute concentrations [mM].
+    4. Collect all per-spectrum JSON results across every run folder.
+    5. Compute yields, selectivities, DPE conversion, and mole fractions.
+    6. Optionally append zero-additive reference rows from the TBABr dataset.
+    7. (Optional, currently commented out) Save the combined DataFrame to CSV.
+
+Requires the environment variable BRUCELEE_PROJECT_DATA_PATH to be set to the
+root data directory (e.g. D:\\Dropbox\\brucelee\\data).
+
+Supported additives: TBABr, TBABr3, TBABF4, TBPBr.
+"""
+
 import numpy as np
 import os
 import pandas as pd
@@ -14,7 +33,22 @@ BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 OUTLIERS = []
 
 def check_and_return_folder_structure(run_folder):
+    """Validate the expected directory layout for a single run folder.
 
+    Checks that the run folder contains:
+    - An Excel file named after the run (e.g. 2025-03-01-run01.xlsx)
+    - An outVandC/ subfolder with out_concentrations.csv
+    - A Results/ subfolder
+
+    Args:
+        run_folder: Absolute path to the run folder (must end with a backslash).
+
+    Returns:
+        Tuple of (result_folder, excel_file, out_conc_file, out_vol_file) paths.
+
+    Raises:
+        AssertionError: If any required file or folder is missing or named incorrectly.
+    """
     # make sure run name exists
     # get run name by regex: yyyy-mm-dd-run0x(-note1-note2)
     run_name = re.search(r"\d{4}-\d{2}-\d{2}-run\d{2}", run_folder).group(0)
@@ -41,9 +75,28 @@ def check_and_return_folder_structure(run_folder):
     return result_folder, excel_file, out_conc_file, out_vol_file
 
       
-def combine_data(df_final_conc, 
+def combine_data(df_final_conc,
                 excel_file, out_conc_file, out_vol_file, result_folder):
+    """Merge NMR-derived concentrations with reaction conditions from the Excel plate map.
 
+    Extracts the local vial index from the spectrum name, reads initial
+    concentrations (converted from M to mM) and dispensed volumes from the
+    outVandC CSV files, and joins everything into one DataFrame.
+
+    Args:
+        df_final_conc: DataFrame of final concentrations from NMR integration,
+            with a 'spectrum_name' column formatted as '<vial_index>-...'.
+        excel_file: Path to the run Excel file containing 'local_index',
+            'global_index', and 'vol#*' columns.
+        out_conc_file: Path to out_concentrations.csv (first column = global_index,
+            remaining columns = initial concentrations in M).
+        out_vol_file: Path to out_volumes_shuffled.csv (currently unused).
+        result_folder: Path to the Results folder (currently unused).
+
+    Returns:
+        DataFrame combining initial concentrations, dispensed volumes, and
+        NMR-measured final concentrations, sorted by local_index.
+    """
     # assign the vial index from reaction name. vial_index is the same as local_index
     vial_index = [int(i[0]) for i in df_final_conc['spectrum_name'].str.split('-')]
     df_final_conc['local_index'] = vial_index
@@ -79,7 +132,19 @@ def combine_data(df_final_conc,
     return df_final
 
 def process_one_folder(run_dir, run_sol, run_outliers):
+    """Run the 2-D concentration interpolation pipeline for one run folder.
 
+    Validates the folder structure, then calls conc_interpolation_2D to
+    convert NMR integrals into concentrations using the 2-D calibration surface.
+    For TBABr3 runs, borrows the calibration curve from TBABr because Br2
+    reacts with DPE and no separate TBABr3 calibration is available.
+
+    Args:
+        run_dir: Absolute path to the run folder.
+        run_sol: Solvent name string (e.g. 'DCE', 'MeCN').
+        run_outliers: Outlier specification passed to the integrator (currently
+            unused; the Integrator call is commented out).
+    """
     run_folder = run_dir
 
     solvent_name = 'MeCN' if 'MeCN' in run_folder else 'DCE'
@@ -106,7 +171,29 @@ def process_one_folder(run_dir, run_sol, run_outliers):
 
 def post_treatment_to_get_params_for_cubes(all_result_csv_path,
                                            additive_name='TBABr'):
+    """Compute yields, selectivities, and conversion from final concentrations.
 
+    Renames concentration columns to '_0' (initial) convention, then calculates:
+    - DPE conversion (consumed / initial DPE)
+    - Yield of prod_A, prod_B, alcohol, and HBr adduct relative to the
+      limiting reagent (min of DPE and bromine source)
+    - Selectivity of each product relative to DPE consumed
+    - Carbon-balance residuals (fraction of DPE unaccounted for)
+    - Mole fraction of prod_A over (prod_A + prod_B); NaN when both < 3 mM
+
+    Also removes OUTLIERS (by uuid) and de-duplicates rows with identical
+    initial concentration triplets, keeping the last occurrence.
+
+    Args:
+        all_result_csv_path: DataFrame of collected per-spectrum results,
+            including columns for final concentrations and reaction UUIDs.
+        additive_name: Additive salt identifier used to select the correct
+            concentration column (e.g. 'TBABr', 'TBABr3', 'TBABF4', 'TBPBr').
+
+    Returns:
+        Processed DataFrame with yield, selectivity, and conversion columns
+        appended, reordered with key columns first.
+    """
     df = all_result_csv_path
     df = df.rename(columns={f'conc_{additive_type}': f'conc_{additive_type}_0',
                             'conc_Br2': 'conc_Br2_0',
@@ -169,7 +256,17 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
 
 
 def get_additive_type_from_path(path: str) -> str:
+    """Infer the additive salt type from the run folder path string.
 
+    Checks for known additive names in priority order (longer/more specific
+    names first to avoid TBABr3 being matched as TBABr).
+
+    Args:
+        path: Run folder path or name containing the additive identifier.
+
+    Returns:
+        One of 'TBABr3', 'TBABF4', 'TBPBr', or 'TBABr' (default fallback).
+    """
     additive_types = ['TBABr3', 'TBABF4', 'TBPBr', 'TBABr']
     for salt in additive_types:
         if salt in path:
@@ -178,7 +275,23 @@ def get_additive_type_from_path(path: str) -> str:
 
 
 def append_reaction_results_without_additive(df_here, additive_type):
+    """Append zero-additive reference rows from the TBABr dataset.
 
+    When the active additive is TBABr3, TBABF4, or TBPBr, rows where
+    conc_TBABr_0 == 0 are borrowed from the existing full TBABr result CSV
+    and merged into the current DataFrame. This populates the zero-additive
+    corner of the concentration cube for additives that were not run
+    independently at zero concentration.
+
+    Args:
+        df_here: DataFrame for the current additive experiment.
+        additive_type: Additive salt identifier (e.g. 'TBABr3') used to
+            rename the concentration column in the appended rows.
+
+    Returns:
+        DataFrame with the zero-additive TBABr rows appended, or None if the
+        reference CSV file does not exist.
+    """
     # read the TBABr result
     TBABr_result_csv = r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr_2d_interp_0903.csv"
     # Ensure file exists
