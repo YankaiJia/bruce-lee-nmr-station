@@ -2,6 +2,8 @@
 
 An automated NMR laboratory station for high-throughput chemical screening. The system integrates a robotic arm, an automated liquid handler, and a benchtop NMR spectrometer to autonomously prepare samples, acquire spectra, and calculate chemical yields — with minimal human intervention.
 
+![NMR Robotic Platform](nmr_robotic_platform.jpg)
+
 ## Overview
 
 The platform operates in two stages:

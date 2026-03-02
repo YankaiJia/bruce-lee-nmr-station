@@ -2,7 +2,7 @@
 The pipetter module combines gantry and zeus, and deals with actions including pick_tip, discard_tip, draw_liquid,
 dispense_liquid, transfer_liquid,etc.
 
-by Yankai Jia, Natalia
+by Yankai Jia
 
 """
 
