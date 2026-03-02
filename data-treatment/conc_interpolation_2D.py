@@ -19,7 +19,9 @@ import matplotlib
 
 matplotlib.use('WebAgg')
 
-BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+import config
+
+BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 
 def json_to_intg_results(additive_type:str='TBABr'):
 
@@ -102,7 +104,7 @@ def five_fold_validation(X, y):
 
 
 def plot_interp(X1, X2, y, rbf_model,
-                save_path=True,
+                save_path=False,
                 label_points=True, additive_type='TBABr'):
     """
     Interactive 3D RBF surface + scatter with Plotly.
@@ -203,7 +205,7 @@ def estimate_conc_by_rbf_model(additive_conc_here,
     if integral_value_normalized < 1E-4:
         return 0
 
-    rbf_model = generate_rbf_model(additive_type, save_plot=True)
+    rbf_model = generate_rbf_model(additive_type, save_plot=False)
 
     # === Numerical inversion: find cmpd conc that gives closest integral ===
     def objective(dpe_guess):

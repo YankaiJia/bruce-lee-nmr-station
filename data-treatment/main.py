@@ -29,7 +29,7 @@ import utils
 import config
 
 # data/ folder at repo root (one level up from this file)
-BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
+BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 
 def check_and_return_folder_structure(run_folder):
     """Validate the expected directory layout for a single run folder.
@@ -324,12 +324,12 @@ if __name__ == "__main__":
     run_folders = [
                 ### TBABr runs
                 ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
-                # [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
+                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
 
                 ### TBABF4 runs
                 # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
@@ -355,12 +355,8 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-22-run01_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add\\", 'DCE', None],
-
-                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz','DCE', None],
-                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz','DCE', None],
-                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz','DCE', None],
-                # [r'\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz','DCE', None],
     ]
+
 
     for run_folder in run_folders:
 

@@ -22,11 +22,10 @@ os.environ["OMP_NUM_THREADS"] = "1"                                 #Uncomment t
 os.environ['OPENBLAS_NUM_THREADS'] = '1'                            #Uncomment this if your set-up have issue with multithreading
 os.environ['MKL_NUM_THREADS'] = '1'                                 #Uncomment this if your set-up have issue with multithreading
 
+import config
 # get the system path of BRUCELEE_PROJECT_DATA_PATH
-BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 
-########################
-########################
 
 solvent_shift = None
 peak_width_50 = None

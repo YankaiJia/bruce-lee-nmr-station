@@ -1,3 +1,8 @@
+import os
+
+BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
+
+
 dictionnary_H_count = {  # Normalisation dictionnary
     "Starting material-1": 0.5,  # H expected for this signal
     "Starting material-2": 0.5,  # H expected for this signal

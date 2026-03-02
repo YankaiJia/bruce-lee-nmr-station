@@ -9,8 +9,9 @@ import os
 import shutil
 import seaborn as sns
 
+import config
 
-BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 
 
 def plot_csv(file_path):
@@ -559,7 +560,8 @@ def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400M
     # df_global_conc.columns = ['global_index'] + columns_of_conc
 
     run_folder_name = os.path.basename(os.path.normpath(run_path))
-    excel_file = run_path + r'\\' + run_folder_name + '.xlsx'
+    excel_name = re.search(r"\d{4}-\d{2}-\d{2}-run\d{2}", run_folder_name).group(0)
+    excel_file = run_path + r'\\' + excel_name + '.xlsx'
     print(f'excel_file: {excel_file}')
     assert os.path.exists(excel_file), "Run excel file not found: {excel_path}"
 
@@ -590,7 +592,8 @@ def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400M
         spec_indices = [int(name.split('-1D')[0]) for name in spec_folders_name]
     folder_structure = 'YS'
     if folder_structure == 'YS':
-        spec_indices = [int(name.split('-')[-1]) for name in spec_folders_name]
+        print(f'spec_folders_name: {spec_folders_name}')
+        spec_indices = [int(name.split('-')[-1]) for name in spec_folders_name if '1D EXTENDED' in name]
 
     # save each row to corresponding spec folder
     for idx, spec_index in enumerate(spec_indices):

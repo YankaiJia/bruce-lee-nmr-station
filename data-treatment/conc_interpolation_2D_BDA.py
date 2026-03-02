@@ -28,7 +28,7 @@ import config
 
 
 
-BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+BRUCELEE_PROJECT_DATA_PATH = config.dictionnary_H_count
 
 def parse_starting_materials(data):
     """

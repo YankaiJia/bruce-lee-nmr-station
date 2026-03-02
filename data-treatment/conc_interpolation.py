@@ -15,8 +15,9 @@ import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
 
-BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
+import config
 
+BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 
 def plot_integral(df, column_name_x, column_name_y, plot_name):
     labels = [f'reaction_{i}' for i in range(6)]
