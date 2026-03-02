@@ -1,22 +1,23 @@
 """"
 Interpolation of concentrations for bromination reactions.
 """
-import time
-
 from matplotlib import pyplot as plt
-import numpy as np
 import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
 
-import json
-import os, re
+import json, os, re
 
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error, r2_score
 from scipy.interpolate import Rbf
 from scipy.optimize import minimize_scalar
 
-import matplotlib.pyplot as plt
 import mpld3
+
+import matplotlib
+
+matplotlib.use('WebAgg')
 
 BRUCELEE_PROJECT_DATA_PATH = os.environ['BRUCELEE_PROJECT_DATA_PATH']
 
@@ -99,46 +100,10 @@ def five_fold_validation(X, y):
 
     return avg_rmse, avg_r2
 
-def plot_interp_with_plt(X1, X2, y, rbf_model, save_path=None):
 
-        dpe_vals = np.linspace(X1.min(), X1.max(), 50)
-        tbabr_vals = np.linspace(X2.min(), X2.max(), 50)
-        dpe_grid, tbabr_grid = np.meshgrid(dpe_vals, tbabr_vals)
-        dep_pred = rbf_model(dpe_grid, tbabr_grid)
-
-        fig = plt.figure(figsize=(10, 8))
-        ax = fig.add_subplot(111, projection='3d')
-        surface = ax.plot_surface(dpe_grid, tbabr_grid, dep_pred, cmap='viridis', alpha=0.9)
-        ax.scatter(X1, X2, y, color='red', label='Data Points')
-
-        # print(X1)
-        # print(X2)
-        # print(y)
-
-        # Annotate each data point with its DPE_intg value
-        for i in range(len(X1)):
-            a, b, c = X1[i], X2[i], y[i]
-            ax.text(a, b, c + 1, f'{c:.1f}', color='black', fontsize=8, ha='center')
-
-        ax.set_xlabel("DPE")
-        ax.set_ylabel("TBABr")
-        ax.set_zlabel("DPE_intg_normalized")
-        ax.set_title("3D RBF Interpolated Surface of DPE_intg")
-        fig.colorbar(surface, ax=ax, shrink=0.5, aspect=10, label='DPE_intg')
-        plt.tight_layout()
-        if save_path:
-            file_path = os.path.join(save_path, "plot.html")
-            if not os.path.exists(file_path):
-                # Convert figure to HTML and save
-                html_str = mpld3.fig_to_html(fig)
-                with open(file_path, "w") as f:
-                    f.write(html_str)
-
-import os
-import numpy as np
-import plotly.graph_objects as go
-
-def plot_interp(X1, X2, y, rbf_model, save_path=None, show=True, label_points=True):
+def plot_interp(X1, X2, y, rbf_model,
+                save_path=True,
+                label_points=True, additive_type='TBABr'):
     """
     Interactive 3D RBF surface + scatter with Plotly.
     - Saves to plot.html if save_path is provided (directory or full file path).
@@ -147,7 +112,7 @@ def plot_interp(X1, X2, y, rbf_model, save_path=None, show=True, label_points=Tr
     """
 
     # Make grid and predict
-    dpe_vals   = np.linspace(np.nanmin(X1), np.nanmax(X1), 50)
+    dpe_vals = np.linspace(np.nanmin(X1), np.nanmax(X1), 50)
     tbabr_vals = np.linspace(np.nanmin(X2), np.nanmax(X2), 50)
     dpe_grid, tbabr_grid = np.meshgrid(dpe_vals, tbabr_vals)
     dep_pred = rbf_model(dpe_grid, tbabr_grid)  # shape (50, 50)
@@ -158,7 +123,7 @@ def plot_interp(X1, X2, y, rbf_model, save_path=None, show=True, label_points=Tr
     # Surface
     fig.add_trace(go.Surface(
         x=dpe_grid, y=tbabr_grid, z=dep_pred,
-        colorbar_title="DPE_intg",
+        colorbar_title="Integration",
         name="RBF Surface",
         showscale=True
     ))
@@ -179,11 +144,15 @@ def plot_interp(X1, X2, y, rbf_model, save_path=None, show=True, label_points=Tr
     ))
 
     fig.update_layout(
-        title="3D RBF Interpolated Surface of DPE_intg",
+        title="3D Interpolated Surface",
         scene=dict(
-            xaxis_title="DPE",
-            yaxis_title="TBABr",
-            zaxis_title="DPE_intg_normalized",
+            xaxis_title="DPE(mM)",
+            yaxis_title=f"{additive_type}(mM)",
+            zaxis_title="Normalized DPE Integration",
+            camera=dict(
+                eye=dict(x=0, y=2.5, z=2.5)  # Adjust orientation here
+            )
+
         ),
         width=950,
         height=750
@@ -192,16 +161,15 @@ def plot_interp(X1, X2, y, rbf_model, save_path=None, show=True, label_points=Tr
     # Save: accept folder or full path
     if save_path:
         out_file = os.path.join(save_path, "plot.html")
-        if not os.path.exists(out_file):
-            if os.path.isdir(save_path):
-                out_file = out_file
-            else:
-                # If a filename was passed, ensure it ends with .html
-                root, ext = os.path.splitext(save_path)
-                out_file = save_path if ext.lower() == ".html" else root + ".html"
-            os.makedirs(os.path.dirname(out_file) or ".", exist_ok=True)
-            fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
-            print(f"Saved: {out_file}")
+        if os.path.isdir(save_path):
+            out_file = out_file
+        else:
+            # If a filename was passed, ensure it ends with .html
+            root, ext = os.path.splitext(save_path)
+            out_file = save_path if ext.lower() == ".html" else root + ".html"
+        os.makedirs(os.path.dirname(out_file) or ".", exist_ok=True)
+        fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
+        print(f"Saved: {out_file}")
 
     return fig
 
@@ -223,7 +191,7 @@ def generate_rbf_model(additive_type, save_plot=False):
 
     # === Optional: Show 3D interpolation surface ===
     if save_plot:
-        plot_interp(X1, X2, y, rbf_model_here, save_path=additive_ref_path)
+        plot_interp(X1, X2, y, rbf_model_here, save_path=additive_ref_path, additive_type=additive_type)
 
     return rbf_model_here
 
@@ -376,8 +344,7 @@ def interp_one_folder(run_path=None,
 
 if __name__ == "__main__":
 
-    import matplotlib
-    matplotlib.use('WebAgg')
+
 
     brom_folder = BRUCELEE_PROJECT_DATA_PATH + r"\\DPE_bromination"
 

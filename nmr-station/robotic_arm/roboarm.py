@@ -4,7 +4,7 @@ This files defines the RobotArm class for the NMR-station, its methods include
  - The simplified cylindrical coordinate system movement function written by me
  - Automation features used in the NMR-station
 
-KingLam Kwong, Yankai Jia
+Yankai Jia, KingLam Kwong
 """
 
 # Third-party imports

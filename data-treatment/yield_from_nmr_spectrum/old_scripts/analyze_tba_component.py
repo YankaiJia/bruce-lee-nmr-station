@@ -11,7 +11,7 @@ Reference: Hardy, E. "NMR Methods for the Investigation of Structure and Transpo
 
 Example of usage
 -------------
->>> overall_integral, report = get_tba_peak_integration(filepath='test_data/tba/data1.csv')
+>>> overall_integral, report = get_tba_peak_integration(filepath='../test_data/tba/data1.csv')
 >>> print(f'main peak integral: {overall_integral} [ppm * intensity_unit]')
 >>> print(f'RMSE of the fit: {report["rmse"]} [intensity_unit]')
 

@@ -133,7 +133,7 @@ def specify_para(sol_name, outlier_type=None):
                 [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                [7.70, 8.5],  #Ketone
+                [7.80, 8.5],  #Ketone
                 [8.5, 9], #Acid
             ]
             reference_shift = {
@@ -169,7 +169,7 @@ def specify_para(sol_name, outlier_type=None):
                 [6.6, 7.0],  # Product B, 1H   ####Truncate the asymetric peak for baseline fitting to take care
                 [4.45, 4.70],  # Product A, 2H
                 [2.2, 2.7],  # HBr adduct
-                [7.80, 8.5],  #Ketone
+                [7.70, 8.5],  #Ketone
                 [8.5, 12], #Acid
             ]
             reference_shift = {
@@ -298,14 +298,24 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppm
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
-            "unkown-double_doublet_1":[5.28], #ppm
-            "unkown-double_doublet_2":[5.36], #ppm
-            "unkown-double_doublet_3":[5.44], #ppm
-            "unkown-double_doublet_4":[5.47], #ppm
-            "unkown-doublet_1":[6.09], #ppm
-            "unkown-doublet_2":[6.16], #ppm
+            "unknown_peak_2":[11.07], #ppm
+            "unknown-double_doublet_1":[5.28], #ppm
+            "unknown-double_doublet_2":[5.36], #ppm
+            "unknown-double_doublet_3":[5.44], #ppm
+            "unknown-double_doublet_4":[5.47], #ppm
+            "unknown-doublet_1":[6.09], #ppm
+            "unknown-doublet_2":[6.16], #ppm
             }
+        if outlier_type == 'Type1':  # Type 1 outlier
+            peak_width_50 = 0.008
+            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [5.0, 6.3],  #[5.2, 6.2],
+            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
+            [9.5,10.5],
+            ]
+        elif outlier_type == 'Type2':  # Type 2 outlier
+            peak_width_50 = 0.008
+            pass
 
     elif sol_name == 'MeCN-Nik-4_pyr':
         solvent_shift = 1.94  # ppm ACN
@@ -329,13 +339,13 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppm
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
-            "unkown-double_doublet_1":[5.28], #ppm
-            "unkown-double_doublet_2":[5.36], #ppm
-            "unkown-double_doublet_3":[5.44], #ppm
-            "unkown-double_doublet_4":[5.47], #ppm
-            "unkown-doublet_1":[6.09], #ppm
-            "unkown-doublet_2":[6.16], #ppm
+            "unknown_peak_2":[11.07], #ppm
+            "unknown-double_doublet_1":[5.28], #ppm
+            "unknown-double_doublet_2":[5.36], #ppm
+            "unknown-double_doublet_3":[5.44], #ppm
+            "unknown-double_doublet_4":[5.47], #ppm
+            "unknown-doublet_1":[6.09], #ppm
+            "unknown-doublet_2":[6.16], #ppm
             }
         
     elif sol_name == 'MeCN-Nik-morph':
@@ -361,12 +371,12 @@ def specify_para(sol_name, outlier_type=None):
             "Benzaldehyde-Carbonyl": [9.98], #ppm
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
             "Unknown_peak_2":[11.07], #ppm
-            "unkown-double_doublet_1":[5.28], #ppm
-            "unkown-double_doublet_2":[5.36], #ppm
-            "unkown-double_doublet_3":[5.44], #ppm
-            "unkown-double_doublet_4":[5.47], #ppm
-            "unkown-doublet_1":[6.09], #ppm
-            "unkown-doublet_2":[6.16], #ppm
+            "unknown-double_doublet_1":[5.28], #ppm
+            "unknown-double_doublet_2":[5.36], #ppm
+            "unknown-double_doublet_3":[5.44], #ppm
+            "unknown-double_doublet_4":[5.47], #ppm
+            "unknown-doublet_1":[6.09], #ppm
+            "unknown-doublet_2":[6.16], #ppm
             }
         
     elif sol_name == 'MeCN-Nik-DBU':
@@ -391,13 +401,13 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppm
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
-            "unkown-double_doublet_1":[5.28], #ppm
-            "unkown-double_doublet_2":[5.36], #ppm
-            "unkown-double_doublet_3":[5.44], #ppm
-            "unkown-double_doublet_4":[5.47], #ppm
-            "unkown-doublet_1":[6.09], #ppm
-            "unkown-doublet_2":[6.16], #ppm
+            "unknown_peak_2":[11.07], #ppm
+            "unknown-double_doublet_1":[5.28], #ppm
+            "unknown-double_doublet_2":[5.36], #ppm
+            "unknown-double_doublet_3":[5.44], #ppm
+            "unknown-double_doublet_4":[5.47], #ppm
+            "unknown-doublet_1":[6.09], #ppm
+            "unknown-doublet_2":[6.16], #ppm
             }
     
     elif sol_name == 'DMSO-Nik':
@@ -421,7 +431,7 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppmf
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
+            "unknown_peak_2":[11.07], #ppm
             }
         
     elif sol_name == 'DMSO-Nik-DBU':
@@ -445,7 +455,7 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppmf
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
+            "unknown_peak_2":[11.07], #ppm
             }
 
     elif sol_name == 'DMSO-Nik-DBN':
@@ -469,8 +479,36 @@ def specify_para(sol_name, outlier_type=None):
             "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
             "Benzaldehyde-Carbonyl": [9.98], #ppmf
             "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
+            "unknown_peak_2":[11.07], #ppm
             }
+
+
+
+    if sol_name == 'CDCL3-Eric':
+        solvent_shift = 7.26  #ppm CDCL3
+        peak_width_50 = 0.005  #ppm at 50% #Default 0.01
+        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
+            [6.65, 6.85],  # Up range
+            [6.45, 6.64],  # Low-RAnge
+
+        ]
+        reference_shift = {
+            "DP-Up_1": [6.7526],  # ppm #Confirmed
+            "DP-Up_2": [6.7510],
+            "DP-Up_3": [6.7486],
+            "Impurity A": [6.7789],  # ppm #Confirmed
+            "Impurity B_1": [6.7376],  # ppm #Confirmed
+            "Impurity B_2": [6.7327],  # ppm #Confirmed
+            "Impurity C_1": [6.7046],  # ppm #Confirmedz
+            "Impurity C_2": [6.7007],   # ppm
+            "DP-Down_1": [6.5583],  # ppm #Confirmed
+            "DP-Down_2": [6.5519],
+            "Impurity D": [6.5147],
+            "Impurity E": [6.4918],
+        }
+
+
 
 def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the inverted ppm scale
     
@@ -478,6 +516,7 @@ def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: qu
 
     name_file = r"{}".format(name_file)
     data = pd.read_csv(name_file, delimiter=',', names=['Shift', 'Intensity'], skiprows=1).values
+    #data = pd.read_csv(name_file, delimiter='\t', names=['Shift', 'Intensity'], skiprows=1,usecols=[0, 1], na_values=['nan'], engine='python').values
     if Yankai_temporary_fix == True:
         data[::-1, 1] = data[::, 1]
     if False:
@@ -669,37 +708,69 @@ def replace_in_groups(lst, group_size, indice_to_replace, value):
             result[i] = float(value)
     return result
         
-def fit_without_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation):
+def fit_without_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation, x_scale=None):
     
     """General method to fit in absence of boundaries for the parameters."""
 
-    popt, covariance_matrix = curve_fit(
-        model_func, shift_array, intensity_array, p0=initial_guesses,
-        sigma=std_deviation * np.ones_like(shift_array),
-        absolute_sigma=True,
-        maxfev=20000,  # Increase max function evaluations
-        ftol=1e-14,  # Function tolerance (adjust for better precision)
-        xtol=1e-14,  # Parameter change tolerance
-        gtol=1e-14,  # Gradient tolerance
-    )
+    kwargs={
+        'x_scale' : x_scale,
+        }
+    if x_scale is not None:
+        popt, covariance_matrix = curve_fit(
+            model_func, shift_array, intensity_array, p0=initial_guesses,
+            sigma=std_deviation * np.ones_like(shift_array),
+            absolute_sigma=True,
+            maxfev=20000,  # Increase max function evaluations
+            ftol=1e-14,  # Function tolerance (adjust for better precision)
+            xtol=1e-14,  # Parameter change tolerance
+            gtol=1e-14,  # Gradient tolerance
+            **kwargs
+        )
+    else:
+            popt, covariance_matrix = curve_fit(
+            model_func, shift_array, intensity_array, p0=initial_guesses,
+            sigma=std_deviation * np.ones_like(shift_array),
+            absolute_sigma=True,
+            maxfev=20000,  # Increase max function evaluations
+            ftol=1e-14,  # Function tolerance (adjust for better precision)
+            xtol=1e-14,  # Parameter change tolerance
+            gtol=1e-14,  # Gradient tolerance
+             )
     return popt, covariance_matrix
 
-def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds, x_scale=None):
     
     """General method to fit using provided boundaries for the parameters."""
 
-    popt, covariance_matrix = curve_fit(
-        model_func, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
-        sigma=std_deviation * np.ones_like(shift_array),
-        absolute_sigma=True,
-        maxfev=20000,  # Increase max function evaluations
-        ftol=1e-14,  # Function tolerance (adjust for better precision)
-        xtol=1e-14,  # Parameter change tolerance
-        gtol=1e-14,  # Gradient tolerance
-    )
+    kwargs={
+        'x_scale' : x_scale,
+        }
+
+    if x_scale is not None:
+
+        popt, covariance_matrix = curve_fit(
+            model_func, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
+            sigma=std_deviation * np.ones_like(shift_array),
+            absolute_sigma=True,
+            maxfev=20000,  # Increase max function evaluations
+            ftol=1e-14,  # Function tolerance (adjust for better precision)
+            xtol=1e-14,  # Parameter change tolerance
+            gtol=1e-14,  # Gradient tolerance
+            **kwargs)
+    else:
+            popt, covariance_matrix = curve_fit(
+            model_func, shift_array, intensity_array, p0=initial_guesses, bounds=[lower_bounds, upper_bounds],
+            sigma=std_deviation * np.ones_like(shift_array),
+            absolute_sigma=True,
+            maxfev=20000,  # Increase max function evaluations
+            ftol=1e-14,  # Function tolerance (adjust for better precision)
+            xtol=1e-14,  # Parameter change tolerance
+            gtol=1e-14,  # Gradient tolerance
+            )
+
     return popt, covariance_matrix
 
-def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds):
+def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds, x_scale=None):
     
     """Method to fit using provided boundaries for the parameters.
     Used for cases where `fit_with_bounds` does not converge to be
@@ -707,35 +778,52 @@ def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initia
     convergence. This is use mainly as a last option in hard fitting
     cases such as multiple merging peaks or low S/N."""
     
+    kwargs={
+        'x_scale' : x_scale,
+        }
+
+
     def residuals(params, x, y, sigma):
         return (y - model_func(x, *params)) / sigma
 
     try:
-        result = least_squares(
-            residuals,
-            x0=initial_guesses,
-            bounds=(lower_bounds, upper_bounds),
-            args=(shift_array, intensity_array, std_deviation * np.ones_like(shift_array)),
-            max_nfev=20000,
-            ftol=1e-14,
-            xtol=1e-14,
-            gtol=1e-14
-        )
-
-        popt = result.x
-
-        # Approximate covariance matrix like curve_fit (J^T J)^(-1)
-        if result.jac.shape[0] >= result.jac.shape[1]:
-            try:
-                residual_variance = np.sum(result.fun**2) / (len(shift_array) - len(popt))
-                jacobian = result.jac
-                cov = np.linalg.inv(jacobian.T @ jacobian) * residual_variance
-            except np.linalg.LinAlgError:
-                cov = np.full((len(popt), len(popt)), np.nan)
+        if x_scale is not None:
+            result = least_squares(
+                residuals,
+                x0=initial_guesses,
+                bounds=(lower_bounds, upper_bounds),
+                args=(shift_array, intensity_array, std_deviation * np.ones_like(shift_array)),
+                max_nfev=20000,
+                ftol=1e-14,
+                xtol=1e-14,
+                gtol=1e-14,
+                **kwargs
+            )
         else:
-            cov = np.full((len(popt), len(popt)), np.nan)
+            result = least_squares(
+                residuals,
+                x0=initial_guesses,
+                bounds=(lower_bounds, upper_bounds),
+                args=(shift_array, intensity_array, std_deviation * np.ones_like(shift_array)),
+                max_nfev=20000,
+                ftol=1e-14,
+                xtol=1e-14,
+                gtol=1e-14,
+            )
+        popt = result.x
+        cov= np.full_like(initial_guesses, np.nan)
+        # # Approximate covariance matrix like curve_fit (J^T J)^(-1)
+        # if result.jac.shape[0] >= result.jac.shape[1]:
+        #     try:
+        #         residual_variance = np.sum(result.fun**2) / (len(shift_array) - len(popt))
+        #         jacobian = result.jac
+        #         cov = np.linalg.inv(jacobian.T @ jacobian) * residual_variance
+        #     except np.linalg.LinAlgError:
+        #         cov = np.full((len(popt), len(popt)), np.nan)
+        # else:
+        #     cov = np.full((len(popt), len(popt)), np.nan)
 
-        return popt, cov
+        # return popt, cov
 
     except Exception as e:
         print(f"Total failure during least_squares: {e}")
@@ -812,7 +900,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
     weights = np.ones_like(intensity_array)  # Default all weights = 1
 
     # Mask data
-    weights[indices_to_keep:-indices_to_keep] = 100
+    weights[indices_to_keep:-indices_to_keep] = 1000 #100 by default
 
     # Select baseline function
 
@@ -944,7 +1032,8 @@ def fit_peaks(NMR_spectrum, std_deviation,
     ppm_step = shift_array[1] - shift_array[0]
     warning_string = None
     
-      
+
+
     peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
     # If no peaks are found, stop
     if len(peaks) == 0:
@@ -1014,23 +1103,24 @@ def fit_peaks(NMR_spectrum, std_deviation,
         finally:
             intensity_array -= baseline
 
+    x_scale=initial_guesses
 
     #Fitting
     try:
         if constrained_fit == False:
             popt, covariance_matrix = fit_without_bounds(peak_function,shift_array, intensity_array, initial_guesses,
-                                                         std_deviation)
+                                                         std_deviation,x_scale=x_scale)
         else:
             try:
                 popt, covariance_matrix = fit_with_bounds(peak_function,shift_array, intensity_array,
                                                         initial_guesses, std_deviation,
-                                                        lower_bounds, upper_bounds)
+                                                        lower_bounds, upper_bounds,x_scale=x_scale)
                 
 
             except:
                 popt, covariance_matrix = fit_with_bounds_do_your_best(peak_function,shift_array, intensity_array,
                                                         initial_guesses, std_deviation,
-                                                        lower_bounds, upper_bounds)
+                                                        lower_bounds, upper_bounds, x_scale=x_scale)
                 warning_string = "Fit did not converge. "
         
         errors_of_parameters = np.sqrt(np.diag(covariance_matrix))
@@ -1528,7 +1618,6 @@ def analyze_one_spectrum(file_name, sol_name,  outliers):
 
     return experiment_name, experiment_dictionary
 
-
 def analyze_one_run_folder(master_path,
                            sol_name='DCE',
                            outliers=None,  # Example: {33:'Type1', 43:'Type2'}
@@ -1590,7 +1679,7 @@ def analyze_one_run_folder(master_path,
     if not os.path.isdir(results_path):  # Ensure "Results" is a directory
         raise FileNotFoundError(f"Error! Results folder not found in: {master_path}")
 
-    # Iterate through subfolders inside "Results", and get all csv data files
+    # Iterate through subfolders inside "Results"
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
         if "1D EXTENDED" in folder_path:
@@ -1609,7 +1698,7 @@ def analyze_one_run_folder(master_path,
 
     # Use ThreadPoolExecutor for multithreaded analysis
     #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Comment this if your set-up have issue with multithreading
-    with concurrent.futures.ProcessPoolExecutor(max_workers=14) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
+    with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
 
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
@@ -1666,29 +1755,10 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-03-03-run02_normal_run", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-03-05-run01_normal_run", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', None],
-                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None],
-                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBPBr", 'DCE', None],
-                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABF4", 'DCE', None],
+                #[r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', {21: 'Type1'}],
+                # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
 
-                # [r"\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-04-28-run02_DCE_TBABF4_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-04-28-run03_DCE_TBABF4_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add", 'DCE', None],              [r"\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add", 'DCE', None],
-                #
-                # [r"\\DPE_bromination\\2025-05-30-run01_DCE_TBPBr_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-05-30-run02_DCE_TBPBr_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-05-30-run03_DCE_TBPBr_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-05-30-run04_DCE_TBPBr_normal", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-09-10-run01_DCE_TBPBr_add", 'DCE', None],
-                # [r"\\DPE_bromination\\2025-09-10-run02_DCE_TBPBr_add", 'DCE', None],
-
-                [r"\\DPE_bromination\\2025-09-11-run01_DCE_TBABr3_add", 'DCE', None],
-                [r"\\DPE_bromination\\2025-09-11-run02_DCE_TBABr3_add", 'DCE', None],
-
-                # #NIK Calibration
+                # # #NIK Calibration
                 # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],
 
                 # #NIK ACN Pyridine serie
@@ -1697,18 +1767,18 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run02_MeCN_DMAP\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run01_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run02_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run01_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run02_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run01_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', {9: 'Type2',6: 'Type2',19: 'Type2', 18: 'Type2',3: 'Type2',13: 'Type2' ,24: 'Type2'}],
+                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run02_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', {4: 'Type1', 14: 'Type2',10: 'Type2', 9: 'Type2'}],
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run01_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run02_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
                 # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
                
                 #OLD
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\_old\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
+                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\_old\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
 
-                # #NIK ACN Other base serie
+                # # #NIK ACN Other base serie
                 # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
@@ -1728,9 +1798,9 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_MeCN_Pyrrol\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_MeCN_Pyrrol\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
+                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run02_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
 
-                # #NIK DMSO Pyridine serie
+                # # #NIK DMSO Pyridine serie
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\Pyridine\\2025-06-04-run01_DMSO_Pyr\\", 'DMSO-Nik', None],
@@ -1742,11 +1812,11 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-21-run01_DMSO_4_Morph_Pyr\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-21-run02_DMSO_4_Morph_Pyr\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run01_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run01_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
+                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run02_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
                 
-                # #NIK DMSO Other base serie
+                # # #NIK DMSO Other base serie
                 # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DABCO\\2025-06-12-run01_DMSO_DABCO\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DABCO\\2025-06-12-run02_DMSO_DABCO\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBN\\2025-06-09-run01_DMSO_DBN\\", 'MeCN-Nik-DBN', None],
@@ -1767,6 +1837,10 @@ if __name__ == "__main__":
                 # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Quinuclidine\\2025-06-15-run01_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
                 # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Quinuclidine\\2025-06-15-run02_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
+
+                # # #Eric
+                # [r"\\LGA\\test_tempo\\Tempo_structure_Eric\\", 'CDCL3-Eric', None],
+
             ]
 
     for run_folder in run_folders:
