@@ -4,6 +4,15 @@ An automated NMR laboratory station for high-throughput chemical screening. The 
 
 <img src="nmr_robotic_platform.jpg" alt="NMR Robotic Platform" width="50%">
 
+## Publication
+
+This repository contains the automation and data-treatment code supporting:
+
+> Yankai Jia, Wai-Shing Wong, Yasemin Bilgi-Gadina, Louis P. J.-L. Gadina, King-Lam Kwong, Yanqiu Jiang, Nikolaos Vagkidis, Benito Marazzi, Peter R. Schreiner, and Bartosz A. Grzybowski.
+> **"From Berzelius to hyperspace: Unexpected reactivity in textbook brominations."**
+
+---
+
 ## Overview
 
 The platform operates in two stages:
