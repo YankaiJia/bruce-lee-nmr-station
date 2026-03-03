@@ -2,7 +2,7 @@
 
 An automated NMR laboratory station for high-throughput chemical screening. The system integrates a robotic arm, an automated liquid handler, and a benchtop NMR spectrometer to autonomously prepare samples, acquire spectra, and calculate chemical yields — with minimal human intervention.
 
-![NMR Robotic Platform](nmr_robotic_platform.jpg)
+<img src="nmr_robotic_platform.jpg" alt="NMR Robotic Platform" width="50%">
 
 ## Overview
 
@@ -18,6 +18,10 @@ The platform operates in two stages:
    - Integrates NMR peaks with baseline correction
    - Interpolates concentrations from 2D calibration curves
    - Exports yield, conversion, and selectivity metrics to CSV
+
+3. **Raw Data** (`data/`) — NMR run folders stored outside version control (git-ignored):
+   - One subfolder per reaction campaign (e.g. `DPE_bromination/`)
+   - Each run folder contains raw spectra, plate-map Excel files, and pipeline outputs
 
 
 ## System Architecture
@@ -39,11 +43,24 @@ The platform operates in two stages:
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
-│               data-treatment/yield_from_nmr_spectrum/       │
+│                    data-treatment/                          │
 │                                                             │
 │   main.py  ──►  Integrator  ──►  conc_interpolation        │
 │                                       │                     │
 │                               Yield / Selectivity CSV       │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                          outputs
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                       data/  (git-ignored)                  │
+│                                                             │
+│   DPE_bromination/                                          │
+│   └── YYYY-MM-DD-runXX_<solvent>_<additive>/                │
+│       ├── Results/  (fitting_results.json, interp_conc.json)│
+│       ├── <spectra folders>/                                │
+│       └── out_concentrations.csv                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -136,7 +153,7 @@ A GUI checklist will guide you through pre-flight checks (WiFi, vacuum, solvent 
 ### Run data treatment (yield calculation)
 
 ```bash
-python data-treatment/yield_from_nmr_spectrum/main.py
+python data-treatment/main.py
 ```
 
 A dialog will prompt for:
@@ -186,19 +203,29 @@ bruce-nmr-station/
 │   ├── tests/                      # Dummy device implementations
 │   └── deprecated/                 # Legacy code (kept for reference)
 │
-├── data-treatment/
-│   └── yield_from_nmr_spectrum/    # NMR data analysis pipeline
-│       ├── main.py                 # Pipeline entry point
-│       ├── config.py               # Chemistry configuration and mappings
-│       ├── Integrator_v3_baseline.py  # Peak integration with baseline correction
-│       ├── peak_assignment_for_BDA.py # Species-specific peak assignment
-│       ├── conc_interpolation.py      # 1D concentration interpolation
-│       ├── conc_interpolation_2D.py   # 2D calibration curve interpolation
-│       ├── utils.py                   # Shared utilities
-│       └── old_scripts/               # Legacy analysis scripts
+├── data-treatment/                 # NMR data analysis pipeline
+│   ├── main.py                     # Pipeline entry point
+│   ├── config.py                   # Paths, outlier lists, chemistry config
+│   ├── Integrator_v3_baseline.py   # Python peak integration with baseline correction
+│   ├── peak_assignment_for_BDA.py  # Species-specific peak assignment
+│   ├── conc_interpolation.py       # 1D concentration interpolation
+│   ├── conc_interpolation_2D.py    # 2D RBF calibration curve interpolation
+│   ├── utils.py                    # Shared utilities
+│   ├── MNova_script/               # QtScript for MNova peak fitting (alternative to Integrator)
+│   ├── TBABr_pipeline.ipynb        # Example notebook for TBABr runs end-to-end
+│   └── old_scripts/                # Legacy analysis scripts
+│
+├── data/                           # Raw NMR data (git-ignored, stored locally)
+│   └── DPE_bromination/            # DPE bromination reaction campaign
+│       ├── YYYY-MM-DD-runXX_*/     # One folder per automated run
+│       │   ├── Results/            # Pipeline outputs (fitting_results.json, interp_conc.json, …)
+│       │   ├── <spectrum folders>/ # Raw 1H NMR spectra (data.csv per spectrum)
+│       │   ├── out_concentrations.csv  # Reagent concentrations from plate map
+│       │   └── *.xlsx              # Plate map with vial UUIDs and conditions
+│       ├── NMR_calibration_*/      # Calibration reference runs (no additive)
+│       └── README.md               # Campaign-level documentation
 │
 ├── environment.yml                 # Conda environment specification
-├── requirements.txt                # Pip dependencies
 └── README.md
 ```
 
@@ -237,5 +264,5 @@ Yield / Selectivity / Conversion
 |------|---------|
 | `nmr-station/settings/.env` | Hardware connection settings and file paths |
 | `nmr-station/robotic_arm/facility_config.json` | Physical robot arm coordinates |
-| `data-treatment/yield_from_nmr_spectrum/config.py` | NMR peak assignment parameters and compound mappings |
+| `data-treatment/config.py` | Data path, outlier UUIDs, NMR peak parameters, compound mappings |
 | `environment.yml` | Full pinned conda environment |

@@ -11,8 +11,8 @@ Workflow for each run folder:
     6. Optionally append zero-additive reference rows from the TBABr dataset.
     7. (Optional, currently commented out) Save the combined DataFrame to CSV.
 
-Requires the environment variable BRUCELEE_PROJECT_DATA_PATH to be set to the
-root data directory (e.g. D:\\Dropbox\\brucelee\\data).
+Data path is read from config.BRUCELEE_PROJECT_DATA_PATH, which resolves to
+the data/ folder at the repository root.
 
 Supported additives: TBABr, TBABr3, TBABF4, TBPBr.
 """
@@ -194,6 +194,7 @@ def post_treatment_to_get_params_for_cubes(all_result_csv_path,
         appended, reordered with key columns first.
     """
     df = all_result_csv_path
+    additive_type = additive_name
     df = df.rename(columns={f'conc_{additive_type}': f'conc_{additive_type}_0',
                             'conc_Br2': 'conc_Br2_0',
                             'conc_DPE': 'conc_DPE_0',
@@ -323,13 +324,13 @@ if __name__ == "__main__":
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
                 ### TBABr runs
-                ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
-                ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
-                [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
+                # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
+                # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
+                # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None],
+                # [r"\DPE_bromination\2025-07-01-run01_DCE_TBABr_rerun\\", "DCE", None],
 
                 ### TBABF4 runs
                 # ["\\DPE_bromination\\2025-04-28-run01_DCE_TBABF4_normal\\", 'DCE-BF4', None],
@@ -338,8 +339,8 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-04-28-run04_DCE_TBABF4_normal\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-09-09-run01_DCE_TBABF4_add\\", 'DCE-BF4', None],
                 # ["\\DPE_bromination\\2025-09-09-run02_DCE_TBABF4_add\\", 'DCE-BF4', None],
-                
-                ### TBPBr runs
+                #
+                ## TBPBr runs
                 # [r"\DPE_bromination\2025-05-30-run01_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run02_DCE_TBPBr_normal\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-05-30-run03_DCE_TBPBr_normal\\", 'DCE', None],
@@ -347,7 +348,7 @@ if __name__ == "__main__":
                 # [r"\DPE_bromination\2025-09-10-run01_DCE_TBPBr_add\\", 'DCE', None],
                 # [r"\DPE_bromination\2025-09-10-run02_DCE_TBPBr_add\\", 'DCE', None],
 
-                ### TBABr3 runs
+                ## TBABr3 runs
                 # ["\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run02_DCE_TBABr3_normal\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-04-15-run03_DCE_TBABr3_normal\\", 'DCE', None],
@@ -375,12 +376,12 @@ if __name__ == "__main__":
 
     additive_types = [get_additive_type_from_path(run_folder[0]) for run_folder in run_folders]
 
-    assert len(set(additive_types)) == 1, 'There are multiple additives in this process.'
+    assert len(set(additive_types)) == 1, f'There are multiple additives in this process: {additive_types}'
     additive_type = additive_types[0]
 
     run_folders_paths = [data_dir+ls[0] for ls in run_folders]
     all_results_df = utils.collect_all_json_results_form_every_spectrum(run_folders_paths, additive_type)
-    print(f'❌❌Path for all_result_df: {all_results_df}')
+
     df = post_treatment_to_get_params_for_cubes(all_results_df,
                                                 additive_name=additive_type)
 
@@ -390,6 +391,6 @@ if __name__ == "__main__":
 
     # # save this df to csv
     # save_path = data_dir + r"\\DPE_bromination"
-    # csv_file_name = fr'\\full_experiment_DCE_{additive_type}_type_2d_interp.csv'
+    # csv_file_name = fr'\\full_experiment_{additive_type}_type_2d_interp.csv'
     # df.to_csv(save_path+csv_file_name, index=False)  # index=False prevents writing the row index
     # print(f"Data saved to: {save_path+csv_file_name}")
