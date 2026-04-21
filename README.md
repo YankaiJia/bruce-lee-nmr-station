@@ -54,7 +54,7 @@ The platform operates in two stages:
 ┌─────────────────────────────────────────────────────────────┐
 │                    data-treatment/                          │
 │                                                             │
-│   main.py  ──►  Integrator  ──►  conc_interpolation        │
+│   main.py  ──►  Integrator  ──►  conc_interpolation         │
 │                                       │                     │
 │                               Yield / Selectivity CSV       │
 └─────────────────────────────────────────────────────────────┘
