@@ -28,9 +28,10 @@ The platform operates in two stages:
    - Interpolates concentrations from 2D calibration curves
    - Exports yield, conversion, and selectivity metrics to CSV
 
-3. **Raw Data** (`data/`) — NMR run folders stored outside version control (git-ignored):
+3. **Raw Data** (`data/`) — NMR run folders archived on Zenodo (not stored in this repository):
    - One subfolder per reaction campaign (e.g. `DPE_bromination/`)
    - Each run folder contains raw spectra, plate-map Excel files, and pipeline outputs
+   - Download from: https://doi.org/10.5281/zenodo.17080099
 
 
 ## System Architecture
@@ -108,14 +109,38 @@ git clone <repo-url>
 cd bruce-nmr-station
 ```
 
-### 2. Create the conda environment
+### 2. Download the raw data from Zenodo
+
+The experimental NMR dataset is archived at:
+
+> **https://doi.org/10.5281/zenodo.17080099**
+
+Download and extract the archive so that it contains a `DPE_bromination/` folder at the top level. Then point the pipeline to it in one of two ways:
+
+**Option A — environment variable (recommended):**
+```bash
+# Windows
+set BRUCELEE_DATA_ROOT=C:\path\to\extracted\data
+
+# macOS / Linux
+export BRUCELEE_DATA_ROOT=/path/to/extracted/data
+```
+
+**Option B — edit `data-treatment/config.py` directly:**
+```python
+DATA_ROOT = r"C:\path\to\extracted\data"   # change this line
+```
+
+If neither is set, the pipeline defaults to the `data/` folder at the repository root.
+
+### 3. Create the conda environment
 
 ```bash
 conda env create -f environment.yml
 conda activate brucelee
 ```
 
-### 3. Configure environment variables
+### 5. Configure hardware environment variables
 
 Fill in the settings file at `nmr-station/settings/.env`:
 
@@ -129,7 +154,7 @@ PIPETTER_LOG_PATH=<path-to-pipetter-log>
 MEASUREMENT_DATA_GUI_PATH=<path-to-gui-state-json>
 ```
 
-### 4. Configure robot arm coordinates
+### 6. Configure robot arm coordinates
 
 Edit `nmr-station/robotic_arm/facility_config.json` to match the physical positions of:
 - Tube racks (tube1–tube4)
@@ -224,7 +249,7 @@ bruce-nmr-station/
 │   ├── TBABr_pipeline.ipynb        # Example notebook for TBABr runs end-to-end
 │   └── old_scripts/                # Legacy analysis scripts
 │
-├── data/                           # Raw NMR data (git-ignored, stored locally)
+├── data/                           # Raw NMR data — download from Zenodo (https://doi.org/10.5281/zenodo.17080099)
 │   └── DPE_bromination/            # DPE bromination reaction campaign
 │       ├── YYYY-MM-DD-runXX_*/     # One folder per automated run
 │       │   ├── Results/            # Pipeline outputs (fitting_results.json, interp_conc.json, …)
@@ -273,5 +298,5 @@ Yield / Selectivity / Conversion
 |------|---------|
 | `nmr-station/settings/.env` | Hardware connection settings and file paths |
 | `nmr-station/robotic_arm/facility_config.json` | Physical robot arm coordinates |
-| `data-treatment/config.py` | Data path, outlier UUIDs, NMR peak parameters, compound mappings |
+| `data-treatment/config.py` | `DATA_ROOT` path (override with `BRUCELEE_DATA_ROOT` env var), outlier UUIDs, NMR peak parameters, compound mappings |
 | `environment.yml` | Full pinned conda environment |

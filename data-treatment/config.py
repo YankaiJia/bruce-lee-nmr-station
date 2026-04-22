@@ -1,7 +1,7 @@
 import os
 
 # Root folder of the experimental dataset.
-# Download from Zenodo and either:
+# Download from Zenodo (https://doi.org/10.5281/zenodo.17080099) and either:
 #   - Set the environment variable BRUCELEE_DATA_ROOT to your local path, or
 #   - Edit the fallback path below.
 DATA_ROOT = os.environ.get(
