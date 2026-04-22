@@ -1,6 +1,6 @@
 # bruce-nmr-station
 
-An automated NMR laboratory station for high-throughput chemical screening. The system integrates a robotic arm, an automated liquid handler, and a benchtop NMR spectrometer to autonomously prepare samples, acquire spectra, and calculate chemical yields — with minimal human intervention.
+An automated NMR laboratory station for scanning reaction conditions and building reaction hyperspaces. The system integrates a robotic arm, an automated liquid handler, and a benchtop NMR spectrometer to autonomously prepare samples, acquire spectra, and calculate chemical yields — with minimal human intervention.
 
 <img src="nmr_robotic_platform.jpg" alt="NMR Robotic Platform" width="50%">
 
