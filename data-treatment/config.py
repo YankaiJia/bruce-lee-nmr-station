@@ -106,11 +106,6 @@ dictionnary_stockiometry = {
                             "Product_PU1": {'Br': 1, 'BDA': 1},  # structure unknow, stockiometry placeholder
                         }
 
-outliers = {
-    'px2': r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-13', # wrong peak assign during fitting. Tiny peaks are not detectd.
-    'px2': r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-0',  # mark it as outlier. The peaks are at noise level, conc is very small
-    'px2': r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-22',
-}
 
 ##px2 outliers
 # in these three cases, use the two orange peaks as hcp.
@@ -142,52 +137,52 @@ OLD_NAME_VS_NEW_NAME_DICT = {
 
 
 OUTLIERS = [
-        # Acid overlap, 2025-09-11-run01_DCE_TBABr3_add\\Results\\10-1D EXTENDED+-20250912-130752
+        # Acid overlap, too much impurity, 2025-09-11-run01_DCE_TBABr3_add\\Results\\10-1D EXTENDED+-20250912-130752
         "hGUPYwyiiGe94UBSB6HtyM",
-        # Yield of prod_B too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\6-1D EXTENDED+-20250912-174433
+        # Yield of prod_B too high, too much impurity, 2025-09-11-run02_DCE_TBABr3_add\\Results\\6-1D EXTENDED+-20250912-174433
         "3zcaskEYsSmCUcAeXZDAvK",
-        # Yield of prod_B too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\2-1D EXTENDED+-20250912-171350
+        # Yield of prod_B too high, too much impurity, 2025-09-11-run02_DCE_TBABr3_add\\Results\\2-1D EXTENDED+-20250912-171350
         "8fVQtffNmqZwXFVJHi3FVZ",
-        # Yield of prod_B too high, 2025-09-11-run01_DCE_TBABr3_add\\Results\\34-1D EXTENDED+-20250912-160154
+        # Yield of prod_B too high, too much impurity, 2025-09-11-run01_DCE_TBABr3_add\\Results\\34-1D EXTENDED+-20250912-160154
         "nHyFFbBecdkRwuszweUWna",
-        # Yield of prod_A too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\9-1D EXTENDED+-20250912-180612
+        # Yield of prod_A too high, too much impurity, 2025-09-11-run02_DCE_TBABr3_add\\Results\\9-1D EXTENDED+-20250912-180612
         "GXxTsVrSj4GVNnbYsP4d6L",
-        # Yield of prod_A too high, 2025-09-11-run02_DCE_TBABr3_add\\Results\\16-1D EXTENDED+-20250912-185543
+        # Yield of prod_A too high, too much impurity, 2025-09-11-run02_DCE_TBABr3_add\\Results\\16-1D EXTENDED+-20250912-185543
         "JoHTpg2Wqo2inSjrMtRq3C",
-        # HBr_adduct is wrong, 2025-09-11-run01_DCE_TBABr3_add\\Results\\32-1D EXTENDED+-20250912-154632
+        # HBr_adduct is wrong, too much impurity, 2025-09-11-run01_DCE_TBABr3_add\\Results\\32-1D EXTENDED+-20250912-154632
         "dV3yitsANpi6KteH3HCMFG",
-        # HBr_adduct is wrong, 2025-09-11-run02_DCE_TBABr3_add\\Results\\19-1D EXTENDED+-20250912-191828
+        # HBr_adduct is wrong, too much impurity, 2025-09-11-run02_DCE_TBABr3_add\\Results\\19-1D EXTENDED+-20250912-191828
         "cSbuh6sy7qZcH9fLjJPnH8",
-        # Yield of prod_B too high, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 26-1D EXTENDED+-20250429-210103
+        # Yield of prod_B too high, too much impurity, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 26-1D EXTENDED+-20250429-210103
         "7i5CGhGNEJ4ooKe9qjkVRZ",
-        # Yield of prod_B too high, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 16-1D EXTENDED+-20250429-194857
+        # Yield of prod_B too high, too much impurity, 2025-04-28-run02_DCE_TBABF4_normal\\Results\\ 16-1D EXTENDED+-20250429-194857
         "VDxrRimQGie5q5uGM7DW5x",
-        # Yield of Alcohol too high, 04-28-run01 2
+        # Yield of Alcohol too high, too much impurity, 04-28-run01 2
         "cxPvN6tDvXNvgRabvGNYDV",
-        # Yield of Alcohol too high, 04-28-run01 8
+        # Yield of Alcohol too high, too much impurity, 04-28-run01 8
         "d6NmTysXaCR4sTETqLgXfx",
-        # Yield of Alcohol too high, 04-28-run01 22
+        # Yield of Alcohol too high, too much impurity, 04-28-run01 22
         "ErPe4gwEhybkJF62smrXxd",
-        # Yield of Alcohol too high, 04-28-run01 24
+        # Yield of Alcohol too high, too much impurity, 04-28-run01 24
         "Hxe4Bf4AciGqDfGh23cEAG",
-        # Yield of Alcohol too high, 04-28-run02 10
+        # Yield of Alcohol too high, too much impurity, 04-28-run02 10
         "bF8i3JmTjnsiUmj8JMH2aK",
-        # Yield of Alcohol too high, 04-28-run03 11
+        # Yield of Alcohol too high, too much impurity, 04-28-run03 11
         "88AFpG5cHcwSmHLH9sQaHP",
-        # Yield of Alcohol too high, 09-09-run01 37
+        # Yield of Alcohol too high, too much impurity, 09-09-run01 37
         "mnp4HQVLHijMxEkA4M4SYg",
-        # Yield of Alcohol too high, 09-09-run02 6
+        # Yield of Alcohol too high, too much impurity, 09-09-run02 6
         "YAvqJbnJCsGCN53hTijMMN",
-        # Yield of HBr_adduct too high, 09-09-run01 2
+        # Yield of HBr_adduct too high, too much impurity, 09-09-run01 2
         "5Nm6CfviHLhgiDd7ftDHhS",
-        # Yield of Alcohol too high, 05-30-run01 22
+        # Yield of Alcohol too high, too much impurity, 05-30-run01 22
         "U5zEU8jk76Cg6dPebEHqXX",
-        # Yield of Alcohol too high, 05-30-run02 10
+        # Yield of Alcohol too high, too much impurity, 05-30-run02 10
         "jLHqLvaq6AL7M4EbzYMmzy",
-        # Yield of Alcohol too high, 05-30-run02 14
+        # Yield of Alcohol too high, too much impurity, 05-30-run02 14
         "dbVLdLWJEa6MJJkyLxo4r7",
-        # Yield of Alcohol too high, 05-30-run04 12
+        # Yield of Alcohol too high, too much impurity, 05-30-run04 12
         "PzUND3jN3KUGRdFYnSUmpf",
-        # Yield of Alcohol too high, 09-10-run02 26
+        # Yield of Alcohol too high, too much impurity, 09-10-run02 26
         "LfQefrKHYR2GoT6J8BZgxc",
     ]
