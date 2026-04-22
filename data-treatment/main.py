@@ -30,6 +30,7 @@ import config
 
 # data/ folder at repo root (one level up from this file)
 BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
+DATA_ROOT = config.DATA_ROOT
 
 def check_and_return_folder_structure(run_folder):
     """Validate the expected directory layout for a single run folder.
@@ -293,7 +294,7 @@ def append_reaction_results_without_additive(df_here, additive_type):
         reference CSV file does not exist.
     """
     # read the TBABr result
-    TBABr_result_csv = r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr_2d_interp_0903.csv"
+    TBABr_result_csv = os.path.join(DATA_ROOT, "DPE_bromination", "full_experiment_DCE_TBABr_2d_interp_0903.csv")
     # Ensure file exists
     if os.path.exists(TBABr_result_csv):
         df_TBABr = pd.read_csv(TBABr_result_csv)

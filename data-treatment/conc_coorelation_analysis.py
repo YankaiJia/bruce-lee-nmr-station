@@ -24,8 +24,10 @@ mpl.rcParams.update({
 })
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+import os
+import config
 
-raw_data_folder = r'D:\Dropbox\brucelee\manuscript\figures\Fig7\raw_data_for_coorelation'
+raw_data_folder = os.path.join(os.path.dirname(config.DATA_ROOT), "manuscript", "figures", "Fig7", "raw_data_for_coorelation")
 df = pd.read_excel(raw_data_folder + r'\result_all_long_short_with_selectivity.xlsx')
 
 # assign first 48 rows to 24h data, and remaining to 48h data.

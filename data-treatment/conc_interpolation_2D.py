@@ -22,10 +22,11 @@ matplotlib.use('WebAgg')
 import config
 
 BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
+DATA_ROOT = config.DATA_ROOT
 
 def json_to_intg_results(additive_type:str='TBABr'):
 
-    ref_folder = r"D:\Dropbox\brucelee\data\DPE_bromination\_Refs"
+    ref_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_Refs")
 
     if additive_type == 'TBABr':
         path = ref_folder + r"\ref_S_all_TBABr\Results"

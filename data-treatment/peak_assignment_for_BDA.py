@@ -68,6 +68,7 @@ import conc_interpolation_2D_BDA
 import config
 
 OLD_NAME_VS_NEW_NAME_DICT = config.OLD_NAME_VS_NEW_NAME_DICT
+DATA_ROOT = config.DATA_ROOT
 
 PROTON_COUNT = {
                  'bda_ha': 1,
@@ -2058,13 +2059,13 @@ def reorder_intg_and_conc_columns(df):
 
 if __name__ == "__main__":
 
-    run_folders = \
-        [
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz'
-        ]
+    _bda = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
+    run_folders = [
+        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
+        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
+        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+    ]
 
     json_list = get_all_result_json(run_folders)
 
@@ -2341,6 +2342,6 @@ if __name__ == "__main__":
     # save re-assigned results to csv
     # df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
     # df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
-    # campaign_folder = r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone'
+    # campaign_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
     # df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
     # df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)

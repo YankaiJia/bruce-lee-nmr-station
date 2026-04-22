@@ -2,6 +2,15 @@ import os
 
 BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
 
+# Root folder of the experimental dataset.
+# Download from Zenodo (https://doi.org/10.5281/zenodo.XXXXXXX) and either:
+#   - Set the environment variable BRUCELEE_DATA_ROOT to your local path, or
+#   - Edit the fallback path below.
+DATA_ROOT = os.environ.get(
+    "BRUCELEE_DATA_ROOT",
+    r"D:\Dropbox\brucelee\data"
+)
+
 
 dictionnary_H_count = {  # Normalisation dictionnary
     "Starting material-1": 0.5,  # H expected for this signal
@@ -109,15 +118,15 @@ dictionnary_stockiometry = {
 
 ##px2 outliers
 # in these three cases, use the two orange peaks as hcp.
-r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-7'
-r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-10'
-r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-22'
+# os.path.join(DATA_ROOT, r'DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-7')
+# os.path.join(DATA_ROOT, r'DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-10')
+# os.path.join(DATA_ROOT, r'DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz\Results\BDA-2025-12-12-run02-22')
 
 
 ##px5 outliers
 # px1p needs to be removed from the slice
-r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz\Results\BDA-2025-12-12-run01-long-17'
-r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-9'
+# os.path.join(DATA_ROOT, r'DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz\Results\BDA-2025-12-12-run01-long-17')
+# os.path.join(DATA_ROOT, r'DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-9')
 
 
 OLD_NAME_VS_NEW_NAME_DICT = {

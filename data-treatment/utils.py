@@ -12,6 +12,7 @@ import seaborn as sns
 import config
 
 BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
+DATA_ROOT = config.DATA_ROOT
 
 
 def plot_csv(file_path):
@@ -140,13 +141,13 @@ def collect_conditions_of_bad_shimming_specs(folder):
 
 
 def arrange_bad_contions_for_folders():
+    _dpe = os.path.join(DATA_ROOT, "DPE_bromination")
     folder_list = [
-        r"D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-02-19-run02_normal_run",
-        r"D:\\Dropbox\\brucelee\data\DPE_bromination\\2025-03-01-run01_normal_run",
-        r"D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run01_normal_run",
-        r"D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-03-run02_normal_run",
-        r"D:\\Dropbox\\brucelee\\data\DPE_bromination\\2025-03-05-run01_normal_run",
-
+        os.path.join(_dpe, "2025-02-19-run02_normal_run"),
+        os.path.join(_dpe, "2025-03-01-run01_normal_run"),
+        os.path.join(_dpe, "2025-03-03-run01_normal_run"),
+        os.path.join(_dpe, "2025-03-03-run02_normal_run"),
+        os.path.join(_dpe, "2025-03-05-run01_normal_run"),
     ]
 
     # append all the dataframes
@@ -158,7 +159,7 @@ def arrange_bad_contions_for_folders():
     # concatenate the dataframes
     df_all = pd.concat(df_list)
     # if not exist, create the folder
-    new_excel_file = r'D:\Dropbox\\brucelee\data\DPE_bromination/conditions_of_bad_shimming_specs_all.xlsx'
+    new_excel_file = os.path.join(_dpe, "conditions_of_bad_shimming_specs_all.xlsx")
     if not os.path.exists(os.path.dirname(new_excel_file)):
         os.makedirs(os.path.dirname(new_excel_file))
     df_all.to_excel(new_excel_file, index=False)
@@ -298,20 +299,20 @@ def find_missing_conditions():
 # df_missing = find_missing_conditions
 
 def write_conc_into_result_csv():
-
+    _4pyro = os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "4-Pyrrolidinopyridine")
     results_folders = [
-        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results",
-        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results",
-        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run01_MeCN_DMAP\Results",
-        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\DMAP\2025-06-16-run02_MeCN_DMAP\Results"
-        # r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine\2025-05-15-run01_MeCN_Pyr\Results"
-        # r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run01_MeCN_4_Me_Pyr\Results',
-        # r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Methyl pyridine\2025-06-18-run02_MeCN_4_Me_Pyr\Results'
-        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results",
-        r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "4-Pyrrolidinopyridine", "2025-05-19-run01_MeCN_4_pyrrolidinopyridine", "Results"),
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "4-Pyrrolidinopyridine", "2025-05-19-run02_MeCN_4_pyrrolidinopyridine", "Results"),
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "DMAP", "2025-06-16-run01_MeCN_DMAP", "Results"),
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "DMAP", "2025-06-16-run02_MeCN_DMAP", "Results"),
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "Pyridine", "2025-05-15-run01_MeCN_Pyr", "Results"),
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "4-Methyl pyridine", "2025-06-18-run01_MeCN_4_Me_Pyr", "Results"),
+        # os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "4-Methyl pyridine", "2025-06-18-run02_MeCN_4_Me_Pyr", "Results"),
+        os.path.join(_4pyro, "2025-05-19-run01_MeCN_4_pyrrolidinopyridine", "Results"),
+        os.path.join(_4pyro, "2025-05-19-run02_MeCN_4_pyrrolidinopyridine", "Results"),
     ]
 
-    json_file_to_save = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine" + r"\hardy_fitting_compd3_conc.json"
+    json_file_to_save = os.path.join(_4pyro, "hardy_fitting_compd3_conc.json")
 
     # get all the subfolders in the results folder if "1D EXTENDED" is in the name
     subfolders = []
@@ -341,7 +342,7 @@ def merge_result_from_hardy_fitting():
 
     compd3_conc_dict = write_conc_into_result_csv()
 
-    result_csv = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\CSV_4-Pyro_Final.csv"
+    result_csv = os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "4-Pyrrolidinopyridine", "CSV_4-Pyro_Final.csv")
     df = pd.read_csv(result_csv)
     df['spectrum_name'] = df['spectrum_dir'].apply(lambda x: x.split('\\')[-1].strip())
 
@@ -355,7 +356,7 @@ def merge_result_from_hardy_fitting():
     # df['Yield_compd3_by_hardy_fitting'] = df['Conc_compd3_by_hardy_fitting']
 
     #save the df to a new csv file
-    output_csv = r"D:\Dropbox\brucelee\data\NV\Final Data\MeCN\4-Pyrrolidinopyridine\CSV_4-Pyro_Final_with_hardy_fitting.csv"
+    output_csv = os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "4-Pyrrolidinopyridine", "CSV_4-Pyro_Final_with_hardy_fitting.csv")
     df.to_csv(output_csv, index=False)
 
 # merge_result_from_hardy_fitting()
@@ -383,16 +384,15 @@ def get_conc_for_all_reactions_for_nik_reactions():
         - conditions_with_compd3_conc.csv: Final output including compound 3 concentration.
     """
 
-    nick_reaction_folder = r'D:\Dropbox\brucelee\data\NV\Final Data'
+    _4pyro = os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "4-Pyrrolidinopyridine")
+    run_folder = _4pyro
+    outvandc_file = os.path.join(_4pyro, "2025-05-19-run01_MeCN_4_pyrrolidinopyridine", "OutVandC", "conc_vol_list.csv")
 
-    run_folder = nick_reaction_folder + r'\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine'
-    outvandc_file = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\OutVandC\conc_vol_list.csv"
+    results_folder1 = os.path.join(_4pyro, "2025-05-19-run01_MeCN_4_pyrrolidinopyridine", "Results")
+    results_folder2 = os.path.join(_4pyro, "2025-05-19-run02_MeCN_4_pyrrolidinopyridine", "Results")
 
-    results_folder1 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\Results"
-    results_folder2 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\Results"
-
-    excel_file1 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\2025-05-19-run01.xlsx"
-    excel_file2 = nick_reaction_folder + r"\MeCN\Pyridine-based nucleophiles\4-Pyrrolidinopyridine\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\2025-05-19-run02.xlsx"
+    excel_file1 = os.path.join(_4pyro, "2025-05-19-run01_MeCN_4_pyrrolidinopyridine", "2025-05-19-run01.xlsx")
+    excel_file2 = os.path.join(_4pyro, "2025-05-19-run02_MeCN_4_pyrrolidinopyridine", "2025-05-19-run02.xlsx")
 
     # get all the subfolders in the results folder if "1D EXTENDED" is in the name
     reaction_folder_list1 = [f.path for f in os.scandir(results_folder1) if f.is_dir() and "1D EXTENDED" in f.name]
@@ -448,7 +448,7 @@ def get_conc_for_all_reactions_for_nik_reactions():
 
 def get_conc_for_all_reactions_one_run_folder():
 
-    run_folder = r'D:\Dropbox\brucelee\data\NV\Final Data\MeCN\Pyridine-based nucleophiles\Pyridine'
+    run_folder = os.path.join(DATA_ROOT, "NV", "Final Data", "MeCN", "Pyridine-based nucleophiles", "Pyridine")
     outvandc_folder = run_folder + r'\2025-05-15-run01_MeCN_Pyr\OutVandC'
     results_folder1 = run_folder + r'\2025-05-15-run01_MeCN_Pyr\Results'
     excel_file1 = run_folder + r"\2025-05-15-run01_MeCN_Pyr\2025-05-15-run01.xlsx"
@@ -514,8 +514,8 @@ def get_conc_for_all_reactions_one_run_folder():
 def check_pulse_angle_in_dot_par_files():
     def find_all_dot_par_files_in_a_folder():
         from pathlib import Path
-        # folder = Path(r"D:\Dropbox\brucelee\data\NV\Final Data") # Nick's data folder
-        folder = Path(r"D:\Dropbox\brucelee\data\DPE_bromination")
+        # folder = Path(os.path.join(DATA_ROOT, "NV", "Final Data"))  # Nick's data folder
+        folder = Path(os.path.join(DATA_ROOT, "DPE_bromination"))
         par_files = list(folder.rglob("*.par")) # recursively find all .par files
         return par_files
 
@@ -540,7 +540,7 @@ def check_pulse_angle_in_dot_par_files():
 
     df_90_degree = df[df['pulse_angle'] == 90]
     # save the df to a csv file
-    output_csv = r"D:\Dropbox\brucelee\data\DPE_bromination\pulse_angle_check_90.csv"
+    output_csv = os.path.join(DATA_ROOT, "DPE_bromination", "pulse_angle_check_90.csv")
     if not os.path.exists(os.path.dirname(output_csv)):
         os.makedirs(os.path.dirname(output_csv))
     df_90_degree.to_csv(output_csv, index=False)
@@ -803,7 +803,7 @@ def analyze_csv(path):
 
 if __name__ == '__main__':
 
-    bromination_path = r"D:\Dropbox\brucelee\data\DPE_bromination"
+    bromination_path = os.path.join(DATA_ROOT, "DPE_bromination")
 
     run_folders = [
         # bromination_path+r"\2025-02-19-run02_normal_run",
@@ -835,10 +835,10 @@ if __name__ == '__main__':
         # bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
         # bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
         
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz'
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
     ]
 
 
@@ -859,7 +859,7 @@ if __name__ == '__main__':
     #
     # # all_results_df = collect_all_json_results_form_every_spectrum(run_folders)
     #
-    # analyze_csv(path=r"D:\Dropbox\brucelee\data\DPE_bromination\full_experiment_DCE_TBABr3_with_TBA_fitting.csv")
+    # analyze_csv(path=os.path.join(DATA_ROOT, "DPE_bromination", "full_experiment_DCE_TBABr3_with_TBA_fitting.csv"))
     #
     #
     for path in run_folders:

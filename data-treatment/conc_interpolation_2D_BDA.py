@@ -26,9 +26,7 @@ matplotlib.use("TKAgg")
 
 import config
 
-
-
-BRUCELEE_PROJECT_DATA_PATH = config.dictionnary_H_count
+DATA_ROOT = config.DATA_ROOT
 
 def parse_starting_materials(data):
     """
@@ -408,11 +406,11 @@ def add_intg_norm_grouped(data: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
-intg_result_folder = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results"
-intg_result_file = intg_result_folder + r"\fitting_results.json"
-calib_info_path = intg_result_folder + r"\calibration_TBABr_BDA_conc.xlsx"
+intg_result_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone", "2025-12-12-run03_BDA_calibration", "400MHz", "Results")
+intg_result_file = os.path.join(intg_result_folder, "fitting_results.json")
+calib_info_path = os.path.join(intg_result_folder, "calibration_TBABr_BDA_conc.xlsx")
 
-calib_info_path_updated = r"D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run03_BDA_calibration\400MHz\Results\calibration_TBABr_BDA_conc_with_BDA.xlsx"
+calib_info_path_updated = os.path.join(intg_result_folder, "calibration_TBABr_BDA_conc_with_BDA.xlsx")
 
 # load json to dict
 with open(intg_result_file) as f:
@@ -548,12 +546,13 @@ if __name__ == "__main__":
 
     # assert 0
 
-    run_folders = \
-        [r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_long_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run01_BDA_2nd\Results_2025-12-12-run01_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz',
-        r'D:\Dropbox\brucelee\data\DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_400MHz'
-        ]
+    _bda = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
+    run_folders = [
+        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
+        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
+        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+    ]
 
     spectrum_folders = []
     for folder in run_folders:
