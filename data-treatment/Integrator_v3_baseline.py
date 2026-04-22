@@ -23,8 +23,7 @@ os.environ['OPENBLAS_NUM_THREADS'] = '1'                            #Uncomment t
 os.environ['MKL_NUM_THREADS'] = '1'                                 #Uncomment this if your set-up have issue with multithreading
 
 import config
-# get the system path of BRUCELEE_PROJECT_DATA_PATH
-BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
+DATA_ROOT = config.DATA_ROOT
 
 
 solvent_shift = None
@@ -1725,8 +1724,8 @@ def analyze_one_run_folder(master_path,
 
 if __name__ == "__main__":
 
-    data_dir = BRUCELEE_PROJECT_DATA_PATH
-    print(f"Path: {BRUCELEE_PROJECT_DATA_PATH}")
+    data_dir = DATA_ROOT
+    print(f"Path: {DATA_ROOT}")
     # run folder structure: [run_folder, run_sol, run_outliers]
     run_folders = [
                 #Bruce Lee

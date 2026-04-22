@@ -11,7 +11,7 @@ Workflow for each run folder:
     6. Optionally append zero-additive reference rows from the TBABr dataset.
     7. (Optional, currently commented out) Save the combined DataFrame to CSV.
 
-Data path is read from config.BRUCELEE_PROJECT_DATA_PATH, which resolves to
+Data path is read from config.DATA_ROOT, which resolves to
 the data/ folder at the repository root.
 
 Supported additives: TBABr, TBABr3, TBABF4, TBPBr.
@@ -29,7 +29,6 @@ import utils
 import config
 
 # data/ folder at repo root (one level up from this file)
-BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 DATA_ROOT = config.DATA_ROOT
 
 def check_and_return_folder_structure(run_folder):
@@ -319,7 +318,7 @@ if __name__ == "__main__":
 
     OUTLIERS = config.OUTLIERS
 
-    data_dir = BRUCELEE_PROJECT_DATA_PATH
+    data_dir = DATA_ROOT
     print(f'Data directory: {data_dir}')
 
     # run folder structure: [run_folder, run_sol, run_outliers]

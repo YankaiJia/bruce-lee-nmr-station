@@ -1,14 +1,12 @@
 import os
 
-BRUCELEE_PROJECT_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
-
 # Root folder of the experimental dataset.
-# Download from Zenodo (https://doi.org/10.5281/zenodo.XXXXXXX) and either:
+# Download from Zenodo and either:
 #   - Set the environment variable BRUCELEE_DATA_ROOT to your local path, or
 #   - Edit the fallback path below.
 DATA_ROOT = os.environ.get(
     "BRUCELEE_DATA_ROOT",
-    r"D:\Dropbox\brucelee\data"
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
 )
 
 

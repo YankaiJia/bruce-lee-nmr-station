@@ -17,7 +17,7 @@ plt.ioff() # Turn off interactive mode, so multithreading will work
 
 import config
 
-BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
+DATA_ROOT = config.DATA_ROOT
 
 def plot_integral(df, column_name_x, column_name_y, plot_name):
     labels = [f'reaction_{i}' for i in range(6)]
@@ -111,7 +111,7 @@ def get_interp_funcs(solvent_name, is_show_ref_curve=False, ):
 
     if solvent_name == 'DCE':
         # ref raw data
-        folder_ref = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\_Refs\\"
+        folder_ref = DATA_ROOT + "\\DPE_bromination\\_Refs\\"
         df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
         df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
 
@@ -131,7 +131,7 @@ def get_interp_funcs(solvent_name, is_show_ref_curve=False, ):
 
     elif solvent_name == 'MeCN':
         # ref raw data
-        folder_ref = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\_Refs_MeCN\\"
+        folder_ref = DATA_ROOT + "\\DPE_bromination\\_Refs_MeCN\\"
         df_ref_S= json_to_dataframe(folder_ref+"\\ref_S\\Results\\fitting_results.json")
         df_ref_B= json_to_dataframe(folder_ref+"\\ref_B\\Results\\fitting_results.json")
 
@@ -280,9 +280,9 @@ def interpolate_one_folder(result_folder, is_save_csv=False, is_show_plot=False)
 
 if __name__ == "__main__":
 
-    # result_folder = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+    # result_folder = DATA_ROOT + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
 
-    result_folder = BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
+    result_folder = DATA_ROOT + "\\DPE_bromination\\2025-02-19-run02_normal_run\\Results"
 
     df= interpolate_one_folder(result_folder,is_save_csv=True, is_show_plot=False)
 

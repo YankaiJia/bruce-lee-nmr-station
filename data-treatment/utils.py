@@ -11,7 +11,6 @@ import seaborn as sns
 
 import config
 
-BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 DATA_ROOT = config.DATA_ROOT
 
 
@@ -268,10 +267,10 @@ def move_files():
 
 
 def find_missing_conditions():
-    df_exp_done = pd.read_csv(BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\full_experiment_DCE_TBABr3_YJ_good.csv")
+    df_exp_done = pd.read_csv(DATA_ROOT + "\\DPE_bromination\\full_experiment_DCE_TBABr3_YJ_good.csv")
 
     df_all = pd.read_csv(
-        BRUCELEE_PROJECT_DATA_PATH + "\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\outVandC\\out_volumes_shuffled.csv")
+        DATA_ROOT + "\\DPE_bromination\\2025-04-15-run01_DCE_TBABr3_normal\\outVandC\\out_volumes_shuffled.csv")
 
     df_all.columns = ['global_index', 'vol#TBABr3', 'vol#Br2', 'vol#DPE', 'vol#DCE']
 
@@ -290,7 +289,7 @@ def find_missing_conditions():
 
     print(df_missing)
     # Save to CSV
-    output_path = os.path.join(BRUCELEE_PROJECT_DATA_PATH, "DPE_bromination", "missing_conditions.csv")
+    output_path = os.path.join(DATA_ROOT, "DPE_bromination", "missing_conditions.csv")
     df_missing.to_csv(output_path, index=False)
 
     return df_missing

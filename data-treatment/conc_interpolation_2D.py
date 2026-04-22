@@ -21,7 +21,6 @@ matplotlib.use('WebAgg')
 
 import config
 
-BRUCELEE_PROJECT_DATA_PATH = config.BRUCELEE_PROJECT_DATA_PATH
 DATA_ROOT = config.DATA_ROOT
 
 def json_to_intg_results(additive_type:str='TBABr'):
@@ -349,7 +348,7 @@ if __name__ == "__main__":
 
 
 
-    brom_folder = BRUCELEE_PROJECT_DATA_PATH + r"\\DPE_bromination"
+    brom_folder = DATA_ROOT + r"\\DPE_bromination"
 
     run_names = [
         # r"\2025-02-19-run02_normal_run",
