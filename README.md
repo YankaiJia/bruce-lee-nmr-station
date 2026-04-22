@@ -133,7 +133,7 @@ DATA_ROOT = r"C:\path\to\extracted\data"   # change this line
 
 If neither is set, the pipeline defaults to the `data/` folder at the repository root.
 
-### 3. Create the conda environment
+### 4. Create the conda environment
 
 ```bash
 conda env create -f environment.yml
