@@ -846,10 +846,11 @@ if __name__ == '__main__':
         # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
         # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
     
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run01_BDA_revise_Q1_24h"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run02_BDA_revise_Q2p_48h"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run03_BDA_revise_Q4_24h"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run01_BDA_revise_Q1_24h"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run02_BDA_revise_Q2p_48h"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run03_BDA_revise_Q4_24h"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-23-run01_BDA_revise_Q7_24h"),
 
     ]
 

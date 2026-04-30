@@ -3,7 +3,13 @@ This module is for interpolation of BDA reactions ONLY. Its input is the integra
 compounds, which is calculated by Louis. This module takes the area and interpolates them by a 2D calibration curve.
 The output of this script is the interpolated concentrations of different compounds.
 
-Yankai Jia 2026.01.05
+PRE-REQUISITES (run once per run folder via utils.py before executing this script):
+    1. put_run_condition_in_spectrum_folder(path, spectrum_frequency='400MHz')
+       → copies the reaction condition Excel into each spectrum subfolder
+    2. put_fitting_results_in_spec_folder(path)
+       → copies the NMR fitting JSON results into each spectrum subfolder
+
+Yankai Jia 2026.01.05, updated 2026.04.30
 """
 from matplotlib import pyplot as plt
 import pandas as pd
@@ -510,13 +516,20 @@ if __name__ == "__main__":
         # os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
         # os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
         # os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
-        os.path.join(_bda, "2026-04-22-run01_BDA_revise_Q1_24h"),
-        os.path.join(_bda, "2026-04-22-run02_BDA_revise_Q2p_48h"),
-        os.path.join(_bda, "2026-04-22-run03_BDA_revise_Q4_24h"),
-        os.path.join(_bda, "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
-
+        # os.path.join(_bda, "2026-04-22-run01_BDA_revise_Q1_24h"),
+        # os.path.join(_bda, "2026-04-22-run02_BDA_revise_Q2p_48h"),
+        # os.path.join(_bda, "2026-04-22-run03_BDA_revise_Q4_24h"),
+        # os.path.join(_bda, "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
+        os.path.join(_bda, "2026-04-23-run01_BDA_revise_Q7_24h"),
 
     ]
+
+    # PRE-REQUISITE: before running this script, prepare each run folder using utils.py:
+    #   1. put_run_condition_in_spectrum_folder(path, spectrum_frequency='400MHz')
+    #      → copies the reaction condition Excel into each spectrum subfolder
+    #   2. put_fitting_results_in_spec_folder(path)
+    #      → copies the NMR fitting JSON results into each spectrum subfolder
+    # Both steps are needed so that each spectrum folder contains its own condition + fitting data.
 
     spectrum_folders = []
     for folder in run_folders:
