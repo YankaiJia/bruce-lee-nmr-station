@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks, peak_prominences, peak_widths
+from scipy.signal import find_peaks
 from scipy.optimize import curve_fit
 from numpy.polynomial.polynomial import Polynomial
 import os
@@ -13,6 +13,7 @@ import concurrent.futures
 from scipy.optimize import least_squares
 import matplotlib.patheffects as path_effects
 import matplotlib
+from pybaselines import Baseline
 
 matplotlib.use('Agg')  # Use a non-interactive backend (no GUI)
 plt.ioff() # Turn off interactive mode, so multithreading will work
@@ -25,6 +26,8 @@ os.environ['MKL_NUM_THREADS'] = '1'                                 #Uncomment t
 import config
 DATA_ROOT = config.DATA_ROOT
 
+########################
+########################
 
 solvent_shift = None
 peak_width_50 = None
@@ -43,9 +46,10 @@ def specify_para(sol_name, outlier_type=None):
     requiring different windows or thresholds via `outlier_type` (eg."Type1" or "Type2")."""
 
 
-    global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
+    global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift, resolution_quality
 
     if sol_name == 'DCE':
+        resolution_quality = "80 MHz" 
         solvent_shift = 3.73  #ppm DCE
         peak_width_50 = 0.008  #ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
@@ -74,15 +78,10 @@ def specify_para(sol_name, outlier_type=None):
             "Alcohol": [6.727],  # ppm #Confirmed
             "HBr_adduct": [2.463],  # ppm #Confirmed
             "Acid": [8.5], #Acid
-            #"Bromo ketone": [8.18],  # ppm
-            #"Bromo ketone impurity 1": [7.99],  # ppm
-            #"Bromo ketone impurity 2": [7.96],  # ppm 
         }
 
         if outlier_type == 'Type1':  # Type 1 outlier: Asymetric pick upshift of Product B
             print("Type1 error paras are set in if conditon!")
-            # global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
-
 
             solvent_shift = 3.73  #ppm DCE
             peak_width_50 = 0.008  #ppm at 50% #Default 0.01
@@ -112,11 +111,8 @@ def specify_para(sol_name, outlier_type=None):
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
                 "Acid": [8.5], #Acid
-                #"Bromo ketone": [8.18],  # ppm
-                #"Bromo ketone impurity 1": [7.99],  # ppm
-                #"Bromo ketone impurity 2": [7.96],  # ppm 
+
             }
-            #pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier: Asymetric pick downshift of Product B
             print("Type2 error paras are set in if conditon!")
             # global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
@@ -149,13 +145,9 @@ def specify_para(sol_name, outlier_type=None):
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
                 "Acid": [8.5], #Acid
-                #"Bromo ketone": [8.18],  # ppm
-                #"Bromo ketone impurity 1": [7.99],  # ppm
-                #"Bromo ketone impurity 2": [7.96],  # ppm 
             } 
         elif outlier_type == 'Type3':  # Type 2 outlier: Asymetric pick downshift of Product B
             print("Type2 error paras are set in if conditon!")
-            # global solvent_shift, peak_width_50, threshold_amplitude, peaks_info, reference_shift
 
             solvent_shift = 3.73  #ppm DCE
             peak_width_50 = 0.008  #ppm at 50% #Default 0.01
@@ -185,56 +177,10 @@ def specify_para(sol_name, outlier_type=None):
                 "Alcohol": [6.727],  # ppm
                 "HBr_adduct": [2.463],  # ppm
                 "Acid": [8.5], #Acid
-                #"Bromo ketone": [8.18],  # ppm
-                #"Bromo ketone impurity 1": [7.99],  # ppm
-                #"Bromo ketone impurity 2": [7.96],  # ppm 
             } 
-            #pass
-
-    elif sol_name == 'MeCN':
-        solvent_shift = 1.94  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            #Old
-            # [7.80, 14],
-            # [6.5, 7.15],  
-            # [4.4, 4.80],  
-            # [3.8, 4.4],  
-            # [2.8, 3.3],
-            # [2.65,2.75]
-            #New
-            #[0.8, 1.6],
-            #[2.0, 3.3],  #Not good, salt in the middle
-            [2.0, 2.9],     #Instead of [2.0, 3.3],
-            [3.65, 4.40],
-            [4.41, 6.0],
-            [6.5, 7.15],
-            #[7.80, 14],  #Acid? #Irrelevant, skipped
-        ]
-        reference_shift = {
-            "Starting material": [5.454],  # ppm #Confirmed
-            "Water": [2.131],  #ppm #Confirmedp
-            "Product A": [3.946],  # ppm 
-            "Product B": [6.907],  # ppm #Confirmed
-            "SolventDown": [2.788],  # ppm #Confirmed
-            "SolventUp": [1.086],  # ppm #Confirmed
-            "Unknown 1": [4.610],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) 3-1D EXTENDED+-20250325-182317:300Br2, 150DPE,0TBAB
-            #"Unknown 2": [3.940],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317) Probably Product A
-            "Unknown 3": [7.024],  # ppm (Observed in  3-1D EXTENDED+-20250325-182317)
-            "Unknown 4": [2.425],  # ppm (Observed in  1-1D EXTENDED+-20250325-142708)  1-1D EXTENDED+-20250325-142708: 300Br2, 75DPE,300TBAB #Potentially water
-            "Unknown 5": [2.544],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)   7-1D EXTENDED+-20250325-185257: 112Br2, 262DPE,0TBAB
-            #"Unknown 6": [2.463],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
-            "HBr_adduct": [2.463],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
-            "Unknown 7": [2.364],  # ppm (Observed in   7-1D EXTENDED+-20250325-185257)
-            "Unknown 8": [2.937],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)  21-1D EXTENDED+-20250325-170904: 300Br2, 187DPE,0TBAB   #Detection hindered by salt
-            "Unknown 9": [4.201],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
-            "Unknown 10": [4.645],  # ppm (Observed in  21-1D EXTENDED+-20250325-170904)
-            "Acid": [8.0], #Acid? #Irrelevant, skipped
-            "Water": [2.13]
-        }
 
     elif sol_name == 'DCE-BF4':
+        resolution_quality = "80 MHz" 
         solvent_shift = 3.73  #ppm DCE
         peak_width_50 = 0.008  #ppm at 50% #Default 0.01
         threshold_amplitude = 1E-7  # Minimum threshold to be integrated
@@ -268,244 +214,183 @@ def specify_para(sol_name, outlier_type=None):
             "Bromo ketone impurity 2": [7.96],  # ppm 
         }
 
-
         if outlier_type == 'Type1':  # Type 1 outlier
             pass # change corresponding parameters
         elif outlier_type == 'Type2':  # Type 2 outlier
             pass
     
-    elif sol_name == 'MeCN-Nik':
-        solvent_shift = 1.94  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.1, 6.2],  #[5.2, 6.2],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],    
-             
+    elif sol_name == 'BDE-DCE': #400 MHz
+        resolution_quality = "400 MHz" 
+        solvent_shift = 3.73  #ppm DCE
+        peak_width_50 = 0.0005  #ppm at 50% #Default 0.01
+        threshold_amplitude = 10  # Minimum threshold to be integrated
+        peaks_info = [  # Begining of region of interest, End of region of interest, expected peak number
+            [4.0, 5.2],  # Methylenes
+            [5.8,7.0],  # Low alkenes
+            [7.92,8.4], # High alekenes
         ]
         reference_shift = {
-            "Benzoin_monomethoxy-CH1": [5.87],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.95],  # ppm
-            "Benzoin_dimethoxy-CH1": [5.73],  # ppm
-            "Benzoin_dimethoxy-CH2": [5.731],  # ppm  
-            # "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-            # "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-            # "Carbene_precursor-Methoxy": [3.82],  #ppm 
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
-            "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppm
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "unknown_peak_2":[11.07], #ppm
-            "unknown-double_doublet_1":[5.28], #ppm
-            "unknown-double_doublet_2":[5.36], #ppm
-            "unknown-double_doublet_3":[5.44], #ppm
-            "unknown-double_doublet_4":[5.47], #ppm
-            "unknown-doublet_1":[6.09], #ppm
-            "unknown-doublet_2":[6.16], #ppm
-            }
-        if outlier_type == 'Type1':  # Type 1 outlier
-            peak_width_50 = 0.008
-            peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.0, 6.3],  #[5.2, 6.2],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],
-            ]
-        elif outlier_type == 'Type2':  # Type 2 outlier
-            peak_width_50 = 0.008
-            pass
+            "Starting material-1": [6.69],  # ppm #Confirmed
+            "Starting material-2": [6.65],
 
-    elif sol_name == 'MeCN-Nik-4_pyr':
-        solvent_shift = 1.94  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.1, 6.78],  #[5.2, 6.2],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],    
-             
-        ]
-        reference_shift = {
-            "Benzoin_monomethoxy-CH1": [5.87],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.95],  # ppm
-            "Benzoin_dimethoxy-CH1": [5.73],  # ppm
-            "Benzoin_dimethoxy-CH2": [5.731],  # ppm  
-            # "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-            # "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-            # "Carbene_precursor-Methoxy": [3.82],  #ppm 
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
-            "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppm
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "unknown_peak_2":[11.07], #ppm
-            "unknown-double_doublet_1":[5.28], #ppm
-            "unknown-double_doublet_2":[5.36], #ppm
-            "unknown-double_doublet_3":[5.44], #ppm
-            "unknown-double_doublet_4":[5.47], #ppm
-            "unknown-doublet_1":[6.09], #ppm
-            "unknown-doublet_2":[6.16], #ppm
-            }
-        
-    elif sol_name == 'MeCN-Nik-morph':
-        solvent_shift = 1.94  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [4.0, 6.2],  #[5.2, 6.2],
-            #[3.6, 4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],    
-             
-        ]
-        reference_shift = {
-            "Benzoin_monomethoxy-CH1": [5.87],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.95],  # ppm
-            "Benzoin_dimethoxy-CH1": [5.73],  # ppm
-            "Benzoin_dimethoxy-CH2": [5.731],  # ppm  
-            # "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-            # "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-            # "Carbene_precursor-Methoxy": [3.82],  #ppm 
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
-            "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppm
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "Unknown_peak_2":[11.07], #ppm
-            "unknown-double_doublet_1":[5.28], #ppm
-            "unknown-double_doublet_2":[5.36], #ppm
-            "unknown-double_doublet_3":[5.44], #ppm
-            "unknown-double_doublet_4":[5.47], #ppm
-            "unknown-doublet_1":[6.09], #ppm
-            "unknown-doublet_2":[6.16], #ppm
-            }
-        
-    elif sol_name == 'MeCN-Nik-DBU':
-        solvent_shift = 1.94  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [4.9, 6.2],  #[5.2, 6.2],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],    
-             
-        ]
-        reference_shift = {
-            "Benzoin_monomethoxy-CH1": [5.87],  # ppm
-            "Benzoin_monomethoxy-CH2": [5.95],  # ppm
-            "Benzoin_dimethoxy-CH1": [5.73],  # ppm
-            "Benzoin_dimethoxy-CH2": [5.731],  # ppm  
-            # "Benzoin_dimethoxy-Methoxy1": [3.71],  #ppm
-            # "Benzoin_dimethoxy-Methoxy2": [ 3.79],  #ppm  
-            # "Carbene_precursor-Methoxy": [3.82],  #ppm 
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm
-            "p-Methoxybenzaldehyde-Carbonyl": [9.84], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppm
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "unknown_peak_2":[11.07], #ppm
-            "unknown-double_doublet_1":[5.28], #ppm
-            "unknown-double_doublet_2":[5.36], #ppm
-            "unknown-double_doublet_3":[5.44], #ppm
-            "unknown-double_doublet_4":[5.47], #ppm
-            "unknown-doublet_1":[6.09], #ppm
-            "unknown-doublet_2":[6.16], #ppm
-            }
-    
-    elif sol_name == 'DMSO-Nik':
-        solvent_shift = 2.5  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [5.1, 6.2],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],
+            "Product_PX1-1": [5.3345],
+            "Product_PX1-2": [5.3045],
+            "Product_PX1-3": [4.99],
+            "Product_PX1-4": [4.97],
+            
+            "Product_PX1_prime-1": [5.3515],
+            "Product_PX1_prime-2": [5.3275],
+            "Product_PX1_prime-3": [4.9250],
+            "Product_PX1_prime-4": [4.9000],
 
-        ]
-        reference_shift = {
-            "SM-NH2": [5.71],  # ppm
-            "Benzoin_monomethoxy-CH1": [5.98],  # ppm
-            "unkown-double_doublet_1":[5.46], #ppm
-            "unkown-double_doublet_2":[5.49], #ppm
-            "unkown-double_doublet_3":[5.53], #ppm
-            "unkown-double_doublet_4":[5.57], #ppm
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
-            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppmf
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "unknown_peak_2":[11.07], #ppm
-            }
-        
-    elif sol_name == 'DMSO-Nik-DBU':
-        solvent_shift = 2.5  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [4.9, 6.2],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],
+            "Product_PX2-1": [5.3850],
+            "Product_PX2-2": [5.3570],
+            "Product_PX2-3": [5.3300],
+            "Product_PX2-4": [5.3000],
+            "Product_PX2-5": [4.3850],
+            "Product_PX2-6": [4.3515],
+            "Product_PX2-7": [4.2654],
+            "Product_PX2-8": [4.2313],
 
-        ]
-        reference_shift = {
-            "SM-NH2": [5.71],  # ppm
-            "Benzoin_monomethoxy-CH1": [5.98],  # ppm
-            "unkown-double_doublet_1":[5.46], #ppm
-            "unkown-double_doublet_2":[5.49], #ppm
-            "unkown-double_doublet_3":[5.53], #ppm
-            "unkown-double_doublet_4":[5.57], #ppm
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
-            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppmf
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "unknown_peak_2":[11.07], #ppm
-            }
+            "Product_PX3-1": [6.43],
+            "Product_PX3-2": [5.4550],
+            "Product_PX3-3": [5.4290],
+            "Product_PX3-4": [5.4100],
+            "Product_PX3-5": [5.3800],
 
-    elif sol_name == 'DMSO-Nik-DBN':
-        solvent_shift = 2.5  # ppm ACN
-        peak_width_50 = 0.008  # ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [4.2, 6.4],
-            #[3.6,4.0],   #Methoxy tend to shift, not fitted anymore
-            [9.5,10.5],
+            "Product_PX4-1": [8.00],
 
-        ]
-        reference_shift = {
-            "SM-NH2": [5.71],  # ppm
-            "Benzoin_monomethoxy-CH1": [5.98],  # ppm
-            "unkown-double_doublet_1":[5.46], #ppm
-            "unkown-double_doublet_2":[5.49], #ppm
-            "unkown-double_doublet_3":[5.53], #ppm
-            "unkown-double_doublet_4":[5.57], #ppm
-            "p-Methoxybenzaldehyde-Methoxy": [3.86],  #ppm To verify
-            "p-Methoxybenzaldehyde-Carbonyl": [9.82], #ppm
-            "Benzaldehyde-Carbonyl": [9.98], #ppmf
-            "Benzaldehyde-Carbonyl_satellite":[10.12], #ppm
-            "unknown_peak_2":[11.07], #ppm
-            }
+            "Product_PX5-1": [8.09],
+            "Product_PX5-2": [4.4900],
+            
+            "Product_PX5_prime-1": [8.07],
+            "Product_PX5_prime-2": [4.7500],
 
+            "Product_PX6-1": [8.23],
+            "Product_PX6-2": [7.000],
 
+            "Product_PX7-1": [6.8780],
+            "Product_PX7-2": [6.9180],
+            "Product_PX7-3": [4.1180],
+            "Product_PX7-4": [7.6140],
+            "Product_PX7-5": [7.6560],
 
-    if sol_name == 'CDCL3-Eric':
-        solvent_shift = 7.26  #ppm CDCL3
-        peak_width_50 = 0.005  #ppm at 50% #Default 0.01
-        threshold_amplitude = 1E-7  # Minimum threshold to be integrated
-        peaks_info = [  # Begining of region of itnerest, End of region of interest, expected peak number
-            [6.65, 6.85],  # Up range
-            [6.45, 6.64],  # Low-RAnge
+            "Product_PX7_prime-1": [6.9500],
+            "Product_PX7_prime-2": [6.9836],
+            "Product_PX7_prime-3": [4.3366],
+            "Product_PX7_prime-4": [7.8000],
+            "Product_PX7_prime-5": [7.8393],
 
-        ]
-        reference_shift = {
-            "DP-Up_1": [6.7526],  # ppm #Confirmed
-            "DP-Up_2": [6.7510],
-            "DP-Up_3": [6.7486],
-            "Impurity A": [6.7789],  # ppm #Confirmed
-            "Impurity B_1": [6.7376],  # ppm #Confirmed
-            "Impurity B_2": [6.7327],  # ppm #Confirmed
-            "Impurity C_1": [6.7046],  # ppm #Confirmedz
-            "Impurity C_2": [6.7007],   # ppm
-            "DP-Down_1": [6.5583],  # ppm #Confirmed
-            "DP-Down_2": [6.5519],
-            "Impurity D": [6.5147],
-            "Impurity E": [6.4918],
+            "Product_PX8-1": [7.2020],
+            "Product_PX8-2": [7.2440],
+            "Product_PX8-3": [6.0520],
+            "Product_PX8-4": [7.8000],
+            "Product_PX8-5": [7.8390],
+
+            "Product_PX8_prime-1": [7.1390],
+            "Product_PX8_prime-2": [7.7840],
+            "Product_PX8_prime-3": [6.1515],
+            "Product_PX8_prime-4": [7.8126],
+            "Product_PX8_prime-5": [7.8517],
+
+            "Product_PU1-1": [5.9224],            
         }
+        dictionnary_H_count= {  #Normalisation dictionnary
+            "Starting material-1": 0.5, #H expected for this signal  
+            "Starting material-2": 0.5, #H expected for this signal
 
+            "Product_PX1-1": 0.5, #H expected for this signal
+            "Product_PX1-2": 0.5, #H expected for this signal
+            "Product_PX1-3": 0.5, #H expected for this signal
+            "Product_PX1-4": 0.5, #H expected for this signal
+            
+            "Product_PX1_prime-1": 0.5, #H expected for this signal
+            "Product_PX1_prime-2": 0.5, #H expected for this signal
+            "Product_PX1_prime-3": 0.5, #H expected for this signal
+            "Product_PX1_prime-4": 0.5, #H expected for this signal
+
+            "Product_PX2-1": 0.5, #H expected for this signal
+            "Product_PX2-2": 0.5, #H expected for this signal
+            "Product_PX2-3": 0.5, #H expected for this signal
+            "Product_PX2-4": 0.5, #H expected for this signal
+            "Product_PX2-5": 0.5, #H expected for this signal
+            "Product_PX2-6": 1, #H expected for this signal
+            "Product_PX2-7": 1, #H expected for this signal
+            "Product_PX2-8": 0.5, #H expected for this signal
+
+            "Product_PX3-1": 1,#H expected for this signal
+            "Product_PX3-2": 0.5, #H expected for this signal
+            "Product_PX3-3": 0.5, #H expected for this signal
+            "Product_PX3-4": 0.5, #H expected for this signal
+            "Product_PX3-5": 0.5, #H expected for this signal
+
+            "Product_PX4-1": 1, #H expected for this signal
+
+            "Product_PX5-1": 1, #H expected for this signal
+            "Product_PX5-2": 2, #H expected for this signal
+            
+            "Product_PX5_prime-1": 1, #H expected for this signal
+            "Product_PX5_prime-2": 2, #H expected for this signal
+
+            "Product_PX6-1": 1, #H expected for this signal
+            "Product_PX6-2": 1, #H expected for this signal
+
+            "Product_PX7-1": 0.5, #H expected for this signal
+            "Product_PX7-2": 0.5, #H expected for this signal
+            "Product_PX7-3": 2, #H expected for this signal
+            "Product_PX7-4": 0.5, #H expected for this signal
+            "Product_PX7-5": 0.5, #H expected for this signal
+
+            "Product_PX7_prime-1": 0.5, #H expected for this signal
+            "Product_PX7_prime-2": 0.5, #H expected for this signal
+            "Product_PX7_prime-3": 2, #H expected for this signal
+            "Product_PX7_prime-4": 0.5, #H expected for this signal
+            "Product_PX7_prime-5": 0.5, #H expected for this signal
+
+            "Product_PX8-1": 0.5, #H expected for this signal
+            "Product_PX8-2": 0.5, #H expected for this signal
+            "Product_PX8-3": 1, #H expected for this signal
+            "Product_PX8-4": 0.5, #H expected for this signal
+            "Product_PX8-5": 0.5, #H expected for this signal
+
+            "Product_PX8_prime-1": 0.5, #H expected for this signal
+            "Product_PX8_prime-2": 0.5, #H expected for this signal
+            "Product_PX8_prime-3": 1, #H expected for this signal
+            "Product_PX8_prime-4": 0.5, #H expected for this signal
+            "Product_PX8_prime-5": 0.5, #H expected for this signal
+
+            "Product_PU1-1": 1, #H hypothtetical, structure unknown 
+                    
+            }
+        dictionnary_stockiometry= {  #Stockiometry dictionnary
+            "Starting material": {'Br':0,'BDA':1},   
+
+            "Product_PX1": {'Br':1,'BDA':1},  
+            
+            "Product_PX1_prime": {'Br':1,'BDA':1},  
+
+            "Product_PX2": {'Br':2,'BDA':1},  
+
+            "Product_PX3": {'Br':3,'BDA':1},  
+
+            "Product_PX4": {'Br':1,'BDA':1},  
+
+            "Product_PX5": {'Br':2,'BDA':1},  
+            
+            "Product_PX5_prime": {'Br':2,'BDA':1},  
+
+            "Product_PX6": {'Br':3,'BDA':1},  
+
+            "Product_PX7": {'Br':1,'BDA':1},  
+
+            "Product_PX7_prime": {'Br':1,'BDA':1},  
+
+            "Product_PX8": {'Br':2,'BDA':1},  
+
+            "Product_PX8_prime": {'Br':2,'BDA':1},  
+
+            "Product_PU1": {'Br':1,'BDA':1},   #structure unknow, stockiometry placeholder 
+            }
 
 
 def CSV_Loader(name_file, Yankai_temporary_fix=True):  #Yankai_temporary_fix: quick fix for the inverted ppm scale
@@ -742,6 +627,7 @@ def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, st
 
     kwargs={
         'x_scale' : x_scale,
+        'verbose' : 1,
         }
 
     if x_scale is not None:
@@ -765,7 +651,7 @@ def fit_with_bounds(model_func,shift_array, intensity_array, initial_guesses, st
             xtol=1e-14,  # Parameter change tolerance
             gtol=1e-14,  # Gradient tolerance
             )
-
+    
     return popt, covariance_matrix
 
 def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initial_guesses, std_deviation, lower_bounds, upper_bounds, x_scale=None):
@@ -779,7 +665,7 @@ def fit_with_bounds_do_your_best(model_func,shift_array, intensity_array, initia
     kwargs={
         'x_scale' : x_scale,
         }
-
+    
 
     def residuals(params, x, y, sigma):
         return (y - model_func(x, *params)) / sigma
@@ -832,9 +718,6 @@ def exponential_decay(x, a, b, c):   # Gaussian type baseline
 
 def linear_baseline (x,a,b): #Linear type baseline
     return a*x+b
-
-def exponential_decay_linear_corrected(x, a, b, c, d):   #EXPERIMENTAL (NOT TESTED YET)
-    return np.exp(np.clip(a * (x + b), -700, 700)) + c + d * x  # add clip to avoid overflow
 
 def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_correction=False, force_line=False, ppm_window=0.1): #ppm_window=0.1 Default
     
@@ -913,16 +796,7 @@ def baseline_fit(shift_array, intensity_array, ppm_per_index,baseline_linear_cor
             log_start/log_slope,  # B_guess (Decay/Growth)
             np.min(intensity_array),  # C_guess (Offset)
         ]
-    else:
-        baseline_function = exponential_decay_linear_corrected
-        initial_guess = [
-            log_slope,   # A_guess (Amplitude)
-            log_start/log_slope,  # B_guess (Decay/Growth)
-            np.min(intensity_array),  # C_guess (Offset)
-            0 # D_guess (Linear correction)
-        ]
-
-    if force_line == True:
+    elif force_line == True:
         baseline_function = linear_baseline
         initial_guess = [
             (intensity_array[0]-intensity_array[-1])/(shift_array[0]-shift_array[-1]),   # A_guess (Slope)
@@ -1021,7 +895,7 @@ def fit_peaks(NMR_spectrum, std_deviation,
         `'intensity'`, `'shift'`, `'width'`,
         `'intensity_error'`, `'shift_error'`, `'width_error'`,
         `'peak_intensity_lorentzian'`.
-"""
+    """
     
     
     shift_array = NMR_spectrum[:, 0]
@@ -1031,12 +905,33 @@ def fit_peaks(NMR_spectrum, std_deviation,
     warning_string = None
     
 
+    if resolution_quality == "400 MHz":
 
-    peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes)
-    # If no peaks are found, stop
-    if len(peaks) == 0:
-        print(f"Slices skipped, no peak found.")
-        return [], [], None, []
+        if baseline_correction == True:
+
+            bl = Baseline(shift_array)
+            baseline, params = bl.mixture_model(intensity_array, lam=10000.0, p=0.001, num_knots=150, spline_degree=3, diff_order=3, max_iter=200, tol=0.001, weights=None, symmetric=False, num_bins=None)
+            intensity_array -= baseline
+        
+        peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes,prominence=std_deviation*4,rel_height=0.1)
+
+        # If no peaks are found, stop
+        if len(peaks) == 0:
+            print(f"Slices skipped, no peak found.")
+            return [], [], None, []
+
+    else:
+
+        peaks, peaks_properties = find_peaks(intensity_array, width=estimated_peak_width_for_indexes ) 
+
+        # If no peaks are found, stop
+        if len(peaks) == 0:
+            print(f"Slices skipped, no peak found.")
+            return [], [], None, []
+
+
+
+
 
     # Get initial guesses for peak parameters (amplitude, center, width)
     initial_guesses = []
@@ -1077,29 +972,31 @@ def fit_peaks(NMR_spectrum, std_deviation,
         parameter_number=5
 
 
-    if baseline_correction == True:
+    if resolution_quality=="80 MHz":
+        if baseline_correction == True:
 
-        try:
-            baseline = baseline_fit(shift_array, intensity_array, ppm_step)
-        except Exception as e:
-            print(f"Baseline could not be corrected:{e} \nAttempt with reduced window...")
             try:
-                baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.05)
-            except:
-                warning_string = "Baseline difficult to fit"
+                baseline = baseline_fit(shift_array, intensity_array, ppm_step)
+            except Exception as e:
+                print(f"Baseline could not be corrected:{e} \nAttempt with reduced window...")
                 try:
-                    baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.025)
+                    baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.05)
                 except:
-                    print("Exponential baseline could not be fitted")
-                    warning_string = "Exponential baseline could not be fitted"
+                    warning_string = "Baseline difficult to fit"
                     try:
-                        baseline = baseline_fit(shift_array, intensity_array, ppm_step,force_line=True, ppm_window=0.025)
+                        baseline = baseline_fit(shift_array, intensity_array, ppm_step, ppm_window=0.025)
                     except:
-                        baseline = np.zeros_like(intensity_array)
-                        warning_string = "No baseline could be fitted"
+                        print("Exponential baseline could not be fitted")
+                        warning_string = "Exponential baseline could not be fitted"
+                        try:
+                            baseline = baseline_fit(shift_array, intensity_array, ppm_step,force_line=True, ppm_window=0.025)
+                        except:
+                            baseline = np.zeros_like(intensity_array)
+                            warning_string = "No baseline could be fitted"
 
-        finally:
-            intensity_array -= baseline
+            finally:
+                intensity_array -= baseline
+
 
     x_scale=initial_guesses
 
@@ -1558,6 +1455,7 @@ def process_nmr_peaks(
     if is_save_plot and fig_combined:
         fig_combined.savefig(file_dir + "\\fitting_results.png")
 
+
     return results_dictionary
 
 def analyze_one_spectrum(file_name, sol_name,  outliers):
@@ -1680,7 +1578,9 @@ def analyze_one_run_folder(master_path,
     # Iterate through subfolders inside "Results"
     for folder in os.listdir(results_path):
         folder_path = os.path.join(results_path, folder)
-        if "1D EXTENDED" in folder_path:
+
+        if "1D EXTENDED" in folder_path or "BDA" in folder_path  :
+            
             try:
                 data_dir_ls.append(folder_path)
                 data_file = folder_path + "\\data.csv"
@@ -1696,7 +1596,7 @@ def analyze_one_run_folder(master_path,
 
     # Use ThreadPoolExecutor for multithreaded analysis
     #with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:  ###Comment this if your set-up have issue with multithreading
-    with concurrent.futures.ProcessPoolExecutor(max_workers=12) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
+    with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:  ###Uncomment this if your set-up have issue with multithreading, 12 worker by default
 
         # Submit all file jobs to the thread pool
         futures = [executor.submit(analyze_one_spectrum, file_name, sol_name, outliers)
@@ -1732,7 +1632,6 @@ if __name__ == "__main__":
                 # ["\\DPE_bromination\\2025-02-19-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-01-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2'}],
-                # [r"\\LGA\\test-tempo\\2025-03-03-run01_normal_run\\", 'DCE', {46: 'Type1', 47: 'Type2', 34: 'Type3'}],
                 # ["\\DPE_bromination\\2025-03-03-run02_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-05-run01_normal_run\\", 'DCE', None],
                 # ["\\DPE_bromination\\2025-03-12-run01_better_shimming\\", 'DCE', None]
@@ -1753,92 +1652,13 @@ if __name__ == "__main__":
                 # [r"\\DPE_bromination\\2025-03-03-run02_normal_run", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-03-05-run01_normal_run", 'DCE', None],
                 # [r"\\DPE_bromination\\2025-03-12-run01_better_shimming", 'DCE', None],
-                #[r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', {21: 'Type1'}],
+                # [r"\\DPE_bromination\\2025-07-01-run01_DCE_TBABr_rerun", 'DCE', {21: 'Type1'}],
                 # [r"\\DPE_bromination\\_Refs\\ref_S_all_TBABr",'DCE',None]
-
-                # # #NIK Calibration
-                # ["\\NV\\Final Data\\Calibrations\\MeCN\\Methoxy benzoin_4\\",'MeCN-Nik', None],
-
-                # #NIK ACN Pyridine serie
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\Pyridine_cmpd\\2025-05-15-run01_MeCN_Pyr\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run01_MeCN_DMAP\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\DMAP\\2025-06-16-run02_MeCN_DMAP\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run01_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\2025-06-25-run02_MeCN_4_Pyrrol_Pyr\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run01_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', {9: 'Type2',6: 'Type2',19: 'Type2', 18: 'Type2',3: 'Type2',13: 'Type2' ,24: 'Type2'}],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-20-run02_MeCN_4_Morph_Pyr\\", 'MeCN-Nik', {4: 'Type1', 14: 'Type2',10: 'Type2', 9: 'Type2'}],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run01_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-18-run02_MeCN_4_Me_Pyr\\", 'MeCN-Nik-longer_range', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
-                # ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_MeCN_4_Methoxy_Pyr\\", 'MeCN-Nik-4_pyr', None],
-               
-                #OLD
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\_old\\2025-05-19-run01_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
-                ["\\NV\\Final Data\\MeCN\\Pyridine-based nucleophiles\\4-Pyrrolidinopyridine\\_old\\2025-05-19-run02_MeCN_4_pyrrolidinopyridine\\", 'MeCN-Nik', None],
-
-                # # #NIK ACN Other base serie
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run01_MeCN_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DABCO\\2025-06-02-run02_MeCN_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run01_MeCN_DBN\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBN\\2025-06-03-run02_MeCN_DBN\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run01_MeCN_DBU\\", 'MeCN-Nik-DBU', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\DBU\\2025-05-21-run02_MeCN_DBU\\", 'MeCN-Nik-DBU', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run01_MeCN_Morph\\", 'MeCN-Nik-morph', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Morpholine\\2025-06-23-run02_MeCN_Morph\\", 'MeCN-Nik-morph', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_MeCN_N_Me_Morph\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run01_MeCN_1MePiper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl piperidine\\2025-05-26-run02_MeCN_1MePiper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run01_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-27-run02_MeCN_N_Me_Pyrrol\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run01_MeCN_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Piperidine\\2025-06-01-run02_MeCN_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_MeCN_Pyrrol\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_MeCN_Pyrrol\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run01_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\MeCN\\Other nucleophiles\\Quinuclidine\\2025-06-14-run02_MeCN_Quinuclidine\\", 'MeCN-Nik', None],
-
-                # # #NIK DMSO Pyridine serie
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run01_DMSO_DMAP\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\DMAP\\2025-06-17-run02_DMSO_DMAP\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\Pyridine\\2025-06-04-run01_DMSO_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\Pyridine\\2025-06-04-run02_DMSO_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-07-run01_DMSO_4_Pyrr_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-07-run02_DMSO_4_Pyrr_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-26-run01_DMSO_4_Pyrrol_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Pyrrolidino pyridine\\2025-06-26-run02_DMSO_4_Pyrrol_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-21-run01_DMSO_4_Morph_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Morpholino pyridine\\2025-06-21-run02_DMSO_4_Morph_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run01_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methyl pyridine\\2025-06-19-run02_DMSO_4_Me_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run01_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Pyridine-based nucleophiles\\4-Methoxy pyridine\\2025-06-22-run02_DMSO_4_Methoxy_Pyr\\", 'DMSO-Nik', None],
-                
-                # # #NIK DMSO Other base serie
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DABCO\\2025-06-12-run01_DMSO_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DABCO\\2025-06-12-run02_DMSO_DABCO\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBN\\2025-06-09-run01_DMSO_DBN\\", 'MeCN-Nik-DBN', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBN\\2025-06-09-run02_DMSO_DBN\\", 'MeCN-Nik-DBN', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBU\\2025-06-08-run01_DMSO_DBU\\", 'MeCN-Nik-DBU', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\DBU\\2025-06-08-run02_DMSO_DBU\\", 'MeCN-Nik-DBU', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Morpholine\\2025-06-26-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Morpholine\\2025-06-26-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run01_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl morpholine\\2025-06-24-run02_DMSO_Morpholine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run01_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl piperidine\\2025-06-11-run02_DMSO_1_Me_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run01_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\N-Methyl pyrrolidine\\2025-06-28-run02_DMSO_N_Me_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Piperidine\\2025-06-10-run01_DMSO_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Piperidine\\2025-06-10-run02_DMSO_Piper\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run01_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Pyrrolidine\\2025-06-25-run02_DMSO_Pyrrolidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Quinuclidine\\2025-06-15-run01_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
-                # ["\\NV\\Final Data\\DMSO\\Other nucleophiles\\Quinuclidine\\2025-06-15-run02_DMSO_Quinuclidine\\", 'MeCN-Nik', None],
-
-                # # #Eric
-                # [r"\\LGA\\test_tempo\\Tempo_structure_Eric\\", 'CDCL3-Eric', None],
-
+                # [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run03_BDA_calibration\\400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run01_BDA_2nd\\Results_2025-12-12-run01_long_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run02_BDA_2nd\\Results_2025-12-12-run02_400MHz",'BDE-DCE',None],
+                [r"\\DPE_bromination\\_BDA_Benzylideneacetone\\2025-12-12-run02_BDA_2nd\\Results_2025-12-12-run02_long_48h_400MHz",'BDE-DCE',None]
             ]
 
     for run_folder in run_folders:

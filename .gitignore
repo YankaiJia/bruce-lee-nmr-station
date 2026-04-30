@@ -19,3 +19,6 @@ env/
 # Type checkers
 .mypy_cache/
 .pytype/
+
+# Cython debug symbols
+cython_debug/
