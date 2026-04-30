@@ -568,6 +568,8 @@ def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400M
     # merge by 'global_index'
     df_merged = pd.merge(df_run_excel, df_global_conc, on='global_index', how='inner')  # or 'left' if needed
 
+    print(df_merged)
+
     # save each row to the corresponding folder
     results_folder = run_path + r'\\Results'
 
@@ -586,13 +588,18 @@ def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400M
 
 
     spec_folders_name = [os.path.basename(folder) for folder in spec_folders_path]
+    print(f'spec_folders_name: {spec_folders_name}')
     spec_indices=None
     if spectrum_frequency == '80MHz':
         spec_indices = [int(name.split('-1D')[0]) for name in spec_folders_name]
-    folder_structure = 'YS'
+
+    folder_structure = 'YS' # this is Yasemin's folder structure. 
     if folder_structure == 'YS':
         print(f'spec_folders_name: {spec_folders_name}')
-        spec_indices = [int(name.split('-')[-1]) for name in spec_folders_name if '1D EXTENDED' in name]
+        spec_indices = [int(re.split(r'[-_]', name)[-1]) for name in spec_folders_name]  # split on - or _ to handle both naming conventions
+        print(f"spec_indices: {spec_indices}")
+
+    assert len(spec_indices)>0, "spec_indices is empty!!"
 
     # save each row to corresponding spec folder
     for idx, spec_index in enumerate(spec_indices):
@@ -610,7 +617,7 @@ def put_run_condition_in_spectrum_folder(run_path=None, spectrum_frequency='400M
             row_dict = match_row.iloc[0].to_dict()
             row_dict['spectrum_path'] = spec_folders_path[idx]
             json.dump(row_dict, f, ensure_ascii=False, indent=2)
-            print(f'Saved reacion info json: {json_path}')
+            print(f'!!Saved reacion info json: {json_path}')
 
 def put_fitting_results_in_spec_folder(run_path=None):
 
@@ -834,10 +841,16 @@ if __name__ == '__main__':
         # bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
         # bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
         
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+    
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run01_BDA_revise_Q1_24h"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run02_BDA_revise_Q2p_48h"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run03_BDA_revise_Q4_24h"),
+        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
+
     ]
 
 

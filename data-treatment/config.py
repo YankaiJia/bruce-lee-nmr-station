@@ -4,10 +4,13 @@ import os
 # Download from Zenodo (https://doi.org/10.5281/zenodo.17080099) and either:
 #   - Set the environment variable BRUCELEE_DATA_ROOT to your local path, or
 #   - Edit the fallback path below.
+
 DATA_ROOT = os.environ.get(
     "BRUCELEE_DATA_ROOT",
     os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
 )
+print(f"DATA_ROOT is: {DATA_ROOT}")
+
 
 
 dictionnary_H_count = {  # Normalisation dictionnary

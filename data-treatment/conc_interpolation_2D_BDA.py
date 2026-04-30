@@ -14,7 +14,7 @@ from collections import defaultdict
 import json, os, re
 
 from scipy.optimize import minimize_scalar
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error
 from scipy.interpolate import Rbf
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
@@ -108,44 +108,6 @@ def append_starting_materials_intg(
         df.to_excel(save_path, index=False)
 
     return df
-
-
-def five_fold_validation(X, y):
-    # === Initialize 5-fold cross-validation ===
-    kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-    r2_scores = []
-    rmse_scores = []
-
-    # === Cross-validation loop ===
-    for train_index, test_index in kf.split(X):
-        # Split into training and test sets
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-
-        # Train RBF on training set
-        rbf_model = Rbf(X_train[:, 0], X_train[:, 1], y_train, function='multiquadric')
-
-        # Predict on test set
-        y_pred = rbf_model(X_test[:, 0], X_test[:, 1])
-
-        # Evaluate
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        r2 = r2_score(y_test, y_pred)
-
-        # Store results
-        rmse_scores.append(rmse)
-        r2_scores.append(r2)
-
-    # === Summary statistics ===
-    avg_rmse = np.mean(rmse_scores)
-    avg_r2 = np.mean(r2_scores)
-
-    print(f"5-Fold Cross-Validation Results:")
-    print(f"  Average RMSE: {avg_rmse:.2f}")
-    print(f"  Average R² Score: {avg_r2:.4f}")
-
-    return avg_rmse, avg_r2
 
 
 def five_fold_validation(
@@ -542,22 +504,24 @@ def plot_linear_origin_fit(
 
 if __name__ == "__main__":
 
-    estimate_conc_by_rbf_model = get_estimator()
-
-    # assert 0
-
     _bda = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
     run_folders = [
-        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
-        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
-        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
-        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+        # os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
+        # os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
+        # os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+        # os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+        os.path.join(_bda, "2026-04-22-run01_BDA_revise_Q1_24h"),
+        os.path.join(_bda, "2026-04-22-run02_BDA_revise_Q2p_48h"),
+        os.path.join(_bda, "2026-04-22-run03_BDA_revise_Q4_24h"),
+        os.path.join(_bda, "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
+
+
     ]
 
     spectrum_folders = []
     for folder in run_folders:
         result_folder = folder + r'\Results'
-        assert os.path.isdir(result_folder), 'Result folder does not exist!!'
+        assert os.path.isdir(result_folder), f'Result folder does not exist: {result_folder}'
         # get all subfolders that contain 'BDA' in the folder name
         subfolders_for_spectrum = [
             os.path.join(result_folder, name)
