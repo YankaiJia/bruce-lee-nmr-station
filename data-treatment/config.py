@@ -130,6 +130,23 @@ dictionnary_stockiometry = {
 # os.path.join(DATA_ROOT, r'DPE_bromination\_BDA_Benzylideneacetone\2025-12-12-run02_BDA_2nd\Results_2025-12-12-run02_long_48h_400MHz\Results\BDA-2025-12-12-run02-long-9')
 
 
+_BDA_ROOT = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
+
+# All known BDA run folders — select from these in each script's __main__ block.
+# Add new runs here; scripts never need to hardcode paths.
+BDA_RUN_FOLDERS = {
+    "run01_short":          os.path.join(_BDA_ROOT, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
+    "run01_long":           os.path.join(_BDA_ROOT, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
+    "run02_short":          os.path.join(_BDA_ROOT, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
+    "run02_long":           os.path.join(_BDA_ROOT, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+    "revise_Q1_24h":        os.path.join(_BDA_ROOT, "2026-04-22-run01_BDA_revise_Q1_24h"),
+    "revise_Q2p_48h":       os.path.join(_BDA_ROOT, "2026-04-22-run02_BDA_revise_Q2p_48h"),
+    "revise_Q4_24h":        os.path.join(_BDA_ROOT, "2026-04-22-run03_BDA_revise_Q4_24h"),
+    "revise_Q1_Q4_Q7_Q2p":  os.path.join(_BDA_ROOT, "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
+    "revise_Q7_24h":        os.path.join(_BDA_ROOT, "2026-04-23-run01_BDA_revise_Q7_24h"),
+}
+
+
 OLD_NAME_VS_NEW_NAME_DICT = {
     'px1': 'anti-Q1',
     'px1p': 'syn-Q1',

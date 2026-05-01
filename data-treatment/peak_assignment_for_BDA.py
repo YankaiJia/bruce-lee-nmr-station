@@ -2059,12 +2059,12 @@ def reorder_intg_and_conc_columns(df):
 
 if __name__ == "__main__":
 
-    _bda = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
+    F = config.BDA_RUN_FOLDERS  # shorthand
     run_folders = [
-        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
-        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
-        os.path.join(_bda, "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
-        os.path.join(_bda, "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
+        F["run01_short"],
+        F["run02_short"],
+        F["run01_long"],
+        F["run02_long"],
     ]
 
     json_list = get_all_result_json(run_folders)
@@ -2339,9 +2339,9 @@ if __name__ == "__main__":
 
         # assert 0
 
-    # save re-assigned results to csv
-    # df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
-    # df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
-    # campaign_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
-    # df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
-    # df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)
+    ## save re-assigned results to csv
+    df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
+    df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
+    campaign_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
+    df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
+    df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)

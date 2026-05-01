@@ -841,16 +841,15 @@ if __name__ == '__main__':
         # bromination_path + r"\2025-09-11-run01_DCE_TBABr3_add",
         # bromination_path + r"\2025-09-11-run02_DCE_TBABr3_add",
         
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_long_400MHz"),
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run01_BDA_2nd", "Results_2025-12-12-run01_400MHz"),
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_long_48h_400MHz"),
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2025-12-12-run02_BDA_2nd", "Results_2025-12-12-run02_400MHz"),
-    
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run01_BDA_revise_Q1_24h"),
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run02_BDA_revise_Q2p_48h"),
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run03_BDA_revise_Q4_24h"),
-        # os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
-        os.path.join(bromination_path, "_BDA_Benzylideneacetone", "2026-04-23-run01_BDA_revise_Q7_24h"),
+        # config.BDA_RUN_FOLDERS["run01_long"],
+        # config.BDA_RUN_FOLDERS["run01_short"],
+        # config.BDA_RUN_FOLDERS["run02_long"],
+        # config.BDA_RUN_FOLDERS["run02_short"],
+        # config.BDA_RUN_FOLDERS["revise_Q1_24h"],
+        # config.BDA_RUN_FOLDERS["revise_Q2p_48h"],
+        # config.BDA_RUN_FOLDERS["revise_Q4_24h"],
+        # config.BDA_RUN_FOLDERS["revise_Q1_Q4_Q7_Q2p"],
+        config.BDA_RUN_FOLDERS["revise_Q7_24h"],
 
     ]
 
