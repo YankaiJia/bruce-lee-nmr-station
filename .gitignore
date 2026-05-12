@@ -22,3 +22,7 @@ env/
 
 # Cython debug symbols
 cython_debug/
+
+# Stray script outputs in repo root
+fitting_result_all_reassigned.json
+linear_fit.png

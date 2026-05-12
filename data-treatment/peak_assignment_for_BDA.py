@@ -64,6 +64,8 @@ from matplotlib import pyplot as plt
 import itertools
 import warnings
 
+import plotly.graph_objects as go
+
 import conc_interpolation_2D_BDA
 import config
 
@@ -89,7 +91,7 @@ PROTON_COUNT = {
 BR_COUNT_IN_A_CMPD = {
                 "px1": 1,
                 "px1p": 1,
-                "px2": 2,
+                "px2": 3,  # Ph-CH(Br)-CH(Br)-CO-CH2Br has 3 Br atoms
                 "px3": 3,
                 "px4": 1,
                 "px5": 2,
@@ -127,7 +129,7 @@ def get_all_result_json(run_folders):
                 name for name in os.listdir(result_path)
                 if os.path.isdir(os.path.join(result_path, name)) and "BDA" in name
             ],
-            key=lambda s: int(s.rsplit('-', 1)[-1])
+            key=lambda s: int(re.split(r'[-_]', s)[-1])  # split on - or _ to handle both naming conventions
         )
         spectrum_folders = [result_path + '\\' + folder for folder in spectrum_folders]
         print(spectrum_folders)
@@ -638,11 +640,13 @@ def parse_px3(
 def parse_px4(
     df,
     target_ppm=8.00,
-    ppm_window=(7.95, 8.05),
+    ppm_window=(7.97, 8.04),
     tol=0.05,
 ):
     """
     PX4 parser using singlet at ~8.00 ppm.
+    True peak is consistently at 8.021-8.022 ppm. Upper bound was tightened from 8.05
+    to 8.04 to exclude a spurious large peak at ~8.049 ppm seen in some spectra.
     """
 
     df_win = df[
@@ -2057,14 +2061,113 @@ def reorder_intg_and_conc_columns(df):
     return df[base_cols + intg_cols + conc_cols]
 
 
+def plot_all_assignments(df_master, df_peaks, title="", save_path=None):
+    """
+    Plot the full reconstructed spectrum with each peak colored by its assigned species.
+    Peaks not assigned by any parser are shown in light grey.
+    Saves as an interactive HTML file if save_path is provided.
+    """
+    COLOR_MAP = {
+        'bda_ha':   '#1f77b4',
+        'px1_ha':   '#ff7f0e',
+        'px1p_ha':  '#ffbb78',
+        'px2_hc':   '#2ca02c',
+        'px2_hcp':  '#98df8a',
+        'px3_hc':   '#d62728',
+        'px4_hb':   '#9467bd',
+        'px5_hc':   '#8c564b',
+        'px5p_hc':  '#c49c94',
+        'px7_hc':   '#e377c2',
+        'px7p_hc':  '#f7b6d2',
+        'px7_Ha':   '#e377c2',
+        'px8_hc':   '#7f7f7f',
+        'px8p_hc':  '#bcbd22',
+    }
+    IGNORED_COLOR = 'lightgrey'
+
+    def _display_name(species):
+        """Convert internal species label to human-readable name using OLD_NAME_VS_NEW_NAME_DICT.
+        e.g. 'px1p_ha' → 'syn-Q1 (ha)',  'bda_ha' → 'BDA (ha)',  'ignored' → 'ignored'
+        """
+        if species == 'ignored':
+            return 'ignored'
+        compound, _, proton = species.rpartition('_')  # 'px1p_ha' → ('px1p', '_', 'ha')
+        if not compound:
+            return species
+        new_name = OLD_NAME_VS_NEW_NAME_DICT.get(compound, compound.upper())
+        return f"{new_name} ({proton.lower()})"
+
+    ppm_min = df_peaks['center_ppm'].min() - 0.3
+    ppm_max = df_peaks['center_ppm'].max() + 0.3
+    x = np.linspace(ppm_min, ppm_max, 10000)
+
+    # index → assigned_species; peaks absent from df_master are 'ignored'
+    assigned = df_master['assigned_species'].to_dict()
+
+    fig = go.Figure()
+    y_total = np.zeros_like(x)
+    legend_added = set()
+
+    for idx, row in df_peaks.iterrows():
+        species = assigned.get(idx, 'ignored')
+        y_peak = pseudo_voigt(x, row['param_A'], row['param_x0'],
+                              row['param_gamma'], row['param_eta'])
+        y_total += y_peak
+
+        color = COLOR_MAP.get(species, IGNORED_COLOR)
+        is_ignored = (species == 'ignored')
+        display = _display_name(species)
+        show_legend = species not in legend_added
+        legend_added.add(species)
+
+        fig.add_trace(go.Scatter(
+            x=x, y=y_peak,
+            mode='lines',
+            line=dict(color=color, width=1.5 if not is_ignored else 0.8),
+            opacity=0.85 if not is_ignored else 0.3,
+            name=display,
+            legendgroup=display,
+            showlegend=show_legend,
+            hovertemplate=(
+                f"species: {display}<br>"
+                f"center: {row['center_ppm']:.4f} ppm<br>"
+                f"area: {row['area']:.1f}<extra></extra>"
+            ),
+        ))
+
+    fig.add_trace(go.Scatter(
+        x=x, y=y_total,
+        mode='lines',
+        line=dict(color='black', width=2),
+        name='Total (reconstructed)',
+        hoverinfo='skip',
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis=dict(title='Chemical shift (ppm)', autorange='reversed'),
+        yaxis=dict(title='Intensity (a.u.)'),
+        width=1200, height=500,
+        legend=dict(orientation='v', x=1.01, y=1),
+    )
+
+    if save_path:
+        os.makedirs(os.path.dirname(save_path) or '.', exist_ok=True)
+        fig.write_html(save_path, include_plotlyjs='cdn', full_html=True)
+        print(f"Saved: {save_path}")
+
+    return fig
+
+
 if __name__ == "__main__":
 
     F = config.BDA_RUN_FOLDERS  # shorthand
     run_folders = [
-        F["run01_short"],
-        F["run02_short"],
-        F["run01_long"],
-        F["run02_long"],
+        F["revise_Q1_24h"],
+        F["revise_Q2p_48h"],
+        F["revise_Q4_24h"],
+        F["revise_Q1_Q4_Q7_Q2p"],
+        F["revise_Q7_24h"],
     ]
 
     json_list = get_all_result_json(run_folders)
@@ -2218,6 +2321,12 @@ if __name__ == "__main__":
         df_master = sort_df_by_px_number(df_master)
         json_folder_path = folder
         df_master.to_csv(json_folder_path + r'/re_assignment.csv', index=False)
+        plot_all_assignments(
+            df_master=df_master,
+            df_peaks=df_peaks,
+            title=os.path.basename(folder),
+            save_path=os.path.join(json_folder_path, 're_assignment_plot.html'),
+        )
         assigned_ls = df_master['assigned_species'].tolist()
         print(assigned_ls)
 
@@ -2242,11 +2351,15 @@ if __name__ == "__main__":
 
 
         ## merge px2_hc and px2_hcp
+        # norm_divisor=2: hc and hcp are the two diastereotopic –CH2Br protons, each
+        # integrating for 1H. Summing gives 2H per molecule; predict_linear is calibrated
+        # on bda_ha (1H), so dividing by 2 keeps the scale consistent and avoids a
+        # factor-of-2 overestimate in concentration / yield.
         species_area_sum = merge_species_with_normalization(
                                         species_area_sum,
                                         new_name="px2",
                                         old_names=["px2_hc", "px2_hcp"],
-                                        norm_divisor=1,  # sum conc of px8 and px8p
+                                        norm_divisor=2,
                                     )
 
         ## Remove proton name, only keep px1, px2...
@@ -2314,7 +2427,7 @@ if __name__ == "__main__":
                         fitting_result_all_reassigned[f'conc_{cmpd}'] / limiting_reagent_conc * 100
 
             # save fitting_result_all_reassigned
-            with open("fitting_result_all_reassigned.json", "w", encoding="utf-8") as f:
+            with open(os.path.join(json_folder_path, "fitting_result_all_reassigned.json"), "w", encoding="utf-8") as f:
                 json.dump(fitting_result_all_reassigned, f, indent=2, ensure_ascii=False, default=float)
 
         ## save re-assigned results to two separated dataframe
@@ -2333,15 +2446,14 @@ if __name__ == "__main__":
                 ignore_index=True
             )
 
-        # conc_interpolation_2D_BDA.plot_linear_origin_fit()
+        conc_interpolation_2D_BDA.plot_linear_origin_fit()
 
         print(fitting_result_all_reassigned)
 
-        # assert 0
 
     ## save re-assigned results to csv
-    df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
-    df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
-    campaign_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
-    df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
-    df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)
+    # df_result_reassigned_short = reorder_intg_and_conc_columns(df_result_reassigned_short)
+    # df_result_reassigned_long = reorder_intg_and_conc_columns(df_result_reassigned_long)
+    # campaign_folder = os.path.join(DATA_ROOT, "DPE_bromination", "_BDA_Benzylideneacetone")
+    # df_result_reassigned_short.to_csv(campaign_folder + r'\result_all_short_reassigned.csv', index=False)
+    # df_result_reassigned_long.to_csv(campaign_folder + r'\result_all_long_reassigned.csv', index=False)

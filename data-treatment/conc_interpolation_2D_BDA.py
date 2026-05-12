@@ -508,19 +508,44 @@ def plot_linear_origin_fit(
 
 
 
+def load_reassigned_result(folder):
+    """
+    Build fitting_intg_and_conc in the standard format from
+    fitting_result_all_reassigned.json produced by peak_assignment_for_BDA.py.
+
+    Returns a dict compatible with what the original pipeline produces:
+        intg_norm, conc_mM, conc_mM_median, intg_norm_grouped, source='reassigned'
+    """
+    path = os.path.join(folder, 'fitting_result_all_reassigned.json')
+    with open(path, encoding='utf-8') as f:
+        data = json.load(f)
+
+    intg_norm = {}
+    conc_mM = {}
+
+    for short, old in config.REASSIGNED_SHORT_TO_COMPOUND.items():
+        intg_val = float(data.get(f'intg_norm_{short}', 0.0))
+        conc_val = float(data.get(f'conc_{short}', 0.0))
+        key = f'{old}-1'  # single peak per compound — use suffix -1
+        intg_norm[key] = intg_val
+        conc_mM[key] = conc_val
+
+    result = {'intg_norm': intg_norm, 'conc_mM': conc_mM, 'source': 'reassigned'}
+    result = add_conc_mM_median(result, ignore_zero=True)
+    result = add_intg_norm_grouped(result)
+    return result
+
+
 if __name__ == "__main__":
 
     F = config.BDA_RUN_FOLDERS  # shorthand
     run_folders = [
-        # F["run01_long"],
-        # F["run01_short"],
-        # F["run02_long"],
-        # F["run02_short"],
-        # F["revise_Q1_24h"],
-        # F["revise_Q2p_48h"],
+  
+        F["revise_Q1_24h"],
+        F["revise_Q2p_48h"],
         F["revise_Q4_24h"],
-        # F["revise_Q1_Q4_Q7_Q2p"],
-        # F["revise_Q7_24h"],
+        F["revise_Q1_Q4_Q7_Q2p"],
+        F["revise_Q7_24h"],
     ]
 
     # PRE-REQUISITE: before running this script, prepare each run folder using utils.py:
@@ -559,19 +584,19 @@ if __name__ == "__main__":
 
         conc_additive = reaction_info_here.get('conc_AA')
 
-        fitting_intg_and_conc = extract_products_and_starting_materials(fitting_result_here)
-
-        for key, value in fitting_intg_and_conc['intg_norm'].items():
-
-            fitting_intg_and_conc['conc_mM'][key] = (
-                estimate_conc_by_rbf_model(additive_conc_here=conc_additive,
-                                           integral_value_normalized=value,
-                                           rbf_model=rbf_model))
-
-        fitting_intg_and_conc = add_conc_mM_median(fitting_intg_and_conc, ignore_zero=True)
-
-        # add intg_norm_grouped into one dict
-        fitting_intg_and_conc = add_intg_norm_grouped(fitting_intg_and_conc)
+        reassigned_path = os.path.join(folder, 'fitting_result_all_reassigned.json')
+        if os.path.isfile(reassigned_path):
+            fitting_intg_and_conc = load_reassigned_result(folder)
+            print(f'  [re-assigned] {reassigned_path}')
+        else:
+            fitting_intg_and_conc = extract_products_and_starting_materials(fitting_result_here)
+            for key, value in fitting_intg_and_conc['intg_norm'].items():
+                fitting_intg_and_conc['conc_mM'][key] = (
+                    estimate_conc_by_rbf_model(additive_conc_here=conc_additive,
+                                               integral_value_normalized=value,
+                                               rbf_model=rbf_model))
+            fitting_intg_and_conc = add_conc_mM_median(fitting_intg_and_conc, ignore_zero=True)
+            fitting_intg_and_conc = add_intg_norm_grouped(fitting_intg_and_conc)
 
         fitting_result_with_conc_json = folder + r'\\fitting_result_with_conc.json'
         with open(fitting_result_with_conc_json,'w', encoding='utf-8') as f:

@@ -103,7 +103,7 @@ dictionnary_stockiometry = {
                             "Starting material": {'Br': 0, 'BDA': 1},
                             "Product_PX1": {'Br': 1, 'BDA': 1},
                             "Product_PX1_prime": {'Br': 1, 'BDA': 1},
-                            "Product_PX2": {'Br': 2, 'BDA': 1},
+                            "Product_PX2": {'Br': 3, 'BDA': 1},  # Ph-CH(Br)-CH(Br)-CO-CH2Br has 3 Br
                             "Product_PX3": {'Br': 3, 'BDA': 1},
                             "Product_PX4": {'Br': 1, 'BDA': 1},
                             "Product_PX5": {'Br': 2, 'BDA': 1},
@@ -144,6 +144,24 @@ BDA_RUN_FOLDERS = {
     "revise_Q4_24h":        os.path.join(_BDA_ROOT, "2026-04-22-run03_BDA_revise_Q4_24h"),
     "revise_Q1_Q4_Q7_Q2p":  os.path.join(_BDA_ROOT, "2026-04-22-run04_BDA_revise_Q1_Q4_Q7_Q2p"),
     "revise_Q7_24h":        os.path.join(_BDA_ROOT, "2026-04-23-run01_BDA_revise_Q7_24h"),
+}
+
+# Maps short names used in fitting_result_all_reassigned.json → compound names used elsewhere
+REASSIGNED_SHORT_TO_COMPOUND = {
+    'bda':  'Starting material',
+    'px1':  'Product_PX1',
+    'px1p': 'Product_PX1_prime',
+    'px2':  'Product_PX2',
+    'px3':  'Product_PX3',
+    'px4':  'Product_PX4',
+    'px5':  'Product_PX5',
+    'px5p': 'Product_PX5_prime',
+    'px6':  'Product_PX6',
+    'px7':  'Product_PX7',
+    'px7p': 'Product_PX7_prime',
+    'px8':  'Product_PX8',
+    'px8p': 'Product_PX8_prime',
+    # px8ANDpx8p is a combined peak; not mapped (not in compds_in_crude)
 }
 
 
