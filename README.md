@@ -33,6 +33,10 @@ The platform operates in two stages:
    - Each run folder contains raw spectra, plate-map Excel files, and pipeline outputs
    - Download from: https://doi.org/10.5281/zenodo.17080099
 
+4. **DFT Data** (`dft-data/`) — The raw data for the computational results reported in Section 6 of the Supplementary Information are collected here:
+   - `SI 6.2 Open Carbocation vs Cyclic Bromonium Ion/` — Gaussian output files (`.log`) for carbocation intermediates C1+, C3+, C5+, C8+, C9+
+   - `SI 6.3 Diastereoselectivity of Dibromination of BDA/` — Gaussian output files for ion-pair complex geometry optimisations (Figures S68–S75), covering anti/syn approach with bromide and tribromide counterions
+
 
 ## System Architecture
 
@@ -258,6 +262,13 @@ bruce-nmr-station/
 │       │   └── *.xlsx              # Plate map with vial UUIDs and conditions
 │       ├── NMR_calibration_*/      # Calibration reference runs (no additive)
 │       └── README.md               # Campaign-level documentation
+│
+├── dft-data/                       # DFT raw data for SI Section 6
+│   ├── SI 6.2 Open Carbocation vs Cyclic Bromonium Ion/
+│   │   └── C1+.log, C3+.log, …     # Gaussian output files for carbocation intermediates
+│   └── SI 6.3 Diastereoselectivity of Dibromination of BDA/
+│       ├── Figure S68–S75/          # Ion-pair complex optimisations (anti/syn, bromide/tribromide)
+│       └── …
 │
 ├── environment.yml                 # Conda environment specification
 └── README.md

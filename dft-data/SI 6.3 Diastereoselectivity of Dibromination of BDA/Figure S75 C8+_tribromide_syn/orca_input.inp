@@ -1,0 +1,22 @@
+! wB97X-3c ZOOM-NEB-TS TightSCF CPCM(1,2-dichloroethane)
+%pal
+    nprocs 72
+end
+%MaxCore 2500
+%NEB
+  NEB_END_XYZFILE "/proj/home/ibs/cars/yaroslav/sketches/bromonium2/orc/enol_version/br3_to_syn/product.xyz"
+  PREOPT_ENDS True
+  NImages  18
+END
+%geom 
+  modify_internal
+    { B 1 22 A }      # add a bond between TS atoms if it does not exist
+  end
+  TS_Mode {B 1 22} end
+END
+
+*xyzfile 0 1 /proj/home/ibs/cars/yaroslav/sketches/bromonium2/orc/enol_version/br3_to_syn/substrate.xyz *
+
+
+
+

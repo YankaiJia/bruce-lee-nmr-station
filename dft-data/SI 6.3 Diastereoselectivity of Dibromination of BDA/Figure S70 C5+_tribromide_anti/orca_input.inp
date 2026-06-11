@@ -1,0 +1,11 @@
+! wB97X-3c OPT TightSCF CPCM(1,2-dichloroethane)
+%pal
+    nprocs 40
+end
+%MaxCore 22600
+
+*xyzfile 0 1 substrate_unopt.xyz *
+
+
+
+

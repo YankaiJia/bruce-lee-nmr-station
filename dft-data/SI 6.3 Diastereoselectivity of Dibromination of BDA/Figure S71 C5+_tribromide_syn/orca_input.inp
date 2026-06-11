@@ -1,0 +1,16 @@
+! wB97X-3c ZOOM-NEB-TS TightSCF CPCM(1,2-dichloroethane)
+%pal
+    nprocs 14
+end
+%MaxCore 2500
+%NEB
+  NEB_END_XYZFILE "/home/yaroslav/Documents/temp/waishingbr/ts/br3_version/ts_from_prod_to_synprod2/product.xyz"
+  PREOPT_ENDS True
+  NImages  14
+END
+
+*xyzfile 0 1 /home/yaroslav/Documents/temp/waishingbr/ts/br3_version/ts_from_prod_to_synprod2/substrate.xyz *
+
+
+
+

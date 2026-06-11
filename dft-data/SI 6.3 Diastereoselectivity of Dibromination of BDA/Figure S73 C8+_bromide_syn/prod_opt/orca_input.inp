@@ -1,0 +1,11 @@
+! r2scan-3c Opt TightSCF CPCM(1,2-dichloroethane)
+%pal
+    nprocs 40
+end
+%MaxCore 2500
+
+*xyzfile 0 1 input_structure.xyz *
+
+
+
+
